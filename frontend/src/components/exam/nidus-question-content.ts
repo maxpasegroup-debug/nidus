@@ -73,6 +73,9 @@ export function buildNidusQuestionContent(input: {
   optionD: string;
   correctAnswer: string;
   explanation?: string;
+  questionType?: NidusQuestionContent["questionType"];
+  formulaLatex?: string;
+  formulaReviewStatus?: "PENDING" | "TEACHER_CONFIRMED";
   sourceDocumentId?: string;
   sourceUploadId?: string | null;
   importJobId?: string | null;
@@ -86,6 +89,9 @@ export function buildNidusQuestionContent(input: {
   aiConfidence?: number;
   reviewStatus?: string;
   visualReviewNotes?: string[];
+  relationshipGroups?: unknown;
+  importReplay?: unknown;
+  importQualityScore?: unknown;
 }): NidusQuestionContent {
   const reference = input.sourceReference || sourceReference({
     sourceDocumentId: input.sourceDocumentId,
@@ -93,6 +99,8 @@ export function buildNidusQuestionContent(input: {
     importJobId: input.importJobId,
     page: input.page,
   });
+  const questionType = input.questionType || "SINGLE_CHOICE";
+  const formulaLatex = input.formulaLatex?.trim();
   const blocks: NidusQuestionContentBlock[] = [
     {
       id: "paragraph-1",
@@ -103,15 +111,16 @@ export function buildNidusQuestionContent(input: {
       reviewStatus: input.reviewStatus === "APPROVED" ? "APPROVED" : undefined,
     },
   ];
-  if (hasDelimitedFormula(input.questionText)) {
+  if (formulaLatex || hasDelimitedFormula(input.questionText)) {
     blocks.push({
       id: "formula-1",
       type: "formula",
-      latex: input.questionText,
+      latex: formulaLatex || input.questionText,
       text: input.questionText,
-      displayMode: false,
+      displayMode: Boolean(formulaLatex?.includes("\\frac") || formulaLatex?.includes("\\sqrt") || formulaLatex?.includes("\\sum") || formulaLatex?.includes("\\int")),
       sourceReference: reference,
       confidence: input.aiConfidence,
+      reviewStatus: input.formulaReviewStatus === "TEACHER_CONFIRMED" ? "APPROVED" : undefined,
     });
   }
   if (input.questionImage) {
@@ -140,10 +149,14 @@ export function buildNidusQuestionContent(input: {
   return {
     schemaVersion: 1,
     format: NIDUS_QUESTION_CONTENT_FORMAT,
-    questionType: "SINGLE_CHOICE",
+    questionType,
     source: "TEACHER_IMPORT",
     blocks,
-    answer: { type: "SINGLE_CHOICE", correctOption: input.correctAnswer.trim().toUpperCase() as "A" | "B" | "C" | "D" },
+    answer: questionType === "MULTIPLE_ANSWER"
+      ? { type: "MULTIPLE_ANSWER", correctOptions: input.correctAnswer.split(/[,\s]+/).map((item) => item.trim().toUpperCase()).filter((item): item is "A" | "B" | "C" | "D" => ["A", "B", "C", "D"].includes(item)) }
+      : questionType === "NUMERICAL" || questionType === "FILL_BLANK"
+        ? { type: "TEXT", value: input.correctAnswer.trim() }
+        : { type: "SINGLE_CHOICE", correctOption: input.correctAnswer.trim().toUpperCase() as "A" | "B" | "C" | "D" },
     sourceReferences: reference ? [reference] : [],
     metadata: {
       subject: input.subject,
@@ -154,6 +167,12 @@ export function buildNidusQuestionContent(input: {
       aiConfidence: input.aiConfidence,
       reviewStatus: input.reviewStatus,
       visualReviewNotes: input.visualReviewNotes,
+      formulaLatex,
+      formulaReviewStatus: input.formulaReviewStatus,
+      relationshipGroups: input.relationshipGroups,
+      importReplay: input.importReplay,
+      importQualityScore: input.importQualityScore,
+      legacyCbtMode: "MCQ_COMPATIBLE",
       schemaOwner: "NDIE",
     },
   };

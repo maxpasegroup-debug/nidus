@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { PointerEvent, ReactNode } from "react";
 import { BookOpen, CheckCircle2, ChevronLeft, ChevronRight, Clock3, Eye, FileText, Pencil, Plus, Send, Trash2, Trophy, X } from "lucide-react";
 import { NidusMathText } from "@/components/exam/nidus-math-renderer";
-import { buildNidusQuestionContent } from "@/components/exam/nidus-question-content";
+import { buildNidusQuestionContent, type NidusQuestionContent } from "@/components/exam/nidus-question-content";
 import { ExamReportingPanel, ExaminationEngineBanner, ExaminationRoleActions, ExamTypePanel, QuestionBankHierarchyPanel, type ExaminationEngineRole } from "@/components/examination/examination-engine-workspace";
 
 export type TeacherExamBatch = {
@@ -29,7 +29,15 @@ export type TeacherExamRecord = {
   status?: string;
   createdAt?: string;
   attemptStats?: { attempts?: number; submitted?: number; averageScore?: number };
-  draft?: { questions?: QuestionDraft[] } | null;
+  draft?: {
+    questions?: QuestionDraft[];
+    formulaReviews?: Record<number, FormulaReviewEntry>;
+    questionTypeOverrides?: Record<number, RichQuestionType>;
+    questionTypeDistribution?: Record<string, number>;
+    questionRelationshipPlan?: QuestionRelationshipPlan;
+    importReplayManifest?: ImportReplayManifest;
+    importReplayNotes?: string[];
+  } | null;
   uploads?: ExamUploadRecord[];
 };
 
@@ -120,6 +128,78 @@ type SourceReviewMapping = {
   reviewStatus: "PENDING" | "TEACHER_CONFIRMED";
   note?: string;
   mappedAt: string;
+};
+
+type RichQuestionType = NidusQuestionContent["questionType"];
+
+type FormulaReviewEntry = {
+  latex: string;
+  reviewStatus: "PENDING" | "TEACHER_CONFIRMED";
+  updatedAt: string;
+};
+
+type QuestionRelationshipGroup = {
+  id: string;
+  type: "SHARED_PASSAGE" | "SHARED_DIAGRAM" | "SHARED_TABLE" | "SHARED_SOURCE_PAGE" | "SECTION";
+  title: string;
+  questionNumbers: number[];
+  sourcePage?: number;
+  sourceUploadId?: string | null;
+  importJobId?: string | null;
+  confidence: number;
+  reviewStatus: "AUTO_DETECTED" | "TEACHER_REVIEWED";
+  note?: string;
+};
+
+type QuestionRelationshipPlan = {
+  schema: "NIDUS_QUESTION_RELATIONSHIPS_V1";
+  groups: QuestionRelationshipGroup[];
+  sharedAssetQuestions: number[];
+  generatedAt: string;
+};
+
+type ImportReplayManifest = {
+  schema: "NIDUS_IMPORT_REPLAY_V1";
+  replayAvailable: boolean;
+  sourceUploads: Array<{
+    uploadId: string;
+    importJobId?: string | null;
+    originalName: string;
+    sourceKind: string;
+    documentClass?: string;
+    pipeline?: string;
+    extractionStatus?: string;
+    manualReviewCompleted?: boolean;
+  }>;
+  lastKnownQuestionCount: number;
+  preservedQuestionTextHash: string;
+  sourceReviewCoverage: {
+    confirmed: number;
+    visualConfirmed: number;
+    visualRequired: number;
+  };
+  replayModes: Array<"RECLASSIFY_DOCUMENT" | "REEXTRACT_TEXT" | "REBUILD_LAYOUT" | "REVALIDATE_AI" | "COMPARE_WITH_CURRENT_DRAFT">;
+  createdAt: string;
+};
+
+type ImportQualityScore = {
+  schema: "NIDUS_IMPORT_QUALITY_SCORE_V1";
+  score: number;
+  grade: "A" | "B" | "C" | "D";
+  status: "PUBLISH_READY" | "REVIEW_REQUIRED" | "BLOCKED";
+  subscores: {
+    aiValidation: number;
+    paperReadiness: number;
+    visualSource: number;
+    formulaReview: number;
+    teacherApproval: number;
+    relationshipModel: number;
+    replayReadiness: number;
+  };
+  blockers: string[];
+  warnings: string[];
+  strengths: string[];
+  generatedAt: string;
 };
 
 type ResultRow = {
@@ -280,6 +360,18 @@ function resolveApiBase() {
 
 const API_BASE = resolveApiBase();
 
+const richQuestionTypes: Array<{ value: RichQuestionType; label: string; note: string }> = [
+  { value: "SINGLE_CHOICE", label: "Single choice", note: "One correct option" },
+  { value: "MULTIPLE_ANSWER", label: "Multiple answer", note: "More than one option" },
+  { value: "NUMERICAL", label: "Numerical", note: "Number/value answer" },
+  { value: "FILL_BLANK", label: "Fill blank", note: "Short text answer" },
+  { value: "ASSERTION_REASON", label: "Assertion reason", note: "Statement pair" },
+  { value: "CASE_STUDY", label: "Case study", note: "Shared passage set" },
+  { value: "MATCHING", label: "Matching", note: "Column matching" },
+  { value: "DIAGRAM_LABEL", label: "Diagram label", note: "Label on visual" },
+  { value: "FILE_UPLOAD", label: "File upload", note: "Student uploads work" },
+];
+
 const initialForm = {
   title: "",
   topic: "",
@@ -413,6 +505,242 @@ function sourceReferenceFromMapping(mapping?: SourceReviewMapping | null) {
       ...coordinates,
     },
     note: mapping.note,
+  };
+}
+
+function inferRichQuestionType(question: QuestionDraft, signal?: PaperUnderstandingReport["questionSignals"][number]): RichQuestionType {
+  const text = `${question.questionText} ${question.optionA} ${question.optionB} ${question.optionC} ${question.optionD}`.toLowerCase();
+  if (signal?.visualRequired && /\b(label|identify|mark|diagram)\b/i.test(text)) return "DIAGRAM_LABEL";
+  if (/\b(assertion|reason)\b/i.test(text)) return "ASSERTION_REASON";
+  if (/\b(match\s+the\s+following|column\s+i|column\s+ii)\b/i.test(text)) return "MATCHING";
+  if (/\b(case study|passage|read the following)\b/i.test(text)) return "CASE_STUDY";
+  if (/\b(integer|numerical|value of|find the value|calculate)\b/i.test(text) && !/[A-D]\)/.test(question.questionText)) return "NUMERICAL";
+  if (/\bfill in the blank|blank\b/i.test(text)) return "FILL_BLANK";
+  return "SINGLE_CHOICE";
+}
+
+function questionTypeLabel(value: RichQuestionType) {
+  return richQuestionTypes.find((type) => type.value === value)?.label || value.replace(/_/g, " ");
+}
+
+function formulaReviewFromQuestion(question: QuestionDraft, signal?: PaperUnderstandingReport["questionSignals"][number]): FormulaReviewEntry | null {
+  if (!signal?.formulaRisk) return null;
+  return {
+    latex: question.questionText,
+    reviewStatus: "PENDING",
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+function simpleTextHash(value: string) {
+  let hash = 0;
+  for (let index = 0; index < value.length; index += 1) {
+    hash = ((hash << 5) - hash + value.charCodeAt(index)) | 0;
+  }
+  return Math.abs(hash).toString(36);
+}
+
+function buildQuestionRelationshipPlan(input: {
+  questions: QuestionDraft[];
+  questionTypePlan: Array<{ number: number; selected: RichQuestionType }>;
+  sections: PaperUnderstandingReport["sections"];
+  sourceReviewMappings: Record<number, SourceReviewMapping>;
+}): QuestionRelationshipPlan {
+  const groups: QuestionRelationshipGroup[] = [];
+  for (const section of input.sections) {
+    const questionNumbers = Array.from({ length: section.questionCount }, (_, index) => section.startQuestion + index)
+      .filter((number) => number >= 1 && number <= input.questions.length);
+    if (questionNumbers.length > 1) {
+      groups.push({
+        id: `section-${section.startQuestion}`,
+        type: "SECTION",
+        title: section.title,
+        questionNumbers,
+        confidence: 0.88,
+        reviewStatus: "AUTO_DETECTED",
+      });
+    }
+  }
+
+  const byPage = new Map<number, number[]>();
+  for (const [numberRaw, mapping] of Object.entries(input.sourceReviewMappings)) {
+    const number = Number(numberRaw);
+    if (!number || !mapping.page) continue;
+    byPage.set(mapping.page, [...(byPage.get(mapping.page) ?? []), number]);
+  }
+  for (const [page, questionNumbers] of byPage.entries()) {
+    const uniqueNumbers = Array.from(new Set(questionNumbers)).sort((a, b) => a - b);
+    if (uniqueNumbers.length > 1) {
+      const firstMapping = input.sourceReviewMappings[uniqueNumbers[0]];
+      groups.push({
+        id: `source-page-${page}`,
+        type: "SHARED_SOURCE_PAGE",
+        title: `Source page ${page}`,
+        questionNumbers: uniqueNumbers,
+        sourcePage: page,
+        sourceUploadId: firstMapping?.uploadId || null,
+        importJobId: firstMapping?.importJobId || null,
+        confidence: 0.82,
+        reviewStatus: uniqueNumbers.every((number) => input.sourceReviewMappings[number]?.reviewStatus === "TEACHER_CONFIRMED") ? "TEACHER_REVIEWED" : "AUTO_DETECTED",
+        note: "Questions share the same preserved source page and can be replayed together.",
+      });
+    }
+  }
+
+  const groupedTypes: Array<[RichQuestionType, QuestionRelationshipGroup["type"], string]> = [
+    ["CASE_STUDY", "SHARED_PASSAGE", "Case study set"],
+    ["DIAGRAM_LABEL", "SHARED_DIAGRAM", "Diagram label set"],
+    ["MATCHING", "SHARED_TABLE", "Matching/table set"],
+  ];
+  for (const [questionType, groupType, title] of groupedTypes) {
+    const questionNumbers = input.questionTypePlan.filter((item) => item.selected === questionType).map((item) => item.number);
+    if (questionNumbers.length > 1) {
+      groups.push({
+        id: `${questionType.toLowerCase()}-${questionNumbers[0]}`,
+        type: groupType,
+        title,
+        questionNumbers,
+        confidence: 0.78,
+        reviewStatus: "AUTO_DETECTED",
+      });
+    }
+  }
+
+  return {
+    schema: "NIDUS_QUESTION_RELATIONSHIPS_V1",
+    groups,
+    sharedAssetQuestions: Array.from(new Set(groups.flatMap((group) => group.questionNumbers))).sort((a, b) => a - b),
+    generatedAt: new Date().toISOString(),
+  };
+}
+
+function relationshipGroupsForQuestion(plan: QuestionRelationshipPlan, questionNumber: number) {
+  return plan.groups.filter((group) => group.questionNumbers.includes(questionNumber));
+}
+
+function buildImportReplayManifest(input: {
+  uploads: ExamUploadRecord[];
+  questions: QuestionDraft[];
+  questionSource: string;
+  sourceReviewCoverage: { confirmed: number; visualConfirmed: number; visualRequired: number };
+}): ImportReplayManifest {
+  const sourceUploads = input.uploads
+    .filter((upload) => upload.sourceKind === "QUESTION_PAPER" || upload.sourceKind === "ANSWER_KEY")
+    .map((upload) => ({
+      uploadId: upload.id,
+      importJobId: upload.importJobId || null,
+      originalName: upload.originalName || upload.fileName,
+      sourceKind: upload.sourceKind,
+      documentClass: upload.documentClass,
+      pipeline: upload.pipeline,
+      extractionStatus: upload.extractionStatus,
+      manualReviewCompleted: upload.manualReviewCompleted,
+    }));
+  return {
+    schema: "NIDUS_IMPORT_REPLAY_V1",
+    replayAvailable: sourceUploads.some((upload) => Boolean(upload.importJobId || upload.uploadId)),
+    sourceUploads,
+    lastKnownQuestionCount: input.questions.length,
+    preservedQuestionTextHash: simpleTextHash(input.questionSource),
+    sourceReviewCoverage: input.sourceReviewCoverage,
+    replayModes: ["RECLASSIFY_DOCUMENT", "REEXTRACT_TEXT", "REBUILD_LAYOUT", "REVALIDATE_AI", "COMPARE_WITH_CURRENT_DRAFT"],
+    createdAt: new Date().toISOString(),
+  };
+}
+
+function clampScore(value: number) {
+  return Math.max(0, Math.min(100, Math.round(value)));
+}
+
+function buildImportQualityScore(input: {
+  questionCount: number;
+  readiness: ReturnType<typeof paperReadiness>;
+  validation: ImportValidationPayload | null;
+  visualFidelity: VisualFidelityReport;
+  visualQuestionsWithoutAttachment: number[];
+  sourceReviewCoverage: {
+    publishReady: boolean;
+    visualRequired: number;
+    visualConfirmed: number;
+  };
+  formulaReviewCoverage: {
+    required: number;
+    confirmed: number;
+    publishReady: boolean;
+  };
+  unapprovedQuestionNumbers: number[];
+  extractionNeedsManualReview: boolean;
+  manualPaperReview: boolean;
+  relationshipPlan: QuestionRelationshipPlan;
+  replayManifest: ImportReplayManifest;
+}): ImportQualityScore {
+  const blockers: string[] = [];
+  const warnings: string[] = [];
+  const strengths: string[] = [];
+  if (!input.questionCount) blockers.push("No questions detected.");
+  if (input.readiness.missingOptions) blockers.push(`${input.readiness.missingOptions} question(s) need valid options.`);
+  if (input.readiness.missingAnswers) blockers.push(`${input.readiness.missingAnswers} question(s) need answer keys.`);
+  if (input.readiness.duplicateQuestions.length) blockers.push(`${input.readiness.duplicateQuestions.length} duplicate question(s) found.`);
+  if (!input.validation) blockers.push("NIDUS AI validation has not run.");
+  if ((input.validation?.summary.manualCorrection ?? 0) > 0) blockers.push(`${input.validation?.summary.manualCorrection} question(s) need manual correction.`);
+  if (input.visualFidelity.missingSourceForVisuals) blockers.push("Original source is missing for visual/table/graph questions.");
+  if (input.visualQuestionsWithoutAttachment.length) blockers.push(`${input.visualQuestionsWithoutAttachment.length} visual question(s) need student-visible crops/images.`);
+  if (!input.sourceReviewCoverage.publishReady) blockers.push("Original-paper source mapping is not fully confirmed.");
+  if (!input.formulaReviewCoverage.publishReady) blockers.push("Formula rendering is not fully confirmed.");
+  if (input.unapprovedQuestionNumbers.length) blockers.push(`${input.unapprovedQuestionNumbers.length} teacher-review question(s) are not approved.`);
+  if (input.extractionNeedsManualReview && !input.manualPaperReview) blockers.push("Manual extraction review is not marked completed.");
+
+  if ((input.validation?.summary.needsReview ?? 0) > 0) warnings.push(`${input.validation?.summary.needsReview} question(s) were flagged for review by AI.`);
+  if (input.visualFidelity.questionsNeedingReview.length) warnings.push(`${input.visualFidelity.questionsNeedingReview.length} question(s) carry visual/formula/table review risk.`);
+  if (!input.replayManifest.replayAvailable) warnings.push("Import replay is unavailable because preserved source metadata is incomplete.");
+  if (!input.relationshipPlan.groups.length && input.questionCount > 8) warnings.push("No shared passage/diagram/section groups were detected.");
+
+  if (input.validation?.publishReady) strengths.push("AI validation is publish-ready.");
+  if (input.sourceReviewCoverage.publishReady) strengths.push("Source mapping is confirmed for visual risk.");
+  if (input.formulaReviewCoverage.publishReady) strengths.push("Formula review is complete.");
+  if (input.replayManifest.replayAvailable) strengths.push("Original paper can be reprocessed later.");
+  if (input.relationshipPlan.groups.length) strengths.push("Related questions are grouped for rich exam replay.");
+
+  const aiValidation = input.validation ? Math.max(0, Math.min(100, input.validation.averageConfidence - (input.validation.summary.manualCorrection * 18) - (input.validation.summary.needsReview * 4))) : 0;
+  const paperReadiness = input.questionCount
+    ? Math.max(0, 100 - (input.readiness.missingOptions * 20) - (input.readiness.missingAnswers * 22) - (input.readiness.duplicateQuestions.length * 30))
+    : 0;
+  const visualSource = input.visualFidelity.questionsNeedingReview.length
+    ? Math.round((input.sourceReviewCoverage.visualConfirmed / Math.max(1, input.sourceReviewCoverage.visualRequired)) * 70) + (input.visualQuestionsWithoutAttachment.length ? 0 : 30)
+    : 100;
+  const formulaReview = input.formulaReviewCoverage.required
+    ? Math.round((input.formulaReviewCoverage.confirmed / Math.max(1, input.formulaReviewCoverage.required)) * 100)
+    : 100;
+  const teacherApproval = input.unapprovedQuestionNumbers.length ? Math.max(0, 100 - input.unapprovedQuestionNumbers.length * 18) : 100;
+  const relationshipModel = input.relationshipPlan.groups.length ? 100 : input.questionCount > 8 ? 78 : 92;
+  const replayReadiness = input.replayManifest.replayAvailable ? 100 : 55;
+  const score = clampScore(
+    aiValidation * 0.24 +
+    paperReadiness * 0.18 +
+    visualSource * 0.16 +
+    formulaReview * 0.12 +
+    teacherApproval * 0.14 +
+    relationshipModel * 0.07 +
+    replayReadiness * 0.09
+  );
+  return {
+    schema: "NIDUS_IMPORT_QUALITY_SCORE_V1",
+    score,
+    grade: score >= 92 ? "A" : score >= 82 ? "B" : score >= 70 ? "C" : "D",
+    status: blockers.length ? "BLOCKED" : warnings.length ? "REVIEW_REQUIRED" : "PUBLISH_READY",
+    subscores: {
+      aiValidation: clampScore(aiValidation),
+      paperReadiness: clampScore(paperReadiness),
+      visualSource: clampScore(visualSource),
+      formulaReview: clampScore(formulaReview),
+      teacherApproval: clampScore(teacherApproval),
+      relationshipModel: clampScore(relationshipModel),
+      replayReadiness: clampScore(replayReadiness),
+    },
+    blockers,
+    warnings,
+    strengths,
+    generatedAt: new Date().toISOString(),
   };
 }
 
@@ -1079,6 +1407,8 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
   const [visualAssets, setVisualAssets] = useState<QuestionVisualAsset[]>([]);
   const [questionVisuals, setQuestionVisuals] = useState<Record<number, string>>({});
   const [sourceReviewMappings, setSourceReviewMappings] = useState<Record<number, SourceReviewMapping>>({});
+  const [formulaReviews, setFormulaReviews] = useState<Record<number, FormulaReviewEntry>>({});
+  const [questionTypeOverrides, setQuestionTypeOverrides] = useState<Record<number, RichQuestionType>>({});
   const [extractionReports, setExtractionReports] = useState<ExtractionReport[]>([]);
   const [manualPaperReview, setManualPaperReview] = useState(false);
   const [questionReviewStatus, setQuestionReviewStatus] = useState<Record<number, "APPROVED" | "NEEDS_REVIEW">>({});
@@ -1162,17 +1492,86 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
       publishReady: visualQuestions.size === 0 || confirmedVisual >= visualQuestions.size,
     };
   }, [sourceReviewMappings, visualFidelity.questionsNeedingReview, visualQuestionsWithoutAttachment]);
+  const formulaReviewCoverage = useMemo(() => {
+    const formulaQuestions = understanding.questionSignals.filter((signal) => signal.formulaRisk).map((signal) => signal.number);
+    const confirmed = formulaQuestions.filter((number) => formulaReviews[number]?.reviewStatus === "TEACHER_CONFIRMED").length;
+    return {
+      formulaQuestions,
+      required: formulaQuestions.length,
+      confirmed,
+      pending: Math.max(0, formulaQuestions.length - confirmed),
+      publishReady: formulaQuestions.length === 0 || confirmed >= formulaQuestions.length,
+    };
+  }, [formulaReviews, understanding.questionSignals]);
+  const questionTypePlan = useMemo(() => questions.map((question, index) => {
+    const number = index + 1;
+    const inferred = inferRichQuestionType(question, understanding.questionSignals[index]);
+    return {
+      number,
+      inferred,
+      selected: questionTypeOverrides[number] || inferred,
+    };
+  }), [questionTypeOverrides, questions, understanding.questionSignals]);
+  const questionTypeDistribution = useMemo(() => questionTypePlan.reduce<Record<string, number>>((acc, item) => {
+    acc[item.selected] = (acc[item.selected] || 0) + 1;
+    return acc;
+  }, {}), [questionTypePlan]);
+  const questionRelationshipPlan = useMemo(() => buildQuestionRelationshipPlan({
+    questions,
+    questionTypePlan,
+    sections: understanding.sections,
+    sourceReviewMappings,
+  }), [questionTypePlan, questions, sourceReviewMappings, understanding.sections]);
+  const importReplayManifest = useMemo(() => buildImportReplayManifest({
+    uploads: persistedExamUploads,
+    questions,
+    questionSource,
+    sourceReviewCoverage,
+  }), [persistedExamUploads, questionSource, questions, sourceReviewCoverage]);
+  const importQualityScore = useMemo(() => buildImportQualityScore({
+    questionCount: questions.length,
+    readiness,
+    validation: importValidation,
+    visualFidelity,
+    visualQuestionsWithoutAttachment,
+    sourceReviewCoverage,
+    formulaReviewCoverage,
+    unapprovedQuestionNumbers,
+    extractionNeedsManualReview,
+    manualPaperReview,
+    relationshipPlan: questionRelationshipPlan,
+    replayManifest: importReplayManifest,
+  }), [extractionNeedsManualReview, formulaReviewCoverage, importReplayManifest, importValidation, manualPaperReview, questionRelationshipPlan, questions.length, readiness, sourceReviewCoverage, unapprovedQuestionNumbers, visualFidelity, visualQuestionsWithoutAttachment]);
   const importQualityDraft = useMemo(() => importValidation ? {
     schema: "NIDUS_IMPORT_QUALITY_V1",
+    qualityScore: importQualityScore,
     averageConfidence: importValidation.averageConfidence,
     highConfidenceQuestions: validationHeatMap.high,
     reviewQuestions: validationHeatMap.review,
     manualFixQuestions: validationHeatMap.fix,
     sourceReviewCoverage,
+    formulaReviewCoverage,
+    questionTypeDistribution,
+    relationshipGroups: questionRelationshipPlan.groups.length,
+    replayAvailable: importReplayManifest.replayAvailable,
     publishReady: importValidation.publishReady,
     generatedAt: importValidation.createdAt,
-  } : null, [importValidation, sourceReviewCoverage, validationHeatMap]);
-  const canPublishPaper = questions.length > 0 && readiness.missingOptions === 0 && readiness.missingAnswers === 0 && !visualFidelity.missingSourceForVisuals && visualQuestionsWithoutAttachment.length === 0 && sourceReviewCoverage.publishReady && unapprovedQuestionNumbers.length === 0 && !validationBlocksPublish && (!extractionNeedsManualReview || manualPaperReview || reviewRequiredQuestionNumbers.length === 0);
+  } : {
+    schema: "NIDUS_IMPORT_QUALITY_V1",
+    qualityScore: importQualityScore,
+    averageConfidence: 0,
+    highConfidenceQuestions: [],
+    reviewQuestions: [],
+    manualFixQuestions: [],
+    sourceReviewCoverage,
+    formulaReviewCoverage,
+    questionTypeDistribution,
+    relationshipGroups: questionRelationshipPlan.groups.length,
+    replayAvailable: importReplayManifest.replayAvailable,
+    publishReady: false,
+    generatedAt: importQualityScore.generatedAt,
+  }, [formulaReviewCoverage, importQualityScore, importReplayManifest.replayAvailable, importValidation, questionRelationshipPlan.groups.length, questionTypeDistribution, sourceReviewCoverage, validationHeatMap]);
+  const canPublishPaper = questions.length > 0 && readiness.missingOptions === 0 && readiness.missingAnswers === 0 && !visualFidelity.missingSourceForVisuals && visualQuestionsWithoutAttachment.length === 0 && sourceReviewCoverage.publishReady && formulaReviewCoverage.publishReady && unapprovedQuestionNumbers.length === 0 && !validationBlocksPublish && (!extractionNeedsManualReview || manualPaperReview || reviewRequiredQuestionNumbers.length === 0);
   const effectiveTopic = useMemo(() => inferExamTopic(questionSource, form.topic), [form.topic, questionSource]);
   const effectiveTitle = useMemo(() => form.title.trim() || inferExamTitle(questionSource, subject, activeBatch?.name), [activeBatch?.name, form.title, questionSource, subject]);
   const questionsForPublish = useMemo(() => questions.map((question, index) => {
@@ -1190,6 +1589,9 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
       confidence: aiConfidence,
     });
     const sourceReference = sourceReferenceFromMapping(sourceMapping);
+    const selectedQuestionType = questionTypeOverrides[index + 1] || inferRichQuestionType(question, signal);
+    const formulaReview = formulaReviews[index + 1] || formulaReviewFromQuestion(question, signal);
+    const relationshipGroups = relationshipGroupsForQuestion(questionRelationshipPlan, index + 1);
     const reviewStatus = validationReport?.status === "MANUAL_CORRECTION_REQUIRED"
       ? "NEEDS_REVIEW"
       : manualPaperReview || validationReport?.status === "AUTO_APPROVED" || !signal || signal.confidence === "HIGH" || questionReviewStatus[index + 1] === "APPROVED" ? "APPROVED" : "NEEDS_REVIEW";
@@ -1210,6 +1612,9 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
         optionD: question.optionD,
         correctAnswer: question.correctAnswer,
         explanation: reviewedExplanation,
+        questionType: selectedQuestionType,
+        formulaLatex: formulaReview?.latex,
+        formulaReviewStatus: formulaReview?.reviewStatus,
         sourceDocumentId,
         sourceUploadId: sourceUpload?.id || null,
         importJobId: sourceUpload?.importJobId || null,
@@ -1223,6 +1628,17 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
         aiConfidence,
         reviewStatus,
         visualReviewNotes,
+        relationshipGroups,
+        importReplay: {
+          available: importReplayManifest.replayAvailable,
+          sourceUploadIds: importReplayManifest.sourceUploads.map((upload) => upload.uploadId),
+          sourceHash: importReplayManifest.preservedQuestionTextHash,
+        },
+        importQualityScore: {
+          score: importQualityScore.score,
+          grade: importQualityScore.grade,
+          status: importQualityScore.status,
+        },
       }),
       sourceDocumentId,
       sourcePageNumber: sourceMapping.page,
@@ -1240,7 +1656,19 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
         sourceUploadId: sourceUpload?.id || null,
         importJobId: sourceUpload?.importJobId || null,
         sourceReference,
+        formulaReview,
         sourceReview: sourceMapping,
+        relationshipGroups,
+        importReplay: {
+          available: importReplayManifest.replayAvailable,
+          sourceUploadIds: importReplayManifest.sourceUploads.map((upload) => upload.uploadId),
+          sourceHash: importReplayManifest.preservedQuestionTextHash,
+        },
+        importQualityScore: {
+          score: importQualityScore.score,
+          grade: importQualityScore.grade,
+          status: importQualityScore.status,
+        },
       },
       layout: {
         documentClass: sourceUpload?.documentClass || "UNKNOWN",
@@ -1249,8 +1677,14 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
         confidenceHeat: confidenceHeatTone(validationReport?.confidence, validationReport?.status),
         pageCoordinateSystem: "NORMALIZED_0_1",
         sourceReviewStatus: sourceMapping.reviewStatus,
+        intendedQuestionType: selectedQuestionType,
+        formulaReviewStatus: formulaReview?.reviewStatus || "NOT_REQUIRED",
+        relationshipGroupIds: relationshipGroups.map((group) => group.id),
+        importReplaySchema: importReplayManifest.schema,
+        importQualityScore: importQualityScore.score,
+        importQualityGrade: importQualityScore.grade,
       },
-      renderMode: signal?.formulaRisk ? "RICH_MATH_REVIEWED" : questionVisuals[index + 1] ? "RICH_VISUAL_MCQ" : "LEGACY_MCQ",
+      renderMode: selectedQuestionType !== "SINGLE_CHOICE" ? "RICH_QUESTION_TYPE_COMPAT" : signal?.formulaRisk ? "RICH_MATH_REVIEWED" : questionVisuals[index + 1] ? "RICH_VISUAL_MCQ" : "LEGACY_MCQ",
       aiConfidence,
       reviewStatus,
       publishedVersion: 1,
@@ -1258,7 +1692,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
       marks: understanding.markingScheme.marksPerQuestion || question.marks,
       negativeMarks: understanding.markingScheme.negativeMarks,
     };
-  }), [effectiveTopic, examUploads, manualPaperReview, questionReviewStatus, questionVisuals, questions, sourceReviewMappings, subject, understanding.markingScheme.marksPerQuestion, understanding.markingScheme.negativeMarks, understanding.questionSignals, validationReportMap, visualAssets]);
+  }), [effectiveTopic, examUploads, formulaReviews, importQualityScore, importReplayManifest, manualPaperReview, questionRelationshipPlan, questionReviewStatus, questionTypeOverrides, questionVisuals, questions, sourceReviewMappings, subject, understanding.markingScheme.marksPerQuestion, understanding.markingScheme.negativeMarks, understanding.questionSignals, validationReportMap, visualAssets]);
   const duplicateQuestionIndexes = useMemo(() => new Set(readiness.duplicateQuestions.flatMap((item) => [item.firstIndex, item.index])), [readiness.duplicateQuestions]);
 
   useEffect(() => () => {
@@ -1406,6 +1840,8 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
       if (sourceKind === "QUESTION_PAPER") {
         setManualPaperReview(false);
         setSourceReviewMappings({});
+        setFormulaReviews({});
+        setQuestionTypeOverrides({});
       }
       if (!text.trim()) {
         setMessage(`No readable text was found in ${file.name}. Upload a text/DOCX version or manually paste the questions.`);
@@ -1445,6 +1881,8 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
     setVisualAssets([]);
     setQuestionVisuals({});
     setSourceReviewMappings({});
+    setFormulaReviews({});
+    setQuestionTypeOverrides({});
     setExtractionReports([]);
     setManualPaperReview(false);
     setQuestionReviewStatus({});
@@ -1480,6 +1918,22 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
       const boxes = question.boundingBoxes && typeof question.boundingBoxes === "object" ? question.boundingBoxes as { sourceReview?: SourceReviewMapping } : null;
       const mapping = layout?.sourceReview || boxes?.sourceReview;
       if (mapping?.page) acc[index + 1] = mapping;
+      return acc;
+    }, {}));
+    setFormulaReviews(exam.draft?.formulaReviews ?? savedQuestions.reduce<Record<number, FormulaReviewEntry>>((acc, question, index) => {
+      const content = question.contentJson && typeof question.contentJson === "object" ? question.contentJson as { metadata?: { formulaLatex?: string; formulaReviewStatus?: FormulaReviewEntry["reviewStatus"] } } : null;
+      if (content?.metadata?.formulaLatex) {
+        acc[index + 1] = {
+          latex: content.metadata.formulaLatex,
+          reviewStatus: content.metadata.formulaReviewStatus || "PENDING",
+          updatedAt: new Date().toISOString(),
+        };
+      }
+      return acc;
+    }, {}));
+    setQuestionTypeOverrides(exam.draft?.questionTypeOverrides ?? savedQuestions.reduce<Record<number, RichQuestionType>>((acc, question, index) => {
+      const content = question.contentJson && typeof question.contentJson === "object" ? question.contentJson as { questionType?: RichQuestionType } : null;
+      if (content?.questionType && content.questionType !== "SINGLE_CHOICE") acc[index + 1] = content.questionType;
       return acc;
     }, {}));
     setVisualAssets(savedQuestions
@@ -1544,6 +1998,8 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
         ? "Manual correction is still required. Fix the flagged question(s), then re-run NIDUS AI validation."
         : !sourceReviewCoverage.publishReady
         ? `Confirm the original-paper source mapping for visual question(s). ${sourceReviewCoverage.visualConfirmed}/${sourceReviewCoverage.visualRequired} confirmed.`
+        : !formulaReviewCoverage.publishReady
+        ? `Confirm formula rendering for question(s) ${formulaReviewCoverage.formulaQuestions.filter((number) => formulaReviews[number]?.reviewStatus !== "TEACHER_CONFIRMED").join(", ")} before publishing.`
         : unapprovedQuestionNumbers.length
         ? `Approve teacher-review question(s) ${unapprovedQuestionNumbers.join(", ")} before publishing.`
         : extractionNeedsManualReview && !manualPaperReview
@@ -1589,6 +2045,12 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
               importQuality: importQualityDraft,
               sourceReviewMappings,
               sourceReviewCoverage,
+              formulaReviews,
+              formulaReviewCoverage,
+              questionTypeOverrides,
+              questionTypeDistribution,
+              questionRelationshipPlan,
+              importReplayManifest,
               manualPaperReview,
             } : undefined,
           }),
@@ -1640,6 +2102,12 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
               importQuality: importQualityDraft,
               sourceReviewMappings,
               sourceReviewCoverage,
+              formulaReviews,
+              formulaReviewCoverage,
+              questionTypeOverrides,
+              questionTypeDistribution,
+              questionRelationshipPlan,
+              importReplayManifest,
               manualPaperReview,
             },
           }),
@@ -1719,6 +2187,22 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
 
   function markQuestionNeedsReview(number: number) {
     setQuestionReviewStatus((current) => ({ ...current, [number]: "NEEDS_REVIEW" }));
+  }
+
+  function updateFormulaReview(number: number, latex: string, reviewStatus: FormulaReviewEntry["reviewStatus"] = "PENDING") {
+    setFormulaReviews((current) => ({
+      ...current,
+      [number]: {
+        latex,
+        reviewStatus,
+        updatedAt: new Date().toISOString(),
+      },
+    }));
+  }
+
+  function chooseQuestionType(number: number, questionType: RichQuestionType) {
+    setQuestionTypeOverrides((current) => ({ ...current, [number]: questionType }));
+    setMessage(`${questionTypeLabel(questionType)} saved for Question ${number}. Current CBT remains MCQ-compatible while rich type metadata is preserved.`);
   }
 
   function approveReadyQuestions() {
@@ -1850,6 +2334,11 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
       const firstUnconfirmed = visualFidelity.questionsNeedingReview.find((number) => sourceReviewMappings[number]?.reviewStatus !== "TEACHER_CONFIRMED") || visualQuestionsWithoutAttachment.find((number) => sourceReviewMappings[number]?.reviewStatus !== "TEACHER_CONFIRMED");
       if (firstUnconfirmed) setPreviewIndex(Math.max(0, firstUnconfirmed - 1));
       setMessage(`Confirm source mapping for visual/formula question(s) before publishing. ${sourceReviewCoverage.visualConfirmed}/${sourceReviewCoverage.visualRequired} confirmed.`);
+      return;
+    } else if (step === 3 && !editingExam && !formulaReviewCoverage.publishReady) {
+      const firstFormula = formulaReviewCoverage.formulaQuestions.find((number) => formulaReviews[number]?.reviewStatus !== "TEACHER_CONFIRMED");
+      if (firstFormula) setPreviewIndex(Math.max(0, firstFormula - 1));
+      setMessage(`Confirm formula rendering for formula-risk question(s) before publishing. ${formulaReviewCoverage.confirmed}/${formulaReviewCoverage.required} confirmed.`);
       return;
     } else {
       setMessage("");
@@ -2220,6 +2709,20 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                             </div>
                           </div>
                         </div>
+                        <RichQuestionTypePanel
+                          questionNumber={previewIndex + 1}
+                          selected={questionTypeOverrides[previewIndex + 1] || inferRichQuestionType(questions[previewIndex], understanding.questionSignals[previewIndex])}
+                          inferred={inferRichQuestionType(questions[previewIndex], understanding.questionSignals[previewIndex])}
+                          onChange={(questionType) => chooseQuestionType(previewIndex + 1, questionType)}
+                        />
+                        <FormulaReviewPanel
+                          questionNumber={previewIndex + 1}
+                          signal={understanding.questionSignals[previewIndex]}
+                          entry={formulaReviews[previewIndex + 1] || formulaReviewFromQuestion(questions[previewIndex], understanding.questionSignals[previewIndex])}
+                          sourceText={questions[previewIndex].questionText}
+                          onChange={(latex) => updateFormulaReview(previewIndex + 1, latex)}
+                          onConfirm={(latex) => updateFormulaReview(previewIndex + 1, latex, "TEACHER_CONFIRMED")}
+                        />
                         <h4 className="mt-5 text-lg font-black leading-7 sm:text-xl"><NidusMathText text={questions[previewIndex].questionText} /></h4>
                         <QuestionFidelityNotice signal={understanding.questionSignals[previewIndex]} />
                         {questionVisuals[previewIndex + 1] ? (
@@ -2303,7 +2806,12 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                         : `${reviewRequiredQuestionNumbers.length} flagged question(s) approved. Ready for final publish.`}
                     </p>
                   </div>
+                  <ImportQualityScorePanel quality={importQualityScore} />
                   <SourceReviewCoveragePanel coverage={sourceReviewCoverage} mappings={sourceReviewMappings} />
+                  <FormulaReviewCoveragePanel coverage={formulaReviewCoverage} />
+                  <QuestionTypeDistributionPanel distribution={questionTypeDistribution} />
+                  <QuestionRelationshipPanel plan={questionRelationshipPlan} />
+                  <ImportReplayPanel manifest={importReplayManifest} />
                   <p className="mt-5 text-sm leading-6 text-[var(--muted-blue)]">Publishing sends this exam to students. They can open it from their Student dashboard.</p>
                   {readiness.duplicateQuestions.length ? (
                     <p className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 p-3 text-sm font-black text-rose-800">
@@ -2590,6 +3098,159 @@ function SourceReviewCoveragePanel({
           No exact source coordinates confirmed yet. Step 3 can still use estimated full-page mapping, but visual STEM papers should be confirmed question by question.
         </p>
       )}
+    </section>
+  );
+}
+
+function ImportQualityScorePanel({ quality }: { quality: ImportQualityScore }) {
+  const tone = quality.status === "PUBLISH_READY"
+    ? "border-emerald-200 bg-emerald-50 text-emerald-950"
+    : quality.status === "REVIEW_REQUIRED"
+      ? "border-amber-200 bg-amber-50 text-amber-950"
+      : "border-rose-200 bg-rose-50 text-rose-950";
+  const visibleIssues = quality.blockers.length ? quality.blockers : quality.warnings;
+  return (
+    <section className={`mt-4 rounded-2xl border p-4 ${tone}`}>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.25em] opacity-75">Import quality score</p>
+          <h4 className="mt-1 text-2xl font-black">{quality.score}% / Grade {quality.grade}</h4>
+          <p className="mt-1 text-sm font-bold opacity-75">{quality.status.replace(/_/g, " ")}</p>
+        </div>
+        <div className="min-w-36 rounded-2xl border border-current/10 bg-white/80 p-3 text-center">
+          <p className="text-[10px] font-black uppercase tracking-[0.18em] opacity-70">NDIE Rating</p>
+          <p className="mt-1 text-3xl font-black">{quality.grade}</p>
+        </div>
+      </div>
+      <div className="mt-3 grid gap-2 sm:grid-cols-4 lg:grid-cols-7">
+        <MiniFact label="AI" value={quality.subscores.aiValidation} />
+        <MiniFact label="Paper" value={quality.subscores.paperReadiness} />
+        <MiniFact label="Visual" value={quality.subscores.visualSource} />
+        <MiniFact label="Formula" value={quality.subscores.formulaReview} />
+        <MiniFact label="Teacher" value={quality.subscores.teacherApproval} />
+        <MiniFact label="Relations" value={quality.subscores.relationshipModel} />
+        <MiniFact label="Replay" value={quality.subscores.replayReadiness} />
+      </div>
+      {visibleIssues.length ? (
+        <ul className="mt-3 grid gap-1 rounded-xl border border-current/10 bg-white/75 p-3 text-xs font-bold leading-5">
+          {visibleIssues.slice(0, 6).map((issue) => <li key={issue}>- {issue}</li>)}
+        </ul>
+      ) : (
+        <p className="mt-3 rounded-xl border border-current/10 bg-white/75 p-3 text-xs font-black">No blockers or warnings remain in the import quality score.</p>
+      )}
+      {quality.strengths.length ? (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {quality.strengths.slice(0, 5).map((strength) => (
+            <span key={strength} className="rounded-full border border-current/10 bg-white/80 px-3 py-1 text-xs font-black">{strength}</span>
+          ))}
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function FormulaReviewCoveragePanel({
+  coverage,
+}: {
+  coverage: {
+    formulaQuestions: number[];
+    required: number;
+    confirmed: number;
+    pending: number;
+    publishReady: boolean;
+  };
+}) {
+  if (!coverage.required) return null;
+  return (
+    <section className={`mt-4 rounded-2xl border p-4 ${coverage.publishReady ? "border-emerald-200 bg-emerald-50 text-emerald-950" : "border-amber-200 bg-amber-50 text-amber-950"}`}>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.25em] opacity-75">Formula editor</p>
+          <h4 className="mt-1 text-lg font-black">{coverage.publishReady ? "Formula rendering confirmed" : "Formula review pending"}</h4>
+          <p className="mt-1 text-sm font-bold opacity-75">Fractions, radicals, powers and symbols are reviewed before the paper reaches students.</p>
+        </div>
+        <span className="rounded-full bg-white/80 px-3 py-1 text-xs font-black">{coverage.confirmed}/{coverage.required}</span>
+      </div>
+      <p className="mt-3 rounded-xl border border-current/10 bg-white/75 p-3 text-xs font-black leading-5">
+        Formula question(s): {coverage.formulaQuestions.join(", ")}
+      </p>
+    </section>
+  );
+}
+
+function QuestionTypeDistributionPanel({ distribution }: { distribution: Record<string, number> }) {
+  const entries = Object.entries(distribution).filter(([, count]) => count > 0);
+  if (!entries.length) return null;
+  return (
+    <section className="mt-4 rounded-2xl border border-blue-100 bg-blue-50 p-4 text-blue-950">
+      <p className="text-xs font-black uppercase tracking-[0.25em] opacity-75">Rich question type plan</p>
+      <h4 className="mt-1 text-lg font-black">Enterprise question model ready</h4>
+      <p className="mt-1 text-sm font-bold opacity-75">These types are stored in rich JSON while the current CBT remains MCQ-compatible.</p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {entries.map(([type, count]) => (
+          <span key={type} className="rounded-full border border-blue-100 bg-white px-3 py-1 text-xs font-black">
+            {questionTypeLabel(type as RichQuestionType)}: {count}
+          </span>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function QuestionRelationshipPanel({ plan }: { plan: QuestionRelationshipPlan }) {
+  if (!plan.groups.length) return null;
+  return (
+    <section className="mt-4 rounded-2xl border border-indigo-100 bg-indigo-50 p-4 text-indigo-950">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.25em] opacity-75">Question relationships</p>
+          <h4 className="mt-1 text-lg font-black">Shared passages and source groups detected</h4>
+          <p className="mt-1 text-sm font-bold opacity-75">Related questions keep one common source, passage, diagram or section reference for future rich exams.</p>
+        </div>
+        <span className="rounded-full bg-white/80 px-3 py-1 text-xs font-black">{plan.groups.length} group(s)</span>
+      </div>
+      <div className="mt-3 grid gap-2">
+        {plan.groups.slice(0, 8).map((group) => (
+          <div key={group.id} className="rounded-xl border border-indigo-100 bg-white/85 p-3 text-xs font-bold leading-5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="font-black">{group.title}</span>
+              <span className="rounded-full border border-indigo-100 bg-indigo-50 px-2 py-1 font-black">{group.type.replace(/_/g, " ")}</span>
+            </div>
+            <p className="mt-1">Question(s): {group.questionNumbers.join(", ")}{group.sourcePage ? ` / Page ${group.sourcePage}` : ""}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function ImportReplayPanel({ manifest }: { manifest: ImportReplayManifest }) {
+  return (
+    <section className={`mt-4 rounded-2xl border p-4 ${manifest.replayAvailable ? "border-cyan-200 bg-cyan-50 text-cyan-950" : "border-slate-200 bg-slate-50 text-slate-800"}`}>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.25em] opacity-75">Import replay</p>
+          <h4 className="mt-1 text-lg font-black">{manifest.replayAvailable ? "Original paper can be reprocessed later" : "Replay needs preserved source"}</h4>
+          <p className="mt-1 text-sm font-bold opacity-75">Future OCR/layout upgrades can compare a new extraction with the current teacher-approved draft.</p>
+        </div>
+        <span className="rounded-full bg-white/80 px-3 py-1 text-xs font-black">{manifest.sourceUploads.length} source file(s)</span>
+      </div>
+      <div className="mt-3 grid gap-2 sm:grid-cols-4">
+        <MiniFact label="Questions" value={manifest.lastKnownQuestionCount} />
+        <MiniFact label="Source Hash" value={manifest.preservedQuestionTextHash} />
+        <MiniFact label="Visual Map" value={`${manifest.sourceReviewCoverage.visualConfirmed}/${manifest.sourceReviewCoverage.visualRequired}`} />
+        <MiniFact label="Modes" value={manifest.replayModes.length} />
+      </div>
+      {manifest.sourceUploads.length ? (
+        <div className="mt-3 grid gap-2">
+          {manifest.sourceUploads.slice(0, 5).map((upload) => (
+            <div key={upload.uploadId} className="rounded-xl border border-current/10 bg-white/80 p-3 text-xs font-bold leading-5">
+              <p className="font-black">{upload.originalName}</p>
+              <p className="mt-1 opacity-80">{upload.sourceKind.replace(/_/g, " ")} / {upload.documentClass || "UNKNOWN"} / {upload.pipeline || "UNCLASSIFIED"}</p>
+            </div>
+          ))}
+        </div>
+      ) : null}
     </section>
   );
 }
@@ -3039,6 +3700,103 @@ function MiniFact({ label, value }: { label: string; value: string | number }) {
     <div className="rounded-xl border border-current/10 bg-white/75 p-3">
       <p className="text-[10px] font-black uppercase tracking-[0.18em] opacity-70">{label}</p>
       <p className="mt-1 text-sm font-black">{value}</p>
+    </div>
+  );
+}
+
+function RichQuestionTypePanel({
+  questionNumber,
+  selected,
+  inferred,
+  onChange,
+}: {
+  questionNumber: number;
+  selected: RichQuestionType;
+  inferred: RichQuestionType;
+  onChange: (questionType: RichQuestionType) => void;
+}) {
+  return (
+    <div className="mt-4 rounded-2xl border border-blue-100 bg-blue-50 p-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-blue-900">Question type</p>
+          <p className="mt-1 text-sm font-bold text-blue-950">Stored for the rich exam engine. Current student CBT remains MCQ-compatible.</p>
+        </div>
+        <span className="rounded-full border border-blue-200 bg-white px-3 py-1 text-xs font-black text-blue-900">
+          Q{questionNumber} / {questionTypeLabel(selected)}
+        </span>
+      </div>
+      <div className="mt-3 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+        <select
+          value={selected}
+          onChange={(event) => onChange(event.target.value as RichQuestionType)}
+          className="min-h-11 rounded-xl border border-blue-200 bg-white px-3 text-sm font-black text-blue-950"
+        >
+          {richQuestionTypes.map((type) => (
+            <option key={type.value} value={type.value}>{type.label} - {type.note}</option>
+          ))}
+        </select>
+        <span className="rounded-xl border border-blue-100 bg-white px-3 py-2 text-xs font-black text-blue-900">
+          Suggested: {questionTypeLabel(inferred)}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function FormulaReviewPanel({
+  questionNumber,
+  signal,
+  entry,
+  sourceText,
+  onChange,
+  onConfirm,
+}: {
+  questionNumber: number;
+  signal?: PaperUnderstandingReport["questionSignals"][number];
+  entry: FormulaReviewEntry | null;
+  sourceText: string;
+  onChange: (latex: string) => void;
+  onConfirm: (latex: string) => void;
+}) {
+  if (!signal?.formulaRisk && !entry?.latex) return null;
+  const latex = entry?.latex || sourceText;
+  const confirmed = entry?.reviewStatus === "TEACHER_CONFIRMED";
+  return (
+    <div className={`mt-4 rounded-2xl border p-4 ${confirmed ? "border-emerald-200 bg-emerald-50 text-emerald-950" : "border-amber-200 bg-amber-50 text-amber-950"}`}>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.2em] opacity-75">Formula review</p>
+          <h4 className="mt-1 text-sm font-black">{confirmed ? "Formula rendering confirmed" : "Confirm formula rendering"}</h4>
+          <p className="mt-1 text-xs font-bold opacity-75">Edit with LaTeX when PDF extraction breaks fractions, radicals, powers or symbols.</p>
+        </div>
+        <span className="rounded-full border border-current/10 bg-white/80 px-3 py-1 text-xs font-black">
+          Q{questionNumber}
+        </span>
+      </div>
+      <div className="mt-3 grid gap-3">
+        <textarea
+          value={latex}
+          onChange={(event) => onChange(event.target.value)}
+          rows={3}
+          className="w-full rounded-xl border border-current/10 bg-white p-3 text-sm font-bold leading-6 text-slate-950"
+          placeholder="Example: \\frac{\\sqrt{5}}{3}"
+        />
+        <div className="rounded-xl border border-current/10 bg-white/80 p-3">
+          <p className="text-[10px] font-black uppercase tracking-[0.18em] opacity-70">Preview</p>
+          <div className="mt-2 overflow-x-auto text-base font-bold">
+            <NidusMathText text={latex.includes("$") ? latex : `$$${latex}$$`} />
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button type="button" onClick={() => onConfirm(latex)} className="min-h-10 rounded-xl border border-emerald-700 bg-emerald-700 px-4 text-sm font-black text-white">
+            Confirm Formula
+          </button>
+          <button type="button" onClick={() => onChange(sourceText)} className="min-h-10 rounded-xl border border-current/10 bg-white px-4 text-sm font-black">
+            Reset From Question
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
