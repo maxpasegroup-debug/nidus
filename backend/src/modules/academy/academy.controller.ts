@@ -341,6 +341,9 @@ export const academyController = {
       const extractionAudit = typeof req.body.extractionAudit === "string"
         ? JSON.parse(req.body.extractionAudit || "null")
         : req.body.extractionAudit;
+      const classification = typeof req.body.classification === "string"
+        ? JSON.parse(req.body.classification || "null")
+        : req.body.classification;
       res.status(201).json(await academyService.uploadExamSource(requester(req), req.file, {
         batchId: req.body.batchId,
         subject: req.body.subject,
@@ -348,9 +351,26 @@ export const academyController = {
         sourceKind: req.body.sourceKind,
         extractionStatus: req.body.extractionStatus,
         extractionAudit,
+        documentClass: req.body.documentClass,
+        pipeline: req.body.pipeline,
+        classification,
         manualReviewRequired: req.body.manualReviewRequired === "true" || req.body.manualReviewRequired === true,
         manualReviewCompleted: req.body.manualReviewCompleted === "true" || req.body.manualReviewCompleted === true,
       }));
+    } catch (error) {
+      next(error);
+    }
+  },
+  validateExamImport: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.validateExamImport(requester(req), req.body));
+    } catch (error) {
+      next(error);
+    }
+  },
+  examImportAnalytics: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.examImportAnalytics(requester(req), req.query));
     } catch (error) {
       next(error);
     }

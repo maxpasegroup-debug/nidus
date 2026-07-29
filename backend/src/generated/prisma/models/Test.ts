@@ -336,6 +336,7 @@ export type TestWhereInput = {
   teacher?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   approvedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   questions?: Prisma.QuestionListRelationFilter
+  questionVersions?: Prisma.QuestionVersionListRelationFilter
   attempts?: Prisma.TestAttemptListRelationFilter
 }
 
@@ -363,6 +364,7 @@ export type TestOrderByWithRelationInput = {
   teacher?: Prisma.UserOrderByWithRelationInput
   approvedBy?: Prisma.UserOrderByWithRelationInput
   questions?: Prisma.QuestionOrderByRelationAggregateInput
+  questionVersions?: Prisma.QuestionVersionOrderByRelationAggregateInput
   attempts?: Prisma.TestAttemptOrderByRelationAggregateInput
 }
 
@@ -393,6 +395,7 @@ export type TestWhereUniqueInput = Prisma.AtLeast<{
   teacher?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   approvedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   questions?: Prisma.QuestionListRelationFilter
+  questionVersions?: Prisma.QuestionVersionListRelationFilter
   attempts?: Prisma.TestAttemptListRelationFilter
 }, "id">
 
@@ -469,6 +472,7 @@ export type TestCreateInput = {
   teacher?: Prisma.UserCreateNestedOneWithoutTestsCreatedInput
   approvedBy?: Prisma.UserCreateNestedOneWithoutTestsApprovedInput
   questions?: Prisma.QuestionCreateNestedManyWithoutTestInput
+  questionVersions?: Prisma.QuestionVersionCreateNestedManyWithoutTestInput
   attempts?: Prisma.TestAttemptCreateNestedManyWithoutTestInput
 }
 
@@ -493,6 +497,7 @@ export type TestUncheckedCreateInput = {
   isLive?: boolean
   createdAt?: Date | string
   questions?: Prisma.QuestionUncheckedCreateNestedManyWithoutTestInput
+  questionVersions?: Prisma.QuestionVersionUncheckedCreateNestedManyWithoutTestInput
   attempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutTestInput
 }
 
@@ -517,6 +522,7 @@ export type TestUpdateInput = {
   teacher?: Prisma.UserUpdateOneWithoutTestsCreatedNestedInput
   approvedBy?: Prisma.UserUpdateOneWithoutTestsApprovedNestedInput
   questions?: Prisma.QuestionUpdateManyWithoutTestNestedInput
+  questionVersions?: Prisma.QuestionVersionUpdateManyWithoutTestNestedInput
   attempts?: Prisma.TestAttemptUpdateManyWithoutTestNestedInput
 }
 
@@ -541,6 +547,7 @@ export type TestUncheckedUpdateInput = {
   isLive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   questions?: Prisma.QuestionUncheckedUpdateManyWithoutTestNestedInput
+  questionVersions?: Prisma.QuestionVersionUncheckedUpdateManyWithoutTestNestedInput
   attempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutTestNestedInput
 }
 
@@ -838,6 +845,20 @@ export type TestUpdateOneRequiredWithoutQuestionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.TestUpdateToOneWithWhereWithoutQuestionsInput, Prisma.TestUpdateWithoutQuestionsInput>, Prisma.TestUncheckedUpdateWithoutQuestionsInput>
 }
 
+export type TestCreateNestedOneWithoutQuestionVersionsInput = {
+  create?: Prisma.XOR<Prisma.TestCreateWithoutQuestionVersionsInput, Prisma.TestUncheckedCreateWithoutQuestionVersionsInput>
+  connectOrCreate?: Prisma.TestCreateOrConnectWithoutQuestionVersionsInput
+  connect?: Prisma.TestWhereUniqueInput
+}
+
+export type TestUpdateOneRequiredWithoutQuestionVersionsNestedInput = {
+  create?: Prisma.XOR<Prisma.TestCreateWithoutQuestionVersionsInput, Prisma.TestUncheckedCreateWithoutQuestionVersionsInput>
+  connectOrCreate?: Prisma.TestCreateOrConnectWithoutQuestionVersionsInput
+  upsert?: Prisma.TestUpsertWithoutQuestionVersionsInput
+  connect?: Prisma.TestWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TestUpdateToOneWithWhereWithoutQuestionVersionsInput, Prisma.TestUpdateWithoutQuestionVersionsInput>, Prisma.TestUncheckedUpdateWithoutQuestionVersionsInput>
+}
+
 export type TestCreateNestedOneWithoutAttemptsInput = {
   create?: Prisma.XOR<Prisma.TestCreateWithoutAttemptsInput, Prisma.TestUncheckedCreateWithoutAttemptsInput>
   connectOrCreate?: Prisma.TestCreateOrConnectWithoutAttemptsInput
@@ -872,6 +893,7 @@ export type TestCreateWithoutTeacherInput = {
   batch?: Prisma.BatchCreateNestedOneWithoutTestsInput
   approvedBy?: Prisma.UserCreateNestedOneWithoutTestsApprovedInput
   questions?: Prisma.QuestionCreateNestedManyWithoutTestInput
+  questionVersions?: Prisma.QuestionVersionCreateNestedManyWithoutTestInput
   attempts?: Prisma.TestAttemptCreateNestedManyWithoutTestInput
 }
 
@@ -895,6 +917,7 @@ export type TestUncheckedCreateWithoutTeacherInput = {
   isLive?: boolean
   createdAt?: Date | string
   questions?: Prisma.QuestionUncheckedCreateNestedManyWithoutTestInput
+  questionVersions?: Prisma.QuestionVersionUncheckedCreateNestedManyWithoutTestInput
   attempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutTestInput
 }
 
@@ -928,6 +951,7 @@ export type TestCreateWithoutApprovedByInput = {
   batch?: Prisma.BatchCreateNestedOneWithoutTestsInput
   teacher?: Prisma.UserCreateNestedOneWithoutTestsCreatedInput
   questions?: Prisma.QuestionCreateNestedManyWithoutTestInput
+  questionVersions?: Prisma.QuestionVersionCreateNestedManyWithoutTestInput
   attempts?: Prisma.TestAttemptCreateNestedManyWithoutTestInput
 }
 
@@ -951,6 +975,7 @@ export type TestUncheckedCreateWithoutApprovedByInput = {
   isLive?: boolean
   createdAt?: Date | string
   questions?: Prisma.QuestionUncheckedCreateNestedManyWithoutTestInput
+  questionVersions?: Prisma.QuestionVersionUncheckedCreateNestedManyWithoutTestInput
   attempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutTestInput
 }
 
@@ -1041,6 +1066,7 @@ export type TestCreateWithoutBatchInput = {
   teacher?: Prisma.UserCreateNestedOneWithoutTestsCreatedInput
   approvedBy?: Prisma.UserCreateNestedOneWithoutTestsApprovedInput
   questions?: Prisma.QuestionCreateNestedManyWithoutTestInput
+  questionVersions?: Prisma.QuestionVersionCreateNestedManyWithoutTestInput
   attempts?: Prisma.TestAttemptCreateNestedManyWithoutTestInput
 }
 
@@ -1064,6 +1090,7 @@ export type TestUncheckedCreateWithoutBatchInput = {
   isLive?: boolean
   createdAt?: Date | string
   questions?: Prisma.QuestionUncheckedCreateNestedManyWithoutTestInput
+  questionVersions?: Prisma.QuestionVersionUncheckedCreateNestedManyWithoutTestInput
   attempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutTestInput
 }
 
@@ -1113,6 +1140,7 @@ export type TestCreateWithoutQuestionsInput = {
   batch?: Prisma.BatchCreateNestedOneWithoutTestsInput
   teacher?: Prisma.UserCreateNestedOneWithoutTestsCreatedInput
   approvedBy?: Prisma.UserCreateNestedOneWithoutTestsApprovedInput
+  questionVersions?: Prisma.QuestionVersionCreateNestedManyWithoutTestInput
   attempts?: Prisma.TestAttemptCreateNestedManyWithoutTestInput
 }
 
@@ -1136,6 +1164,7 @@ export type TestUncheckedCreateWithoutQuestionsInput = {
   isMockTest?: boolean
   isLive?: boolean
   createdAt?: Date | string
+  questionVersions?: Prisma.QuestionVersionUncheckedCreateNestedManyWithoutTestInput
   attempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutTestInput
 }
 
@@ -1175,6 +1204,7 @@ export type TestUpdateWithoutQuestionsInput = {
   batch?: Prisma.BatchUpdateOneWithoutTestsNestedInput
   teacher?: Prisma.UserUpdateOneWithoutTestsCreatedNestedInput
   approvedBy?: Prisma.UserUpdateOneWithoutTestsApprovedNestedInput
+  questionVersions?: Prisma.QuestionVersionUpdateManyWithoutTestNestedInput
   attempts?: Prisma.TestAttemptUpdateManyWithoutTestNestedInput
 }
 
@@ -1198,6 +1228,119 @@ export type TestUncheckedUpdateWithoutQuestionsInput = {
   isMockTest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isLive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  questionVersions?: Prisma.QuestionVersionUncheckedUpdateManyWithoutTestNestedInput
+  attempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutTestNestedInput
+}
+
+export type TestCreateWithoutQuestionVersionsInput = {
+  id?: string
+  title: string
+  description: string
+  examType: string
+  category: string
+  subject?: string | null
+  topic?: string | null
+  publishAt?: Date | string | null
+  status?: string
+  reviewedAt?: Date | string | null
+  approvedAt?: Date | string | null
+  duration: number
+  totalMarks: number
+  isMockTest?: boolean
+  isLive?: boolean
+  createdAt?: Date | string
+  batch?: Prisma.BatchCreateNestedOneWithoutTestsInput
+  teacher?: Prisma.UserCreateNestedOneWithoutTestsCreatedInput
+  approvedBy?: Prisma.UserCreateNestedOneWithoutTestsApprovedInput
+  questions?: Prisma.QuestionCreateNestedManyWithoutTestInput
+  attempts?: Prisma.TestAttemptCreateNestedManyWithoutTestInput
+}
+
+export type TestUncheckedCreateWithoutQuestionVersionsInput = {
+  id?: string
+  title: string
+  description: string
+  examType: string
+  category: string
+  subject?: string | null
+  topic?: string | null
+  batchId?: string | null
+  teacherId?: string | null
+  publishAt?: Date | string | null
+  status?: string
+  reviewedAt?: Date | string | null
+  approvedAt?: Date | string | null
+  approvedById?: string | null
+  duration: number
+  totalMarks: number
+  isMockTest?: boolean
+  isLive?: boolean
+  createdAt?: Date | string
+  questions?: Prisma.QuestionUncheckedCreateNestedManyWithoutTestInput
+  attempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutTestInput
+}
+
+export type TestCreateOrConnectWithoutQuestionVersionsInput = {
+  where: Prisma.TestWhereUniqueInput
+  create: Prisma.XOR<Prisma.TestCreateWithoutQuestionVersionsInput, Prisma.TestUncheckedCreateWithoutQuestionVersionsInput>
+}
+
+export type TestUpsertWithoutQuestionVersionsInput = {
+  update: Prisma.XOR<Prisma.TestUpdateWithoutQuestionVersionsInput, Prisma.TestUncheckedUpdateWithoutQuestionVersionsInput>
+  create: Prisma.XOR<Prisma.TestCreateWithoutQuestionVersionsInput, Prisma.TestUncheckedCreateWithoutQuestionVersionsInput>
+  where?: Prisma.TestWhereInput
+}
+
+export type TestUpdateToOneWithWhereWithoutQuestionVersionsInput = {
+  where?: Prisma.TestWhereInput
+  data: Prisma.XOR<Prisma.TestUpdateWithoutQuestionVersionsInput, Prisma.TestUncheckedUpdateWithoutQuestionVersionsInput>
+}
+
+export type TestUpdateWithoutQuestionVersionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  examType?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  subject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publishAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  duration?: Prisma.IntFieldUpdateOperationsInput | number
+  totalMarks?: Prisma.FloatFieldUpdateOperationsInput | number
+  isMockTest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isLive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  batch?: Prisma.BatchUpdateOneWithoutTestsNestedInput
+  teacher?: Prisma.UserUpdateOneWithoutTestsCreatedNestedInput
+  approvedBy?: Prisma.UserUpdateOneWithoutTestsApprovedNestedInput
+  questions?: Prisma.QuestionUpdateManyWithoutTestNestedInput
+  attempts?: Prisma.TestAttemptUpdateManyWithoutTestNestedInput
+}
+
+export type TestUncheckedUpdateWithoutQuestionVersionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  examType?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  subject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  batchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teacherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publishAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duration?: Prisma.IntFieldUpdateOperationsInput | number
+  totalMarks?: Prisma.FloatFieldUpdateOperationsInput | number
+  isMockTest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isLive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  questions?: Prisma.QuestionUncheckedUpdateManyWithoutTestNestedInput
   attempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutTestNestedInput
 }
 
@@ -1222,6 +1365,7 @@ export type TestCreateWithoutAttemptsInput = {
   teacher?: Prisma.UserCreateNestedOneWithoutTestsCreatedInput
   approvedBy?: Prisma.UserCreateNestedOneWithoutTestsApprovedInput
   questions?: Prisma.QuestionCreateNestedManyWithoutTestInput
+  questionVersions?: Prisma.QuestionVersionCreateNestedManyWithoutTestInput
 }
 
 export type TestUncheckedCreateWithoutAttemptsInput = {
@@ -1245,6 +1389,7 @@ export type TestUncheckedCreateWithoutAttemptsInput = {
   isLive?: boolean
   createdAt?: Date | string
   questions?: Prisma.QuestionUncheckedCreateNestedManyWithoutTestInput
+  questionVersions?: Prisma.QuestionVersionUncheckedCreateNestedManyWithoutTestInput
 }
 
 export type TestCreateOrConnectWithoutAttemptsInput = {
@@ -1284,6 +1429,7 @@ export type TestUpdateWithoutAttemptsInput = {
   teacher?: Prisma.UserUpdateOneWithoutTestsCreatedNestedInput
   approvedBy?: Prisma.UserUpdateOneWithoutTestsApprovedNestedInput
   questions?: Prisma.QuestionUpdateManyWithoutTestNestedInput
+  questionVersions?: Prisma.QuestionVersionUpdateManyWithoutTestNestedInput
 }
 
 export type TestUncheckedUpdateWithoutAttemptsInput = {
@@ -1307,6 +1453,7 @@ export type TestUncheckedUpdateWithoutAttemptsInput = {
   isLive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   questions?: Prisma.QuestionUncheckedUpdateManyWithoutTestNestedInput
+  questionVersions?: Prisma.QuestionVersionUncheckedUpdateManyWithoutTestNestedInput
 }
 
 export type TestCreateManyTeacherInput = {
@@ -1371,6 +1518,7 @@ export type TestUpdateWithoutTeacherInput = {
   batch?: Prisma.BatchUpdateOneWithoutTestsNestedInput
   approvedBy?: Prisma.UserUpdateOneWithoutTestsApprovedNestedInput
   questions?: Prisma.QuestionUpdateManyWithoutTestNestedInput
+  questionVersions?: Prisma.QuestionVersionUpdateManyWithoutTestNestedInput
   attempts?: Prisma.TestAttemptUpdateManyWithoutTestNestedInput
 }
 
@@ -1394,6 +1542,7 @@ export type TestUncheckedUpdateWithoutTeacherInput = {
   isLive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   questions?: Prisma.QuestionUncheckedUpdateManyWithoutTestNestedInput
+  questionVersions?: Prisma.QuestionVersionUncheckedUpdateManyWithoutTestNestedInput
   attempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutTestNestedInput
 }
 
@@ -1438,6 +1587,7 @@ export type TestUpdateWithoutApprovedByInput = {
   batch?: Prisma.BatchUpdateOneWithoutTestsNestedInput
   teacher?: Prisma.UserUpdateOneWithoutTestsCreatedNestedInput
   questions?: Prisma.QuestionUpdateManyWithoutTestNestedInput
+  questionVersions?: Prisma.QuestionVersionUpdateManyWithoutTestNestedInput
   attempts?: Prisma.TestAttemptUpdateManyWithoutTestNestedInput
 }
 
@@ -1461,6 +1611,7 @@ export type TestUncheckedUpdateWithoutApprovedByInput = {
   isLive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   questions?: Prisma.QuestionUncheckedUpdateManyWithoutTestNestedInput
+  questionVersions?: Prisma.QuestionVersionUncheckedUpdateManyWithoutTestNestedInput
   attempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutTestNestedInput
 }
 
@@ -1526,6 +1677,7 @@ export type TestUpdateWithoutBatchInput = {
   teacher?: Prisma.UserUpdateOneWithoutTestsCreatedNestedInput
   approvedBy?: Prisma.UserUpdateOneWithoutTestsApprovedNestedInput
   questions?: Prisma.QuestionUpdateManyWithoutTestNestedInput
+  questionVersions?: Prisma.QuestionVersionUpdateManyWithoutTestNestedInput
   attempts?: Prisma.TestAttemptUpdateManyWithoutTestNestedInput
 }
 
@@ -1549,6 +1701,7 @@ export type TestUncheckedUpdateWithoutBatchInput = {
   isLive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   questions?: Prisma.QuestionUncheckedUpdateManyWithoutTestNestedInput
+  questionVersions?: Prisma.QuestionVersionUncheckedUpdateManyWithoutTestNestedInput
   attempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutTestNestedInput
 }
 
@@ -1580,11 +1733,13 @@ export type TestUncheckedUpdateManyWithoutBatchInput = {
 
 export type TestCountOutputType = {
   questions: number
+  questionVersions: number
   attempts: number
 }
 
 export type TestCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   questions?: boolean | TestCountOutputTypeCountQuestionsArgs
+  questionVersions?: boolean | TestCountOutputTypeCountQuestionVersionsArgs
   attempts?: boolean | TestCountOutputTypeCountAttemptsArgs
 }
 
@@ -1603,6 +1758,13 @@ export type TestCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
  */
 export type TestCountOutputTypeCountQuestionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.QuestionWhereInput
+}
+
+/**
+ * TestCountOutputType without action
+ */
+export type TestCountOutputTypeCountQuestionVersionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.QuestionVersionWhereInput
 }
 
 /**
@@ -1637,6 +1799,7 @@ export type TestSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   teacher?: boolean | Prisma.Test$teacherArgs<ExtArgs>
   approvedBy?: boolean | Prisma.Test$approvedByArgs<ExtArgs>
   questions?: boolean | Prisma.Test$questionsArgs<ExtArgs>
+  questionVersions?: boolean | Prisma.Test$questionVersionsArgs<ExtArgs>
   attempts?: boolean | Prisma.Test$attemptsArgs<ExtArgs>
   _count?: boolean | Prisma.TestCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["test"]>
@@ -1719,6 +1882,7 @@ export type TestInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   teacher?: boolean | Prisma.Test$teacherArgs<ExtArgs>
   approvedBy?: boolean | Prisma.Test$approvedByArgs<ExtArgs>
   questions?: boolean | Prisma.Test$questionsArgs<ExtArgs>
+  questionVersions?: boolean | Prisma.Test$questionVersionsArgs<ExtArgs>
   attempts?: boolean | Prisma.Test$attemptsArgs<ExtArgs>
   _count?: boolean | Prisma.TestCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -1740,6 +1904,7 @@ export type $TestPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     teacher: Prisma.$UserPayload<ExtArgs> | null
     approvedBy: Prisma.$UserPayload<ExtArgs> | null
     questions: Prisma.$QuestionPayload<ExtArgs>[]
+    questionVersions: Prisma.$QuestionVersionPayload<ExtArgs>[]
     attempts: Prisma.$TestAttemptPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -2160,6 +2325,7 @@ export interface Prisma__TestClient<T, Null = never, ExtArgs extends runtime.Typ
   teacher<T extends Prisma.Test$teacherArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Test$teacherArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   approvedBy<T extends Prisma.Test$approvedByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Test$approvedByArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   questions<T extends Prisma.Test$questionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Test$questionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$QuestionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  questionVersions<T extends Prisma.Test$questionVersionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Test$questionVersionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$QuestionVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   attempts<T extends Prisma.Test$attemptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Test$attemptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TestAttemptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -2688,6 +2854,30 @@ export type Test$questionsArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   distinct?: Prisma.QuestionScalarFieldEnum | Prisma.QuestionScalarFieldEnum[]
+}
+
+/**
+ * Test.questionVersions
+ */
+export type Test$questionVersionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the QuestionVersion
+   */
+  select?: Prisma.QuestionVersionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the QuestionVersion
+   */
+  omit?: Prisma.QuestionVersionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.QuestionVersionInclude<ExtArgs> | null
+  where?: Prisma.QuestionVersionWhereInput
+  orderBy?: Prisma.QuestionVersionOrderByWithRelationInput | Prisma.QuestionVersionOrderByWithRelationInput[]
+  cursor?: Prisma.QuestionVersionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.QuestionVersionScalarFieldEnum | Prisma.QuestionVersionScalarFieldEnum[]
 }
 
 /**

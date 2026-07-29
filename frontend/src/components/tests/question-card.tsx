@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { NidusMathText, NidusQuestionContent } from "@/components/exam/nidus-math-renderer";
 import type { Question } from "@/types/test";
 
 const options = ["A", "B", "C", "D"] as const;
@@ -34,8 +34,9 @@ export function QuestionCard({
           </span>
         ) : null}
       </div>
-      <h2 className="mt-5 text-xl font-semibold leading-8 text-[#071d36]">{question.questionText}</h2>
-      {question.questionImage ? <Image src={question.questionImage} alt="" width={900} height={360} unoptimized className="mt-4 max-h-64 w-auto rounded border border-[#071d36]/10 object-contain" /> : null}
+      <h2 className="mt-5 text-xl font-semibold leading-8 text-[#071d36]">
+        <NidusQuestionContent content={question.contentJson} fallbackText={question.questionText} imageUrl={question.questionImage} />
+      </h2>
       {visualNotes.length ? (
         <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm font-semibold leading-6 text-amber-900">
           <p className="font-black">Read the question exactly as shown by your teacher.</p>
@@ -56,7 +57,7 @@ export function QuestionCard({
                   : "border-[#071d36]/10 bg-[#fffdf8] text-[#071d36] hover:border-[#b9913f]/50"
               }`}
             >
-              <span className="font-semibold">{option}.</span> {text}
+              <span className="font-semibold">{option}.</span> <NidusMathText text={text} />
             </button>
           );
         })}

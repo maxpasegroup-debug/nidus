@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { useMemo, useState, type FormEvent } from "react";
 import { Input } from "@/components/ui/input";
 import { AnnouncementCard, QuickActionCard, SectionHeader, StatCard } from "@/components/dashboard";
+import { NidusMathText } from "@/components/exam/nidus-math-renderer";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/courses/empty-state";
 import { useAuth } from "@/components/providers/auth-provider-v2";
@@ -188,8 +189,8 @@ export default function TestsPage() {
               <div className="grid max-h-80 gap-3 overflow-y-auto pr-1 md:grid-cols-2">
                 {draftQuestions.slice(0, 12).map((question, index) => (
                   <div key={`${question.questionText}-${index}`} className="rounded border border-white/10 bg-navy-deep/55 p-4">
-                    <p className="text-sm font-semibold text-ink">{question.questionText}</p>
-                    <p className="mt-2 text-xs text-muted">A. {question.optionA} | B. {question.optionB} | C. {question.optionC} | D. {question.optionD}</p>
+                    <p className="text-sm font-semibold text-ink"><NidusMathText text={question.questionText} /></p>
+                    <p className="mt-2 text-xs text-muted">A. <NidusMathText text={question.optionA} /> | B. <NidusMathText text={question.optionB} /> | C. <NidusMathText text={question.optionC} /> | D. <NidusMathText text={question.optionD} /></p>
                     <p className="mt-2 text-xs text-gold-soft">Answer: {question.correctAnswer} | {question.difficultyLevel}</p>
                   </div>
                 ))}

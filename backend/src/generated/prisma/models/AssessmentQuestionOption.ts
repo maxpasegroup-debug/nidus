@@ -677,14 +677,6 @@ export type AssessmentQuestionOptionUncheckedUpdateManyWithoutQuestionNestedInpu
   deleteMany?: Prisma.AssessmentQuestionOptionScalarWhereInput | Prisma.AssessmentQuestionOptionScalarWhereInput[]
 }
 
-export type NullableFloatFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type AssessmentQuestionOptionCreateNestedOneWithoutAnswersInput = {
   create?: Prisma.XOR<Prisma.AssessmentQuestionOptionCreateWithoutAnswersInput, Prisma.AssessmentQuestionOptionUncheckedCreateWithoutAnswersInput>
   connectOrCreate?: Prisma.AssessmentQuestionOptionCreateOrConnectWithoutAnswersInput

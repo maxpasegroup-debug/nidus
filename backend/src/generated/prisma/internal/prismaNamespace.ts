@@ -399,6 +399,7 @@ export const ModelName = {
   TeacherBatchAssignment: 'TeacherBatchAssignment',
   Test: 'Test',
   Question: 'Question',
+  QuestionVersion: 'QuestionVersion',
   QuestionBankItem: 'QuestionBankItem',
   TestAttempt: 'TestAttempt',
   CBTAnswerState: 'CBTAnswerState',
@@ -577,6 +578,7 @@ export const ModelName = {
   AssignmentSubmissionRecord: 'AssignmentSubmissionRecord',
   TeacherStudyMaterialRecord: 'TeacherStudyMaterialRecord',
   TeacherExamRecord: 'TeacherExamRecord',
+  ExamImportJob: 'ExamImportJob',
   ExamUpload: 'ExamUpload',
   TeacherCalendarLogRecord: 'TeacherCalendarLogRecord',
   TeacherSyllabusProgressRecord: 'TeacherSyllabusProgressRecord',
@@ -610,7 +612,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "sessionToken" | "passwordReset" | "parentStudentInvitation" | "parentStudentLink" | "otp" | "course" | "module" | "lesson" | "enrollment" | "batch" | "batchStudent" | "teacherBatchAssignment" | "test" | "question" | "questionBankItem" | "testAttempt" | "cBTAnswerState" | "cBTIntegrityEvent" | "answer" | "psychometricTest" | "psychometricQuestion" | "psychometricAttempt" | "psychometricReport" | "psychometricAnswer" | "assessmentArenaAssessment" | "assessmentTraitMapping" | "assessmentDimensionMapping" | "assessmentQuestionBlueprint" | "assessmentTraitBlueprint" | "assessmentDimensionBlueprint" | "assessmentTrait" | "assessmentDimension" | "assessmentQuestion" | "assessmentQuestionOption" | "assessmentQuestionVersion" | "assessmentQuestionReview" | "assessmentReviewBoard" | "assessmentPilotRun" | "assessmentPilotResponse" | "assessmentQuestionExposure" | "assessmentAttempt" | "assessmentAttemptQuestion" | "assessmentAnswer" | "assessmentTraitScore" | "assessmentDimensionScore" | "assessmentIntegritySignal" | "assessmentRiskSignal" | "assessmentGrowthSnapshot" | "assessmentRankPrediction" | "assessmentReportSnapshot" | "topRankUser" | "topRankGateway" | "topRankProgram" | "topRankBatch" | "topRankSession" | "topRankStudentProfile" | "topRankEnrollment" | "topRankBatchAssignment" | "topRankProgramAgreement" | "topRankOrientationProgress" | "topRankAssessment" | "topRankAssessmentAnswer" | "topRankAPR" | "topRankMission" | "topRankMissionTask" | "topRankMissionCompletion" | "topRankMissionCalendar" | "topRankSignalSnapshot" | "topRankReadinessScore" | "topRankPerformanceTrend" | "topRankGrowthTrend" | "topRankRiskTrend" | "topRankMentorFeedback" | "topRankSignalWeightConfig" | "assessmentTraitLibraryItem" | "assessmentDimensionLibraryItem" | "assessmentTraitBandInterpretation" | "assessmentRiskInterpretation" | "assessmentReadinessInterpretation" | "assessmentSsbOlq" | "assessmentSsbOlqMapping" | "assessmentSsbOlqInterpretation" | "oLQScore" | "studyPlan" | "performanceAnalytics" | "revisionSchedule" | "liveClass" | "recordedLecture" | "lectureProgress" | "lecturePlaybackEvent" | "attendance" | "timetable" | "faculty" | "classroom" | "payroll" | "announcement" | "hostel" | "room" | "hostelAllocation" | "inOutEntry" | "hostelLeave" | "messMenu" | "disciplineRecord" | "paradePerformance" | "lead" | "followUp" | "admission" | "counsellingBooking" | "referral" | "payment" | "subscription" | "feeInstallment" | "invoice" | "feePlan" | "paymentTransactionLog" | "approvalRequest" | "scholarshipDiscount" | "financeDocument" | "notification" | "messageThread" | "message" | "emailLog" | "pushNotification" | "aIInterviewSession" | "aIInterviewQuestion" | "doubtQuery" | "aIRecommendation" | "aITutorSession" | "aITutorMessage" | "aITutorFeedback" | "aIResponseCache" | "learningTopicInsight" | "revisionQueueItem" | "cBTIntelligenceReport" | "contentIngestionJob" | "generatedContentAsset" | "offlineSyncEvent" | "learningAnalyticsSnapshot" | "dailyIntelligenceIssue" | "contentModerationItem" | "officerPotential" | "fitnessProfile" | "pTSchedule" | "pTAttendance" | "physicalEligibility" | "dailyFitnessLog" | "pYQCategory" | "pYQQuestion" | "currentAffair" | "currentAffairQuiz" | "quizBattle" | "quizBattleParticipant" | "leaderboard" | "mediaFolder" | "mediaFile" | "document" | "adminRole" | "permission" | "rolePermission" | "userRole" | "roleActivity" | "systemSetting" | "auditLog" | "queueJobLog" | "aIRequestLog" | "salesBoosterCampaign" | "salesBoosterMetricSnapshot" | "salesBoosterAudienceContact" | "guruQuest" | "guruLesson" | "guruLessonCompletion" | "guruReflectionQuestion" | "guruReflectionAnswer" | "guruChallenge" | "guruChallengeCompletion" | "guruProgress" | "guruAchievement" | "guruUserAchievement" | "guruCertificate" | "guruUserCertificate" | "guruDailyMission" | "guruDailyMissionCompletion" | "guruMentorNote" | "guruReflectionInsight" | "guruXpLedger" | "branch" | "institute" | "teacherAttendanceRecord" | "teacherAssignmentRecord" | "assignmentSubmissionRecord" | "teacherStudyMaterialRecord" | "teacherExamRecord" | "examUpload" | "teacherCalendarLogRecord" | "teacherSyllabusProgressRecord" | "ndpReview" | "ndpManualEntry" | "academicActivityAuditRecord" | "directorExpenseRecord" | "aiWorkflowRequest" | "aiWorkflowContext" | "aiWorkflowContextSource" | "aiWorkflowDraft" | "aiWorkflowDraftVersion" | "aiWorkflowReview" | "aiWorkflowApproval" | "aiWorkflowFeedback" | "aiWorkflowPublication" | "aiWorkflowAuditEvent" | "academicLeaveRequest"
+    modelProps: "user" | "sessionToken" | "passwordReset" | "parentStudentInvitation" | "parentStudentLink" | "otp" | "course" | "module" | "lesson" | "enrollment" | "batch" | "batchStudent" | "teacherBatchAssignment" | "test" | "question" | "questionVersion" | "questionBankItem" | "testAttempt" | "cBTAnswerState" | "cBTIntegrityEvent" | "answer" | "psychometricTest" | "psychometricQuestion" | "psychometricAttempt" | "psychometricReport" | "psychometricAnswer" | "assessmentArenaAssessment" | "assessmentTraitMapping" | "assessmentDimensionMapping" | "assessmentQuestionBlueprint" | "assessmentTraitBlueprint" | "assessmentDimensionBlueprint" | "assessmentTrait" | "assessmentDimension" | "assessmentQuestion" | "assessmentQuestionOption" | "assessmentQuestionVersion" | "assessmentQuestionReview" | "assessmentReviewBoard" | "assessmentPilotRun" | "assessmentPilotResponse" | "assessmentQuestionExposure" | "assessmentAttempt" | "assessmentAttemptQuestion" | "assessmentAnswer" | "assessmentTraitScore" | "assessmentDimensionScore" | "assessmentIntegritySignal" | "assessmentRiskSignal" | "assessmentGrowthSnapshot" | "assessmentRankPrediction" | "assessmentReportSnapshot" | "topRankUser" | "topRankGateway" | "topRankProgram" | "topRankBatch" | "topRankSession" | "topRankStudentProfile" | "topRankEnrollment" | "topRankBatchAssignment" | "topRankProgramAgreement" | "topRankOrientationProgress" | "topRankAssessment" | "topRankAssessmentAnswer" | "topRankAPR" | "topRankMission" | "topRankMissionTask" | "topRankMissionCompletion" | "topRankMissionCalendar" | "topRankSignalSnapshot" | "topRankReadinessScore" | "topRankPerformanceTrend" | "topRankGrowthTrend" | "topRankRiskTrend" | "topRankMentorFeedback" | "topRankSignalWeightConfig" | "assessmentTraitLibraryItem" | "assessmentDimensionLibraryItem" | "assessmentTraitBandInterpretation" | "assessmentRiskInterpretation" | "assessmentReadinessInterpretation" | "assessmentSsbOlq" | "assessmentSsbOlqMapping" | "assessmentSsbOlqInterpretation" | "oLQScore" | "studyPlan" | "performanceAnalytics" | "revisionSchedule" | "liveClass" | "recordedLecture" | "lectureProgress" | "lecturePlaybackEvent" | "attendance" | "timetable" | "faculty" | "classroom" | "payroll" | "announcement" | "hostel" | "room" | "hostelAllocation" | "inOutEntry" | "hostelLeave" | "messMenu" | "disciplineRecord" | "paradePerformance" | "lead" | "followUp" | "admission" | "counsellingBooking" | "referral" | "payment" | "subscription" | "feeInstallment" | "invoice" | "feePlan" | "paymentTransactionLog" | "approvalRequest" | "scholarshipDiscount" | "financeDocument" | "notification" | "messageThread" | "message" | "emailLog" | "pushNotification" | "aIInterviewSession" | "aIInterviewQuestion" | "doubtQuery" | "aIRecommendation" | "aITutorSession" | "aITutorMessage" | "aITutorFeedback" | "aIResponseCache" | "learningTopicInsight" | "revisionQueueItem" | "cBTIntelligenceReport" | "contentIngestionJob" | "generatedContentAsset" | "offlineSyncEvent" | "learningAnalyticsSnapshot" | "dailyIntelligenceIssue" | "contentModerationItem" | "officerPotential" | "fitnessProfile" | "pTSchedule" | "pTAttendance" | "physicalEligibility" | "dailyFitnessLog" | "pYQCategory" | "pYQQuestion" | "currentAffair" | "currentAffairQuiz" | "quizBattle" | "quizBattleParticipant" | "leaderboard" | "mediaFolder" | "mediaFile" | "document" | "adminRole" | "permission" | "rolePermission" | "userRole" | "roleActivity" | "systemSetting" | "auditLog" | "queueJobLog" | "aIRequestLog" | "salesBoosterCampaign" | "salesBoosterMetricSnapshot" | "salesBoosterAudienceContact" | "guruQuest" | "guruLesson" | "guruLessonCompletion" | "guruReflectionQuestion" | "guruReflectionAnswer" | "guruChallenge" | "guruChallengeCompletion" | "guruProgress" | "guruAchievement" | "guruUserAchievement" | "guruCertificate" | "guruUserCertificate" | "guruDailyMission" | "guruDailyMissionCompletion" | "guruMentorNote" | "guruReflectionInsight" | "guruXpLedger" | "branch" | "institute" | "teacherAttendanceRecord" | "teacherAssignmentRecord" | "assignmentSubmissionRecord" | "teacherStudyMaterialRecord" | "teacherExamRecord" | "examImportJob" | "examUpload" | "teacherCalendarLogRecord" | "teacherSyllabusProgressRecord" | "ndpReview" | "ndpManualEntry" | "academicActivityAuditRecord" | "directorExpenseRecord" | "aiWorkflowRequest" | "aiWorkflowContext" | "aiWorkflowContextSource" | "aiWorkflowDraft" | "aiWorkflowDraftVersion" | "aiWorkflowReview" | "aiWorkflowApproval" | "aiWorkflowFeedback" | "aiWorkflowPublication" | "aiWorkflowAuditEvent" | "academicLeaveRequest"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1721,6 +1723,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.QuestionCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.QuestionCountAggregateOutputType> | number
+        }
+      }
+    }
+    QuestionVersion: {
+      payload: Prisma.$QuestionVersionPayload<ExtArgs>
+      fields: Prisma.QuestionVersionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.QuestionVersionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuestionVersionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.QuestionVersionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuestionVersionPayload>
+        }
+        findFirst: {
+          args: Prisma.QuestionVersionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuestionVersionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.QuestionVersionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuestionVersionPayload>
+        }
+        findMany: {
+          args: Prisma.QuestionVersionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuestionVersionPayload>[]
+        }
+        create: {
+          args: Prisma.QuestionVersionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuestionVersionPayload>
+        }
+        createMany: {
+          args: Prisma.QuestionVersionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.QuestionVersionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuestionVersionPayload>[]
+        }
+        delete: {
+          args: Prisma.QuestionVersionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuestionVersionPayload>
+        }
+        update: {
+          args: Prisma.QuestionVersionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuestionVersionPayload>
+        }
+        deleteMany: {
+          args: Prisma.QuestionVersionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.QuestionVersionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.QuestionVersionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuestionVersionPayload>[]
+        }
+        upsert: {
+          args: Prisma.QuestionVersionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuestionVersionPayload>
+        }
+        aggregate: {
+          args: Prisma.QuestionVersionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateQuestionVersion>
+        }
+        groupBy: {
+          args: Prisma.QuestionVersionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.QuestionVersionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.QuestionVersionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.QuestionVersionCountAggregateOutputType> | number
         }
       }
     }
@@ -14896,6 +14972,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ExamImportJob: {
+      payload: Prisma.$ExamImportJobPayload<ExtArgs>
+      fields: Prisma.ExamImportJobFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ExamImportJobFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExamImportJobPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ExamImportJobFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExamImportJobPayload>
+        }
+        findFirst: {
+          args: Prisma.ExamImportJobFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExamImportJobPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ExamImportJobFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExamImportJobPayload>
+        }
+        findMany: {
+          args: Prisma.ExamImportJobFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExamImportJobPayload>[]
+        }
+        create: {
+          args: Prisma.ExamImportJobCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExamImportJobPayload>
+        }
+        createMany: {
+          args: Prisma.ExamImportJobCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ExamImportJobCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExamImportJobPayload>[]
+        }
+        delete: {
+          args: Prisma.ExamImportJobDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExamImportJobPayload>
+        }
+        update: {
+          args: Prisma.ExamImportJobUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExamImportJobPayload>
+        }
+        deleteMany: {
+          args: Prisma.ExamImportJobDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ExamImportJobUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ExamImportJobUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExamImportJobPayload>[]
+        }
+        upsert: {
+          args: Prisma.ExamImportJobUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExamImportJobPayload>
+        }
+        aggregate: {
+          args: Prisma.ExamImportJobAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateExamImportJob>
+        }
+        groupBy: {
+          args: Prisma.ExamImportJobGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ExamImportJobGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ExamImportJobCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ExamImportJobCountAggregateOutputType> | number
+        }
+      }
+    }
     ExamUpload: {
       payload: Prisma.$ExamUploadPayload<ExtArgs>
       fields: Prisma.ExamUploadFieldRefs
@@ -16487,6 +16637,17 @@ export const QuestionScalarFieldEnum = {
   questionImage: 'questionImage',
   visualReviewRequired: 'visualReviewRequired',
   visualReviewNotes: 'visualReviewNotes',
+  contentJson: 'contentJson',
+  sourceDocumentId: 'sourceDocumentId',
+  sourcePageNumber: 'sourcePageNumber',
+  boundingBoxes: 'boundingBoxes',
+  latex: 'latex',
+  assets: 'assets',
+  layout: 'layout',
+  renderMode: 'renderMode',
+  aiConfidence: 'aiConfidence',
+  reviewStatus: 'reviewStatus',
+  publishedVersion: 'publishedVersion',
   optionA: 'optionA',
   optionB: 'optionB',
   optionC: 'optionC',
@@ -16500,6 +16661,37 @@ export const QuestionScalarFieldEnum = {
 } as const
 
 export type QuestionScalarFieldEnum = (typeof QuestionScalarFieldEnum)[keyof typeof QuestionScalarFieldEnum]
+
+
+export const QuestionVersionScalarFieldEnum = {
+  id: 'id',
+  questionId: 'questionId',
+  testId: 'testId',
+  version: 'version',
+  changeType: 'changeType',
+  changeReason: 'changeReason',
+  changedById: 'changedById',
+  changedByRole: 'changedByRole',
+  questionText: 'questionText',
+  questionImage: 'questionImage',
+  contentJson: 'contentJson',
+  optionsSnapshot: 'optionsSnapshot',
+  answerSnapshot: 'answerSnapshot',
+  explanation: 'explanation',
+  renderMode: 'renderMode',
+  aiConfidence: 'aiConfidence',
+  reviewStatus: 'reviewStatus',
+  sourceDocumentId: 'sourceDocumentId',
+  sourcePageNumber: 'sourcePageNumber',
+  boundingBoxes: 'boundingBoxes',
+  latex: 'latex',
+  assets: 'assets',
+  layout: 'layout',
+  metadataSnapshot: 'metadataSnapshot',
+  createdAt: 'createdAt'
+} as const
+
+export type QuestionVersionScalarFieldEnum = (typeof QuestionVersionScalarFieldEnum)[keyof typeof QuestionVersionScalarFieldEnum]
 
 
 export const QuestionBankItemScalarFieldEnum = {
@@ -19333,8 +19525,43 @@ export const TeacherExamRecordScalarFieldEnum = {
 export type TeacherExamRecordScalarFieldEnum = (typeof TeacherExamRecordScalarFieldEnum)[keyof typeof TeacherExamRecordScalarFieldEnum]
 
 
+export const ExamImportJobScalarFieldEnum = {
+  id: 'id',
+  examId: 'examId',
+  testId: 'testId',
+  batchId: 'batchId',
+  subject: 'subject',
+  topic: 'topic',
+  sourceKind: 'sourceKind',
+  originalName: 'originalName',
+  fileType: 'fileType',
+  fileSize: 'fileSize',
+  cloudinaryUrl: 'cloudinaryUrl',
+  publicId: 'publicId',
+  documentClass: 'documentClass',
+  pipeline: 'pipeline',
+  status: 'status',
+  classification: 'classification',
+  pageImages: 'pageImages',
+  rawText: 'rawText',
+  rawOcr: 'rawOcr',
+  layoutJson: 'layoutJson',
+  aiResult: 'aiResult',
+  teacherEdits: 'teacherEdits',
+  confidence: 'confidence',
+  reviewStatus: 'reviewStatus',
+  manualReviewRequired: 'manualReviewRequired',
+  uploadedBy: 'uploadedBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ExamImportJobScalarFieldEnum = (typeof ExamImportJobScalarFieldEnum)[keyof typeof ExamImportJobScalarFieldEnum]
+
+
 export const ExamUploadScalarFieldEnum = {
   id: 'id',
+  importJobId: 'importJobId',
   examId: 'examId',
   testId: 'testId',
   batchId: 'batchId',
@@ -19347,6 +19574,9 @@ export const ExamUploadScalarFieldEnum = {
   fileSize: 'fileSize',
   cloudinaryUrl: 'cloudinaryUrl',
   publicId: 'publicId',
+  documentClass: 'documentClass',
+  pipeline: 'pipeline',
+  classification: 'classification',
   extractionStatus: 'extractionStatus',
   extractionAudit: 'extractionAudit',
   manualReviewRequired: 'manualReviewRequired',
@@ -20117,6 +20347,7 @@ export type GlobalOmitConfig = {
   teacherBatchAssignment?: Prisma.TeacherBatchAssignmentOmit
   test?: Prisma.TestOmit
   question?: Prisma.QuestionOmit
+  questionVersion?: Prisma.QuestionVersionOmit
   questionBankItem?: Prisma.QuestionBankItemOmit
   testAttempt?: Prisma.TestAttemptOmit
   cBTAnswerState?: Prisma.CBTAnswerStateOmit
@@ -20295,6 +20526,7 @@ export type GlobalOmitConfig = {
   assignmentSubmissionRecord?: Prisma.AssignmentSubmissionRecordOmit
   teacherStudyMaterialRecord?: Prisma.TeacherStudyMaterialRecordOmit
   teacherExamRecord?: Prisma.TeacherExamRecordOmit
+  examImportJob?: Prisma.ExamImportJobOmit
   examUpload?: Prisma.ExamUploadOmit
   teacherCalendarLogRecord?: Prisma.TeacherCalendarLogRecordOmit
   teacherSyllabusProgressRecord?: Prisma.TeacherSyllabusProgressRecordOmit

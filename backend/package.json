@@ -31,6 +31,8 @@
     "queue:readiness": "tsx src/scripts/queue-readiness.ts",
     "integrations:readiness": "tsx src/scripts/integrations-readiness.ts",
     "security:readiness": "tsx src/scripts/security-readiness.ts",
+    "exam-import:migrate": "tsx src/scripts/exam-import-migration.ts",
+    "exam-import:migrate:apply": "tsx src/scripts/exam-import-migration.ts --apply",
     "test:auth": "tsx src/scripts/auth-flow-verification.ts",
     "test": "jest --runInBand",
     "test:watch": "jest --watch",

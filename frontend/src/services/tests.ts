@@ -27,6 +27,17 @@ export type TestPayload = {
     questionImage?: string;
     visualReviewRequired?: boolean;
     visualReviewNotes?: string[];
+    contentJson?: unknown;
+    sourceDocumentId?: string;
+    sourcePageNumber?: number;
+    boundingBoxes?: unknown;
+    latex?: unknown;
+    assets?: unknown;
+    layout?: unknown;
+    renderMode?: string;
+    aiConfidence?: number;
+    reviewStatus?: string;
+    publishedVersion?: number;
     optionA: string;
     optionB: string;
     optionC: string;

@@ -5,6 +5,17 @@ export type Question = {
   questionImage?: string | null;
   visualReviewRequired?: boolean | null;
   visualReviewNotes?: string[] | null;
+  contentJson?: unknown;
+  sourceDocumentId?: string | null;
+  sourcePageNumber?: number | null;
+  boundingBoxes?: unknown;
+  latex?: unknown;
+  assets?: unknown;
+  layout?: unknown;
+  renderMode?: string | null;
+  aiConfidence?: number | null;
+  reviewStatus?: string | null;
+  publishedVersion?: number | null;
   optionA: string;
   optionB: string;
   optionC: string;

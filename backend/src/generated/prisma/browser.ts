@@ -93,6 +93,11 @@ export type Test = Prisma.TestModel
  */
 export type Question = Prisma.QuestionModel
 /**
+ * Model QuestionVersion
+ * 
+ */
+export type QuestionVersion = Prisma.QuestionVersionModel
+/**
  * Model QuestionBankItem
  * 
  */
@@ -982,6 +987,11 @@ export type TeacherStudyMaterialRecord = Prisma.TeacherStudyMaterialRecordModel
  * 
  */
 export type TeacherExamRecord = Prisma.TeacherExamRecordModel
+/**
+ * Model ExamImportJob
+ * 
+ */
+export type ExamImportJob = Prisma.ExamImportJobModel
 /**
  * Model ExamUpload
  * 

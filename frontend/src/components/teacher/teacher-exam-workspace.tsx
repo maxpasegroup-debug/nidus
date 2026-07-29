@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { ReactNode } from "react";
+import type { PointerEvent, ReactNode } from "react";
 import { BookOpen, CheckCircle2, ChevronLeft, ChevronRight, Clock3, Eye, FileText, Pencil, Plus, Send, Trash2, Trophy, X } from "lucide-react";
+import { NidusMathText } from "@/components/exam/nidus-math-renderer";
+import { buildNidusQuestionContent } from "@/components/exam/nidus-question-content";
 import { ExamReportingPanel, ExaminationEngineBanner, ExaminationRoleActions, ExamTypePanel, QuestionBankHierarchyPanel, type ExaminationEngineRole } from "@/components/examination/examination-engine-workspace";
 
 export type TeacherExamBatch = {
@@ -44,6 +46,17 @@ type QuestionDraft = {
   negativeMarks: number;
   difficultyLevel: string;
   topic: string;
+  contentJson?: unknown;
+  sourceDocumentId?: string;
+  sourcePageNumber?: number;
+  boundingBoxes?: unknown;
+  latex?: unknown;
+  assets?: unknown;
+  layout?: unknown;
+  renderMode?: string;
+  aiConfidence?: number;
+  reviewStatus?: string;
+  publishedVersion?: number;
 };
 
 type ExtractionReport = {
@@ -60,11 +73,15 @@ type ExtractionReport = {
 
 type ExamUploadRecord = {
   id: string;
+  importJobId?: string | null;
   sourceKind: ExtractionReport["sourceKind"] | "EXPLANATION" | "SUPPORTING_ASSET";
   fileName: string;
   originalName: string;
   fileType: string;
   fileSize: number;
+  documentClass?: string;
+  pipeline?: string;
+  classification?: unknown;
   signedUrl?: string;
   cloudinaryUrl?: string;
   localPreviewUrl?: string;
@@ -84,6 +101,13 @@ type QuestionVisualAsset = {
 };
 
 type VisualCropRegion = "FULL" | "TOP" | "MIDDLE" | "BOTTOM";
+
+type CropBox = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
 
 type ResultRow = {
   rank: number;
@@ -164,6 +188,54 @@ type ResultsPayload = {
     releaseReady: boolean;
   };
   results: ResultRow[];
+};
+
+type ImportValidationPayload = {
+  engine: string;
+  provider: string;
+  averageConfidence: number;
+  publishReady: boolean;
+  summary: {
+    totalQuestions: number;
+    autoApproved: number;
+    needsReview: number;
+    manualCorrection: number;
+    documentClass?: string;
+    pipeline?: string;
+  };
+  questionReports: Array<{
+    number: number;
+    confidence: number;
+    status: "AUTO_APPROVED" | "NEEDS_REVIEW" | "MANUAL_CORRECTION_REQUIRED" | string;
+    issues: string[];
+    warnings: string[];
+    riskTags: string[];
+  }>;
+  recommendations: string[];
+  createdAt: string;
+};
+
+type ImportAnalyticsPayload = {
+  totals: {
+    importJobs: number;
+    uploads: number;
+    reviewRequired: number;
+    autoClassified: number;
+    visualRiskUploads: number;
+    averageConfidence: number;
+  };
+  byDocumentClass: Record<string, number>;
+  byPipeline: Record<string, number>;
+  recentJobs: Array<{
+    id: string;
+    originalName: string;
+    documentClass: string;
+    pipeline: string;
+    status: string;
+    reviewStatus: string;
+    confidence?: number | null;
+    createdAt: string;
+  }>;
 };
 
 type Props = {
@@ -440,6 +512,35 @@ async function cropVisualAsset(dataUrl: string, region: VisualCropRegion): Promi
   canvas.height = outputHeight;
   context.drawImage(image, 0, sourceY, image.naturalWidth, sourceHeight, 0, 0, outputWidth, outputHeight);
   return canvas.toDataURL("image/jpeg", 0.82);
+}
+
+async function cropVisualAssetBox(dataUrl: string, box: CropBox): Promise<string> {
+  const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const element = new window.Image();
+    element.onload = () => resolve(element);
+    element.onerror = () => reject(new Error("Unable to crop selected visual area."));
+    element.src = dataUrl;
+  });
+  const sourceX = Math.max(0, Math.round(box.x * image.naturalWidth));
+  const sourceY = Math.max(0, Math.round(box.y * image.naturalHeight));
+  const sourceWidth = Math.max(1, Math.round(box.width * image.naturalWidth));
+  const sourceHeight = Math.max(1, Math.round(box.height * image.naturalHeight));
+  const outputWidth = Math.min(1100, sourceWidth);
+  const scale = outputWidth / Math.max(1, sourceWidth);
+  const outputHeight = Math.max(1, Math.round(sourceHeight * scale));
+  const canvas = window.document.createElement("canvas");
+  const context = canvas.getContext("2d");
+  if (!context) return dataUrl;
+  canvas.width = outputWidth;
+  canvas.height = outputHeight;
+  context.drawImage(image, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, outputWidth, outputHeight);
+  return canvas.toDataURL("image/jpeg", 0.86);
+}
+
+async function runOcrOnImage(dataUrl: string) {
+  const { recognize } = await import("tesseract.js");
+  const result = await recognize(dataUrl, "eng");
+  return result.data.text.trim();
 }
 
 function stripNumber(line: string) {
@@ -862,6 +963,11 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
   const [questionVisuals, setQuestionVisuals] = useState<Record<number, string>>({});
   const [extractionReports, setExtractionReports] = useState<ExtractionReport[]>([]);
   const [manualPaperReview, setManualPaperReview] = useState(false);
+  const [questionReviewStatus, setQuestionReviewStatus] = useState<Record<number, "APPROVED" | "NEEDS_REVIEW">>({});
+  const [ocrBusy, setOcrBusy] = useState(false);
+  const [validationBusy, setValidationBusy] = useState(false);
+  const [importValidation, setImportValidation] = useState<ImportValidationPayload | null>(null);
+  const [importAnalytics, setImportAnalytics] = useState<ImportAnalyticsPayload | null>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [resultsExam, setResultsExam] = useState<TeacherExamRecord | null>(null);
@@ -912,28 +1018,83 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
   const visualQuestionsWithoutAttachment = useMemo(() => understanding.questionSignals
     .filter((signal) => (signal.visualRequired || signal.tableRisk || signal.graphRisk) && !questionVisuals[signal.number])
     .map((signal) => signal.number), [questionVisuals, understanding.questionSignals]);
+  const reviewRequiredQuestionNumbers = useMemo(() => understanding.questionSignals
+    .filter((signal) => signal.confidence !== "HIGH" || signal.visualRequired || signal.formulaRisk || signal.tableRisk || signal.graphRisk)
+    .map((signal) => signal.number), [understanding.questionSignals]);
+  const unapprovedQuestionNumbers = useMemo(() => reviewRequiredQuestionNumbers
+    .filter((number) => questionReviewStatus[number] !== "APPROVED" && !manualPaperReview), [manualPaperReview, questionReviewStatus, reviewRequiredQuestionNumbers]);
   const blockingExtractionReports = useMemo(() => extractionReports.filter((report) => report.status === "BLOCKED" && report.sourceKind === "QUESTION_PAPER"), [extractionReports]);
   const reviewExtractionReports = useMemo(() => extractionReports.filter((report) => report.status !== "READY"), [extractionReports]);
   const extractionNeedsManualReview = blockingExtractionReports.length > 0 || extractionReports.some((report) => report.visualRisk) || understanding.confidence === "LOW" || visualFidelity.confidence === "LOW";
-  const canPublishPaper = questions.length > 0 && readiness.missingOptions === 0 && readiness.missingAnswers === 0 && !visualFidelity.missingSourceForVisuals && visualQuestionsWithoutAttachment.length === 0 && (!extractionNeedsManualReview || manualPaperReview);
+  const validationRequired = questions.length > 0 && !editingExam;
+  const validationBlocksPublish = validationRequired && (!importValidation || importValidation.summary.manualCorrection > 0);
+  const validationReportMap = useMemo(() => new Map((importValidation?.questionReports ?? []).map((report) => [report.number, report])), [importValidation?.questionReports]);
+  const canPublishPaper = questions.length > 0 && readiness.missingOptions === 0 && readiness.missingAnswers === 0 && !visualFidelity.missingSourceForVisuals && visualQuestionsWithoutAttachment.length === 0 && unapprovedQuestionNumbers.length === 0 && !validationBlocksPublish && (!extractionNeedsManualReview || manualPaperReview || reviewRequiredQuestionNumbers.length === 0);
+  const effectiveTopic = useMemo(() => inferExamTopic(questionSource, form.topic), [form.topic, questionSource]);
+  const effectiveTitle = useMemo(() => form.title.trim() || inferExamTitle(questionSource, subject, activeBatch?.name), [activeBatch?.name, form.title, questionSource, subject]);
   const questionsForPublish = useMemo(() => questions.map((question, index) => {
     const signal = understanding.questionSignals[index];
+    const validationReport = validationReportMap.get(index + 1);
     const visualReviewNotes = signal?.notes ?? [];
+    const sourceUpload = examUploads.find((upload) => upload.sourceKind === "QUESTION_PAPER");
+    const sourceDocumentId = sourceUpload?.importJobId || sourceUpload?.id;
+    const aiConfidence = typeof validationReport?.confidence === "number" ? validationReport.confidence / 100 : signal?.confidence === "HIGH" ? 0.92 : signal?.confidence === "MEDIUM" ? 0.72 : 0.48;
+    const reviewStatus = validationReport?.status === "MANUAL_CORRECTION_REQUIRED"
+      ? "NEEDS_REVIEW"
+      : manualPaperReview || validationReport?.status === "AUTO_APPROVED" || !signal || signal.confidence === "HIGH" || questionReviewStatus[index + 1] === "APPROVED" ? "APPROVED" : "NEEDS_REVIEW";
+    const reviewedExplanation = question.explanation && !/^Explanation will be reviewed/i.test(question.explanation)
+      ? question.explanation
+      : `The correct answer is option ${question.correctAnswer}. Review this answer against the uploaded faculty key and topic notes.`;
     return {
       ...question,
       questionImage: questionVisuals[index + 1] || question.questionImage,
       visualReviewRequired: Boolean(signal && (signal.visualRequired || signal.tableRisk || signal.graphRisk || signal.formulaRisk)),
       visualReviewNotes,
-      explanation: question.explanation && !/^Explanation will be reviewed/i.test(question.explanation)
-        ? question.explanation
-        : `The correct answer is option ${question.correctAnswer}. Review this answer against the uploaded faculty key and topic notes.`,
+      contentJson: buildNidusQuestionContent({
+        questionText: question.questionText,
+        questionImage: questionVisuals[index + 1] || question.questionImage,
+        optionA: question.optionA,
+        optionB: question.optionB,
+        optionC: question.optionC,
+        optionD: question.optionD,
+        correctAnswer: question.correctAnswer,
+        explanation: reviewedExplanation,
+        sourceDocumentId,
+        sourceUploadId: sourceUpload?.id || null,
+        importJobId: sourceUpload?.importJobId || null,
+        subject,
+        topic: effectiveTopic,
+        difficulty: question.difficultyLevel,
+        marks: understanding.markingScheme.marksPerQuestion || question.marks,
+        negativeMarks: understanding.markingScheme.negativeMarks,
+        aiConfidence,
+        reviewStatus,
+        visualReviewNotes,
+      }),
+      sourceDocumentId,
+      sourcePageNumber: signal?.number ? undefined : undefined,
+      boundingBoxes: {},
+      latex: {},
+      assets: {
+        questionImage: questionVisuals[index + 1] || question.questionImage || null,
+        sourceUploadId: sourceUpload?.id || null,
+        importJobId: sourceUpload?.importJobId || null,
+      },
+      layout: {
+        documentClass: sourceUpload?.documentClass || "UNKNOWN",
+        pipeline: sourceUpload?.pipeline || "UNCLASSIFIED",
+        schema: "NIDUS_QUESTION_CONTENT_V1",
+      },
+      renderMode: signal?.formulaRisk ? "RICH_MATH_REVIEWED" : questionVisuals[index + 1] ? "RICH_VISUAL_MCQ" : "LEGACY_MCQ",
+      aiConfidence,
+      reviewStatus,
+      publishedVersion: 1,
+      explanation: reviewedExplanation,
       marks: understanding.markingScheme.marksPerQuestion || question.marks,
       negativeMarks: understanding.markingScheme.negativeMarks,
     };
-  }), [questionVisuals, questions, understanding.markingScheme.marksPerQuestion, understanding.markingScheme.negativeMarks, understanding.questionSignals]);
+  }), [effectiveTopic, examUploads, manualPaperReview, questionReviewStatus, questionVisuals, questions, subject, understanding.markingScheme.marksPerQuestion, understanding.markingScheme.negativeMarks, understanding.questionSignals, validationReportMap]);
   const duplicateQuestionIndexes = useMemo(() => new Set(readiness.duplicateQuestions.flatMap((item) => [item.firstIndex, item.index])), [readiness.duplicateQuestions]);
-  const effectiveTopic = useMemo(() => inferExamTopic(questionSource, form.topic), [form.topic, questionSource]);
-  const effectiveTitle = useMemo(() => form.title.trim() || inferExamTitle(questionSource, subject, activeBatch?.name), [activeBatch?.name, form.title, questionSource, subject]);
 
   useEffect(() => () => {
     uploadPreviewUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
@@ -981,6 +1142,31 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
     setTargetBatchIds((ids) => ids.includes(batchId) ? ids.filter((id) => id !== batchId) : [...ids, batchId]);
   }
 
+  async function refreshImportAnalytics(batchId = activeBatch?.id) {
+    if (!batchId) return;
+    try {
+      const result = await requestJson<{ analytics: ImportAnalyticsPayload }>(`/api/academy/exams/import/analytics?batchId=${encodeURIComponent(batchId)}`);
+      setImportAnalytics(result.analytics);
+    } catch {
+      setImportAnalytics(null);
+    }
+  }
+
+  useEffect(() => {
+    if (!activeBatch?.id) return;
+    let cancelled = false;
+    requestJson<{ analytics: ImportAnalyticsPayload }>(`/api/academy/exams/import/analytics?batchId=${encodeURIComponent(activeBatch.id)}`)
+      .then((result) => {
+        if (!cancelled) setImportAnalytics(result.analytics);
+      })
+      .catch(() => {
+        if (!cancelled) setImportAnalytics(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [activeBatch?.id]);
+
   async function preserveExamSource(file: File, sourceKind: ExtractionReport["sourceKind"], report: ExtractionReport) {
     if (!activeBatch?.id) throw new Error("Select a batch before uploading exam source files.");
     const body = new FormData();
@@ -990,6 +1176,8 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
     body.append("topic", form.topic || effectiveTopic || "General");
     body.append("sourceKind", sourceKind);
     body.append("extractionStatus", report.status);
+    body.append("documentClass", report.textCharacters === 0 ? "SCANNED_DOCUMENT" : report.visualRisk ? "MATH_VISUAL_DOCUMENT" : "TEXT_DOCUMENT");
+    body.append("pipeline", report.textCharacters === 0 ? "OCR_REVIEW" : report.visualRisk ? "MATH_LAYOUT_REVIEW" : "TEXT_EXTRACTION_REVIEW");
     body.append("manualReviewRequired", String(report.status === "BLOCKED" || report.visualRisk));
     body.append("manualReviewCompleted", String(manualPaperReview));
     body.append("extractionAudit", JSON.stringify({ ...report, paperUnderstanding: understanding, visualFidelity }));
@@ -1001,6 +1189,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
       ...uploads.filter((upload) => !(upload.sourceKind === sourceKind && upload.originalName === file.name)),
       uploadWithPreview,
     ]);
+    void refreshImportAnalytics(activeBatch.id);
     return uploadWithPreview;
   }
 
@@ -1025,7 +1214,21 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
         const asset = await renderImageAsset(file);
         setVisualAssets((current) => [...current.filter((item) => item.fileName !== file.name), asset]);
       }
-      const text = isDocx ? await extractDocxText(file) : isPdf ? await extractPdfText(file) : isTxt ? await file.text().catch(() => "") : "";
+      let text = isDocx ? await extractDocxText(file) : isPdf ? await extractPdfText(file) : isTxt ? await file.text().catch(() => "") : "";
+      if (sourceKind === "QUESTION_PAPER" && !text.trim() && (isPdf || isImage)) {
+        const ocrAssets = isImage ? [await renderImageAsset(file)] : await renderPdfPageAssets(file).catch(() => []);
+        if (ocrAssets.length) {
+          setOcrBusy(true);
+          setMessage(`Running OCR for ${file.name}. Keep this screen open while NIDUS reads the scanned paper.`);
+          const ocrText = await Promise.all(ocrAssets.slice(0, 8).map(async (asset) => {
+            const pageText = await runOcrOnImage(asset.dataUrl).catch(() => "");
+            return pageText ? `Page ${asset.pageNumber || 1}\n${pageText}` : "";
+          }));
+          text = ocrText.filter(Boolean).join("\n\n");
+          setOcrBusy(false);
+          if (ocrAssets.length) setVisualAssets((current) => [...current.filter((asset) => asset.fileName !== file.name), ...ocrAssets]);
+        }
+      }
       const report = auditExtractedSource(file, text, sourceKind, isPdf);
       setExtractionReports((reports) => [...reports.filter((item) => !(item.sourceKind === sourceKind && item.fileName === file.name)), report]);
       let preserved = false;
@@ -1045,12 +1248,14 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
         return;
       }
       setter([current, text].filter(Boolean).join("\n\n"));
+      setImportValidation(null);
       setMessage(report.status === "BLOCKED"
         ? `${file.name} ${preserved ? "was preserved and" : ""} needs manual review before publishing: ${report.blockers.join(" ")}`
         : report.status === "REVIEW_REQUIRED"
           ? `${file.name} ${preserved ? "was preserved and" : "was"} extracted, but please review: ${report.warnings.join(" ")}`
           : `${file.name} ${preserved ? "was preserved and" : "was"} extracted successfully. Review the questions before continuing.`);
     } catch (error) {
+      setOcrBusy(false);
       setMessage(error instanceof Error ? error.message : `Unable to read ${file.name}.`);
       return;
     }
@@ -1073,6 +1278,8 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
     setQuestionVisuals({});
     setExtractionReports([]);
     setManualPaperReview(false);
+    setQuestionReviewStatus({});
+    setImportValidation(null);
     setTargetBatchIds(activeBatch?.id ? [activeBatch.id] : []);
     setStep(1);
     setPreviewIndex(0);
@@ -1123,6 +1330,11 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
       .filter((report): report is ExtractionReport => Boolean(report));
     setExtractionReports(savedReports);
     setManualPaperReview((exam.uploads ?? []).some((upload) => upload.manualReviewCompleted));
+    setQuestionReviewStatus(savedQuestions.reduce<Record<number, "APPROVED" | "NEEDS_REVIEW">>((acc, question, index) => {
+      acc[index + 1] = question.reviewStatus === "NEEDS_REVIEW" ? "NEEDS_REVIEW" : "APPROVED";
+      return acc;
+    }, {}));
+    setImportValidation(null);
     setStep(1);
     setPreviewIndex(0);
     setMessage("");
@@ -1150,6 +1362,12 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
         ? "Original question paper source is required before publishing diagram, table or graph based questions."
         : visualQuestionsWithoutAttachment.length
         ? `Attach the exact diagram/table/graph image for question(s) ${visualQuestionsWithoutAttachment.join(", ")} before publishing.`
+        : validationBlocksPublish && !importValidation
+        ? "Run NIDUS AI validation before publishing."
+        : validationBlocksPublish
+        ? "Manual correction is still required. Fix the flagged question(s), then re-run NIDUS AI validation."
+        : unapprovedQuestionNumbers.length
+        ? `Approve teacher-review question(s) ${unapprovedQuestionNumbers.join(", ")} before publishing.`
         : extractionNeedsManualReview && !manualPaperReview
         ? "Manual review is required for this uploaded paper before publishing. Check/correct every question, then tick manual review completed."
         : `Paper is incomplete: ${readiness.missingOptions} question(s) need options and ${readiness.missingAnswers} question(s) need answer keys before publishing.`);
@@ -1189,6 +1407,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
               examUploads: persistedExamUploads,
               paperUnderstanding: understanding,
               visualFidelity: { ...visualFidelity, questionImageAssignments: Object.keys(questionVisuals).length, visualQuestionsWithoutAttachment },
+              importValidation,
               manualPaperReview,
             } : undefined,
           }),
@@ -1236,6 +1455,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
               examUploads: persistedExamUploads,
               paperUnderstanding: understanding,
               visualFidelity: { ...visualFidelity, questionImageAssignments: Object.keys(questionVisuals).length, visualQuestionsWithoutAttachment },
+              importValidation,
               manualPaperReview,
             },
           }),
@@ -1309,6 +1529,86 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
     }
   }
 
+  function approveQuestion(number: number) {
+    setQuestionReviewStatus((current) => ({ ...current, [number]: "APPROVED" }));
+  }
+
+  function markQuestionNeedsReview(number: number) {
+    setQuestionReviewStatus((current) => ({ ...current, [number]: "NEEDS_REVIEW" }));
+  }
+
+  function approveReadyQuestions() {
+    const next = understanding.questionSignals.reduce<Record<number, "APPROVED" | "NEEDS_REVIEW">>((acc, signal) => {
+      acc[signal.number] = signal.confidence === "HIGH" && !signal.visualRequired && !signal.formulaRisk && !signal.tableRisk && !signal.graphRisk
+        ? "APPROVED"
+        : questionReviewStatus[signal.number] ?? "NEEDS_REVIEW";
+      return acc;
+    }, {});
+    setQuestionReviewStatus(next);
+    setMessage("High-confidence questions approved. Review the remaining flagged questions before publishing.");
+  }
+
+  async function validateImportWithAi() {
+    if (!activeBatch) return;
+    if (!questions.length) {
+      setMessage("Add questions before running NIDUS AI validation.");
+      return;
+    }
+    setValidationBusy(true);
+    setMessage("");
+    try {
+      const sourceUpload = examUploads.find((upload) => upload.sourceKind === "QUESTION_PAPER");
+      const result = await requestJson<{ validation: ImportValidationPayload }>("/api/academy/exams/import/validate", {
+        method: "POST",
+        body: JSON.stringify({
+          batchId: activeBatch.id,
+          subject,
+          topic: effectiveTopic,
+          documentClass: sourceUpload?.documentClass,
+          pipeline: sourceUpload?.pipeline,
+          importJobIds: examUploads.map((upload) => upload.importJobId).filter(Boolean),
+          examUploadIds: examUploads.map((upload) => upload.id).filter(Boolean),
+          extractionAudit: {
+            extractionReports,
+            paperUnderstanding: understanding,
+            visualFidelity,
+          },
+          questions: questionsForPublish.map((question, index) => ({
+            number: index + 1,
+            questionText: question.questionText,
+            optionA: question.optionA,
+            optionB: question.optionB,
+            optionC: question.optionC,
+            optionD: question.optionD,
+            correctAnswer: question.correctAnswer,
+            explanation: question.explanation,
+            visualReviewRequired: question.visualReviewRequired,
+            visualReviewNotes: question.visualReviewNotes,
+            aiConfidence: question.aiConfidence,
+            reviewStatus: question.reviewStatus,
+          })),
+        }),
+      });
+      setImportValidation(result.validation);
+      setQuestionReviewStatus((current) => {
+        const next = { ...current };
+        for (const report of result.validation.questionReports) {
+          if (report.status === "AUTO_APPROVED") next[report.number] = "APPROVED";
+          if (report.status === "NEEDS_REVIEW" && !next[report.number]) next[report.number] = "NEEDS_REVIEW";
+          if (report.status === "MANUAL_CORRECTION_REQUIRED") next[report.number] = "NEEDS_REVIEW";
+        }
+        return next;
+      });
+      setMessage(result.validation.publishReady
+        ? "NIDUS AI validation passed. Review the preview once and publish."
+        : "NIDUS AI validation completed. Open flagged questions and correct or approve them before publishing.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Unable to validate this import.");
+    } finally {
+      setValidationBusy(false);
+    }
+  }
+
   function goNextStep() {
     if (step === 1) {
       if (!(targetBatchIds.length || activeBatch?.id)) {
@@ -1350,6 +1650,18 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
       setMessage(`Preview opened with duplicate questions flagged. Question ${firstDuplicate.index + 1} repeats Question ${firstDuplicate.firstIndex + 1}; fix it before publishing.`);
     } else if (step === 2 && !editingExam && (readiness.missingOptions > 0 || readiness.missingExplanations > 0)) {
       setMessage(`Preview opened with ${questions.length} valid question(s). Review ${readiness.missingOptions} option issue(s) and ${readiness.missingExplanations} explanation issue(s) before publishing.`);
+    } else if (step === 3 && !editingExam && !importValidation) {
+      setMessage("Run NIDUS AI validation before opening the final publish screen.");
+      return;
+    } else if (step === 3 && !editingExam && importValidation && importValidation.summary.manualCorrection > 0) {
+      const firstManual = importValidation.questionReports.find((report) => report.status === "MANUAL_CORRECTION_REQUIRED");
+      if (firstManual) setPreviewIndex(Math.max(0, firstManual.number - 1));
+      setMessage("Manual correction is still required. Fix the red-flagged question(s), then re-run validation.");
+      return;
+    } else if (step === 3 && !editingExam && unapprovedQuestionNumbers.length > 0) {
+      setPreviewIndex(Math.max(0, unapprovedQuestionNumbers[0] - 1));
+      setMessage(`Approve question(s) ${unapprovedQuestionNumbers.join(", ")} before opening the final publish screen.`);
+      return;
     } else {
       setMessage("");
     }
@@ -1543,8 +1855,12 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
 
               {step === 2 ? (
                 <div className="grid gap-4 lg:grid-cols-2">
-                  <ExamInputCard title="Question paper" description="Paste or upload MCQ questions. Format: question, then A, B, C and D options.">
-                    <textarea value={questionSource} onChange={(event) => setQuestionSource(event.target.value)} rows={12} className="w-full rounded-xl border border-[var(--border)] bg-white p-3 text-sm leading-6" placeholder={"1. Question...\nA. Option\nB. Option\nC. Option\nD. Option"} />
+                  <ExamInputCard title="Question paper" description="For maths and physics PDFs, convert through the standard prompt first, then paste the clean output here.">
+                    <ExamConversionPrompt subject={subject} />
+                    <textarea value={questionSource} onChange={(event) => {
+                      setQuestionSource(event.target.value);
+                      setImportValidation(null);
+                    }} rows={12} className="w-full rounded-xl border border-[var(--border)] bg-white p-3 text-sm leading-6" placeholder={"1. Question...\nA. Option\nB. Option\nC. Option\nD. Option"} />
                     <FileUploadRow
                       label="Upload question paper"
                       fileName={uploadedQuestionPaper}
@@ -1553,7 +1869,10 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                     />
                   </ExamInputCard>
                   <ExamInputCard title="Answer key" description="Add the correct option and a short explanation. Example: 1 - A Explanation: ...">
-                    <textarea value={answerGuide} onChange={(event) => setAnswerGuide(event.target.value)} rows={12} className="w-full rounded-xl border border-[var(--border)] bg-white p-3 text-sm leading-6" placeholder={"1 - A\nExplanation: Sets common to both are 2 and 4.\n\n2 - C\nExplanation: Substitute x = 4."} />
+                    <textarea value={answerGuide} onChange={(event) => {
+                      setAnswerGuide(event.target.value);
+                      setImportValidation(null);
+                    }} rows={12} className="w-full rounded-xl border border-[var(--border)] bg-white p-3 text-sm leading-6" placeholder={"1 - A\nExplanation: Sets common to both are 2 and 4.\n\n2 - C\nExplanation: Substitute x = 4."} />
                     <FileUploadRow
                       label="Upload answer key + explanations"
                       fileName={uploadedAnswerGuide}
@@ -1561,11 +1880,28 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                       onChange={(file) => void appendFileText(file, setAnswerGuide, answerGuide, "ANSWER_KEY", setUploadedAnswerGuide)}
                     />
                   </ExamInputCard>
+                  {ocrBusy ? (
+                    <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm font-black text-blue-950 lg:col-span-2">
+                      NIDUS OCR is reading the scanned paper. The original source is preserved; review extracted text before publishing.
+                    </div>
+                  ) : null}
                   {reviewExtractionReports.length ? (
                     <ExtractionAuditPanel reports={reviewExtractionReports} manualReview={manualPaperReview} onManualReviewChange={setManualPaperReview} />
                   ) : null}
                   {questions.length ? <PaperUnderstandingPanel report={understanding} /> : null}
                   {questions.length ? <VisualFidelityPanel report={visualFidelity} /> : null}
+                  {questions.length ? (
+                    <ImportValidationPanel
+                      validation={importValidation}
+                      busy={validationBusy}
+                      onValidate={() => void validateImportWithAi()}
+                      onOpenQuestion={(number) => {
+                        setPreviewIndex(Math.max(0, number - 1));
+                        setStep(3);
+                      }}
+                    />
+                  ) : null}
+                  {importAnalytics ? <ImportAnalyticsPanel analytics={importAnalytics} onRefresh={() => void refreshImportAnalytics()} /> : null}
                   {examUploads.length ? <SourceFilesPanel uploads={examUploads} /> : null}
                 </div>
               ) : null}
@@ -1590,12 +1926,37 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                             : "Ready. Questions, options and answer key are available."
                         : extractionNeedsManualReview && !manualPaperReview
                           ? "Manual review is required because the uploaded paper may contain diagrams, formulas, charts or scanned content."
+                          : unapprovedQuestionNumbers.length
+                            ? `Teacher approval required for question(s) ${unapprovedQuestionNumbers.slice(0, 8).join(", ")}${unapprovedQuestionNumbers.length > 8 ? "..." : ""}.`
                           : `${readiness.missingOptions} option issue(s) / ${readiness.missingAnswers} answer issue(s) / ${readiness.duplicateQuestions.length} duplicate(s)`}
                     </div>
+                    {reviewRequiredQuestionNumbers.length ? (
+                      <div className="mt-4 flex flex-wrap items-center gap-2">
+                        <span className="rounded-full border border-white/15 bg-white/10 px-3 py-2 text-xs font-black">
+                          {reviewRequiredQuestionNumbers.length} teacher review question(s)
+                        </span>
+                        <span className="rounded-full border border-amber-300/40 bg-amber-300/15 px-3 py-2 text-xs font-black text-amber-100">
+                          {unapprovedQuestionNumbers.length} pending approval
+                        </span>
+                        <button type="button" onClick={approveReadyQuestions} className="rounded-lg border border-white/20 bg-white px-3 py-2 text-xs font-black text-slate-950">
+                          Approve high-confidence
+                        </button>
+                        <button type="button" onClick={() => void validateImportWithAi()} disabled={validationBusy} className="rounded-lg border border-white/20 bg-amber-300 px-3 py-2 text-xs font-black text-slate-950 disabled:opacity-60">
+                          {validationBusy ? "Validating..." : importValidation ? "Re-run NIDUS AI" : "Run NIDUS AI"}
+                        </button>
+                      </div>
+                    ) : null}
                   </div>
                   {reviewExtractionReports.length ? <ExtractionAuditPanel reports={reviewExtractionReports} manualReview={manualPaperReview} onManualReviewChange={setManualPaperReview} compact /> : null}
                   <PaperUnderstandingPanel report={understanding} compact />
                   <VisualFidelityPanel report={visualFidelity} compact />
+                  <ImportValidationPanel
+                    validation={importValidation}
+                    busy={validationBusy}
+                    onValidate={() => void validateImportWithAi()}
+                    onOpenQuestion={(number) => setPreviewIndex(Math.max(0, number - 1))}
+                    compact
+                  />
                   {visualQuestionsWithoutAttachment.length ? (
                     <p className="rounded-2xl border border-amber-200 bg-amber-50 p-3 text-sm font-black text-amber-900">
                       Visual attachment reminder: question(s) {visualQuestionsWithoutAttachment.join(", ")} still rely on the preserved source instead of a direct question image.
@@ -1611,14 +1972,39 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                       <div className="mt-3 grid grid-cols-5 gap-2">
                         {questions.map((_, index) => {
                           const isDuplicate = duplicateQuestionIndexes.has(index);
-                          return <button key={index} type="button" onClick={() => setPreviewIndex(index)} className={`grid h-11 w-full place-items-center rounded-lg border text-xs font-black transition ${isDuplicate ? "animate-pulse border-rose-500 bg-rose-100 text-rose-900 shadow-sm shadow-rose-200 hover:border-rose-600" : previewIndex === index ? "border-slate-950 bg-slate-950 text-white shadow-sm" : "border-[var(--border)] bg-white hover:border-slate-300 hover:bg-slate-50"}`}>{index + 1}</button>;
+                          const isPendingReview = unapprovedQuestionNumbers.includes(index + 1);
+                          const isApproved = questionReviewStatus[index + 1] === "APPROVED" || (!reviewRequiredQuestionNumbers.includes(index + 1) && !isPendingReview);
+                          return <button key={index} type="button" onClick={() => setPreviewIndex(index)} className={`grid h-11 w-full place-items-center rounded-lg border text-xs font-black transition ${isDuplicate ? "animate-pulse border-rose-500 bg-rose-100 text-rose-900 shadow-sm shadow-rose-200 hover:border-rose-600" : isPendingReview ? "border-amber-300 bg-amber-50 text-amber-900 hover:border-amber-500" : isApproved ? "border-emerald-200 bg-emerald-50 text-emerald-800 hover:border-emerald-400" : previewIndex === index ? "border-slate-950 bg-slate-950 text-white shadow-sm" : "border-[var(--border)] bg-white hover:border-slate-300 hover:bg-slate-50"}`}>{index + 1}</button>;
                         })}
                       </div>
                     </aside>
                     {questions[previewIndex] ? (
                       <article className={`rounded-2xl border p-5 shadow-sm sm:p-7 lg:self-start ${duplicateQuestionIndexes.has(previewIndex) ? "animate-pulse border-rose-500 bg-rose-50 shadow-rose-100" : "border-[var(--border)] bg-white"}`}>
                         <div className="flex items-center justify-between gap-3"><span className="text-sm font-black text-[var(--gold-dark)]">Question {previewIndex + 1} of {questions.length}</span><span className="rounded-full bg-[var(--page-bg)] px-3 py-1 text-xs font-black">{questions[previewIndex].marks} mark(s)</span></div>
-                        <h4 className="mt-5 text-lg font-black leading-7 sm:text-xl">{questions[previewIndex].questionText}</h4>
+                        <div className="mt-4 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+                          <div className="flex flex-wrap items-center justify-between gap-3">
+                            <div>
+                              <p className="text-xs font-black uppercase tracking-[0.2em] text-[var(--gold-dark)]">Teacher review</p>
+                              <p className="mt-1 text-sm font-bold text-[var(--muted-blue)]">
+                                Confidence {validationReportMap.get(previewIndex + 1)?.confidence ?? understanding.questionSignals[previewIndex]?.confidence ?? "HIGH"} / {questionReviewStatus[previewIndex + 1] === "APPROVED" ? "Approved" : reviewRequiredQuestionNumbers.includes(previewIndex + 1) ? "Needs approval" : "Auto safe"}
+                              </p>
+                              {validationReportMap.get(previewIndex + 1) ? (
+                                <p className="mt-1 text-xs font-black text-[var(--muted-blue)]">
+                                  NIDUS AI: {validationReportMap.get(previewIndex + 1)?.status.replace(/_/g, " ")}
+                                </p>
+                              ) : null}
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              <button type="button" onClick={() => approveQuestion(previewIndex + 1)} className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-800">
+                                Approve
+                              </button>
+                              <button type="button" onClick={() => markQuestionNeedsReview(previewIndex + 1)} className="rounded-lg border border-amber-200 bg-white px-3 py-2 text-xs font-black text-amber-800">
+                                Needs Review
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                        <h4 className="mt-5 text-lg font-black leading-7 sm:text-xl"><NidusMathText text={questions[previewIndex].questionText} /></h4>
                         <QuestionFidelityNotice signal={understanding.questionSignals[previewIndex]} />
                         {questionVisuals[previewIndex + 1] ? (
                           <div className="mt-4 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-3">
@@ -1637,11 +2023,11 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                           </div>
                         ) : null}
                         <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                          {(["A", "B", "C", "D"] as const).map((option) => <div key={option} className="flex min-h-14 items-center gap-3 rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-bold"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-[var(--border)] bg-[var(--page-bg)] font-black">{option}</span>{optionText(questions[previewIndex], option)}</div>)}
+                          {(["A", "B", "C", "D"] as const).map((option) => <div key={option} className="flex min-h-14 items-center gap-3 rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-bold"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-[var(--border)] bg-[var(--page-bg)] font-black">{option}</span><NidusMathText text={optionText(questions[previewIndex], option)} /></div>)}
                         </div>
                         <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
                           <p className="text-sm font-black text-emerald-900">Correct Answer: {questions[previewIndex].correctAnswer}</p>
-                          <p className="mt-2 text-sm leading-6 text-emerald-900">{questions[previewIndex].explanation}</p>
+                          <p className="mt-2 text-sm leading-6 text-emerald-900"><NidusMathText text={questions[previewIndex].explanation} /></p>
                         </div>
                         {readiness.duplicateQuestions.filter((item) => item.index === previewIndex || item.firstIndex === previewIndex).map((item) => (
                           <div key={`${item.firstIndex}-${item.index}`} className="mt-4 animate-pulse rounded-2xl border border-rose-500 bg-rose-100 p-4 text-sm font-black text-rose-900 shadow-sm shadow-rose-200">
@@ -1690,6 +2076,14 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                       <p><b>Duration:</b> {form.duration} minutes</p><p><b>Total marks:</b> {form.marks}</p>
                     </div>
                   </div>
+                  <div className={`mt-4 rounded-2xl border p-4 ${unapprovedQuestionNumbers.length ? "border-amber-200 bg-amber-50 text-amber-950" : "border-emerald-200 bg-emerald-50 text-emerald-950"}`}>
+                    <p className="text-xs font-black uppercase tracking-[0.25em] opacity-75">Teacher review</p>
+                    <p className="mt-2 text-sm font-black">
+                      {unapprovedQuestionNumbers.length
+                        ? `Pending approval: question(s) ${unapprovedQuestionNumbers.join(", ")}`
+                        : `${reviewRequiredQuestionNumbers.length} flagged question(s) approved. Ready for final publish.`}
+                    </p>
+                  </div>
                   <p className="mt-5 text-sm leading-6 text-[var(--muted-blue)]">Publishing sends this exam to students. They can open it from their Student dashboard.</p>
                   {readiness.duplicateQuestions.length ? (
                     <p className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 p-3 text-sm font-black text-rose-800">
@@ -1699,6 +2093,16 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                   {reviewExtractionReports.length ? <ExtractionAuditPanel reports={reviewExtractionReports} manualReview={manualPaperReview} onManualReviewChange={setManualPaperReview} compact /> : null}
                   <PaperUnderstandingPanel report={understanding} compact />
                   <VisualFidelityPanel report={visualFidelity} compact />
+                  <ImportValidationPanel
+                    validation={importValidation}
+                    busy={validationBusy}
+                    onValidate={() => void validateImportWithAi()}
+                    onOpenQuestion={(number) => {
+                      setPreviewIndex(Math.max(0, number - 1));
+                      setStep(3);
+                    }}
+                    compact
+                  />
                   {visualQuestionsWithoutAttachment.length ? (
                     <p className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-3 text-sm font-black text-amber-900">
                       Visual attachment reminder: question(s) {visualQuestionsWithoutAttachment.join(", ")} will depend on teacher-reviewed source preservation unless you attach page snapshots.
@@ -1768,6 +2172,111 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
           </div>
         </div>
       ) : null}
+    </section>
+  );
+}
+
+function ImportValidationPanel({
+  validation,
+  busy,
+  onValidate,
+  onOpenQuestion,
+  compact = false,
+}: {
+  validation: ImportValidationPayload | null;
+  busy: boolean;
+  onValidate: () => void;
+  onOpenQuestion: (number: number) => void;
+  compact?: boolean;
+}) {
+  const tone = !validation
+    ? "border-amber-200 bg-amber-50 text-amber-950"
+    : validation.summary.manualCorrection > 0
+      ? "border-rose-200 bg-rose-50 text-rose-950"
+      : validation.summary.needsReview > 0
+        ? "border-amber-200 bg-amber-50 text-amber-950"
+        : "border-emerald-200 bg-emerald-50 text-emerald-950";
+  const flagged = validation?.questionReports.filter((report) => report.status !== "AUTO_APPROVED") ?? [];
+  return (
+    <section className={`rounded-2xl border p-4 ${tone} ${compact ? "" : "lg:col-span-2"}`}>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.24em] opacity-75">NIDUS AI validation</p>
+          <h4 className="mt-1 text-lg font-black">
+            {!validation ? "Run before publishing" : validation.publishReady ? "Import validated" : "Review flagged questions"}
+          </h4>
+          <p className="mt-1 text-sm font-bold opacity-75">
+            {validation ? `${validation.provider} / ${validation.engine}` : "Checks answer keys, weak options, formula risk, visual risk and publish readiness."}
+          </p>
+        </div>
+        <button type="button" onClick={onValidate} disabled={busy} className="min-h-10 rounded-xl border border-slate-950 bg-slate-950 px-4 text-sm font-black text-white disabled:opacity-60">
+          {busy ? "Validating..." : validation ? "Re-run" : "Run validation"}
+        </button>
+      </div>
+      {validation ? (
+        <>
+          <div className="mt-3 grid gap-2 sm:grid-cols-4">
+            <MiniFact label="Confidence" value={`${validation.averageConfidence}%`} />
+            <MiniFact label="Auto Approved" value={validation.summary.autoApproved} />
+            <MiniFact label="Needs Review" value={validation.summary.needsReview} />
+            <MiniFact label="Manual Fix" value={validation.summary.manualCorrection} />
+          </div>
+          {flagged.length ? (
+            <div className="mt-3 grid gap-2">
+              {flagged.slice(0, compact ? 5 : 10).map((report) => (
+                <button key={report.number} type="button" onClick={() => onOpenQuestion(report.number)} className="rounded-xl border border-current/10 bg-white/80 p-3 text-left text-xs font-bold leading-5">
+                  <span className="font-black">Q{report.number}: {report.status.replace(/_/g, " ")} / {report.confidence}%</span>
+                  {[...report.issues, ...report.warnings].length ? <span className="mt-1 block opacity-80">{[...report.issues, ...report.warnings].slice(0, 3).join(" ")}</span> : null}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-3 rounded-xl border border-current/10 bg-white/75 p-3 text-xs font-black">No AI validation issues found.</p>
+          )}
+          {validation.recommendations.length ? (
+            <ul className="mt-3 grid gap-1 text-xs font-bold leading-5">
+              {validation.recommendations.slice(0, compact ? 2 : 4).map((item) => <li key={item}>- {item}</li>)}
+            </ul>
+          ) : null}
+        </>
+      ) : (
+        <p className="mt-3 rounded-xl border border-current/10 bg-white/75 p-3 text-xs font-black leading-5">
+          Publishing is locked until validation runs. This keeps mathematics, physics, diagrams, tables and answer keys from slipping through silently.
+        </p>
+      )}
+    </section>
+  );
+}
+
+function ImportAnalyticsPanel({ analytics, onRefresh }: { analytics: ImportAnalyticsPayload; onRefresh: () => void }) {
+  return (
+    <section className="rounded-2xl border border-[var(--border)] bg-white p-4 lg:col-span-2">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--gold-dark)]">Import analytics</p>
+          <h4 className="mt-1 text-lg font-black">Document intelligence activity</h4>
+          <p className="mt-1 text-sm font-bold text-[var(--muted-blue)]">Tracks imports, review load and visual-risk papers for this batch.</p>
+        </div>
+        <button type="button" onClick={onRefresh} className="min-h-10 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 text-sm font-black">
+          Refresh
+        </button>
+      </div>
+      <div className="mt-3 grid gap-2 sm:grid-cols-6">
+        <MiniFact label="Jobs" value={analytics.totals.importJobs} />
+        <MiniFact label="Uploads" value={analytics.totals.uploads} />
+        <MiniFact label="Review" value={analytics.totals.reviewRequired} />
+        <MiniFact label="Auto" value={analytics.totals.autoClassified} />
+        <MiniFact label="Visual Risk" value={analytics.totals.visualRiskUploads} />
+        <MiniFact label="Avg AI" value={`${analytics.totals.averageConfidence}%`} />
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {Object.entries(analytics.byDocumentClass).map(([key, value]) => (
+          <span key={key} className="rounded-full border border-[var(--border)] bg-[var(--page-bg)] px-3 py-1 text-xs font-black">{key}: {value}</span>
+        ))}
+        {Object.entries(analytics.byPipeline).map(([key, value]) => (
+          <span key={key} className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-black text-blue-900">{key}: {value}</span>
+        ))}
+      </div>
     </section>
   );
 }
@@ -1894,6 +2403,14 @@ function VisualSourcePreviewPanel({
   const isImage = fileType.startsWith("image/") || /\.(png|jpe?g|webp|gif)$/i.test(fileName);
   const signal = report.questionSignals[activeIndex];
   const [cropMessage, setCropMessage] = useState("");
+  const [selectedAssetId, setSelectedAssetId] = useState(assets[0]?.id || "");
+  const selectedAsset = assets.find((asset) => asset.id === selectedAssetId) ?? assets[0];
+  const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null);
+  const [selection, setSelection] = useState<CropBox | null>(null);
+
+  useEffect(() => {
+    if (!selectedAssetId && assets[0]?.id) setSelectedAssetId(assets[0].id);
+  }, [assets, selectedAssetId]);
 
   async function attachRegion(asset: QuestionVisualAsset, region: VisualCropRegion) {
     if (!onAttachVisual) return;
@@ -1905,6 +2422,47 @@ function VisualSourcePreviewPanel({
     } catch (error) {
       setCropMessage(error instanceof Error ? error.message : "Unable to attach cropped visual.");
     }
+  }
+
+  function pointerPosition(event: PointerEvent<HTMLDivElement>) {
+    const rect = event.currentTarget.getBoundingClientRect();
+    return {
+      x: Math.max(0, Math.min(1, (event.clientX - rect.left) / Math.max(1, rect.width))),
+      y: Math.max(0, Math.min(1, (event.clientY - rect.top) / Math.max(1, rect.height))),
+    };
+  }
+
+  function beginSelection(event: PointerEvent<HTMLDivElement>) {
+    if (!selectedAsset) return;
+    const position = pointerPosition(event);
+    setDragStart(position);
+    setSelection({ x: position.x, y: position.y, width: 0, height: 0 });
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+
+  function updateSelection(event: PointerEvent<HTMLDivElement>) {
+    if (!dragStart) return;
+    const position = pointerPosition(event);
+    setSelection({
+      x: Math.min(dragStart.x, position.x),
+      y: Math.min(dragStart.y, position.y),
+      width: Math.abs(position.x - dragStart.x),
+      height: Math.abs(position.y - dragStart.y),
+    });
+  }
+
+  function endSelection() {
+    setDragStart(null);
+  }
+
+  async function attachSelection() {
+    if (!selectedAsset || !selection || selection.width < 0.03 || selection.height < 0.03 || !onAttachVisual) {
+      setCropMessage("Drag a larger box around the exact diagram/table/formula area first.");
+      return;
+    }
+    const dataUrl = await cropVisualAssetBox(selectedAsset.dataUrl, selection);
+    onAttachVisual(dataUrl);
+    setCropMessage(`Selected area from ${selectedAsset.label} attached to Question ${activeIndex + 1}.`);
   }
 
   return (
@@ -1953,6 +2511,54 @@ function VisualSourcePreviewPanel({
         </div>
         {assets.length ? (
           <div className="mt-3 grid gap-2">
+            <div className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-[var(--gold-dark)]">Interactive crop</p>
+                <select value={selectedAsset?.id || ""} onChange={(event) => {
+                  setSelectedAssetId(event.target.value);
+                  setSelection(null);
+                }} className="min-h-9 rounded border border-[var(--border)] bg-white px-2 text-xs font-black">
+                  {assets.slice(0, 12).map((asset) => (
+                    <option key={asset.id} value={asset.id}>{asset.label}</option>
+                  ))}
+                </select>
+              </div>
+              {selectedAsset ? (
+                <div className="mt-3">
+                  <div
+                    role="img"
+                    aria-label={`Selectable source area for ${selectedAsset.label}`}
+                    onPointerDown={beginSelection}
+                    onPointerMove={updateSelection}
+                    onPointerUp={endSelection}
+                    onPointerCancel={endSelection}
+                    className="relative cursor-crosshair select-none overflow-hidden rounded-lg border border-[var(--border)] bg-white touch-none"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={selectedAsset.dataUrl} alt="" draggable={false} className="max-h-[28rem] w-full object-contain" />
+                    {selection ? (
+                      <div
+                        className="pointer-events-none absolute border-2 border-emerald-500 bg-emerald-300/20 shadow-[0_0_0_9999px_rgba(15,23,42,0.28)]"
+                        style={{
+                          left: `${selection.x * 100}%`,
+                          top: `${selection.y * 100}%`,
+                          width: `${selection.width * 100}%`,
+                          height: `${selection.height * 100}%`,
+                        }}
+                      />
+                    ) : null}
+                  </div>
+                  <div className="mt-2 grid grid-cols-2 gap-2">
+                    <button type="button" onClick={() => void attachSelection()} className="min-h-9 rounded border border-emerald-200 bg-emerald-50 px-3 text-xs font-black text-emerald-800">
+                      Attach Selected Area
+                    </button>
+                    <button type="button" onClick={() => setSelection(null)} className="min-h-9 rounded border border-[var(--border)] bg-white px-3 text-xs font-black text-[var(--muted-blue)]">
+                      Clear Box
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+            </div>
             {assets.slice(0, 12).map((asset) => (
               <div
                 key={asset.id}
@@ -2193,6 +2799,68 @@ function TimePickerField({ label, value, onChange }: { label: string; value: str
       </div>
       <span className="text-xs font-bold text-[var(--muted-blue)]">{displayTimeValue(value)}</span>
     </label>
+  );
+}
+
+function examConversionPrompt(subject: string) {
+  return `You are an expert examination digitization assistant. Convert the attached ${subject || "subject"} question paper into the exact NIDUS exam import format below.
+
+Rules:
+1. Preserve the original meaning of every question. Do not invent, simplify or solve questions.
+2. For Mathematics and Physics, rewrite formulas clearly using Unicode or LaTeX-style text. Example: l = 2/3, m = 1/3, n = ? or sqrt(5)/3.
+3. If a question needs a diagram, triangle, circuit, graph, chart, table, figure or image, write [IMAGE REQUIRED: describe the exact visual here] inside the question text.
+4. Keep each MCQ as exactly one question with four options A, B, C and D.
+5. Do not merge two questions. Do not split one question into fragments.
+6. Remove headers, footers, page numbers, watermarks and repeated institute text.
+7. If any question is unreadable, write [REVIEW REQUIRED] in that question text.
+8. Output only in this format. No markdown table.
+
+QUESTION PAPER FORMAT:
+1. Question text here
+A. Option A
+B. Option B
+C. Option C
+D. Option D
+
+2. Question text here
+A. Option A
+B. Option B
+C. Option C
+D. Option D
+
+ANSWER KEY FORMAT:
+1 - A
+Explanation: Optional. If explanation is not available, write: Answer key only.
+
+2 - C
+Explanation: Optional. If explanation is not available, write: Answer key only.
+
+Now convert the attached paper completely.`;
+}
+
+function ExamConversionPrompt({ subject }: { subject: string }) {
+  const prompt = examConversionPrompt(subject);
+  const [copied, setCopied] = useState(false);
+
+  async function copyPrompt() {
+    try {
+      await navigator.clipboard.writeText(prompt);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      setCopied(false);
+    }
+  }
+
+  return (
+    <details className="mb-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-950" open>
+      <summary className="cursor-pointer list-none font-black">Maths / Physics PDF conversion prompt</summary>
+      <p className="mt-2 text-xs font-bold leading-5">Use this when a PDF contains formulas, triangles, diagrams, graphs or tables. Paste this prompt with the PDF in ChatGPT, then paste the converted output below.</p>
+      <pre className="mt-3 max-h-64 overflow-auto rounded-lg border border-amber-200 bg-white p-3 text-xs leading-5 text-slate-900 whitespace-pre-wrap">{prompt}</pre>
+      <button type="button" onClick={() => void copyPrompt()} className="mt-3 rounded-lg border border-amber-300 bg-white px-3 py-2 text-xs font-black text-amber-950">
+        {copied ? "Copied" : "Copy Prompt"}
+      </button>
+    </details>
   );
 }
 

@@ -27,11 +27,17 @@ export type AggregateQuestion = {
 }
 
 export type QuestionAvgAggregateOutputType = {
+  sourcePageNumber: number | null
+  aiConfidence: number | null
+  publishedVersion: number | null
   marks: number | null
   negativeMarks: number | null
 }
 
 export type QuestionSumAggregateOutputType = {
+  sourcePageNumber: number | null
+  aiConfidence: number | null
+  publishedVersion: number | null
   marks: number | null
   negativeMarks: number | null
 }
@@ -42,6 +48,12 @@ export type QuestionMinAggregateOutputType = {
   questionText: string | null
   questionImage: string | null
   visualReviewRequired: boolean | null
+  sourceDocumentId: string | null
+  sourcePageNumber: number | null
+  renderMode: string | null
+  aiConfidence: number | null
+  reviewStatus: string | null
+  publishedVersion: number | null
   optionA: string | null
   optionB: string | null
   optionC: string | null
@@ -60,6 +72,12 @@ export type QuestionMaxAggregateOutputType = {
   questionText: string | null
   questionImage: string | null
   visualReviewRequired: boolean | null
+  sourceDocumentId: string | null
+  sourcePageNumber: number | null
+  renderMode: string | null
+  aiConfidence: number | null
+  reviewStatus: string | null
+  publishedVersion: number | null
   optionA: string | null
   optionB: string | null
   optionC: string | null
@@ -79,6 +97,17 @@ export type QuestionCountAggregateOutputType = {
   questionImage: number
   visualReviewRequired: number
   visualReviewNotes: number
+  contentJson: number
+  sourceDocumentId: number
+  sourcePageNumber: number
+  boundingBoxes: number
+  latex: number
+  assets: number
+  layout: number
+  renderMode: number
+  aiConfidence: number
+  reviewStatus: number
+  publishedVersion: number
   optionA: number
   optionB: number
   optionC: number
@@ -94,11 +123,17 @@ export type QuestionCountAggregateOutputType = {
 
 
 export type QuestionAvgAggregateInputType = {
+  sourcePageNumber?: true
+  aiConfidence?: true
+  publishedVersion?: true
   marks?: true
   negativeMarks?: true
 }
 
 export type QuestionSumAggregateInputType = {
+  sourcePageNumber?: true
+  aiConfidence?: true
+  publishedVersion?: true
   marks?: true
   negativeMarks?: true
 }
@@ -109,6 +144,12 @@ export type QuestionMinAggregateInputType = {
   questionText?: true
   questionImage?: true
   visualReviewRequired?: true
+  sourceDocumentId?: true
+  sourcePageNumber?: true
+  renderMode?: true
+  aiConfidence?: true
+  reviewStatus?: true
+  publishedVersion?: true
   optionA?: true
   optionB?: true
   optionC?: true
@@ -127,6 +168,12 @@ export type QuestionMaxAggregateInputType = {
   questionText?: true
   questionImage?: true
   visualReviewRequired?: true
+  sourceDocumentId?: true
+  sourcePageNumber?: true
+  renderMode?: true
+  aiConfidence?: true
+  reviewStatus?: true
+  publishedVersion?: true
   optionA?: true
   optionB?: true
   optionC?: true
@@ -146,6 +193,17 @@ export type QuestionCountAggregateInputType = {
   questionImage?: true
   visualReviewRequired?: true
   visualReviewNotes?: true
+  contentJson?: true
+  sourceDocumentId?: true
+  sourcePageNumber?: true
+  boundingBoxes?: true
+  latex?: true
+  assets?: true
+  layout?: true
+  renderMode?: true
+  aiConfidence?: true
+  reviewStatus?: true
+  publishedVersion?: true
   optionA?: true
   optionB?: true
   optionC?: true
@@ -252,6 +310,17 @@ export type QuestionGroupByOutputType = {
   questionImage: string | null
   visualReviewRequired: boolean
   visualReviewNotes: runtime.JsonValue | null
+  contentJson: runtime.JsonValue | null
+  sourceDocumentId: string | null
+  sourcePageNumber: number | null
+  boundingBoxes: runtime.JsonValue | null
+  latex: runtime.JsonValue | null
+  assets: runtime.JsonValue | null
+  layout: runtime.JsonValue | null
+  renderMode: string
+  aiConfidence: number | null
+  reviewStatus: string
+  publishedVersion: number
   optionA: string
   optionB: string
   optionC: string
@@ -294,6 +363,17 @@ export type QuestionWhereInput = {
   questionImage?: Prisma.StringNullableFilter<"Question"> | string | null
   visualReviewRequired?: Prisma.BoolFilter<"Question"> | boolean
   visualReviewNotes?: Prisma.JsonNullableFilter<"Question">
+  contentJson?: Prisma.JsonNullableFilter<"Question">
+  sourceDocumentId?: Prisma.StringNullableFilter<"Question"> | string | null
+  sourcePageNumber?: Prisma.IntNullableFilter<"Question"> | number | null
+  boundingBoxes?: Prisma.JsonNullableFilter<"Question">
+  latex?: Prisma.JsonNullableFilter<"Question">
+  assets?: Prisma.JsonNullableFilter<"Question">
+  layout?: Prisma.JsonNullableFilter<"Question">
+  renderMode?: Prisma.StringFilter<"Question"> | string
+  aiConfidence?: Prisma.FloatNullableFilter<"Question"> | number | null
+  reviewStatus?: Prisma.StringFilter<"Question"> | string
+  publishedVersion?: Prisma.IntFilter<"Question"> | number
   optionA?: Prisma.StringFilter<"Question"> | string
   optionB?: Prisma.StringFilter<"Question"> | string
   optionC?: Prisma.StringFilter<"Question"> | string
@@ -307,6 +387,7 @@ export type QuestionWhereInput = {
   test?: Prisma.XOR<Prisma.TestScalarRelationFilter, Prisma.TestWhereInput>
   answers?: Prisma.AnswerListRelationFilter
   answerStates?: Prisma.CBTAnswerStateListRelationFilter
+  versions?: Prisma.QuestionVersionListRelationFilter
 }
 
 export type QuestionOrderByWithRelationInput = {
@@ -316,6 +397,17 @@ export type QuestionOrderByWithRelationInput = {
   questionImage?: Prisma.SortOrderInput | Prisma.SortOrder
   visualReviewRequired?: Prisma.SortOrder
   visualReviewNotes?: Prisma.SortOrderInput | Prisma.SortOrder
+  contentJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceDocumentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourcePageNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  boundingBoxes?: Prisma.SortOrderInput | Prisma.SortOrder
+  latex?: Prisma.SortOrderInput | Prisma.SortOrder
+  assets?: Prisma.SortOrderInput | Prisma.SortOrder
+  layout?: Prisma.SortOrderInput | Prisma.SortOrder
+  renderMode?: Prisma.SortOrder
+  aiConfidence?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewStatus?: Prisma.SortOrder
+  publishedVersion?: Prisma.SortOrder
   optionA?: Prisma.SortOrder
   optionB?: Prisma.SortOrder
   optionC?: Prisma.SortOrder
@@ -329,6 +421,7 @@ export type QuestionOrderByWithRelationInput = {
   test?: Prisma.TestOrderByWithRelationInput
   answers?: Prisma.AnswerOrderByRelationAggregateInput
   answerStates?: Prisma.CBTAnswerStateOrderByRelationAggregateInput
+  versions?: Prisma.QuestionVersionOrderByRelationAggregateInput
 }
 
 export type QuestionWhereUniqueInput = Prisma.AtLeast<{
@@ -341,6 +434,17 @@ export type QuestionWhereUniqueInput = Prisma.AtLeast<{
   questionImage?: Prisma.StringNullableFilter<"Question"> | string | null
   visualReviewRequired?: Prisma.BoolFilter<"Question"> | boolean
   visualReviewNotes?: Prisma.JsonNullableFilter<"Question">
+  contentJson?: Prisma.JsonNullableFilter<"Question">
+  sourceDocumentId?: Prisma.StringNullableFilter<"Question"> | string | null
+  sourcePageNumber?: Prisma.IntNullableFilter<"Question"> | number | null
+  boundingBoxes?: Prisma.JsonNullableFilter<"Question">
+  latex?: Prisma.JsonNullableFilter<"Question">
+  assets?: Prisma.JsonNullableFilter<"Question">
+  layout?: Prisma.JsonNullableFilter<"Question">
+  renderMode?: Prisma.StringFilter<"Question"> | string
+  aiConfidence?: Prisma.FloatNullableFilter<"Question"> | number | null
+  reviewStatus?: Prisma.StringFilter<"Question"> | string
+  publishedVersion?: Prisma.IntFilter<"Question"> | number
   optionA?: Prisma.StringFilter<"Question"> | string
   optionB?: Prisma.StringFilter<"Question"> | string
   optionC?: Prisma.StringFilter<"Question"> | string
@@ -354,6 +458,7 @@ export type QuestionWhereUniqueInput = Prisma.AtLeast<{
   test?: Prisma.XOR<Prisma.TestScalarRelationFilter, Prisma.TestWhereInput>
   answers?: Prisma.AnswerListRelationFilter
   answerStates?: Prisma.CBTAnswerStateListRelationFilter
+  versions?: Prisma.QuestionVersionListRelationFilter
 }, "id">
 
 export type QuestionOrderByWithAggregationInput = {
@@ -363,6 +468,17 @@ export type QuestionOrderByWithAggregationInput = {
   questionImage?: Prisma.SortOrderInput | Prisma.SortOrder
   visualReviewRequired?: Prisma.SortOrder
   visualReviewNotes?: Prisma.SortOrderInput | Prisma.SortOrder
+  contentJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceDocumentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourcePageNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  boundingBoxes?: Prisma.SortOrderInput | Prisma.SortOrder
+  latex?: Prisma.SortOrderInput | Prisma.SortOrder
+  assets?: Prisma.SortOrderInput | Prisma.SortOrder
+  layout?: Prisma.SortOrderInput | Prisma.SortOrder
+  renderMode?: Prisma.SortOrder
+  aiConfidence?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewStatus?: Prisma.SortOrder
+  publishedVersion?: Prisma.SortOrder
   optionA?: Prisma.SortOrder
   optionB?: Prisma.SortOrder
   optionC?: Prisma.SortOrder
@@ -390,6 +506,17 @@ export type QuestionScalarWhereWithAggregatesInput = {
   questionImage?: Prisma.StringNullableWithAggregatesFilter<"Question"> | string | null
   visualReviewRequired?: Prisma.BoolWithAggregatesFilter<"Question"> | boolean
   visualReviewNotes?: Prisma.JsonNullableWithAggregatesFilter<"Question">
+  contentJson?: Prisma.JsonNullableWithAggregatesFilter<"Question">
+  sourceDocumentId?: Prisma.StringNullableWithAggregatesFilter<"Question"> | string | null
+  sourcePageNumber?: Prisma.IntNullableWithAggregatesFilter<"Question"> | number | null
+  boundingBoxes?: Prisma.JsonNullableWithAggregatesFilter<"Question">
+  latex?: Prisma.JsonNullableWithAggregatesFilter<"Question">
+  assets?: Prisma.JsonNullableWithAggregatesFilter<"Question">
+  layout?: Prisma.JsonNullableWithAggregatesFilter<"Question">
+  renderMode?: Prisma.StringWithAggregatesFilter<"Question"> | string
+  aiConfidence?: Prisma.FloatNullableWithAggregatesFilter<"Question"> | number | null
+  reviewStatus?: Prisma.StringWithAggregatesFilter<"Question"> | string
+  publishedVersion?: Prisma.IntWithAggregatesFilter<"Question"> | number
   optionA?: Prisma.StringWithAggregatesFilter<"Question"> | string
   optionB?: Prisma.StringWithAggregatesFilter<"Question"> | string
   optionC?: Prisma.StringWithAggregatesFilter<"Question"> | string
@@ -408,6 +535,17 @@ export type QuestionCreateInput = {
   questionImage?: string | null
   visualReviewRequired?: boolean
   visualReviewNotes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceDocumentId?: string | null
+  sourcePageNumber?: number | null
+  boundingBoxes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  latex?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  layout?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  renderMode?: string
+  aiConfidence?: number | null
+  reviewStatus?: string
+  publishedVersion?: number
   optionA: string
   optionB: string
   optionC: string
@@ -421,6 +559,7 @@ export type QuestionCreateInput = {
   test: Prisma.TestCreateNestedOneWithoutQuestionsInput
   answers?: Prisma.AnswerCreateNestedManyWithoutQuestionInput
   answerStates?: Prisma.CBTAnswerStateCreateNestedManyWithoutQuestionInput
+  versions?: Prisma.QuestionVersionCreateNestedManyWithoutQuestionInput
 }
 
 export type QuestionUncheckedCreateInput = {
@@ -430,6 +569,17 @@ export type QuestionUncheckedCreateInput = {
   questionImage?: string | null
   visualReviewRequired?: boolean
   visualReviewNotes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceDocumentId?: string | null
+  sourcePageNumber?: number | null
+  boundingBoxes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  latex?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  layout?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  renderMode?: string
+  aiConfidence?: number | null
+  reviewStatus?: string
+  publishedVersion?: number
   optionA: string
   optionB: string
   optionC: string
@@ -442,6 +592,7 @@ export type QuestionUncheckedCreateInput = {
   topic: string
   answers?: Prisma.AnswerUncheckedCreateNestedManyWithoutQuestionInput
   answerStates?: Prisma.CBTAnswerStateUncheckedCreateNestedManyWithoutQuestionInput
+  versions?: Prisma.QuestionVersionUncheckedCreateNestedManyWithoutQuestionInput
 }
 
 export type QuestionUpdateInput = {
@@ -450,6 +601,17 @@ export type QuestionUpdateInput = {
   questionImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visualReviewRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
   visualReviewNotes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePageNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  boundingBoxes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  latex?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  layout?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  renderMode?: Prisma.StringFieldUpdateOperationsInput | string
+  aiConfidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  publishedVersion?: Prisma.IntFieldUpdateOperationsInput | number
   optionA?: Prisma.StringFieldUpdateOperationsInput | string
   optionB?: Prisma.StringFieldUpdateOperationsInput | string
   optionC?: Prisma.StringFieldUpdateOperationsInput | string
@@ -463,6 +625,7 @@ export type QuestionUpdateInput = {
   test?: Prisma.TestUpdateOneRequiredWithoutQuestionsNestedInput
   answers?: Prisma.AnswerUpdateManyWithoutQuestionNestedInput
   answerStates?: Prisma.CBTAnswerStateUpdateManyWithoutQuestionNestedInput
+  versions?: Prisma.QuestionVersionUpdateManyWithoutQuestionNestedInput
 }
 
 export type QuestionUncheckedUpdateInput = {
@@ -472,6 +635,17 @@ export type QuestionUncheckedUpdateInput = {
   questionImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visualReviewRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
   visualReviewNotes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePageNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  boundingBoxes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  latex?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  layout?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  renderMode?: Prisma.StringFieldUpdateOperationsInput | string
+  aiConfidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  publishedVersion?: Prisma.IntFieldUpdateOperationsInput | number
   optionA?: Prisma.StringFieldUpdateOperationsInput | string
   optionB?: Prisma.StringFieldUpdateOperationsInput | string
   optionC?: Prisma.StringFieldUpdateOperationsInput | string
@@ -484,6 +658,7 @@ export type QuestionUncheckedUpdateInput = {
   topic?: Prisma.StringFieldUpdateOperationsInput | string
   answers?: Prisma.AnswerUncheckedUpdateManyWithoutQuestionNestedInput
   answerStates?: Prisma.CBTAnswerStateUncheckedUpdateManyWithoutQuestionNestedInput
+  versions?: Prisma.QuestionVersionUncheckedUpdateManyWithoutQuestionNestedInput
 }
 
 export type QuestionCreateManyInput = {
@@ -493,6 +668,17 @@ export type QuestionCreateManyInput = {
   questionImage?: string | null
   visualReviewRequired?: boolean
   visualReviewNotes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceDocumentId?: string | null
+  sourcePageNumber?: number | null
+  boundingBoxes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  latex?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  layout?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  renderMode?: string
+  aiConfidence?: number | null
+  reviewStatus?: string
+  publishedVersion?: number
   optionA: string
   optionB: string
   optionC: string
@@ -511,6 +697,17 @@ export type QuestionUpdateManyMutationInput = {
   questionImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visualReviewRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
   visualReviewNotes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePageNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  boundingBoxes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  latex?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  layout?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  renderMode?: Prisma.StringFieldUpdateOperationsInput | string
+  aiConfidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  publishedVersion?: Prisma.IntFieldUpdateOperationsInput | number
   optionA?: Prisma.StringFieldUpdateOperationsInput | string
   optionB?: Prisma.StringFieldUpdateOperationsInput | string
   optionC?: Prisma.StringFieldUpdateOperationsInput | string
@@ -530,6 +727,17 @@ export type QuestionUncheckedUpdateManyInput = {
   questionImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visualReviewRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
   visualReviewNotes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePageNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  boundingBoxes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  latex?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  layout?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  renderMode?: Prisma.StringFieldUpdateOperationsInput | string
+  aiConfidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  publishedVersion?: Prisma.IntFieldUpdateOperationsInput | number
   optionA?: Prisma.StringFieldUpdateOperationsInput | string
   optionB?: Prisma.StringFieldUpdateOperationsInput | string
   optionC?: Prisma.StringFieldUpdateOperationsInput | string
@@ -559,6 +767,17 @@ export type QuestionCountOrderByAggregateInput = {
   questionImage?: Prisma.SortOrder
   visualReviewRequired?: Prisma.SortOrder
   visualReviewNotes?: Prisma.SortOrder
+  contentJson?: Prisma.SortOrder
+  sourceDocumentId?: Prisma.SortOrder
+  sourcePageNumber?: Prisma.SortOrder
+  boundingBoxes?: Prisma.SortOrder
+  latex?: Prisma.SortOrder
+  assets?: Prisma.SortOrder
+  layout?: Prisma.SortOrder
+  renderMode?: Prisma.SortOrder
+  aiConfidence?: Prisma.SortOrder
+  reviewStatus?: Prisma.SortOrder
+  publishedVersion?: Prisma.SortOrder
   optionA?: Prisma.SortOrder
   optionB?: Prisma.SortOrder
   optionC?: Prisma.SortOrder
@@ -572,6 +791,9 @@ export type QuestionCountOrderByAggregateInput = {
 }
 
 export type QuestionAvgOrderByAggregateInput = {
+  sourcePageNumber?: Prisma.SortOrder
+  aiConfidence?: Prisma.SortOrder
+  publishedVersion?: Prisma.SortOrder
   marks?: Prisma.SortOrder
   negativeMarks?: Prisma.SortOrder
 }
@@ -582,6 +804,12 @@ export type QuestionMaxOrderByAggregateInput = {
   questionText?: Prisma.SortOrder
   questionImage?: Prisma.SortOrder
   visualReviewRequired?: Prisma.SortOrder
+  sourceDocumentId?: Prisma.SortOrder
+  sourcePageNumber?: Prisma.SortOrder
+  renderMode?: Prisma.SortOrder
+  aiConfidence?: Prisma.SortOrder
+  reviewStatus?: Prisma.SortOrder
+  publishedVersion?: Prisma.SortOrder
   optionA?: Prisma.SortOrder
   optionB?: Prisma.SortOrder
   optionC?: Prisma.SortOrder
@@ -600,6 +828,12 @@ export type QuestionMinOrderByAggregateInput = {
   questionText?: Prisma.SortOrder
   questionImage?: Prisma.SortOrder
   visualReviewRequired?: Prisma.SortOrder
+  sourceDocumentId?: Prisma.SortOrder
+  sourcePageNumber?: Prisma.SortOrder
+  renderMode?: Prisma.SortOrder
+  aiConfidence?: Prisma.SortOrder
+  reviewStatus?: Prisma.SortOrder
+  publishedVersion?: Prisma.SortOrder
   optionA?: Prisma.SortOrder
   optionB?: Prisma.SortOrder
   optionC?: Prisma.SortOrder
@@ -613,6 +847,9 @@ export type QuestionMinOrderByAggregateInput = {
 }
 
 export type QuestionSumOrderByAggregateInput = {
+  sourcePageNumber?: Prisma.SortOrder
+  aiConfidence?: Prisma.SortOrder
+  publishedVersion?: Prisma.SortOrder
   marks?: Prisma.SortOrder
   negativeMarks?: Prisma.SortOrder
 }
@@ -664,6 +901,36 @@ export type QuestionUncheckedUpdateManyWithoutTestNestedInput = {
   deleteMany?: Prisma.QuestionScalarWhereInput | Prisma.QuestionScalarWhereInput[]
 }
 
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
+export type NullableFloatFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
+export type QuestionCreateNestedOneWithoutVersionsInput = {
+  create?: Prisma.XOR<Prisma.QuestionCreateWithoutVersionsInput, Prisma.QuestionUncheckedCreateWithoutVersionsInput>
+  connectOrCreate?: Prisma.QuestionCreateOrConnectWithoutVersionsInput
+  connect?: Prisma.QuestionWhereUniqueInput
+}
+
+export type QuestionUpdateOneRequiredWithoutVersionsNestedInput = {
+  create?: Prisma.XOR<Prisma.QuestionCreateWithoutVersionsInput, Prisma.QuestionUncheckedCreateWithoutVersionsInput>
+  connectOrCreate?: Prisma.QuestionCreateOrConnectWithoutVersionsInput
+  upsert?: Prisma.QuestionUpsertWithoutVersionsInput
+  connect?: Prisma.QuestionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.QuestionUpdateToOneWithWhereWithoutVersionsInput, Prisma.QuestionUpdateWithoutVersionsInput>, Prisma.QuestionUncheckedUpdateWithoutVersionsInput>
+}
+
 export type QuestionCreateNestedOneWithoutAnswerStatesInput = {
   create?: Prisma.XOR<Prisma.QuestionCreateWithoutAnswerStatesInput, Prisma.QuestionUncheckedCreateWithoutAnswerStatesInput>
   connectOrCreate?: Prisma.QuestionCreateOrConnectWithoutAnswerStatesInput
@@ -698,6 +965,17 @@ export type QuestionCreateWithoutTestInput = {
   questionImage?: string | null
   visualReviewRequired?: boolean
   visualReviewNotes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceDocumentId?: string | null
+  sourcePageNumber?: number | null
+  boundingBoxes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  latex?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  layout?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  renderMode?: string
+  aiConfidence?: number | null
+  reviewStatus?: string
+  publishedVersion?: number
   optionA: string
   optionB: string
   optionC: string
@@ -710,6 +988,7 @@ export type QuestionCreateWithoutTestInput = {
   topic: string
   answers?: Prisma.AnswerCreateNestedManyWithoutQuestionInput
   answerStates?: Prisma.CBTAnswerStateCreateNestedManyWithoutQuestionInput
+  versions?: Prisma.QuestionVersionCreateNestedManyWithoutQuestionInput
 }
 
 export type QuestionUncheckedCreateWithoutTestInput = {
@@ -718,6 +997,17 @@ export type QuestionUncheckedCreateWithoutTestInput = {
   questionImage?: string | null
   visualReviewRequired?: boolean
   visualReviewNotes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceDocumentId?: string | null
+  sourcePageNumber?: number | null
+  boundingBoxes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  latex?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  layout?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  renderMode?: string
+  aiConfidence?: number | null
+  reviewStatus?: string
+  publishedVersion?: number
   optionA: string
   optionB: string
   optionC: string
@@ -730,6 +1020,7 @@ export type QuestionUncheckedCreateWithoutTestInput = {
   topic: string
   answers?: Prisma.AnswerUncheckedCreateNestedManyWithoutQuestionInput
   answerStates?: Prisma.CBTAnswerStateUncheckedCreateNestedManyWithoutQuestionInput
+  versions?: Prisma.QuestionVersionUncheckedCreateNestedManyWithoutQuestionInput
 }
 
 export type QuestionCreateOrConnectWithoutTestInput = {
@@ -768,6 +1059,17 @@ export type QuestionScalarWhereInput = {
   questionImage?: Prisma.StringNullableFilter<"Question"> | string | null
   visualReviewRequired?: Prisma.BoolFilter<"Question"> | boolean
   visualReviewNotes?: Prisma.JsonNullableFilter<"Question">
+  contentJson?: Prisma.JsonNullableFilter<"Question">
+  sourceDocumentId?: Prisma.StringNullableFilter<"Question"> | string | null
+  sourcePageNumber?: Prisma.IntNullableFilter<"Question"> | number | null
+  boundingBoxes?: Prisma.JsonNullableFilter<"Question">
+  latex?: Prisma.JsonNullableFilter<"Question">
+  assets?: Prisma.JsonNullableFilter<"Question">
+  layout?: Prisma.JsonNullableFilter<"Question">
+  renderMode?: Prisma.StringFilter<"Question"> | string
+  aiConfidence?: Prisma.FloatNullableFilter<"Question"> | number | null
+  reviewStatus?: Prisma.StringFilter<"Question"> | string
+  publishedVersion?: Prisma.IntFilter<"Question"> | number
   optionA?: Prisma.StringFilter<"Question"> | string
   optionB?: Prisma.StringFilter<"Question"> | string
   optionC?: Prisma.StringFilter<"Question"> | string
@@ -780,12 +1082,23 @@ export type QuestionScalarWhereInput = {
   topic?: Prisma.StringFilter<"Question"> | string
 }
 
-export type QuestionCreateWithoutAnswerStatesInput = {
+export type QuestionCreateWithoutVersionsInput = {
   id?: string
   questionText: string
   questionImage?: string | null
   visualReviewRequired?: boolean
   visualReviewNotes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceDocumentId?: string | null
+  sourcePageNumber?: number | null
+  boundingBoxes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  latex?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  layout?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  renderMode?: string
+  aiConfidence?: number | null
+  reviewStatus?: string
+  publishedVersion?: number
   optionA: string
   optionB: string
   optionC: string
@@ -798,15 +1111,27 @@ export type QuestionCreateWithoutAnswerStatesInput = {
   topic: string
   test: Prisma.TestCreateNestedOneWithoutQuestionsInput
   answers?: Prisma.AnswerCreateNestedManyWithoutQuestionInput
+  answerStates?: Prisma.CBTAnswerStateCreateNestedManyWithoutQuestionInput
 }
 
-export type QuestionUncheckedCreateWithoutAnswerStatesInput = {
+export type QuestionUncheckedCreateWithoutVersionsInput = {
   id?: string
   testId: string
   questionText: string
   questionImage?: string | null
   visualReviewRequired?: boolean
   visualReviewNotes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceDocumentId?: string | null
+  sourcePageNumber?: number | null
+  boundingBoxes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  latex?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  layout?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  renderMode?: string
+  aiConfidence?: number | null
+  reviewStatus?: string
+  publishedVersion?: number
   optionA: string
   optionB: string
   optionC: string
@@ -818,6 +1143,151 @@ export type QuestionUncheckedCreateWithoutAnswerStatesInput = {
   difficultyLevel: string
   topic: string
   answers?: Prisma.AnswerUncheckedCreateNestedManyWithoutQuestionInput
+  answerStates?: Prisma.CBTAnswerStateUncheckedCreateNestedManyWithoutQuestionInput
+}
+
+export type QuestionCreateOrConnectWithoutVersionsInput = {
+  where: Prisma.QuestionWhereUniqueInput
+  create: Prisma.XOR<Prisma.QuestionCreateWithoutVersionsInput, Prisma.QuestionUncheckedCreateWithoutVersionsInput>
+}
+
+export type QuestionUpsertWithoutVersionsInput = {
+  update: Prisma.XOR<Prisma.QuestionUpdateWithoutVersionsInput, Prisma.QuestionUncheckedUpdateWithoutVersionsInput>
+  create: Prisma.XOR<Prisma.QuestionCreateWithoutVersionsInput, Prisma.QuestionUncheckedCreateWithoutVersionsInput>
+  where?: Prisma.QuestionWhereInput
+}
+
+export type QuestionUpdateToOneWithWhereWithoutVersionsInput = {
+  where?: Prisma.QuestionWhereInput
+  data: Prisma.XOR<Prisma.QuestionUpdateWithoutVersionsInput, Prisma.QuestionUncheckedUpdateWithoutVersionsInput>
+}
+
+export type QuestionUpdateWithoutVersionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  questionText?: Prisma.StringFieldUpdateOperationsInput | string
+  questionImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visualReviewRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  visualReviewNotes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePageNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  boundingBoxes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  latex?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  layout?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  renderMode?: Prisma.StringFieldUpdateOperationsInput | string
+  aiConfidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  publishedVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  optionA?: Prisma.StringFieldUpdateOperationsInput | string
+  optionB?: Prisma.StringFieldUpdateOperationsInput | string
+  optionC?: Prisma.StringFieldUpdateOperationsInput | string
+  optionD?: Prisma.StringFieldUpdateOperationsInput | string
+  correctAnswer?: Prisma.StringFieldUpdateOperationsInput | string
+  explanation?: Prisma.StringFieldUpdateOperationsInput | string
+  marks?: Prisma.FloatFieldUpdateOperationsInput | number
+  negativeMarks?: Prisma.FloatFieldUpdateOperationsInput | number
+  difficultyLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  topic?: Prisma.StringFieldUpdateOperationsInput | string
+  test?: Prisma.TestUpdateOneRequiredWithoutQuestionsNestedInput
+  answers?: Prisma.AnswerUpdateManyWithoutQuestionNestedInput
+  answerStates?: Prisma.CBTAnswerStateUpdateManyWithoutQuestionNestedInput
+}
+
+export type QuestionUncheckedUpdateWithoutVersionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  testId?: Prisma.StringFieldUpdateOperationsInput | string
+  questionText?: Prisma.StringFieldUpdateOperationsInput | string
+  questionImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visualReviewRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  visualReviewNotes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePageNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  boundingBoxes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  latex?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  layout?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  renderMode?: Prisma.StringFieldUpdateOperationsInput | string
+  aiConfidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  publishedVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  optionA?: Prisma.StringFieldUpdateOperationsInput | string
+  optionB?: Prisma.StringFieldUpdateOperationsInput | string
+  optionC?: Prisma.StringFieldUpdateOperationsInput | string
+  optionD?: Prisma.StringFieldUpdateOperationsInput | string
+  correctAnswer?: Prisma.StringFieldUpdateOperationsInput | string
+  explanation?: Prisma.StringFieldUpdateOperationsInput | string
+  marks?: Prisma.FloatFieldUpdateOperationsInput | number
+  negativeMarks?: Prisma.FloatFieldUpdateOperationsInput | number
+  difficultyLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  topic?: Prisma.StringFieldUpdateOperationsInput | string
+  answers?: Prisma.AnswerUncheckedUpdateManyWithoutQuestionNestedInput
+  answerStates?: Prisma.CBTAnswerStateUncheckedUpdateManyWithoutQuestionNestedInput
+}
+
+export type QuestionCreateWithoutAnswerStatesInput = {
+  id?: string
+  questionText: string
+  questionImage?: string | null
+  visualReviewRequired?: boolean
+  visualReviewNotes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceDocumentId?: string | null
+  sourcePageNumber?: number | null
+  boundingBoxes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  latex?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  layout?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  renderMode?: string
+  aiConfidence?: number | null
+  reviewStatus?: string
+  publishedVersion?: number
+  optionA: string
+  optionB: string
+  optionC: string
+  optionD: string
+  correctAnswer: string
+  explanation: string
+  marks: number
+  negativeMarks: number
+  difficultyLevel: string
+  topic: string
+  test: Prisma.TestCreateNestedOneWithoutQuestionsInput
+  answers?: Prisma.AnswerCreateNestedManyWithoutQuestionInput
+  versions?: Prisma.QuestionVersionCreateNestedManyWithoutQuestionInput
+}
+
+export type QuestionUncheckedCreateWithoutAnswerStatesInput = {
+  id?: string
+  testId: string
+  questionText: string
+  questionImage?: string | null
+  visualReviewRequired?: boolean
+  visualReviewNotes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceDocumentId?: string | null
+  sourcePageNumber?: number | null
+  boundingBoxes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  latex?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  layout?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  renderMode?: string
+  aiConfidence?: number | null
+  reviewStatus?: string
+  publishedVersion?: number
+  optionA: string
+  optionB: string
+  optionC: string
+  optionD: string
+  correctAnswer: string
+  explanation: string
+  marks: number
+  negativeMarks: number
+  difficultyLevel: string
+  topic: string
+  answers?: Prisma.AnswerUncheckedCreateNestedManyWithoutQuestionInput
+  versions?: Prisma.QuestionVersionUncheckedCreateNestedManyWithoutQuestionInput
 }
 
 export type QuestionCreateOrConnectWithoutAnswerStatesInput = {
@@ -842,6 +1312,17 @@ export type QuestionUpdateWithoutAnswerStatesInput = {
   questionImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visualReviewRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
   visualReviewNotes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePageNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  boundingBoxes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  latex?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  layout?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  renderMode?: Prisma.StringFieldUpdateOperationsInput | string
+  aiConfidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  publishedVersion?: Prisma.IntFieldUpdateOperationsInput | number
   optionA?: Prisma.StringFieldUpdateOperationsInput | string
   optionB?: Prisma.StringFieldUpdateOperationsInput | string
   optionC?: Prisma.StringFieldUpdateOperationsInput | string
@@ -854,6 +1335,7 @@ export type QuestionUpdateWithoutAnswerStatesInput = {
   topic?: Prisma.StringFieldUpdateOperationsInput | string
   test?: Prisma.TestUpdateOneRequiredWithoutQuestionsNestedInput
   answers?: Prisma.AnswerUpdateManyWithoutQuestionNestedInput
+  versions?: Prisma.QuestionVersionUpdateManyWithoutQuestionNestedInput
 }
 
 export type QuestionUncheckedUpdateWithoutAnswerStatesInput = {
@@ -863,6 +1345,17 @@ export type QuestionUncheckedUpdateWithoutAnswerStatesInput = {
   questionImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visualReviewRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
   visualReviewNotes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePageNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  boundingBoxes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  latex?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  layout?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  renderMode?: Prisma.StringFieldUpdateOperationsInput | string
+  aiConfidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  publishedVersion?: Prisma.IntFieldUpdateOperationsInput | number
   optionA?: Prisma.StringFieldUpdateOperationsInput | string
   optionB?: Prisma.StringFieldUpdateOperationsInput | string
   optionC?: Prisma.StringFieldUpdateOperationsInput | string
@@ -874,6 +1367,7 @@ export type QuestionUncheckedUpdateWithoutAnswerStatesInput = {
   difficultyLevel?: Prisma.StringFieldUpdateOperationsInput | string
   topic?: Prisma.StringFieldUpdateOperationsInput | string
   answers?: Prisma.AnswerUncheckedUpdateManyWithoutQuestionNestedInput
+  versions?: Prisma.QuestionVersionUncheckedUpdateManyWithoutQuestionNestedInput
 }
 
 export type QuestionCreateWithoutAnswersInput = {
@@ -882,6 +1376,17 @@ export type QuestionCreateWithoutAnswersInput = {
   questionImage?: string | null
   visualReviewRequired?: boolean
   visualReviewNotes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceDocumentId?: string | null
+  sourcePageNumber?: number | null
+  boundingBoxes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  latex?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  layout?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  renderMode?: string
+  aiConfidence?: number | null
+  reviewStatus?: string
+  publishedVersion?: number
   optionA: string
   optionB: string
   optionC: string
@@ -894,6 +1399,7 @@ export type QuestionCreateWithoutAnswersInput = {
   topic: string
   test: Prisma.TestCreateNestedOneWithoutQuestionsInput
   answerStates?: Prisma.CBTAnswerStateCreateNestedManyWithoutQuestionInput
+  versions?: Prisma.QuestionVersionCreateNestedManyWithoutQuestionInput
 }
 
 export type QuestionUncheckedCreateWithoutAnswersInput = {
@@ -903,6 +1409,17 @@ export type QuestionUncheckedCreateWithoutAnswersInput = {
   questionImage?: string | null
   visualReviewRequired?: boolean
   visualReviewNotes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceDocumentId?: string | null
+  sourcePageNumber?: number | null
+  boundingBoxes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  latex?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  layout?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  renderMode?: string
+  aiConfidence?: number | null
+  reviewStatus?: string
+  publishedVersion?: number
   optionA: string
   optionB: string
   optionC: string
@@ -914,6 +1431,7 @@ export type QuestionUncheckedCreateWithoutAnswersInput = {
   difficultyLevel: string
   topic: string
   answerStates?: Prisma.CBTAnswerStateUncheckedCreateNestedManyWithoutQuestionInput
+  versions?: Prisma.QuestionVersionUncheckedCreateNestedManyWithoutQuestionInput
 }
 
 export type QuestionCreateOrConnectWithoutAnswersInput = {
@@ -938,6 +1456,17 @@ export type QuestionUpdateWithoutAnswersInput = {
   questionImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visualReviewRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
   visualReviewNotes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePageNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  boundingBoxes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  latex?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  layout?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  renderMode?: Prisma.StringFieldUpdateOperationsInput | string
+  aiConfidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  publishedVersion?: Prisma.IntFieldUpdateOperationsInput | number
   optionA?: Prisma.StringFieldUpdateOperationsInput | string
   optionB?: Prisma.StringFieldUpdateOperationsInput | string
   optionC?: Prisma.StringFieldUpdateOperationsInput | string
@@ -950,6 +1479,7 @@ export type QuestionUpdateWithoutAnswersInput = {
   topic?: Prisma.StringFieldUpdateOperationsInput | string
   test?: Prisma.TestUpdateOneRequiredWithoutQuestionsNestedInput
   answerStates?: Prisma.CBTAnswerStateUpdateManyWithoutQuestionNestedInput
+  versions?: Prisma.QuestionVersionUpdateManyWithoutQuestionNestedInput
 }
 
 export type QuestionUncheckedUpdateWithoutAnswersInput = {
@@ -959,6 +1489,17 @@ export type QuestionUncheckedUpdateWithoutAnswersInput = {
   questionImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visualReviewRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
   visualReviewNotes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePageNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  boundingBoxes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  latex?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  layout?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  renderMode?: Prisma.StringFieldUpdateOperationsInput | string
+  aiConfidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  publishedVersion?: Prisma.IntFieldUpdateOperationsInput | number
   optionA?: Prisma.StringFieldUpdateOperationsInput | string
   optionB?: Prisma.StringFieldUpdateOperationsInput | string
   optionC?: Prisma.StringFieldUpdateOperationsInput | string
@@ -970,6 +1511,7 @@ export type QuestionUncheckedUpdateWithoutAnswersInput = {
   difficultyLevel?: Prisma.StringFieldUpdateOperationsInput | string
   topic?: Prisma.StringFieldUpdateOperationsInput | string
   answerStates?: Prisma.CBTAnswerStateUncheckedUpdateManyWithoutQuestionNestedInput
+  versions?: Prisma.QuestionVersionUncheckedUpdateManyWithoutQuestionNestedInput
 }
 
 export type QuestionCreateManyTestInput = {
@@ -978,6 +1520,17 @@ export type QuestionCreateManyTestInput = {
   questionImage?: string | null
   visualReviewRequired?: boolean
   visualReviewNotes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceDocumentId?: string | null
+  sourcePageNumber?: number | null
+  boundingBoxes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  latex?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  layout?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  renderMode?: string
+  aiConfidence?: number | null
+  reviewStatus?: string
+  publishedVersion?: number
   optionA: string
   optionB: string
   optionC: string
@@ -996,6 +1549,17 @@ export type QuestionUpdateWithoutTestInput = {
   questionImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visualReviewRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
   visualReviewNotes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePageNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  boundingBoxes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  latex?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  layout?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  renderMode?: Prisma.StringFieldUpdateOperationsInput | string
+  aiConfidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  publishedVersion?: Prisma.IntFieldUpdateOperationsInput | number
   optionA?: Prisma.StringFieldUpdateOperationsInput | string
   optionB?: Prisma.StringFieldUpdateOperationsInput | string
   optionC?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1008,6 +1572,7 @@ export type QuestionUpdateWithoutTestInput = {
   topic?: Prisma.StringFieldUpdateOperationsInput | string
   answers?: Prisma.AnswerUpdateManyWithoutQuestionNestedInput
   answerStates?: Prisma.CBTAnswerStateUpdateManyWithoutQuestionNestedInput
+  versions?: Prisma.QuestionVersionUpdateManyWithoutQuestionNestedInput
 }
 
 export type QuestionUncheckedUpdateWithoutTestInput = {
@@ -1016,6 +1581,17 @@ export type QuestionUncheckedUpdateWithoutTestInput = {
   questionImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visualReviewRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
   visualReviewNotes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePageNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  boundingBoxes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  latex?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  layout?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  renderMode?: Prisma.StringFieldUpdateOperationsInput | string
+  aiConfidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  publishedVersion?: Prisma.IntFieldUpdateOperationsInput | number
   optionA?: Prisma.StringFieldUpdateOperationsInput | string
   optionB?: Prisma.StringFieldUpdateOperationsInput | string
   optionC?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1028,6 +1604,7 @@ export type QuestionUncheckedUpdateWithoutTestInput = {
   topic?: Prisma.StringFieldUpdateOperationsInput | string
   answers?: Prisma.AnswerUncheckedUpdateManyWithoutQuestionNestedInput
   answerStates?: Prisma.CBTAnswerStateUncheckedUpdateManyWithoutQuestionNestedInput
+  versions?: Prisma.QuestionVersionUncheckedUpdateManyWithoutQuestionNestedInput
 }
 
 export type QuestionUncheckedUpdateManyWithoutTestInput = {
@@ -1036,6 +1613,17 @@ export type QuestionUncheckedUpdateManyWithoutTestInput = {
   questionImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visualReviewRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
   visualReviewNotes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePageNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  boundingBoxes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  latex?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  layout?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  renderMode?: Prisma.StringFieldUpdateOperationsInput | string
+  aiConfidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  publishedVersion?: Prisma.IntFieldUpdateOperationsInput | number
   optionA?: Prisma.StringFieldUpdateOperationsInput | string
   optionB?: Prisma.StringFieldUpdateOperationsInput | string
   optionC?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1056,11 +1644,13 @@ export type QuestionUncheckedUpdateManyWithoutTestInput = {
 export type QuestionCountOutputType = {
   answers: number
   answerStates: number
+  versions: number
 }
 
 export type QuestionCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   answers?: boolean | QuestionCountOutputTypeCountAnswersArgs
   answerStates?: boolean | QuestionCountOutputTypeCountAnswerStatesArgs
+  versions?: boolean | QuestionCountOutputTypeCountVersionsArgs
 }
 
 /**
@@ -1087,6 +1677,13 @@ export type QuestionCountOutputTypeCountAnswerStatesArgs<ExtArgs extends runtime
   where?: Prisma.CBTAnswerStateWhereInput
 }
 
+/**
+ * QuestionCountOutputType without action
+ */
+export type QuestionCountOutputTypeCountVersionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.QuestionVersionWhereInput
+}
+
 
 export type QuestionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1095,6 +1692,17 @@ export type QuestionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   questionImage?: boolean
   visualReviewRequired?: boolean
   visualReviewNotes?: boolean
+  contentJson?: boolean
+  sourceDocumentId?: boolean
+  sourcePageNumber?: boolean
+  boundingBoxes?: boolean
+  latex?: boolean
+  assets?: boolean
+  layout?: boolean
+  renderMode?: boolean
+  aiConfidence?: boolean
+  reviewStatus?: boolean
+  publishedVersion?: boolean
   optionA?: boolean
   optionB?: boolean
   optionC?: boolean
@@ -1108,6 +1716,7 @@ export type QuestionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   test?: boolean | Prisma.TestDefaultArgs<ExtArgs>
   answers?: boolean | Prisma.Question$answersArgs<ExtArgs>
   answerStates?: boolean | Prisma.Question$answerStatesArgs<ExtArgs>
+  versions?: boolean | Prisma.Question$versionsArgs<ExtArgs>
   _count?: boolean | Prisma.QuestionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["question"]>
 
@@ -1118,6 +1727,17 @@ export type QuestionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   questionImage?: boolean
   visualReviewRequired?: boolean
   visualReviewNotes?: boolean
+  contentJson?: boolean
+  sourceDocumentId?: boolean
+  sourcePageNumber?: boolean
+  boundingBoxes?: boolean
+  latex?: boolean
+  assets?: boolean
+  layout?: boolean
+  renderMode?: boolean
+  aiConfidence?: boolean
+  reviewStatus?: boolean
+  publishedVersion?: boolean
   optionA?: boolean
   optionB?: boolean
   optionC?: boolean
@@ -1138,6 +1758,17 @@ export type QuestionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   questionImage?: boolean
   visualReviewRequired?: boolean
   visualReviewNotes?: boolean
+  contentJson?: boolean
+  sourceDocumentId?: boolean
+  sourcePageNumber?: boolean
+  boundingBoxes?: boolean
+  latex?: boolean
+  assets?: boolean
+  layout?: boolean
+  renderMode?: boolean
+  aiConfidence?: boolean
+  reviewStatus?: boolean
+  publishedVersion?: boolean
   optionA?: boolean
   optionB?: boolean
   optionC?: boolean
@@ -1158,6 +1789,17 @@ export type QuestionSelectScalar = {
   questionImage?: boolean
   visualReviewRequired?: boolean
   visualReviewNotes?: boolean
+  contentJson?: boolean
+  sourceDocumentId?: boolean
+  sourcePageNumber?: boolean
+  boundingBoxes?: boolean
+  latex?: boolean
+  assets?: boolean
+  layout?: boolean
+  renderMode?: boolean
+  aiConfidence?: boolean
+  reviewStatus?: boolean
+  publishedVersion?: boolean
   optionA?: boolean
   optionB?: boolean
   optionC?: boolean
@@ -1170,11 +1812,12 @@ export type QuestionSelectScalar = {
   topic?: boolean
 }
 
-export type QuestionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "testId" | "questionText" | "questionImage" | "visualReviewRequired" | "visualReviewNotes" | "optionA" | "optionB" | "optionC" | "optionD" | "correctAnswer" | "explanation" | "marks" | "negativeMarks" | "difficultyLevel" | "topic", ExtArgs["result"]["question"]>
+export type QuestionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "testId" | "questionText" | "questionImage" | "visualReviewRequired" | "visualReviewNotes" | "contentJson" | "sourceDocumentId" | "sourcePageNumber" | "boundingBoxes" | "latex" | "assets" | "layout" | "renderMode" | "aiConfidence" | "reviewStatus" | "publishedVersion" | "optionA" | "optionB" | "optionC" | "optionD" | "correctAnswer" | "explanation" | "marks" | "negativeMarks" | "difficultyLevel" | "topic", ExtArgs["result"]["question"]>
 export type QuestionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   test?: boolean | Prisma.TestDefaultArgs<ExtArgs>
   answers?: boolean | Prisma.Question$answersArgs<ExtArgs>
   answerStates?: boolean | Prisma.Question$answerStatesArgs<ExtArgs>
+  versions?: boolean | Prisma.Question$versionsArgs<ExtArgs>
   _count?: boolean | Prisma.QuestionCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type QuestionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1190,6 +1833,7 @@ export type $QuestionPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     test: Prisma.$TestPayload<ExtArgs>
     answers: Prisma.$AnswerPayload<ExtArgs>[]
     answerStates: Prisma.$CBTAnswerStatePayload<ExtArgs>[]
+    versions: Prisma.$QuestionVersionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1198,6 +1842,17 @@ export type $QuestionPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     questionImage: string | null
     visualReviewRequired: boolean
     visualReviewNotes: runtime.JsonValue | null
+    contentJson: runtime.JsonValue | null
+    sourceDocumentId: string | null
+    sourcePageNumber: number | null
+    boundingBoxes: runtime.JsonValue | null
+    latex: runtime.JsonValue | null
+    assets: runtime.JsonValue | null
+    layout: runtime.JsonValue | null
+    renderMode: string
+    aiConfidence: number | null
+    reviewStatus: string
+    publishedVersion: number
     optionA: string
     optionB: string
     optionC: string
@@ -1605,6 +2260,7 @@ export interface Prisma__QuestionClient<T, Null = never, ExtArgs extends runtime
   test<T extends Prisma.TestDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TestDefaultArgs<ExtArgs>>): Prisma.Prisma__TestClient<runtime.Types.Result.GetResult<Prisma.$TestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   answers<T extends Prisma.Question$answersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Question$answersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AnswerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   answerStates<T extends Prisma.Question$answerStatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Question$answerStatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CBTAnswerStatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  versions<T extends Prisma.Question$versionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Question$versionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$QuestionVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1640,6 +2296,17 @@ export interface QuestionFieldRefs {
   readonly questionImage: Prisma.FieldRef<"Question", 'String'>
   readonly visualReviewRequired: Prisma.FieldRef<"Question", 'Boolean'>
   readonly visualReviewNotes: Prisma.FieldRef<"Question", 'Json'>
+  readonly contentJson: Prisma.FieldRef<"Question", 'Json'>
+  readonly sourceDocumentId: Prisma.FieldRef<"Question", 'String'>
+  readonly sourcePageNumber: Prisma.FieldRef<"Question", 'Int'>
+  readonly boundingBoxes: Prisma.FieldRef<"Question", 'Json'>
+  readonly latex: Prisma.FieldRef<"Question", 'Json'>
+  readonly assets: Prisma.FieldRef<"Question", 'Json'>
+  readonly layout: Prisma.FieldRef<"Question", 'Json'>
+  readonly renderMode: Prisma.FieldRef<"Question", 'String'>
+  readonly aiConfidence: Prisma.FieldRef<"Question", 'Float'>
+  readonly reviewStatus: Prisma.FieldRef<"Question", 'String'>
+  readonly publishedVersion: Prisma.FieldRef<"Question", 'Int'>
   readonly optionA: Prisma.FieldRef<"Question", 'String'>
   readonly optionB: Prisma.FieldRef<"Question", 'String'>
   readonly optionC: Prisma.FieldRef<"Question", 'String'>
@@ -2096,6 +2763,30 @@ export type Question$answerStatesArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.CBTAnswerStateScalarFieldEnum | Prisma.CBTAnswerStateScalarFieldEnum[]
+}
+
+/**
+ * Question.versions
+ */
+export type Question$versionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the QuestionVersion
+   */
+  select?: Prisma.QuestionVersionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the QuestionVersion
+   */
+  omit?: Prisma.QuestionVersionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.QuestionVersionInclude<ExtArgs> | null
+  where?: Prisma.QuestionVersionWhereInput
+  orderBy?: Prisma.QuestionVersionOrderByWithRelationInput | Prisma.QuestionVersionOrderByWithRelationInput[]
+  cursor?: Prisma.QuestionVersionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.QuestionVersionScalarFieldEnum | Prisma.QuestionVersionScalarFieldEnum[]
 }
 
 /**

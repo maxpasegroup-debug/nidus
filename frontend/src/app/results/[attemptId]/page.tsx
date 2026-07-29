@@ -8,6 +8,7 @@ import { EmptyState } from "@/components/courses/empty-state";
 import { AnalysisCard } from "@/components/tests/analysis-card";
 import { ResultChart } from "@/components/tests/result-chart";
 import { SectionHeader } from "@/components/dashboard";
+import { NidusMathText } from "@/components/exam/nidus-math-renderer";
 import { useResults } from "@/hooks/use-tests";
 import { getApiErrorMessage } from "@/services/api";
 import type { Question } from "@/types/test";
@@ -104,7 +105,9 @@ export default function ResultPage() {
           return (
           <div key={question.id} className="rounded-lg border border-[#d9c79d] bg-white p-4 shadow-sm">
             <div className="flex flex-wrap items-start justify-between gap-3">
-              <p className="max-w-4xl font-medium text-[#071d36]">Q{index + 1}. {question.questionText}</p>
+              <p className="max-w-4xl font-medium text-[#071d36]">
+                Q{index + 1}. <NidusMathText text={question.questionText} />
+              </p>
               <span className={`rounded-full px-3 py-1 text-xs font-black ${answer ? isCorrect ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700" : "bg-slate-100 text-slate-600"}`}>
                 {answer ? isCorrect ? "Correct" : "Wrong" : "Skipped"}
               </span>
@@ -123,14 +126,14 @@ export default function ResultPage() {
             <div className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
               {(["A", "B", "C", "D"] as const).map((option) => (
                 <p key={option} className={`rounded-lg border px-3 py-2 ${question.correctAnswer === option ? "border-emerald-300 bg-emerald-50 font-black text-emerald-800" : answer?.selectedAnswer === option ? "border-red-300 bg-red-50 text-red-800" : "border-[#eadfca] bg-[#fbf8f1]"}`}>
-                  {option}. {getOptionText(question, option)}
+                  {option}. <NidusMathText text={getOptionText(question, option)} />
                 </p>
               ))}
             </div>
             <p className={`mt-3 text-sm ${isCorrect ? "text-emerald-700" : answer ? "text-red-700" : "text-slate-600"}`}>
               Selected {answer?.selectedAnswer || "Skipped"} - Correct {question.correctAnswer}
             </p>
-            <p className="mt-2 text-sm leading-6 text-[#64748b]">{question.explanation}</p>
+            <p className="mt-2 text-sm leading-6 text-[#64748b]"><NidusMathText text={question.explanation} /></p>
           </div>
         )})}
       </section>

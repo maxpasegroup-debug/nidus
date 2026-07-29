@@ -36,6 +36,7 @@ export type ExamUploadSumAggregateOutputType = {
 
 export type ExamUploadMinAggregateOutputType = {
   id: string | null
+  importJobId: string | null
   examId: string | null
   testId: string | null
   batchId: string | null
@@ -48,6 +49,8 @@ export type ExamUploadMinAggregateOutputType = {
   fileSize: number | null
   cloudinaryUrl: string | null
   publicId: string | null
+  documentClass: string | null
+  pipeline: string | null
   extractionStatus: string | null
   manualReviewRequired: boolean | null
   manualReviewCompleted: boolean | null
@@ -58,6 +61,7 @@ export type ExamUploadMinAggregateOutputType = {
 
 export type ExamUploadMaxAggregateOutputType = {
   id: string | null
+  importJobId: string | null
   examId: string | null
   testId: string | null
   batchId: string | null
@@ -70,6 +74,8 @@ export type ExamUploadMaxAggregateOutputType = {
   fileSize: number | null
   cloudinaryUrl: string | null
   publicId: string | null
+  documentClass: string | null
+  pipeline: string | null
   extractionStatus: string | null
   manualReviewRequired: boolean | null
   manualReviewCompleted: boolean | null
@@ -80,6 +86,7 @@ export type ExamUploadMaxAggregateOutputType = {
 
 export type ExamUploadCountAggregateOutputType = {
   id: number
+  importJobId: number
   examId: number
   testId: number
   batchId: number
@@ -92,6 +99,9 @@ export type ExamUploadCountAggregateOutputType = {
   fileSize: number
   cloudinaryUrl: number
   publicId: number
+  documentClass: number
+  pipeline: number
+  classification: number
   extractionStatus: number
   extractionAudit: number
   manualReviewRequired: number
@@ -113,6 +123,7 @@ export type ExamUploadSumAggregateInputType = {
 
 export type ExamUploadMinAggregateInputType = {
   id?: true
+  importJobId?: true
   examId?: true
   testId?: true
   batchId?: true
@@ -125,6 +136,8 @@ export type ExamUploadMinAggregateInputType = {
   fileSize?: true
   cloudinaryUrl?: true
   publicId?: true
+  documentClass?: true
+  pipeline?: true
   extractionStatus?: true
   manualReviewRequired?: true
   manualReviewCompleted?: true
@@ -135,6 +148,7 @@ export type ExamUploadMinAggregateInputType = {
 
 export type ExamUploadMaxAggregateInputType = {
   id?: true
+  importJobId?: true
   examId?: true
   testId?: true
   batchId?: true
@@ -147,6 +161,8 @@ export type ExamUploadMaxAggregateInputType = {
   fileSize?: true
   cloudinaryUrl?: true
   publicId?: true
+  documentClass?: true
+  pipeline?: true
   extractionStatus?: true
   manualReviewRequired?: true
   manualReviewCompleted?: true
@@ -157,6 +173,7 @@ export type ExamUploadMaxAggregateInputType = {
 
 export type ExamUploadCountAggregateInputType = {
   id?: true
+  importJobId?: true
   examId?: true
   testId?: true
   batchId?: true
@@ -169,6 +186,9 @@ export type ExamUploadCountAggregateInputType = {
   fileSize?: true
   cloudinaryUrl?: true
   publicId?: true
+  documentClass?: true
+  pipeline?: true
+  classification?: true
   extractionStatus?: true
   extractionAudit?: true
   manualReviewRequired?: true
@@ -267,6 +287,7 @@ export type ExamUploadGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inter
 
 export type ExamUploadGroupByOutputType = {
   id: string
+  importJobId: string | null
   examId: string | null
   testId: string | null
   batchId: string | null
@@ -279,6 +300,9 @@ export type ExamUploadGroupByOutputType = {
   fileSize: number
   cloudinaryUrl: string
   publicId: string
+  documentClass: string
+  pipeline: string
+  classification: runtime.JsonValue | null
   extractionStatus: string
   extractionAudit: runtime.JsonValue | null
   manualReviewRequired: boolean
@@ -313,6 +337,7 @@ export type ExamUploadWhereInput = {
   OR?: Prisma.ExamUploadWhereInput[]
   NOT?: Prisma.ExamUploadWhereInput | Prisma.ExamUploadWhereInput[]
   id?: Prisma.StringFilter<"ExamUpload"> | string
+  importJobId?: Prisma.StringNullableFilter<"ExamUpload"> | string | null
   examId?: Prisma.StringNullableFilter<"ExamUpload"> | string | null
   testId?: Prisma.StringNullableFilter<"ExamUpload"> | string | null
   batchId?: Prisma.StringNullableFilter<"ExamUpload"> | string | null
@@ -325,6 +350,9 @@ export type ExamUploadWhereInput = {
   fileSize?: Prisma.IntFilter<"ExamUpload"> | number
   cloudinaryUrl?: Prisma.StringFilter<"ExamUpload"> | string
   publicId?: Prisma.StringFilter<"ExamUpload"> | string
+  documentClass?: Prisma.StringFilter<"ExamUpload"> | string
+  pipeline?: Prisma.StringFilter<"ExamUpload"> | string
+  classification?: Prisma.JsonNullableFilter<"ExamUpload">
   extractionStatus?: Prisma.StringFilter<"ExamUpload"> | string
   extractionAudit?: Prisma.JsonNullableFilter<"ExamUpload">
   manualReviewRequired?: Prisma.BoolFilter<"ExamUpload"> | boolean
@@ -336,6 +364,7 @@ export type ExamUploadWhereInput = {
 
 export type ExamUploadOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  importJobId?: Prisma.SortOrderInput | Prisma.SortOrder
   examId?: Prisma.SortOrderInput | Prisma.SortOrder
   testId?: Prisma.SortOrderInput | Prisma.SortOrder
   batchId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -348,6 +377,9 @@ export type ExamUploadOrderByWithRelationInput = {
   fileSize?: Prisma.SortOrder
   cloudinaryUrl?: Prisma.SortOrder
   publicId?: Prisma.SortOrder
+  documentClass?: Prisma.SortOrder
+  pipeline?: Prisma.SortOrder
+  classification?: Prisma.SortOrderInput | Prisma.SortOrder
   extractionStatus?: Prisma.SortOrder
   extractionAudit?: Prisma.SortOrderInput | Prisma.SortOrder
   manualReviewRequired?: Prisma.SortOrder
@@ -362,6 +394,7 @@ export type ExamUploadWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.ExamUploadWhereInput | Prisma.ExamUploadWhereInput[]
   OR?: Prisma.ExamUploadWhereInput[]
   NOT?: Prisma.ExamUploadWhereInput | Prisma.ExamUploadWhereInput[]
+  importJobId?: Prisma.StringNullableFilter<"ExamUpload"> | string | null
   examId?: Prisma.StringNullableFilter<"ExamUpload"> | string | null
   testId?: Prisma.StringNullableFilter<"ExamUpload"> | string | null
   batchId?: Prisma.StringNullableFilter<"ExamUpload"> | string | null
@@ -374,6 +407,9 @@ export type ExamUploadWhereUniqueInput = Prisma.AtLeast<{
   fileSize?: Prisma.IntFilter<"ExamUpload"> | number
   cloudinaryUrl?: Prisma.StringFilter<"ExamUpload"> | string
   publicId?: Prisma.StringFilter<"ExamUpload"> | string
+  documentClass?: Prisma.StringFilter<"ExamUpload"> | string
+  pipeline?: Prisma.StringFilter<"ExamUpload"> | string
+  classification?: Prisma.JsonNullableFilter<"ExamUpload">
   extractionStatus?: Prisma.StringFilter<"ExamUpload"> | string
   extractionAudit?: Prisma.JsonNullableFilter<"ExamUpload">
   manualReviewRequired?: Prisma.BoolFilter<"ExamUpload"> | boolean
@@ -385,6 +421,7 @@ export type ExamUploadWhereUniqueInput = Prisma.AtLeast<{
 
 export type ExamUploadOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  importJobId?: Prisma.SortOrderInput | Prisma.SortOrder
   examId?: Prisma.SortOrderInput | Prisma.SortOrder
   testId?: Prisma.SortOrderInput | Prisma.SortOrder
   batchId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -397,6 +434,9 @@ export type ExamUploadOrderByWithAggregationInput = {
   fileSize?: Prisma.SortOrder
   cloudinaryUrl?: Prisma.SortOrder
   publicId?: Prisma.SortOrder
+  documentClass?: Prisma.SortOrder
+  pipeline?: Prisma.SortOrder
+  classification?: Prisma.SortOrderInput | Prisma.SortOrder
   extractionStatus?: Prisma.SortOrder
   extractionAudit?: Prisma.SortOrderInput | Prisma.SortOrder
   manualReviewRequired?: Prisma.SortOrder
@@ -416,6 +456,7 @@ export type ExamUploadScalarWhereWithAggregatesInput = {
   OR?: Prisma.ExamUploadScalarWhereWithAggregatesInput[]
   NOT?: Prisma.ExamUploadScalarWhereWithAggregatesInput | Prisma.ExamUploadScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"ExamUpload"> | string
+  importJobId?: Prisma.StringNullableWithAggregatesFilter<"ExamUpload"> | string | null
   examId?: Prisma.StringNullableWithAggregatesFilter<"ExamUpload"> | string | null
   testId?: Prisma.StringNullableWithAggregatesFilter<"ExamUpload"> | string | null
   batchId?: Prisma.StringNullableWithAggregatesFilter<"ExamUpload"> | string | null
@@ -428,6 +469,9 @@ export type ExamUploadScalarWhereWithAggregatesInput = {
   fileSize?: Prisma.IntWithAggregatesFilter<"ExamUpload"> | number
   cloudinaryUrl?: Prisma.StringWithAggregatesFilter<"ExamUpload"> | string
   publicId?: Prisma.StringWithAggregatesFilter<"ExamUpload"> | string
+  documentClass?: Prisma.StringWithAggregatesFilter<"ExamUpload"> | string
+  pipeline?: Prisma.StringWithAggregatesFilter<"ExamUpload"> | string
+  classification?: Prisma.JsonNullableWithAggregatesFilter<"ExamUpload">
   extractionStatus?: Prisma.StringWithAggregatesFilter<"ExamUpload"> | string
   extractionAudit?: Prisma.JsonNullableWithAggregatesFilter<"ExamUpload">
   manualReviewRequired?: Prisma.BoolWithAggregatesFilter<"ExamUpload"> | boolean
@@ -439,6 +483,7 @@ export type ExamUploadScalarWhereWithAggregatesInput = {
 
 export type ExamUploadCreateInput = {
   id?: string
+  importJobId?: string | null
   examId?: string | null
   testId?: string | null
   batchId?: string | null
@@ -451,6 +496,9 @@ export type ExamUploadCreateInput = {
   fileSize: number
   cloudinaryUrl: string
   publicId: string
+  documentClass?: string
+  pipeline?: string
+  classification?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   extractionStatus?: string
   extractionAudit?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   manualReviewRequired?: boolean
@@ -462,6 +510,7 @@ export type ExamUploadCreateInput = {
 
 export type ExamUploadUncheckedCreateInput = {
   id?: string
+  importJobId?: string | null
   examId?: string | null
   testId?: string | null
   batchId?: string | null
@@ -474,6 +523,9 @@ export type ExamUploadUncheckedCreateInput = {
   fileSize: number
   cloudinaryUrl: string
   publicId: string
+  documentClass?: string
+  pipeline?: string
+  classification?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   extractionStatus?: string
   extractionAudit?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   manualReviewRequired?: boolean
@@ -485,6 +537,7 @@ export type ExamUploadUncheckedCreateInput = {
 
 export type ExamUploadUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  importJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   examId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   batchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -497,6 +550,9 @@ export type ExamUploadUpdateInput = {
   fileSize?: Prisma.IntFieldUpdateOperationsInput | number
   cloudinaryUrl?: Prisma.StringFieldUpdateOperationsInput | string
   publicId?: Prisma.StringFieldUpdateOperationsInput | string
+  documentClass?: Prisma.StringFieldUpdateOperationsInput | string
+  pipeline?: Prisma.StringFieldUpdateOperationsInput | string
+  classification?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   extractionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   extractionAudit?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   manualReviewRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -508,6 +564,7 @@ export type ExamUploadUpdateInput = {
 
 export type ExamUploadUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  importJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   examId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   batchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -520,6 +577,9 @@ export type ExamUploadUncheckedUpdateInput = {
   fileSize?: Prisma.IntFieldUpdateOperationsInput | number
   cloudinaryUrl?: Prisma.StringFieldUpdateOperationsInput | string
   publicId?: Prisma.StringFieldUpdateOperationsInput | string
+  documentClass?: Prisma.StringFieldUpdateOperationsInput | string
+  pipeline?: Prisma.StringFieldUpdateOperationsInput | string
+  classification?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   extractionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   extractionAudit?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   manualReviewRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -531,6 +591,7 @@ export type ExamUploadUncheckedUpdateInput = {
 
 export type ExamUploadCreateManyInput = {
   id?: string
+  importJobId?: string | null
   examId?: string | null
   testId?: string | null
   batchId?: string | null
@@ -543,6 +604,9 @@ export type ExamUploadCreateManyInput = {
   fileSize: number
   cloudinaryUrl: string
   publicId: string
+  documentClass?: string
+  pipeline?: string
+  classification?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   extractionStatus?: string
   extractionAudit?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   manualReviewRequired?: boolean
@@ -554,6 +618,7 @@ export type ExamUploadCreateManyInput = {
 
 export type ExamUploadUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  importJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   examId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   batchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -566,6 +631,9 @@ export type ExamUploadUpdateManyMutationInput = {
   fileSize?: Prisma.IntFieldUpdateOperationsInput | number
   cloudinaryUrl?: Prisma.StringFieldUpdateOperationsInput | string
   publicId?: Prisma.StringFieldUpdateOperationsInput | string
+  documentClass?: Prisma.StringFieldUpdateOperationsInput | string
+  pipeline?: Prisma.StringFieldUpdateOperationsInput | string
+  classification?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   extractionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   extractionAudit?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   manualReviewRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -577,6 +645,7 @@ export type ExamUploadUpdateManyMutationInput = {
 
 export type ExamUploadUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  importJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   examId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   batchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -589,6 +658,9 @@ export type ExamUploadUncheckedUpdateManyInput = {
   fileSize?: Prisma.IntFieldUpdateOperationsInput | number
   cloudinaryUrl?: Prisma.StringFieldUpdateOperationsInput | string
   publicId?: Prisma.StringFieldUpdateOperationsInput | string
+  documentClass?: Prisma.StringFieldUpdateOperationsInput | string
+  pipeline?: Prisma.StringFieldUpdateOperationsInput | string
+  classification?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   extractionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   extractionAudit?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   manualReviewRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -600,6 +672,7 @@ export type ExamUploadUncheckedUpdateManyInput = {
 
 export type ExamUploadCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  importJobId?: Prisma.SortOrder
   examId?: Prisma.SortOrder
   testId?: Prisma.SortOrder
   batchId?: Prisma.SortOrder
@@ -612,6 +685,9 @@ export type ExamUploadCountOrderByAggregateInput = {
   fileSize?: Prisma.SortOrder
   cloudinaryUrl?: Prisma.SortOrder
   publicId?: Prisma.SortOrder
+  documentClass?: Prisma.SortOrder
+  pipeline?: Prisma.SortOrder
+  classification?: Prisma.SortOrder
   extractionStatus?: Prisma.SortOrder
   extractionAudit?: Prisma.SortOrder
   manualReviewRequired?: Prisma.SortOrder
@@ -627,6 +703,7 @@ export type ExamUploadAvgOrderByAggregateInput = {
 
 export type ExamUploadMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  importJobId?: Prisma.SortOrder
   examId?: Prisma.SortOrder
   testId?: Prisma.SortOrder
   batchId?: Prisma.SortOrder
@@ -639,6 +716,8 @@ export type ExamUploadMaxOrderByAggregateInput = {
   fileSize?: Prisma.SortOrder
   cloudinaryUrl?: Prisma.SortOrder
   publicId?: Prisma.SortOrder
+  documentClass?: Prisma.SortOrder
+  pipeline?: Prisma.SortOrder
   extractionStatus?: Prisma.SortOrder
   manualReviewRequired?: Prisma.SortOrder
   manualReviewCompleted?: Prisma.SortOrder
@@ -649,6 +728,7 @@ export type ExamUploadMaxOrderByAggregateInput = {
 
 export type ExamUploadMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  importJobId?: Prisma.SortOrder
   examId?: Prisma.SortOrder
   testId?: Prisma.SortOrder
   batchId?: Prisma.SortOrder
@@ -661,6 +741,8 @@ export type ExamUploadMinOrderByAggregateInput = {
   fileSize?: Prisma.SortOrder
   cloudinaryUrl?: Prisma.SortOrder
   publicId?: Prisma.SortOrder
+  documentClass?: Prisma.SortOrder
+  pipeline?: Prisma.SortOrder
   extractionStatus?: Prisma.SortOrder
   manualReviewRequired?: Prisma.SortOrder
   manualReviewCompleted?: Prisma.SortOrder
@@ -677,6 +759,7 @@ export type ExamUploadSumOrderByAggregateInput = {
 
 export type ExamUploadSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  importJobId?: boolean
   examId?: boolean
   testId?: boolean
   batchId?: boolean
@@ -689,6 +772,9 @@ export type ExamUploadSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   fileSize?: boolean
   cloudinaryUrl?: boolean
   publicId?: boolean
+  documentClass?: boolean
+  pipeline?: boolean
+  classification?: boolean
   extractionStatus?: boolean
   extractionAudit?: boolean
   manualReviewRequired?: boolean
@@ -700,6 +786,7 @@ export type ExamUploadSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
 
 export type ExamUploadSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  importJobId?: boolean
   examId?: boolean
   testId?: boolean
   batchId?: boolean
@@ -712,6 +799,9 @@ export type ExamUploadSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   fileSize?: boolean
   cloudinaryUrl?: boolean
   publicId?: boolean
+  documentClass?: boolean
+  pipeline?: boolean
+  classification?: boolean
   extractionStatus?: boolean
   extractionAudit?: boolean
   manualReviewRequired?: boolean
@@ -723,6 +813,7 @@ export type ExamUploadSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
 
 export type ExamUploadSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  importJobId?: boolean
   examId?: boolean
   testId?: boolean
   batchId?: boolean
@@ -735,6 +826,9 @@ export type ExamUploadSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   fileSize?: boolean
   cloudinaryUrl?: boolean
   publicId?: boolean
+  documentClass?: boolean
+  pipeline?: boolean
+  classification?: boolean
   extractionStatus?: boolean
   extractionAudit?: boolean
   manualReviewRequired?: boolean
@@ -746,6 +840,7 @@ export type ExamUploadSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
 
 export type ExamUploadSelectScalar = {
   id?: boolean
+  importJobId?: boolean
   examId?: boolean
   testId?: boolean
   batchId?: boolean
@@ -758,6 +853,9 @@ export type ExamUploadSelectScalar = {
   fileSize?: boolean
   cloudinaryUrl?: boolean
   publicId?: boolean
+  documentClass?: boolean
+  pipeline?: boolean
+  classification?: boolean
   extractionStatus?: boolean
   extractionAudit?: boolean
   manualReviewRequired?: boolean
@@ -767,13 +865,14 @@ export type ExamUploadSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ExamUploadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "examId" | "testId" | "batchId" | "subject" | "topic" | "sourceKind" | "fileName" | "originalName" | "fileType" | "fileSize" | "cloudinaryUrl" | "publicId" | "extractionStatus" | "extractionAudit" | "manualReviewRequired" | "manualReviewCompleted" | "uploadedBy" | "createdAt" | "updatedAt", ExtArgs["result"]["examUpload"]>
+export type ExamUploadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "importJobId" | "examId" | "testId" | "batchId" | "subject" | "topic" | "sourceKind" | "fileName" | "originalName" | "fileType" | "fileSize" | "cloudinaryUrl" | "publicId" | "documentClass" | "pipeline" | "classification" | "extractionStatus" | "extractionAudit" | "manualReviewRequired" | "manualReviewCompleted" | "uploadedBy" | "createdAt" | "updatedAt", ExtArgs["result"]["examUpload"]>
 
 export type $ExamUploadPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ExamUpload"
   objects: {}
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
+    importJobId: string | null
     examId: string | null
     testId: string | null
     batchId: string | null
@@ -786,6 +885,9 @@ export type $ExamUploadPayload<ExtArgs extends runtime.Types.Extensions.Internal
     fileSize: number
     cloudinaryUrl: string
     publicId: string
+    documentClass: string
+    pipeline: string
+    classification: runtime.JsonValue | null
     extractionStatus: string
     extractionAudit: runtime.JsonValue | null
     manualReviewRequired: boolean
@@ -1217,6 +1319,7 @@ export interface Prisma__ExamUploadClient<T, Null = never, ExtArgs extends runti
  */
 export interface ExamUploadFieldRefs {
   readonly id: Prisma.FieldRef<"ExamUpload", 'String'>
+  readonly importJobId: Prisma.FieldRef<"ExamUpload", 'String'>
   readonly examId: Prisma.FieldRef<"ExamUpload", 'String'>
   readonly testId: Prisma.FieldRef<"ExamUpload", 'String'>
   readonly batchId: Prisma.FieldRef<"ExamUpload", 'String'>
@@ -1229,6 +1332,9 @@ export interface ExamUploadFieldRefs {
   readonly fileSize: Prisma.FieldRef<"ExamUpload", 'Int'>
   readonly cloudinaryUrl: Prisma.FieldRef<"ExamUpload", 'String'>
   readonly publicId: Prisma.FieldRef<"ExamUpload", 'String'>
+  readonly documentClass: Prisma.FieldRef<"ExamUpload", 'String'>
+  readonly pipeline: Prisma.FieldRef<"ExamUpload", 'String'>
+  readonly classification: Prisma.FieldRef<"ExamUpload", 'Json'>
   readonly extractionStatus: Prisma.FieldRef<"ExamUpload", 'String'>
   readonly extractionAudit: Prisma.FieldRef<"ExamUpload", 'Json'>
   readonly manualReviewRequired: Prisma.FieldRef<"ExamUpload", 'Boolean'>

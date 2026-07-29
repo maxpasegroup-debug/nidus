@@ -111,6 +111,7 @@ model User {
   testsCreated   Test[] @relation("TestTeacher")
   testsApproved  Test[] @relation("TestApprover")
   questionBankItemsCreated QuestionBankItem[] @relation("QuestionBankItemCreator")
+  questionVersionsChanged QuestionVersion[] @relation("QuestionVersionChangedBy")
   psychometricAttempts PsychometricAttempt[]
   olqScore       OLQScore?
   studyPlans     StudyPlan[]
@@ -400,6 +401,7 @@ model Test {
   teacher     User?         @relation("TestTeacher", fields: [teacherId], references: [id], onDelete: SetNull)
   approvedBy  User?         @relation("TestApprover", fields: [approvedById], references: [id], onDelete: SetNull)
   questions   Question[]
+  questionVersions QuestionVersion[]
   attempts    TestAttempt[]
   createdAt   DateTime      @default(now())
 
@@ -417,6 +419,17 @@ model Question {
   questionImage   String?
   visualReviewRequired Boolean @default(false)
   visualReviewNotes Json?
+  contentJson     Json?
+  sourceDocumentId String?
+  sourcePageNumber Int?
+  boundingBoxes   Json?
+  latex           Json?
+  assets          Json?
+  layout          Json?
+  renderMode      String   @default("LEGACY_MCQ")
+  aiConfidence    Float?
+  reviewStatus    String   @default("APPROVED")
+  publishedVersion Int     @default(1)
   optionA         String
   optionB         String
   optionC         String
@@ -430,8 +443,50 @@ model Question {
   test            Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
   answers         Answer[]
   answerStates    CBTAnswerState[]
+  versions        QuestionVersion[]
 
   @@index([testId])
+  @@index([sourceDocumentId])
+  @@index([renderMode])
+  @@index([reviewStatus])
+}
+
+model QuestionVersion {
+  id                 String   @id @default(cuid())
+  questionId         String
+  testId             String
+  version            Int      @default(1)
+  changeType         String   @default("PUBLISHED")
+  changeReason       String?
+  changedById        String?
+  changedByRole      String?
+  questionText       String
+  questionImage      String?
+  contentJson        Json?
+  optionsSnapshot    Json
+  answerSnapshot     Json
+  explanation        String?
+  renderMode         String   @default("LEGACY_MCQ")
+  aiConfidence       Float?
+  reviewStatus       String   @default("APPROVED")
+  sourceDocumentId   String?
+  sourcePageNumber   Int?
+  boundingBoxes      Json?
+  latex              Json?
+  assets             Json?
+  layout             Json?
+  metadataSnapshot   Json?
+  createdAt          DateTime @default(now())
+  question           Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  test               Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
+  changedBy          User?    @relation("QuestionVersionChangedBy", fields: [changedById], references: [id], onDelete: SetNull)
+
+  @@unique([questionId, version])
+  @@index([questionId])
+  @@index([testId])
+  @@index([changedById])
+  @@index([changeType])
+  @@index([reviewStatus])
 }
 
 model QuestionBankItem {
@@ -3765,8 +3820,52 @@ model TeacherExamRecord {
   @@index([status])
 }
 
+model ExamImportJob {
+  id                    String   @id @default(cuid())
+  examId                String?
+  testId                String?
+  batchId               String?
+  subject               String?
+  topic                 String?
+  sourceKind            String   @default("QUESTION_PAPER")
+  originalName          String
+  fileType              String
+  fileSize              Int
+  cloudinaryUrl         String
+  publicId              String
+  documentClass         String   @default("UNKNOWN")
+  pipeline              String   @default("UNCLASSIFIED")
+  status                String   @default("CLASSIFIED")
+  classification        Json?
+  pageImages            Json?
+  rawText               String?
+  rawOcr                Json?
+  layoutJson            Json?
+  aiResult              Json?
+  teacherEdits          Json?
+  confidence            Float?
+  reviewStatus          String   @default("PENDING_REVIEW")
+  manualReviewRequired  Boolean  @default(true)
+  uploadedBy            String
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@index([examId])
+  @@index([testId])
+  @@index([batchId])
+  @@index([uploadedBy])
+  @@index([documentClass])
+  @@index([pipeline])
+  @@index([status])
+  @@index([reviewStatus])
+  @@index([batchId, createdAt])
+  @@index([batchId, reviewStatus])
+  @@index([documentClass, reviewStatus])
+}
+
 model ExamUpload {
   id                    String   @id @default(cuid())
+  importJobId           String?
   examId                String?
   testId                String?
   batchId               String?
@@ -3779,6 +3878,9 @@ model ExamUpload {
   fileSize              Int
   cloudinaryUrl         String
   publicId              String
+  documentClass         String   @default("UNKNOWN")
+  pipeline              String   @default("UNCLASSIFIED")
+  classification        Json?
   extractionStatus      String   @default("UPLOADED")
   extractionAudit       Json?
   manualReviewRequired  Boolean  @default(false)
@@ -3787,12 +3889,18 @@ model ExamUpload {
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
 
+  @@index([importJobId])
   @@index([examId])
   @@index([testId])
   @@index([batchId])
   @@index([uploadedBy])
   @@index([sourceKind])
   @@index([extractionStatus])
+  @@index([documentClass])
+  @@index([pipeline])
+  @@index([batchId, createdAt])
+  @@index([examId, sourceKind])
+  @@index([importJobId, sourceKind])
 }
 
 model TeacherCalendarLogRecord {

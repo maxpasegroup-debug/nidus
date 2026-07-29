@@ -697,14 +697,6 @@ export type EnumAssessmentStatusFieldUpdateOperationsInput = {
   set?: $Enums.AssessmentStatus
 }
 
-export type NullableIntFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type AssessmentArenaAssessmentCreateNestedOneWithoutTraitMappingsInput = {
   create?: Prisma.XOR<Prisma.AssessmentArenaAssessmentCreateWithoutTraitMappingsInput, Prisma.AssessmentArenaAssessmentUncheckedCreateWithoutTraitMappingsInput>
   connectOrCreate?: Prisma.AssessmentArenaAssessmentCreateOrConnectWithoutTraitMappingsInput

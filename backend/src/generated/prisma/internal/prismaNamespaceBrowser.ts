@@ -66,6 +66,7 @@ export const ModelName = {
   TeacherBatchAssignment: 'TeacherBatchAssignment',
   Test: 'Test',
   Question: 'Question',
+  QuestionVersion: 'QuestionVersion',
   QuestionBankItem: 'QuestionBankItem',
   TestAttempt: 'TestAttempt',
   CBTAnswerState: 'CBTAnswerState',
@@ -244,6 +245,7 @@ export const ModelName = {
   AssignmentSubmissionRecord: 'AssignmentSubmissionRecord',
   TeacherStudyMaterialRecord: 'TeacherStudyMaterialRecord',
   TeacherExamRecord: 'TeacherExamRecord',
+  ExamImportJob: 'ExamImportJob',
   ExamUpload: 'ExamUpload',
   TeacherCalendarLogRecord: 'TeacherCalendarLogRecord',
   TeacherSyllabusProgressRecord: 'TeacherSyllabusProgressRecord',
@@ -500,6 +502,17 @@ export const QuestionScalarFieldEnum = {
   questionImage: 'questionImage',
   visualReviewRequired: 'visualReviewRequired',
   visualReviewNotes: 'visualReviewNotes',
+  contentJson: 'contentJson',
+  sourceDocumentId: 'sourceDocumentId',
+  sourcePageNumber: 'sourcePageNumber',
+  boundingBoxes: 'boundingBoxes',
+  latex: 'latex',
+  assets: 'assets',
+  layout: 'layout',
+  renderMode: 'renderMode',
+  aiConfidence: 'aiConfidence',
+  reviewStatus: 'reviewStatus',
+  publishedVersion: 'publishedVersion',
   optionA: 'optionA',
   optionB: 'optionB',
   optionC: 'optionC',
@@ -513,6 +526,37 @@ export const QuestionScalarFieldEnum = {
 } as const
 
 export type QuestionScalarFieldEnum = (typeof QuestionScalarFieldEnum)[keyof typeof QuestionScalarFieldEnum]
+
+
+export const QuestionVersionScalarFieldEnum = {
+  id: 'id',
+  questionId: 'questionId',
+  testId: 'testId',
+  version: 'version',
+  changeType: 'changeType',
+  changeReason: 'changeReason',
+  changedById: 'changedById',
+  changedByRole: 'changedByRole',
+  questionText: 'questionText',
+  questionImage: 'questionImage',
+  contentJson: 'contentJson',
+  optionsSnapshot: 'optionsSnapshot',
+  answerSnapshot: 'answerSnapshot',
+  explanation: 'explanation',
+  renderMode: 'renderMode',
+  aiConfidence: 'aiConfidence',
+  reviewStatus: 'reviewStatus',
+  sourceDocumentId: 'sourceDocumentId',
+  sourcePageNumber: 'sourcePageNumber',
+  boundingBoxes: 'boundingBoxes',
+  latex: 'latex',
+  assets: 'assets',
+  layout: 'layout',
+  metadataSnapshot: 'metadataSnapshot',
+  createdAt: 'createdAt'
+} as const
+
+export type QuestionVersionScalarFieldEnum = (typeof QuestionVersionScalarFieldEnum)[keyof typeof QuestionVersionScalarFieldEnum]
 
 
 export const QuestionBankItemScalarFieldEnum = {
@@ -3346,8 +3390,43 @@ export const TeacherExamRecordScalarFieldEnum = {
 export type TeacherExamRecordScalarFieldEnum = (typeof TeacherExamRecordScalarFieldEnum)[keyof typeof TeacherExamRecordScalarFieldEnum]
 
 
+export const ExamImportJobScalarFieldEnum = {
+  id: 'id',
+  examId: 'examId',
+  testId: 'testId',
+  batchId: 'batchId',
+  subject: 'subject',
+  topic: 'topic',
+  sourceKind: 'sourceKind',
+  originalName: 'originalName',
+  fileType: 'fileType',
+  fileSize: 'fileSize',
+  cloudinaryUrl: 'cloudinaryUrl',
+  publicId: 'publicId',
+  documentClass: 'documentClass',
+  pipeline: 'pipeline',
+  status: 'status',
+  classification: 'classification',
+  pageImages: 'pageImages',
+  rawText: 'rawText',
+  rawOcr: 'rawOcr',
+  layoutJson: 'layoutJson',
+  aiResult: 'aiResult',
+  teacherEdits: 'teacherEdits',
+  confidence: 'confidence',
+  reviewStatus: 'reviewStatus',
+  manualReviewRequired: 'manualReviewRequired',
+  uploadedBy: 'uploadedBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ExamImportJobScalarFieldEnum = (typeof ExamImportJobScalarFieldEnum)[keyof typeof ExamImportJobScalarFieldEnum]
+
+
 export const ExamUploadScalarFieldEnum = {
   id: 'id',
+  importJobId: 'importJobId',
   examId: 'examId',
   testId: 'testId',
   batchId: 'batchId',
@@ -3360,6 +3439,9 @@ export const ExamUploadScalarFieldEnum = {
   fileSize: 'fileSize',
   cloudinaryUrl: 'cloudinaryUrl',
   publicId: 'publicId',
+  documentClass: 'documentClass',
+  pipeline: 'pipeline',
+  classification: 'classification',
   extractionStatus: 'extractionStatus',
   extractionAudit: 'extractionAudit',
   manualReviewRequired: 'manualReviewRequired',

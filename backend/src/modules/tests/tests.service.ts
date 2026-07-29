@@ -1,5 +1,6 @@
 import { Prisma, Role } from "../../generated/prisma/client.js";
 import { prisma } from "../../config/prisma.js";
+import { normalizeQuestionContentJson, parseQuestionContentJson } from "../document-intelligence/question-content.schema.js";
 
 export type TestPayload = {
   title: string;
@@ -24,6 +25,17 @@ type QuestionPayload = {
   questionImage?: string;
   visualReviewRequired?: boolean;
   visualReviewNotes?: Prisma.InputJsonValue;
+  contentJson?: Prisma.InputJsonValue;
+  sourceDocumentId?: string;
+  sourcePageNumber?: number;
+  boundingBoxes?: Prisma.InputJsonValue;
+  latex?: Prisma.InputJsonValue;
+  assets?: Prisma.InputJsonValue;
+  layout?: Prisma.InputJsonValue;
+  renderMode?: string;
+  aiConfidence?: number;
+  reviewStatus?: string;
+  publishedVersion?: number;
   optionA: string;
   optionB: string;
   optionC: string;
@@ -106,6 +118,15 @@ export function validatePublishedQuestions(questions: QuestionPayload[]) {
     if (question.visualReviewRequired && visualNotesRequireImage(question.visualReviewNotes) && !question.questionImage?.trim()) {
       errors.push(`${label} needs the exact diagram, table or graph image attached before publishing.`);
     }
+    if (question.reviewStatus && question.reviewStatus !== "APPROVED") {
+      errors.push(`${label} must be approved in teacher review before publishing.`);
+    }
+    if (question.contentJson) {
+      const parsed = parseQuestionContentJson(question.contentJson);
+      if (!parsed.success) {
+        errors.push(`${label} has invalid NIDUS question content schema: ${parsed.error.issues[0]?.message || "unknown schema error"}.`);
+      }
+    }
     if (!Number.isFinite(Number(question.marks)) || Number(question.marks) <= 0) {
       errors.push(`${label} must have positive marks.`);
     }
@@ -116,6 +137,61 @@ export function validatePublishedQuestions(questions: QuestionPayload[]) {
     const remaining = errors.length > 8 ? ` Plus ${errors.length - 8} more issue(s).` : "";
     throw Object.assign(new Error(`Exam paper is not ready to publish. ${visible}${remaining}`), { statusCode: 400 });
   }
+}
+
+type VersionableQuestion = QuestionPayload & {
+  id: string;
+  testId: string;
+};
+
+function questionVersionData(question: VersionableQuestion, requester: Requester, changeType = "PUBLISHED", changeReason = "Initial published question version.") {
+  return {
+    questionId: question.id,
+    testId: question.testId,
+    version: Number(question.publishedVersion || 1),
+    changeType,
+    changeReason,
+    changedById: requester.id,
+    changedByRole: requester.role,
+    questionText: question.questionText,
+    questionImage: question.questionImage || null,
+    contentJson: question.contentJson ?? undefined,
+    optionsSnapshot: {
+      A: question.optionA,
+      B: question.optionB,
+      C: question.optionC,
+      D: question.optionD,
+    },
+    answerSnapshot: {
+      type: "SINGLE_CHOICE",
+      correctAnswer: question.correctAnswer,
+    },
+    explanation: question.explanation,
+    renderMode: question.renderMode || "LEGACY_MCQ",
+    aiConfidence: question.aiConfidence ?? null,
+    reviewStatus: question.reviewStatus || "APPROVED",
+    sourceDocumentId: question.sourceDocumentId || null,
+    sourcePageNumber: question.sourcePageNumber ?? null,
+    boundingBoxes: question.boundingBoxes ?? undefined,
+    latex: question.latex ?? undefined,
+    assets: question.assets ?? undefined,
+    layout: question.layout ?? undefined,
+    metadataSnapshot: {
+      topic: question.topic,
+      difficultyLevel: question.difficultyLevel,
+      marks: question.marks,
+      negativeMarks: question.negativeMarks,
+      source: changeType,
+    },
+  };
+}
+
+async function createInitialQuestionVersions(questions: VersionableQuestion[], requester: Requester, changeType = "PUBLISHED", changeReason = "Initial published question version.") {
+  if (!questions.length) return;
+  await prisma.questionVersion.createMany({
+    data: questions.map((question) => questionVersionData(question, requester, changeType, changeReason)),
+    skipDuplicates: true,
+  });
 }
 
 const testInclude = {
@@ -399,7 +475,11 @@ export const testsService = {
 
   async create(requester: Requester, payload: TestPayload) {
     await assertTeacherBatchSubjectAccess(requester, payload.batchId, payload.subject);
-    return prisma.test.create({
+    const questionsForCreate = (payload.questions ?? []).map((question) => ({
+      ...question,
+      contentJson: normalizeQuestionContentJson(question),
+    }));
+    const test = await prisma.test.create({
       data: {
         title: payload.title,
         description: payload.description,
@@ -416,11 +496,13 @@ export const testsService = {
         isMockTest: payload.isMockTest ?? true,
         isLive: payload.isLive ?? false,
         questions: {
-          create: payload.questions ?? []
+          create: questionsForCreate
         }
       },
       include: testInclude
     });
+    await createInitialQuestionVersions(test.questions as VersionableQuestion[], requester, "CREATED", "Initial question version created with test.");
+    return test;
   },
 
   async update(requester: Requester, id: string, payload: Partial<TestPayload>) {
@@ -512,7 +594,11 @@ export const testsService = {
       throw Object.assign(new Error("Exam duration must be greater than zero."), { statusCode: 400 });
     }
     await assertTeacherBatchSubjectAccess(requester, payload.batchId, payload.subject);
-    return prisma.test.create({
+    const questionsForCreate = payload.questions.map((question) => ({
+      ...question,
+      contentJson: normalizeQuestionContentJson(question),
+    }));
+    const test = await prisma.test.create({
       data: {
         title: payload.title,
         description: payload.description,
@@ -532,11 +618,13 @@ export const testsService = {
         isMockTest: payload.isMockTest ?? true,
         isLive: true,
         questions: {
-          create: payload.questions
+          create: questionsForCreate
         }
       },
       include: testInclude
     });
+    await createInitialQuestionVersions(test.questions as VersionableQuestion[], requester, "PUBLISHED", "Initial published teacher-approved question version.");
+    return test;
   },
 
   async start(userId: string, role: Role | undefined, testId: string) {

@@ -6,6 +6,7 @@ import { prisma } from "../../config/prisma.js";
 import { deleteCloudinaryAsset, signedMediaUrl, uploadBufferToCloudinary } from "../../config/cloudinary.js";
 import { enqueuePDF } from "../../queues/pdf.queue.js";
 import { testsService, validatePublishedQuestions, type TestPayload } from "../tests/tests.service.js";
+import { callOpenAIJson } from "../ai-engine/openai.service.js";
 import { DEFAULT_ACCOUNT_PIN } from "../auth/auth.v2.service.js";
 
 const db = prisma as any;
@@ -239,8 +240,38 @@ type ExamUploadInput = {
   sourceKind?: string;
   extractionStatus?: string;
   extractionAudit?: unknown;
+  documentClass?: string;
+  pipeline?: string;
+  classification?: unknown;
   manualReviewRequired?: boolean;
   manualReviewCompleted?: boolean;
+};
+
+type ExamImportValidationQuestion = {
+  number?: number;
+  questionText?: string;
+  optionA?: string;
+  optionB?: string;
+  optionC?: string;
+  optionD?: string;
+  correctAnswer?: string;
+  explanation?: string;
+  visualReviewRequired?: boolean;
+  visualReviewNotes?: unknown;
+  aiConfidence?: number;
+  reviewStatus?: string;
+};
+
+type ExamImportValidationInput = {
+  batchId?: string;
+  subject?: string;
+  topic?: string;
+  documentClass?: string;
+  pipeline?: string;
+  extractionAudit?: unknown;
+  importJobIds?: string[];
+  examUploadIds?: string[];
+  questions?: ExamImportValidationQuestion[];
 };
 
 type TodayActionInput = {
@@ -852,6 +883,134 @@ function jsonRecord(value: unknown) {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
 }
 
+function classifyExamDocument(file: Express.Multer.File, input: ExamUploadInput, sourceKind: string) {
+  const fileName = file.originalname.toLowerCase();
+  const mime = file.mimetype.toLowerCase();
+  const audit = jsonRecord(input.extractionAudit);
+  const auditText = JSON.stringify(audit).toLowerCase();
+  const suppliedClass = typeof input.documentClass === "string" && input.documentClass.trim() ? input.documentClass.trim().toUpperCase() : "";
+  const suppliedPipeline = typeof input.pipeline === "string" && input.pipeline.trim() ? input.pipeline.trim().toUpperCase() : "";
+  const textCharacters = Number(audit.textCharacters ?? 0);
+  const visualRisk = Boolean(audit.visualRisk);
+  const blocked = String(input.extractionStatus || audit.status || "").toUpperCase() === "BLOCKED";
+  const isPdf = mime === "application/pdf" || fileName.endsWith(".pdf");
+  const isDocx = mime.includes("wordprocessingml") || fileName.endsWith(".docx");
+  const isDoc = mime.includes("msword") || fileName.endsWith(".doc");
+  const isImage = mime.startsWith("image/");
+  const mathSignals = /\b(math|mathematics|algebra|geometry|trigonometry|calculus|physics|formula|equation|fraction|radical|diagram|graph|chart|table|circuit|triangle|vector|matrix)\b/.test(`${fileName} ${auditText}`);
+
+  let documentClass = suppliedClass || "TEXT_DOCUMENT";
+  if (isImage) documentClass = "SCANNED_IMAGE";
+  else if (isPdf && textCharacters < 80) documentClass = "SCANNED_PDF";
+  else if ((isPdf || isDocx || isDoc) && mathSignals) documentClass = "MATH_VISUAL_DOCUMENT";
+  else if (isPdf) documentClass = "TEXT_PDF";
+  else if (isDocx || isDoc) documentClass = "DOCX_DOCUMENT";
+  if (visualRisk || blocked) documentClass = mathSignals ? "MATH_VISUAL_DOCUMENT" : documentClass;
+  if (sourceKind === "ANSWER_KEY" && !mathSignals) documentClass = "ANSWER_KEY_DOCUMENT";
+
+  const pipeline = suppliedPipeline || (
+    documentClass === "SCANNED_IMAGE" || documentClass === "SCANNED_PDF"
+      ? "OCR_REVIEW"
+      : documentClass === "MATH_VISUAL_DOCUMENT"
+        ? "MATH_LAYOUT_REVIEW"
+        : documentClass === "DOCX_DOCUMENT"
+          ? "DOCX_SEMANTIC_REVIEW"
+          : "TEXT_EXTRACTION_REVIEW"
+  );
+  const confidence = documentClass === "TEXT_PDF" || documentClass === "ANSWER_KEY_DOCUMENT" ? 0.82 : documentClass === "TEXT_DOCUMENT" ? 0.76 : 0.58;
+  const manualReviewRequired = Boolean(input.manualReviewRequired || blocked || visualRisk || documentClass !== "TEXT_DOCUMENT");
+  const classification = {
+    documentClass,
+    pipeline,
+    confidence,
+    sourceKind,
+    fileType: file.mimetype,
+    originalName: file.originalname,
+    signals: {
+      isPdf,
+      isDocx,
+      isDoc,
+      isImage,
+      textCharacters,
+      visualRisk,
+      mathSignals,
+      blocked,
+    },
+    supplied: jsonRecord(input.classification),
+    classifiedAt: new Date().toISOString(),
+  };
+
+  return { documentClass, pipeline, confidence, manualReviewRequired, classification };
+}
+
+function questionSignalsForValidation(question: ExamImportValidationQuestion, index: number) {
+  const text = [question.questionText, question.optionA, question.optionB, question.optionC, question.optionD, question.explanation].join(" ");
+  const issues: string[] = [];
+  const warnings: string[] = [];
+  const options = [question.optionA, question.optionB, question.optionC, question.optionD].map((option) => String(option || "").trim());
+  const mathRisk = /\\frac|\\sqrt|\\sum|\\int|[_^]|[√πθλ≤≥×÷∞∑µ]|(?:sin|cos|tan|log|lim)\b/i.test(text);
+  const visualRisk = /\b(diagram|figure|graph|chart|table|circuit|triangle|shown|following|above|below)\b/i.test(text);
+  const weakOptions = options.filter((option) => !option || /^Option [A-D]$/i.test(option) || option.length <= 1).length;
+  if (!String(question.questionText || "").trim()) issues.push("Question text is missing.");
+  if (weakOptions) issues.push(`${weakOptions} option(s) are missing or weak.`);
+  if (!/^[A-D]$/i.test(String(question.correctAnswer || ""))) issues.push("Answer key must be A, B, C or D.");
+  if (visualRisk && !question.visualReviewRequired) warnings.push("Visual reference detected but visual review is not marked.");
+  if (mathRisk) warnings.push("Math/formula content requires rendered preview review.");
+  if (!String(question.explanation || "").trim()) warnings.push("Explanation is empty; answer-key-only mode is acceptable if intended.");
+  const base = 100 - issues.length * 25 - warnings.length * 8 - weakOptions * 7;
+  const confidence = Math.max(5, Math.min(99, Math.round(base)));
+  return {
+    number: question.number ?? index + 1,
+    confidence,
+    status: issues.length ? "MANUAL_CORRECTION_REQUIRED" : confidence < 75 || visualRisk || mathRisk ? "NEEDS_REVIEW" : "AUTO_APPROVED",
+    issues,
+    warnings,
+    riskTags: [
+      mathRisk ? "MATH_FORMULA" : "",
+      visualRisk ? "VISUAL_LAYOUT" : "",
+      weakOptions ? "WEAK_OPTIONS" : "",
+    ].filter(Boolean),
+  };
+}
+
+function fallbackImportValidation(input: ExamImportValidationInput) {
+  const questions = Array.isArray(input.questions) ? input.questions : [];
+  const questionReports = questions.map(questionSignalsForValidation);
+  const manualCorrection = questionReports.filter((item) => item.status === "MANUAL_CORRECTION_REQUIRED").length;
+  const needsReview = questionReports.filter((item) => item.status === "NEEDS_REVIEW").length;
+  const autoApproved = questionReports.filter((item) => item.status === "AUTO_APPROVED").length;
+  const averageConfidence = questionReports.length
+    ? Math.round(questionReports.reduce((sum, item) => sum + item.confidence, 0) / questionReports.length)
+    : 0;
+  return {
+    engine: "NIDUS_IMPORT_VALIDATOR_V1",
+    provider: "HEURISTIC_FALLBACK",
+    averageConfidence,
+    publishReady: questionReports.length > 0 && manualCorrection === 0 && needsReview === 0,
+    summary: {
+      totalQuestions: questionReports.length,
+      autoApproved,
+      needsReview,
+      manualCorrection,
+      documentClass: input.documentClass || "UNKNOWN",
+      pipeline: input.pipeline || "UNCLASSIFIED",
+    },
+    questionReports,
+    recommendations: [
+      needsReview || manualCorrection ? "Review all flagged questions beside the original source before publishing." : "All questions passed automated import checks.",
+      questionReports.some((item) => item.riskTags.includes("MATH_FORMULA")) ? "Check KaTeX formula rendering in teacher preview." : "",
+      questionReports.some((item) => item.riskTags.includes("VISUAL_LAYOUT")) ? "Attach exact source crops for diagrams, charts and tables." : "",
+    ].filter(Boolean),
+    createdAt: new Date().toISOString(),
+  };
+}
+
+function normalizedIdList(value: unknown) {
+  return Array.isArray(value)
+    ? Array.from(new Set(value.map((item) => String(item || "").trim()).filter(Boolean))).slice(0, 25)
+    : [];
+}
+
 async function attachExamUploadsToExam(
   user: Requester,
   uploadIds: string[],
@@ -876,10 +1035,22 @@ async function attachExamUploadsToExam(
       };
       await prisma.$executeRaw`
         INSERT INTO "ExamUpload"
-        ("id", "examId", "testId", "batchId", "subject", "topic", "sourceKind", "fileName", "originalName", "fileType", "fileSize", "cloudinaryUrl", "publicId", "extractionStatus", "extractionAudit", "manualReviewRequired", "manualReviewCompleted", "uploadedBy", "createdAt", "updatedAt")
+        ("id", "importJobId", "examId", "testId", "batchId", "subject", "topic", "sourceKind", "fileName", "originalName", "fileType", "fileSize", "cloudinaryUrl", "publicId", "documentClass", "pipeline", "classification", "extractionStatus", "extractionAudit", "manualReviewRequired", "manualReviewCompleted", "uploadedBy", "createdAt", "updatedAt")
         VALUES
-        (${copyId}, ${target.examId}, ${target.testId || null}, ${target.batchId || row.batchId || null}, ${target.subject || row.subject || null}, ${target.topic || row.topic || null}, ${row.sourceKind}, ${row.fileName}, ${row.originalName}, ${row.fileType}, ${row.fileSize}, ${row.cloudinaryUrl}, ${row.publicId}, ${row.extractionStatus}, ${JSON.stringify(mergedAudit)}::jsonb, ${Boolean(row.manualReviewRequired)}, ${Boolean(target.manualReviewCompleted)}, ${user.id}, ${new Date()}, ${new Date()})
+        (${copyId}, ${row.importJobId || null}, ${target.examId}, ${target.testId || null}, ${target.batchId || row.batchId || null}, ${target.subject || row.subject || null}, ${target.topic || row.topic || null}, ${row.sourceKind}, ${row.fileName}, ${row.originalName}, ${row.fileType}, ${row.fileSize}, ${row.cloudinaryUrl}, ${row.publicId}, ${row.documentClass || "UNKNOWN"}, ${row.pipeline || "UNCLASSIFIED"}, ${row.classification ? JSON.stringify(row.classification) : null}::jsonb, ${row.extractionStatus}, ${JSON.stringify(mergedAudit)}::jsonb, ${Boolean(row.manualReviewRequired)}, ${Boolean(target.manualReviewCompleted)}, ${user.id}, ${new Date()}, ${new Date()})
       `;
+      if (row.importJobId) {
+        await prisma.$executeRaw`
+          UPDATE "ExamImportJob"
+          SET "examId" = ${target.examId},
+              "testId" = ${target.testId || null},
+              "batchId" = COALESCE("batchId", ${target.batchId || row.batchId || null}),
+              "subject" = COALESCE("subject", ${target.subject || row.subject || null}),
+              "topic" = COALESCE("topic", ${target.topic || row.topic || null}),
+              "updatedAt" = ${new Date()}
+          WHERE "id" = ${row.importJobId}
+        `;
+      }
       attachedIds.push(copyId);
       continue;
     }
@@ -901,6 +1072,18 @@ async function attachExamUploadsToExam(
           "updatedAt" = ${new Date()}
       WHERE "id" = ${row.id}
     `;
+    if (row.importJobId) {
+      await prisma.$executeRaw`
+        UPDATE "ExamImportJob"
+        SET "examId" = ${target.examId},
+            "testId" = ${target.testId || null},
+            "batchId" = COALESCE("batchId", ${target.batchId || row.batchId || null}),
+            "subject" = COALESCE("subject", ${target.subject || row.subject || null}),
+            "topic" = COALESCE("topic", ${target.topic || row.topic || null}),
+            "updatedAt" = ${new Date()}
+        WHERE "id" = ${row.importJobId}
+      `;
+    }
     attachedIds.push(row.id);
   }
   return attachedIds;
@@ -4632,13 +4815,21 @@ export const academyService = {
       ? input.extractionAudit as Record<string, unknown>
       : null;
     const result = await uploadBufferToCloudinary(file, `nidus/exams/${input.batchId || "unassigned"}/${sourceKind.toLowerCase()}`);
+    const classification = classifyExamDocument(file, input, sourceKind);
+    const importJobId = randomUUID();
     const id = randomUUID();
     const now = new Date();
     await prisma.$executeRaw`
-      INSERT INTO "ExamUpload"
-      ("id", "batchId", "subject", "topic", "sourceKind", "fileName", "originalName", "fileType", "fileSize", "cloudinaryUrl", "publicId", "extractionStatus", "extractionAudit", "manualReviewRequired", "manualReviewCompleted", "uploadedBy", "createdAt", "updatedAt")
+      INSERT INTO "ExamImportJob"
+      ("id", "batchId", "subject", "topic", "sourceKind", "originalName", "fileType", "fileSize", "cloudinaryUrl", "publicId", "documentClass", "pipeline", "status", "classification", "confidence", "reviewStatus", "manualReviewRequired", "uploadedBy", "createdAt", "updatedAt")
       VALUES
-      (${id}, ${input.batchId || null}, ${input.subject || null}, ${input.topic || null}, ${sourceKind}, ${file.originalname.replace(/\s+/g, "-")}, ${file.originalname}, ${file.mimetype}, ${file.size}, ${result.secureUrl}, ${result.publicId}, ${input.extractionStatus || "UPLOADED"}, ${extractionAudit ? JSON.stringify(extractionAudit) : null}::jsonb, ${Boolean(input.manualReviewRequired)}, ${Boolean(input.manualReviewCompleted)}, ${user.id}, ${now}, ${now})
+      (${importJobId}, ${input.batchId || null}, ${input.subject || null}, ${input.topic || null}, ${sourceKind}, ${file.originalname}, ${file.mimetype}, ${file.size}, ${result.secureUrl}, ${result.publicId}, ${classification.documentClass}, ${classification.pipeline}, 'CLASSIFIED', ${JSON.stringify(classification.classification)}::jsonb, ${classification.confidence}, ${classification.manualReviewRequired ? "PENDING_REVIEW" : "AUTO_CLASSIFIED"}, ${classification.manualReviewRequired}, ${user.id}, ${now}, ${now})
+    `;
+    await prisma.$executeRaw`
+      INSERT INTO "ExamUpload"
+      ("id", "importJobId", "batchId", "subject", "topic", "sourceKind", "fileName", "originalName", "fileType", "fileSize", "cloudinaryUrl", "publicId", "documentClass", "pipeline", "classification", "extractionStatus", "extractionAudit", "manualReviewRequired", "manualReviewCompleted", "uploadedBy", "createdAt", "updatedAt")
+      VALUES
+      (${id}, ${importJobId}, ${input.batchId || null}, ${input.subject || null}, ${input.topic || null}, ${sourceKind}, ${file.originalname.replace(/\s+/g, "-")}, ${file.originalname}, ${file.mimetype}, ${file.size}, ${result.secureUrl}, ${result.publicId}, ${classification.documentClass}, ${classification.pipeline}, ${JSON.stringify(classification.classification)}::jsonb, ${input.extractionStatus || "UPLOADED"}, ${extractionAudit ? JSON.stringify({ ...extractionAudit, importClassification: classification.classification }) : JSON.stringify({ importClassification: classification.classification })}::jsonb, ${classification.manualReviewRequired}, ${Boolean(input.manualReviewCompleted)}, ${user.id}, ${now}, ${now})
     `;
     const rows = await prisma.$queryRaw<any[]>`
       SELECT * FROM "ExamUpload" WHERE "id" = ${id} LIMIT 1
@@ -4652,6 +4843,9 @@ export const academyService = {
       fileName: file.originalname,
       fileSize: file.size,
       extractionStatus: input.extractionStatus || "UPLOADED",
+      importJobId,
+      documentClass: classification.documentClass,
+      pipeline: classification.pipeline,
     });
     return { ok: true, upload };
   },
@@ -4699,6 +4893,204 @@ export const academyService = {
       questionCount: draftPayload.questions?.length ?? 0,
     });
     return { ...draftPayload, draft };
+  },
+
+  async validateExamImport(user: Requester, input: ExamImportValidationInput) {
+    if (input.batchId) await assertBatchAccess(user, input.batchId);
+    if (input.batchId && input.subject) await assertBatchSubjectAccess(user, input.batchId, input.subject);
+    const explicitImportJobIds = normalizedIdList(input.importJobIds);
+    const uploadIds = normalizedIdList(input.examUploadIds);
+    const linkedUploadRows = uploadIds.length
+      ? await prisma.$queryRaw<Array<{ id: string; importJobId: string | null }>>`
+          SELECT "id", "importJobId"
+          FROM "ExamUpload"
+          WHERE "id" IN (${Prisma.join(uploadIds)})
+            AND ("uploadedBy" = ${user.id} OR ${user.role} IN ('ADMIN', 'DIRECTOR', 'ACADEMIC_HEAD'))
+        `
+      : [];
+    const importJobIds = Array.from(new Set([
+      ...explicitImportJobIds,
+      ...linkedUploadRows.map((row) => row.importJobId).filter((id): id is string => Boolean(id)),
+    ])).slice(0, 25);
+    const fallback = fallbackImportValidation(input);
+    const questions = (input.questions ?? []).slice(0, 80).map((question, index) => ({
+      number: question.number ?? index + 1,
+      questionText: String(question.questionText || "").slice(0, 700),
+      optionA: String(question.optionA || "").slice(0, 240),
+      optionB: String(question.optionB || "").slice(0, 240),
+      optionC: String(question.optionC || "").slice(0, 240),
+      optionD: String(question.optionD || "").slice(0, 240),
+      correctAnswer: question.correctAnswer,
+      visualReviewRequired: question.visualReviewRequired,
+      visualReviewNotes: question.visualReviewNotes,
+    }));
+    let aiResult = fallback;
+    try {
+      aiResult = await callOpenAIJson(
+        [
+          "You are NIDUS Academy Exam Import Validator.",
+          "Validate extracted defence exam MCQ questions before teacher publish.",
+          "Return strict JSON with engine, provider, averageConfidence, publishReady, summary, questionReports, recommendations, createdAt.",
+          "Every questionReports item must include number, confidence 0-100, status AUTO_APPROVED/NEEDS_REVIEW/MANUAL_CORRECTION_REQUIRED, issues, warnings, riskTags.",
+          "Be strict with mathematics, physics diagrams, tables, answer-key mismatch and weak options.",
+        ].join("\n"),
+        JSON.stringify({
+          documentClass: input.documentClass,
+          pipeline: input.pipeline,
+          subject: input.subject,
+          topic: input.topic,
+          extractionAudit: input.extractionAudit,
+          questions,
+        }),
+        fallback
+      );
+    } catch {
+      aiResult = {
+        ...fallback,
+        provider: "HEURISTIC_FALLBACK",
+        recommendations: [
+          ...fallback.recommendations,
+          "AI provider was unavailable, so NIDUS used local validation rules. Re-run validation when provider access is restored.",
+        ],
+      };
+    }
+    if (importJobIds.length) {
+      const reviewStatus = aiResult.summary.manualCorrection > 0
+        ? "MANUAL_CORRECTION_REQUIRED"
+        : aiResult.summary.needsReview > 0
+          ? "PENDING_REVIEW"
+          : "AUTO_APPROVED";
+      await prisma.$executeRaw`
+        UPDATE "ExamImportJob"
+        SET
+          "aiResult" = ${JSON.stringify(aiResult)}::jsonb,
+          "confidence" = ${Number(aiResult.averageConfidence || 0) / 100},
+          "reviewStatus" = ${reviewStatus},
+          "status" = 'VALIDATED',
+          "manualReviewRequired" = ${reviewStatus !== "AUTO_APPROVED"},
+          "updatedAt" = ${new Date()}
+        WHERE "id" IN (${Prisma.join(importJobIds)})
+          AND ("uploadedBy" = ${user.id} OR ${user.role} IN ('ADMIN', 'DIRECTOR', 'ACADEMIC_HEAD'))
+      `;
+    }
+    await auditAcademicAction(user, "EXAM_IMPORT_VALIDATED", "ExamImportJob", null, {
+      batchId: input.batchId,
+      subject: input.subject,
+      topic: input.topic,
+      importJobIds,
+      summary: aiResult.summary,
+      averageConfidence: aiResult.averageConfidence,
+    });
+    return { validation: aiResult };
+  },
+
+  async examImportAnalytics(user: Requester, query: Record<string, unknown>) {
+    requireAcademic(user);
+    const batchId = typeof query.batchId === "string" ? query.batchId : undefined;
+    if (batchId) await assertBatchAccess(user, batchId);
+    const [jobTotals, uploadTotals, documentClassRows, pipelineRows, recentJobs] = await Promise.all([
+      batchId
+        ? prisma.$queryRaw<Array<{ importJobs: bigint; reviewRequired: bigint; averageConfidence: number | null }>>`
+            SELECT
+              COUNT(*)::bigint AS "importJobs",
+              COUNT(*) FILTER (WHERE "manualReviewRequired" = true OR "reviewStatus" IN ('PENDING_REVIEW', 'MANUAL_CORRECTION_REQUIRED'))::bigint AS "reviewRequired",
+              AVG("confidence") AS "averageConfidence"
+            FROM "ExamImportJob"
+            WHERE "batchId" = ${batchId}
+          `
+        : prisma.$queryRaw<Array<{ importJobs: bigint; reviewRequired: bigint; averageConfidence: number | null }>>`
+            SELECT
+              COUNT(*)::bigint AS "importJobs",
+              COUNT(*) FILTER (WHERE "manualReviewRequired" = true OR "reviewStatus" IN ('PENDING_REVIEW', 'MANUAL_CORRECTION_REQUIRED'))::bigint AS "reviewRequired",
+              AVG("confidence") AS "averageConfidence"
+            FROM "ExamImportJob"
+          `,
+      batchId
+        ? prisma.$queryRaw<Array<{ uploads: bigint; visualRiskUploads: bigint }>>`
+            SELECT
+              COUNT(*)::bigint AS "uploads",
+              COUNT(*) FILTER (
+                WHERE COALESCE("pipeline", '') LIKE '%MATH%'
+                   OR COALESCE("pipeline", '') LIKE '%OCR%'
+                   OR COALESCE(("extractionAudit"->>'visualRisk')::boolean, false) = true
+              )::bigint AS "visualRiskUploads"
+            FROM "ExamUpload"
+            WHERE "batchId" = ${batchId}
+          `
+        : prisma.$queryRaw<Array<{ uploads: bigint; visualRiskUploads: bigint }>>`
+            SELECT
+              COUNT(*)::bigint AS "uploads",
+              COUNT(*) FILTER (
+                WHERE COALESCE("pipeline", '') LIKE '%MATH%'
+                   OR COALESCE("pipeline", '') LIKE '%OCR%'
+                   OR COALESCE(("extractionAudit"->>'visualRisk')::boolean, false) = true
+              )::bigint AS "visualRiskUploads"
+            FROM "ExamUpload"
+          `,
+      batchId
+        ? prisma.$queryRaw<Array<{ key: string; value: bigint }>>`
+            SELECT COALESCE("documentClass", 'UNKNOWN') AS key, COUNT(*)::bigint AS value
+            FROM "ExamImportJob"
+            WHERE "batchId" = ${batchId}
+            GROUP BY COALESCE("documentClass", 'UNKNOWN')
+          `
+        : prisma.$queryRaw<Array<{ key: string; value: bigint }>>`
+            SELECT COALESCE("documentClass", 'UNKNOWN') AS key, COUNT(*)::bigint AS value
+            FROM "ExamImportJob"
+            GROUP BY COALESCE("documentClass", 'UNKNOWN')
+          `,
+      batchId
+        ? prisma.$queryRaw<Array<{ key: string; value: bigint }>>`
+            SELECT COALESCE("pipeline", 'UNCLASSIFIED') AS key, COUNT(*)::bigint AS value
+            FROM "ExamImportJob"
+            WHERE "batchId" = ${batchId}
+            GROUP BY COALESCE("pipeline", 'UNCLASSIFIED')
+          `
+        : prisma.$queryRaw<Array<{ key: string; value: bigint }>>`
+            SELECT COALESCE("pipeline", 'UNCLASSIFIED') AS key, COUNT(*)::bigint AS value
+            FROM "ExamImportJob"
+            GROUP BY COALESCE("pipeline", 'UNCLASSIFIED')
+          `,
+      batchId
+        ? prisma.examImportJob.findMany({ where: { batchId }, orderBy: { createdAt: "desc" }, take: 12 }).catch(() => [])
+        : prisma.examImportJob.findMany({ orderBy: { createdAt: "desc" }, take: 12 }).catch(() => []),
+    ]);
+    const totals = jobTotals[0] ?? { importJobs: 0n, reviewRequired: 0n, averageConfidence: 0 };
+    const uploadSummary = uploadTotals[0] ?? { uploads: 0n, visualRiskUploads: 0n };
+    const importJobs = Number(totals.importJobs ?? 0);
+    const reviewRequired = Number(totals.reviewRequired ?? 0);
+    const byDocumentClass = documentClassRows.reduce<Record<string, number>>((acc, row) => {
+      acc[row.key] = Number(row.value);
+      return acc;
+    }, {});
+    const byPipeline = pipelineRows.reduce<Record<string, number>>((acc, row) => {
+      acc[row.key] = Number(row.value);
+      return acc;
+    }, {});
+    return {
+      analytics: {
+        totals: {
+          importJobs,
+          uploads: Number(uploadSummary.uploads ?? 0),
+          reviewRequired,
+          autoClassified: Math.max(0, importJobs - reviewRequired),
+          visualRiskUploads: Number(uploadSummary.visualRiskUploads ?? 0),
+          averageConfidence: Math.round(Number(totals.averageConfidence ?? 0) * 100),
+        },
+        byDocumentClass,
+        byPipeline,
+        recentJobs: recentJobs.map((job) => ({
+          id: job.id,
+          originalName: job.originalName,
+          documentClass: job.documentClass,
+          pipeline: job.pipeline,
+          status: job.status,
+          reviewStatus: job.reviewStatus,
+          confidence: job.confidence,
+          createdAt: job.createdAt,
+        })),
+      },
+    };
   },
 
   async publishExam(user: Requester, input: ExamInput) {
