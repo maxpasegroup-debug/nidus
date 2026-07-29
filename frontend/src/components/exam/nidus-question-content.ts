@@ -77,6 +77,7 @@ export function buildNidusQuestionContent(input: {
   sourceUploadId?: string | null;
   importJobId?: string | null;
   page?: number;
+  sourceReference?: NidusSourceReference;
   subject?: string;
   topic?: string;
   difficulty?: string;
@@ -86,7 +87,7 @@ export function buildNidusQuestionContent(input: {
   reviewStatus?: string;
   visualReviewNotes?: string[];
 }): NidusQuestionContent {
-  const reference = sourceReference({
+  const reference = input.sourceReference || sourceReference({
     sourceDocumentId: input.sourceDocumentId,
     uploadId: input.sourceUploadId,
     importJobId: input.importJobId,

@@ -109,6 +109,19 @@ type CropBox = {
   height: number;
 };
 
+type SourceReviewMapping = {
+  documentId?: string;
+  uploadId?: string | null;
+  importJobId?: string | null;
+  fileName?: string;
+  page: number;
+  coordinates: CropBox;
+  confidence: number;
+  reviewStatus: "PENDING" | "TEACHER_CONFIRMED";
+  note?: string;
+  mappedAt: string;
+};
+
 type ResultRow = {
   rank: number;
   attemptId: string;
@@ -347,6 +360,62 @@ function buildConfidenceHeatMap(validation: ImportValidationPayload | null) {
   };
 }
 
+function normalizeCropBox(box?: CropBox | null): CropBox {
+  return {
+    x: Math.max(0, Math.min(1, box?.x ?? 0)),
+    y: Math.max(0, Math.min(1, box?.y ?? 0)),
+    width: Math.max(0.01, Math.min(1, box?.width ?? 1)),
+    height: Math.max(0.01, Math.min(1, box?.height ?? 1)),
+  };
+}
+
+function estimateQuestionPage(questionNumber: number, questionCount: number, assets: QuestionVisualAsset[]) {
+  const pages = assets.filter((asset) => typeof asset.pageNumber === "number");
+  if (!pages.length) return 1;
+  const pageIndex = Math.min(pages.length - 1, Math.max(0, Math.floor(((questionNumber - 1) / Math.max(1, questionCount)) * pages.length)));
+  return pages[pageIndex]?.pageNumber || pageIndex + 1;
+}
+
+function defaultSourceMapping(input: {
+  questionNumber: number;
+  questionCount: number;
+  uploads: ExamUploadRecord[];
+  assets: QuestionVisualAsset[];
+  confidence?: number;
+  status?: SourceReviewMapping["reviewStatus"];
+}): SourceReviewMapping {
+  const source = input.uploads.find((upload) => upload.sourceKind === "QUESTION_PAPER") ?? input.uploads[0];
+  const page = estimateQuestionPage(input.questionNumber, input.questionCount, input.assets);
+  return {
+    documentId: source?.importJobId || source?.id,
+    uploadId: source?.id || null,
+    importJobId: source?.importJobId || null,
+    fileName: source?.originalName || source?.fileName,
+    page,
+    coordinates: { x: 0, y: 0, width: 1, height: 1 },
+    confidence: input.confidence ?? 0.5,
+    reviewStatus: input.status || "PENDING",
+    note: `Estimated page ${page}. Teacher should confirm exact source area before publishing rich visual papers.`,
+    mappedAt: new Date().toISOString(),
+  };
+}
+
+function sourceReferenceFromMapping(mapping?: SourceReviewMapping | null) {
+  if (!mapping) return undefined;
+  const coordinates = normalizeCropBox(mapping.coordinates);
+  return {
+    documentId: mapping.documentId,
+    uploadId: mapping.uploadId || undefined,
+    importJobId: mapping.importJobId || undefined,
+    page: mapping.page,
+    coordinates: {
+      page: mapping.page,
+      ...coordinates,
+    },
+    note: mapping.note,
+  };
+}
+
 async function requestForm<T>(path: string, body: FormData) {
   const response = await fetch(`${API_BASE}${path}`, {
     method: "POST",
@@ -530,6 +599,13 @@ function cropRegionLabel(region: VisualCropRegion) {
   if (region === "TOP") return "Top";
   if (region === "MIDDLE") return "Middle";
   return "Bottom";
+}
+
+function cropRegionBox(region: VisualCropRegion): CropBox {
+  if (region === "TOP") return { x: 0, y: 0, width: 1, height: 1 / 3 };
+  if (region === "MIDDLE") return { x: 0, y: 1 / 3, width: 1, height: 1 / 3 };
+  if (region === "BOTTOM") return { x: 0, y: 2 / 3, width: 1, height: 1 / 3 };
+  return { x: 0, y: 0, width: 1, height: 1 };
 }
 
 async function cropVisualAsset(dataUrl: string, region: VisualCropRegion): Promise<string> {
@@ -1002,6 +1078,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
   const uploadPreviewUrlsRef = useRef<string[]>([]);
   const [visualAssets, setVisualAssets] = useState<QuestionVisualAsset[]>([]);
   const [questionVisuals, setQuestionVisuals] = useState<Record<number, string>>({});
+  const [sourceReviewMappings, setSourceReviewMappings] = useState<Record<number, SourceReviewMapping>>({});
   const [extractionReports, setExtractionReports] = useState<ExtractionReport[]>([]);
   const [manualPaperReview, setManualPaperReview] = useState(false);
   const [questionReviewStatus, setQuestionReviewStatus] = useState<Record<number, "APPROVED" | "NEEDS_REVIEW">>({});
@@ -1071,16 +1148,31 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
   const validationBlocksPublish = validationRequired && (!importValidation || importValidation.summary.manualCorrection > 0);
   const validationReportMap = useMemo(() => new Map((importValidation?.questionReports ?? []).map((report) => [report.number, report])), [importValidation?.questionReports]);
   const validationHeatMap = useMemo(() => buildConfidenceHeatMap(importValidation), [importValidation]);
+  const sourceReviewCoverage = useMemo(() => {
+    const mappings = Object.values(sourceReviewMappings);
+    const confirmed = mappings.filter((mapping) => mapping.reviewStatus === "TEACHER_CONFIRMED").length;
+    const visualQuestions = new Set([...visualFidelity.questionsNeedingReview, ...visualQuestionsWithoutAttachment]);
+    const confirmedVisual = Array.from(visualQuestions).filter((number) => sourceReviewMappings[number]?.reviewStatus === "TEACHER_CONFIRMED").length;
+    return {
+      totalMapped: mappings.length,
+      confirmed,
+      pending: Math.max(0, mappings.length - confirmed),
+      visualRequired: visualQuestions.size,
+      visualConfirmed: confirmedVisual,
+      publishReady: visualQuestions.size === 0 || confirmedVisual >= visualQuestions.size,
+    };
+  }, [sourceReviewMappings, visualFidelity.questionsNeedingReview, visualQuestionsWithoutAttachment]);
   const importQualityDraft = useMemo(() => importValidation ? {
     schema: "NIDUS_IMPORT_QUALITY_V1",
     averageConfidence: importValidation.averageConfidence,
     highConfidenceQuestions: validationHeatMap.high,
     reviewQuestions: validationHeatMap.review,
     manualFixQuestions: validationHeatMap.fix,
+    sourceReviewCoverage,
     publishReady: importValidation.publishReady,
     generatedAt: importValidation.createdAt,
-  } : null, [importValidation, validationHeatMap]);
-  const canPublishPaper = questions.length > 0 && readiness.missingOptions === 0 && readiness.missingAnswers === 0 && !visualFidelity.missingSourceForVisuals && visualQuestionsWithoutAttachment.length === 0 && unapprovedQuestionNumbers.length === 0 && !validationBlocksPublish && (!extractionNeedsManualReview || manualPaperReview || reviewRequiredQuestionNumbers.length === 0);
+  } : null, [importValidation, sourceReviewCoverage, validationHeatMap]);
+  const canPublishPaper = questions.length > 0 && readiness.missingOptions === 0 && readiness.missingAnswers === 0 && !visualFidelity.missingSourceForVisuals && visualQuestionsWithoutAttachment.length === 0 && sourceReviewCoverage.publishReady && unapprovedQuestionNumbers.length === 0 && !validationBlocksPublish && (!extractionNeedsManualReview || manualPaperReview || reviewRequiredQuestionNumbers.length === 0);
   const effectiveTopic = useMemo(() => inferExamTopic(questionSource, form.topic), [form.topic, questionSource]);
   const effectiveTitle = useMemo(() => form.title.trim() || inferExamTitle(questionSource, subject, activeBatch?.name), [activeBatch?.name, form.title, questionSource, subject]);
   const questionsForPublish = useMemo(() => questions.map((question, index) => {
@@ -1090,6 +1182,14 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
     const sourceUpload = examUploads.find((upload) => upload.sourceKind === "QUESTION_PAPER");
     const sourceDocumentId = sourceUpload?.importJobId || sourceUpload?.id;
     const aiConfidence = typeof validationReport?.confidence === "number" ? validationReport.confidence / 100 : signal?.confidence === "HIGH" ? 0.92 : signal?.confidence === "MEDIUM" ? 0.72 : 0.48;
+    const sourceMapping = sourceReviewMappings[index + 1] || defaultSourceMapping({
+      questionNumber: index + 1,
+      questionCount: questions.length,
+      uploads: examUploads,
+      assets: visualAssets,
+      confidence: aiConfidence,
+    });
+    const sourceReference = sourceReferenceFromMapping(sourceMapping);
     const reviewStatus = validationReport?.status === "MANUAL_CORRECTION_REQUIRED"
       ? "NEEDS_REVIEW"
       : manualPaperReview || validationReport?.status === "AUTO_APPROVED" || !signal || signal.confidence === "HIGH" || questionReviewStatus[index + 1] === "APPROVED" ? "APPROVED" : "NEEDS_REVIEW";
@@ -1113,6 +1213,8 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
         sourceDocumentId,
         sourceUploadId: sourceUpload?.id || null,
         importJobId: sourceUpload?.importJobId || null,
+        page: sourceMapping.page,
+        sourceReference,
         subject,
         topic: effectiveTopic,
         difficulty: question.difficultyLevel,
@@ -1123,19 +1225,30 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
         visualReviewNotes,
       }),
       sourceDocumentId,
-      sourcePageNumber: signal?.number ? undefined : undefined,
-      boundingBoxes: {},
+      sourcePageNumber: sourceMapping.page,
+      boundingBoxes: {
+        schema: "NIDUS_PAGE_COORDINATES_V1",
+        question: {
+          page: sourceMapping.page,
+          ...normalizeCropBox(sourceMapping.coordinates),
+        },
+        sourceReview: sourceMapping,
+      },
       latex: {},
       assets: {
         questionImage: questionVisuals[index + 1] || question.questionImage || null,
         sourceUploadId: sourceUpload?.id || null,
         importJobId: sourceUpload?.importJobId || null,
+        sourceReference,
+        sourceReview: sourceMapping,
       },
       layout: {
         documentClass: sourceUpload?.documentClass || "UNKNOWN",
         pipeline: sourceUpload?.pipeline || "UNCLASSIFIED",
         schema: "NIDUS_QUESTION_CONTENT_V1",
         confidenceHeat: confidenceHeatTone(validationReport?.confidence, validationReport?.status),
+        pageCoordinateSystem: "NORMALIZED_0_1",
+        sourceReviewStatus: sourceMapping.reviewStatus,
       },
       renderMode: signal?.formulaRisk ? "RICH_MATH_REVIEWED" : questionVisuals[index + 1] ? "RICH_VISUAL_MCQ" : "LEGACY_MCQ",
       aiConfidence,
@@ -1145,7 +1258,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
       marks: understanding.markingScheme.marksPerQuestion || question.marks,
       negativeMarks: understanding.markingScheme.negativeMarks,
     };
-  }), [effectiveTopic, examUploads, manualPaperReview, questionReviewStatus, questionVisuals, questions, subject, understanding.markingScheme.marksPerQuestion, understanding.markingScheme.negativeMarks, understanding.questionSignals, validationReportMap]);
+  }), [effectiveTopic, examUploads, manualPaperReview, questionReviewStatus, questionVisuals, questions, sourceReviewMappings, subject, understanding.markingScheme.marksPerQuestion, understanding.markingScheme.negativeMarks, understanding.questionSignals, validationReportMap, visualAssets]);
   const duplicateQuestionIndexes = useMemo(() => new Set(readiness.duplicateQuestions.flatMap((item) => [item.firstIndex, item.index])), [readiness.duplicateQuestions]);
 
   useEffect(() => () => {
@@ -1290,7 +1403,10 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
       } catch (uploadError) {
         setMessage(uploadError instanceof Error ? `Extraction completed, but source preservation failed: ${uploadError.message}` : "Extraction completed, but source preservation failed.");
       }
-      if (sourceKind === "QUESTION_PAPER") setManualPaperReview(false);
+      if (sourceKind === "QUESTION_PAPER") {
+        setManualPaperReview(false);
+        setSourceReviewMappings({});
+      }
       if (!text.trim()) {
         setMessage(`No readable text was found in ${file.name}. Upload a text/DOCX version or manually paste the questions.`);
         return;
@@ -1328,6 +1444,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
     setExamUploads([]);
     setVisualAssets([]);
     setQuestionVisuals({});
+    setSourceReviewMappings({});
     setExtractionReports([]);
     setManualPaperReview(false);
     setQuestionReviewStatus({});
@@ -1356,6 +1473,13 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
     const savedQuestions = Array.isArray(exam.draft?.questions) ? exam.draft.questions : [];
     setQuestionVisuals(savedQuestions.reduce<Record<number, string>>((acc, question, index) => {
       if (question.questionImage) acc[index + 1] = question.questionImage;
+      return acc;
+    }, {}));
+    setSourceReviewMappings(savedQuestions.reduce<Record<number, SourceReviewMapping>>((acc, question, index) => {
+      const layout = question.layout && typeof question.layout === "object" ? question.layout as { sourceReview?: SourceReviewMapping } : null;
+      const boxes = question.boundingBoxes && typeof question.boundingBoxes === "object" ? question.boundingBoxes as { sourceReview?: SourceReviewMapping } : null;
+      const mapping = layout?.sourceReview || boxes?.sourceReview;
+      if (mapping?.page) acc[index + 1] = mapping;
       return acc;
     }, {}));
     setVisualAssets(savedQuestions
@@ -1418,6 +1542,8 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
         ? "Run NIDUS AI validation before publishing."
         : validationBlocksPublish
         ? "Manual correction is still required. Fix the flagged question(s), then re-run NIDUS AI validation."
+        : !sourceReviewCoverage.publishReady
+        ? `Confirm the original-paper source mapping for visual question(s). ${sourceReviewCoverage.visualConfirmed}/${sourceReviewCoverage.visualRequired} confirmed.`
         : unapprovedQuestionNumbers.length
         ? `Approve teacher-review question(s) ${unapprovedQuestionNumbers.join(", ")} before publishing.`
         : extractionNeedsManualReview && !manualPaperReview
@@ -1461,6 +1587,8 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
               visualFidelity: { ...visualFidelity, questionImageAssignments: Object.keys(questionVisuals).length, visualQuestionsWithoutAttachment },
               importValidation,
               importQuality: importQualityDraft,
+              sourceReviewMappings,
+              sourceReviewCoverage,
               manualPaperReview,
             } : undefined,
           }),
@@ -1510,6 +1638,8 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
               visualFidelity: { ...visualFidelity, questionImageAssignments: Object.keys(questionVisuals).length, visualQuestionsWithoutAttachment },
               importValidation,
               importQuality: importQualityDraft,
+              sourceReviewMappings,
+              sourceReviewCoverage,
               manualPaperReview,
             },
           }),
@@ -1715,6 +1845,11 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
     } else if (step === 3 && !editingExam && unapprovedQuestionNumbers.length > 0) {
       setPreviewIndex(Math.max(0, unapprovedQuestionNumbers[0] - 1));
       setMessage(`Approve question(s) ${unapprovedQuestionNumbers.join(", ")} before opening the final publish screen.`);
+      return;
+    } else if (step === 3 && !editingExam && !sourceReviewCoverage.publishReady) {
+      const firstUnconfirmed = visualFidelity.questionsNeedingReview.find((number) => sourceReviewMappings[number]?.reviewStatus !== "TEACHER_CONFIRMED") || visualQuestionsWithoutAttachment.find((number) => sourceReviewMappings[number]?.reviewStatus !== "TEACHER_CONFIRMED");
+      if (firstUnconfirmed) setPreviewIndex(Math.max(0, firstUnconfirmed - 1));
+      setMessage(`Confirm source mapping for visual/formula question(s) before publishing. ${sourceReviewCoverage.visualConfirmed}/${sourceReviewCoverage.visualRequired} confirmed.`);
       return;
     } else {
       setMessage("");
@@ -2134,7 +2269,10 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                       activeIndex={previewIndex}
                       assets={visualAssets}
                       attachedImage={questionVisuals[previewIndex + 1]}
+                      questionCount={questions.length}
+                      sourceMapping={sourceReviewMappings[previewIndex + 1]}
                       onAttachVisual={(dataUrl) => setQuestionVisuals((current) => ({ ...current, [previewIndex + 1]: dataUrl }))}
+                      onSourceMappingChange={(mapping) => setSourceReviewMappings((current) => ({ ...current, [previewIndex + 1]: mapping }))}
                     />
                   </div>
                 </div>
@@ -2165,6 +2303,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                         : `${reviewRequiredQuestionNumbers.length} flagged question(s) approved. Ready for final publish.`}
                     </p>
                   </div>
+                  <SourceReviewCoveragePanel coverage={sourceReviewCoverage} mappings={sourceReviewMappings} />
                   <p className="mt-5 text-sm leading-6 text-[var(--muted-blue)]">Publishing sends this exam to students. They can open it from their Student dashboard.</p>
                   {readiness.duplicateQuestions.length ? (
                     <p className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 p-3 text-sm font-black text-rose-800">
@@ -2407,6 +2546,54 @@ function ImportAnalyticsPanel({ analytics, onRefresh }: { analytics: ImportAnaly
   );
 }
 
+function SourceReviewCoveragePanel({
+  coverage,
+  mappings,
+}: {
+  coverage: {
+    totalMapped: number;
+    confirmed: number;
+    pending: number;
+    visualRequired: number;
+    visualConfirmed: number;
+    publishReady: boolean;
+  };
+  mappings: Record<number, SourceReviewMapping>;
+}) {
+  const tone = coverage.publishReady ? "border-emerald-200 bg-emerald-50 text-emerald-950" : "border-amber-200 bg-amber-50 text-amber-950";
+  const confirmedNumbers = Object.entries(mappings)
+    .filter(([, mapping]) => mapping.reviewStatus === "TEACHER_CONFIRMED")
+    .map(([number]) => Number(number))
+    .sort((a, b) => a - b);
+  return (
+    <section className={`mt-4 rounded-2xl border p-4 ${tone}`}>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.25em] opacity-75">Source review mapping</p>
+          <h4 className="mt-1 text-lg font-black">{coverage.publishReady ? "Original paper linkage ready" : "Confirm visual source areas"}</h4>
+          <p className="mt-1 text-sm font-bold opacity-75">Each confirmed mapping stores page and normalized coordinates for audit, replay and future PDF overlays.</p>
+        </div>
+        <span className="rounded-full bg-white/80 px-3 py-1 text-xs font-black">{coverage.confirmed} confirmed</span>
+      </div>
+      <div className="mt-3 grid gap-2 sm:grid-cols-4">
+        <MiniFact label="Mapped" value={coverage.totalMapped} />
+        <MiniFact label="Confirmed" value={coverage.confirmed} />
+        <MiniFact label="Visual Need" value={coverage.visualRequired} />
+        <MiniFact label="Visual Confirmed" value={coverage.visualConfirmed} />
+      </div>
+      {confirmedNumbers.length ? (
+        <p className="mt-3 rounded-xl border border-current/10 bg-white/75 p-3 text-xs font-black leading-5">
+          Confirmed question(s): {confirmedNumbers.slice(0, 30).join(", ")}{confirmedNumbers.length > 30 ? "..." : ""}
+        </p>
+      ) : (
+        <p className="mt-3 rounded-xl border border-current/10 bg-white/75 p-3 text-xs font-black leading-5">
+          No exact source coordinates confirmed yet. Step 3 can still use estimated full-page mapping, but visual STEM papers should be confirmed question by question.
+        </p>
+      )}
+    </section>
+  );
+}
+
 function Field({ label, value, onChange, type = "text", placeholder }: { label: string; value: string; onChange: (value: string) => void; type?: string; placeholder?: string }) {
   return (
     <label className="grid gap-2 text-sm font-black">
@@ -2512,14 +2699,20 @@ function VisualSourcePreviewPanel({
   activeIndex,
   assets = [],
   attachedImage,
+  questionCount,
+  sourceMapping,
   onAttachVisual,
+  onSourceMappingChange,
 }: {
   uploads: ExamUploadRecord[];
   report: PaperUnderstandingReport;
   activeIndex: number;
   assets?: QuestionVisualAsset[];
   attachedImage?: string;
+  questionCount: number;
+  sourceMapping?: SourceReviewMapping;
   onAttachVisual?: (dataUrl: string) => void;
+  onSourceMappingChange?: (mapping: SourceReviewMapping) => void;
 }) {
   const source = uploads.find((upload) => upload.sourceKind === "QUESTION_PAPER") ?? uploads[0];
   const sourceUrl = source?.localPreviewUrl || source?.signedUrl || source?.cloudinaryUrl || "";
@@ -2533,6 +2726,8 @@ function VisualSourcePreviewPanel({
   const selectedAsset = assets.find((asset) => asset.id === selectedAssetId) ?? assets[0];
   const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null);
   const [selection, setSelection] = useState<CropBox | null>(null);
+  const currentQuestionNumber = activeIndex + 1;
+  const mappedPage = sourceMapping?.page || selectedAsset?.pageNumber || estimateQuestionPage(currentQuestionNumber, questionCount, assets);
 
   useEffect(() => {
     if (!selectedAssetId && assets[0]?.id) setSelectedAssetId(assets[0].id);
@@ -2544,6 +2739,7 @@ function VisualSourcePreviewPanel({
     try {
       const dataUrl = await cropVisualAsset(asset.dataUrl, region);
       onAttachVisual(dataUrl);
+      confirmSourceMapping(cropRegionBox(region), `${cropRegionLabel(region)} source region confirmed by teacher.`, asset);
       setCropMessage(`${cropRegionLabel(region)} region attached to Question ${activeIndex + 1}.`);
     } catch (error) {
       setCropMessage(error instanceof Error ? error.message : "Unable to attach cropped visual.");
@@ -2588,7 +2784,26 @@ function VisualSourcePreviewPanel({
     }
     const dataUrl = await cropVisualAssetBox(selectedAsset.dataUrl, selection);
     onAttachVisual(dataUrl);
+    confirmSourceMapping(selection, "Selected source area confirmed by teacher.");
     setCropMessage(`Selected area from ${selectedAsset.label} attached to Question ${activeIndex + 1}.`);
+  }
+
+  function confirmSourceMapping(box?: CropBox | null, note = "Full source page confirmed by teacher.", assetOverride?: QuestionVisualAsset) {
+    const coordinates = normalizeCropBox(box || { x: 0, y: 0, width: 1, height: 1 });
+    const page = assetOverride?.pageNumber || selectedAsset?.pageNumber || mappedPage || 1;
+    onSourceMappingChange?.({
+      documentId: source?.importJobId || source?.id,
+      uploadId: source?.id || null,
+      importJobId: source?.importJobId || null,
+      fileName: source?.originalName || source?.fileName,
+      page,
+      coordinates,
+      confidence: box ? 0.96 : 0.82,
+      reviewStatus: "TEACHER_CONFIRMED",
+      note,
+      mappedAt: new Date().toISOString(),
+    });
+    setCropMessage(`Source mapping saved for Question ${currentQuestionNumber}: page ${page}, ${Math.round(coordinates.width * 100)}% x ${Math.round(coordinates.height * 100)}% area.`);
   }
 
   return (
@@ -2630,6 +2845,24 @@ function VisualSourcePreviewPanel({
           This question has no detected visual dependency.
         </p>
       )}
+      <div className={`mt-3 rounded-xl border p-3 text-xs font-bold leading-5 ${sourceMapping?.reviewStatus === "TEACHER_CONFIRMED" ? "border-emerald-200 bg-emerald-50 text-emerald-950" : "border-amber-200 bg-amber-50 text-amber-950"}`}>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <p className="font-black">Side-by-side source mapping</p>
+            <p className="mt-1">
+              Page {sourceMapping?.page || mappedPage} / {sourceMapping?.reviewStatus === "TEACHER_CONFIRMED" ? "Teacher confirmed" : "Estimated until confirmed"}
+            </p>
+          </div>
+          <button type="button" onClick={() => confirmSourceMapping()} className="min-h-9 rounded border border-current/20 bg-white px-3 text-xs font-black">
+            Confirm Full Page
+          </button>
+        </div>
+        {sourceMapping?.coordinates ? (
+          <p className="mt-2 rounded-lg border border-current/10 bg-white/75 p-2">
+            Coordinates: x {sourceMapping.coordinates.x.toFixed(2)}, y {sourceMapping.coordinates.y.toFixed(2)}, w {sourceMapping.coordinates.width.toFixed(2)}, h {sourceMapping.coordinates.height.toFixed(2)}
+          </p>
+        ) : null}
+      </div>
       <div className="mt-4 rounded-xl border border-[var(--border)] bg-white p-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-xs font-black uppercase tracking-[0.18em] text-[var(--gold-dark)]">Question visual assets</p>
@@ -2674,9 +2907,18 @@ function VisualSourcePreviewPanel({
                       />
                     ) : null}
                   </div>
-                  <div className="mt-2 grid grid-cols-2 gap-2">
+                  <div className="mt-2 grid gap-2 sm:grid-cols-3">
                     <button type="button" onClick={() => void attachSelection()} className="min-h-9 rounded border border-emerald-200 bg-emerald-50 px-3 text-xs font-black text-emerald-800">
                       Attach Selected Area
+                    </button>
+                    <button type="button" onClick={() => {
+                      if (!selection || selection.width < 0.03 || selection.height < 0.03) {
+                        setCropMessage("Drag a source box before saving the exact source area.");
+                        return;
+                      }
+                      confirmSourceMapping(selection, "Selected source area confirmed without attaching a crop.");
+                    }} className="min-h-9 rounded border border-blue-200 bg-blue-50 px-3 text-xs font-black text-blue-900">
+                      Save Source Box
                     </button>
                     <button type="button" onClick={() => setSelection(null)} className="min-h-9 rounded border border-[var(--border)] bg-white px-3 text-xs font-black text-[var(--muted-blue)]">
                       Clear Box
