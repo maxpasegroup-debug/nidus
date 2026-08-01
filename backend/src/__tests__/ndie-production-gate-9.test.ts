@@ -194,12 +194,13 @@ describe("NDIE Production Gate 9 evaluation intelligence", () => {
     expect(() => assertNdieJobTransition("ANSWER_COMPLETED", "READY_FOR_AI_VALIDATION")).not.toThrow();
   });
 
-  it("adds evaluation health, metrics and storage without invoking AI validation", () => {
+  it("adds evaluation health, metrics and storage without running AI inside the answer stage", () => {
     expect(service).toContain("coveragePercentage");
     expect(service).toContain("providerKind: \"EVALUATION\"");
     expect(service).toContain("READY_FOR_AI_VALIDATION");
     expect(service).toContain("evaluationResult.evaluation");
     expect(ndieService).toContain("ndieAnswerKeyMapperService.health()");
-    expect(worker).not.toContain("ndieAiValidatorService.validateImport(job.importJobId)");
+    expect(worker).toContain('job.stage === "ANSWER"');
+    expect(worker).toContain("ndieAnswerKeyMapperService.mapImport");
   });
 });

@@ -144,6 +144,20 @@ export const ndieQueueService = {
     });
   },
 
+  async enqueueAiValidation(input: { importJobId: string; requestedBy?: string }) {
+    return this.enqueue({
+      importJobId: input.importJobId,
+      jobType: "PLACEHOLDER_STAGE",
+      stage: "AI_VALIDATION",
+      payload: {
+        pipelineVersion: env.NDIE_PIPELINE_VERSION,
+        queuedBy: input.requestedBy ?? "ndie-worker",
+        consumes: ["NORMALIZED_OCR_JSON", "NORMALIZED_LAYOUT_JSON", "NORMALIZED_FORMULA_JSON", "NORMALIZED_VISUAL_JSON", "NORMALIZED_QUESTION_JSON", "NORMALIZED_EVALUATION_JSON"],
+        produces: "NORMALIZED_VALIDATION_JSON"
+      } as Prisma.InputJsonValue
+    });
+  },
+
   transition: provider.transition.bind(provider),
   updateProgress: provider.updateProgress.bind(provider),
   cancel: provider.cancel.bind(provider),

@@ -4,6 +4,7 @@ import type { NdieFormulaResult } from "./formula-result.js";
 import type { NdieVisualResult } from "./visual-result.js";
 import type { NdieAssessmentResult } from "./assessment-result.js";
 import type { NdieEvaluationResult } from "./evaluation-result.js";
+import type { NdieValidationResult } from "./validation-result.js";
 
 export type NdieProviderKind = "OCR" | "LAYOUT" | "FORMULA" | "VISUAL" | "QUESTION" | "OPTION" | "EVALUATION" | "ANSWER_KEY" | "SOLUTION" | "AI" | "RENDERER" | "STORAGE";
 
@@ -211,6 +212,12 @@ export interface AiProvider extends NdieProvider {
   kind: "AI";
   validate(input: {
     importJobId: string;
+    ocrPages?: unknown[];
+    layoutPages?: unknown[];
+    formulaElements?: unknown[];
+    visualElements?: unknown[];
+    assessment?: NdieAssessmentResult["assessment"] | null;
+    evaluation?: NdieEvaluationResult["evaluation"] | null;
     candidates: Array<{
       id: string;
       questionNumber?: string | null;
@@ -228,17 +235,7 @@ export interface AiProvider extends NdieProvider {
       solutionJson: unknown;
       confidence?: number | null;
     }>;
-  }): Promise<{
-    validations: Array<{
-      candidateId: string;
-      confidence: number;
-      reviewStatus: "AUTO_APPROVED" | "NEEDS_REVIEW" | "MANUAL_CORRECTION_REQUIRED";
-      issues: string[];
-      notes: string[];
-    }>;
-    confidence: number | null;
-    raw: Record<string, unknown>;
-  }>;
+  }): Promise<NdieValidationResult>;
 }
 
 export interface RendererProvider extends NdieProvider {
