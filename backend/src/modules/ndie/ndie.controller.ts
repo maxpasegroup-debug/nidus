@@ -156,13 +156,13 @@ export const ndieController = {
       const actor = ndieActorFromRequest(req);
       const candidateId = Array.isArray(req.params.candidateId) ? req.params.candidateId[0] : req.params.candidateId;
       const decision = typeof req.body.decision === "string" ? req.body.decision.toUpperCase() : "";
-      if (!["APPROVED", "REJECTED", "NEEDS_EDIT"].includes(decision)) {
-        res.status(400).json({ message: "Decision must be APPROVED, REJECTED or NEEDS_EDIT" });
+      if (!["APPROVED", "REJECTED", "NEEDS_EDIT", "SKIPPED"].includes(decision)) {
+        res.status(400).json({ message: "Decision must be APPROVED, REJECTED, NEEDS_EDIT or SKIPPED" });
         return;
       }
       const result = await ndieService.reviewCandidate(actor, {
         candidateId,
-        decision: decision as "APPROVED" | "REJECTED" | "NEEDS_EDIT",
+        decision: decision as "APPROVED" | "REJECTED" | "NEEDS_EDIT" | "SKIPPED",
         notes: typeof req.body.notes === "string" ? req.body.notes : undefined,
         candidateJson: req.body.candidateJson,
         reviewedBy: req.user.id,
@@ -176,6 +176,64 @@ export const ndieController = {
         metadata: { candidateId }
       });
       res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  bulkReview: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      if (!req.user) {
+        res.status(401).json({ message: "Authentication required" });
+        return;
+      }
+      const actor = ndieActorFromRequest(req);
+      const importJobId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const decision = typeof req.body.decision === "string" ? req.body.decision.toUpperCase() : "";
+      const candidateIds = Array.isArray(req.body.candidateIds) ? req.body.candidateIds.map((id: unknown) => String(id)).filter(Boolean) : [];
+      if (!["APPROVED", "REJECTED", "NEEDS_EDIT", "SKIPPED"].includes(decision)) {
+        res.status(400).json({ message: "Decision must be APPROVED, REJECTED, NEEDS_EDIT or SKIPPED" });
+        return;
+      }
+      if (!candidateIds.length) {
+        res.status(400).json({ message: "At least one question candidate is required" });
+        return;
+      }
+      const result = await ndieService.bulkReview(actor, {
+        importJobId,
+        candidateIds,
+        decision: decision as "APPROVED" | "REJECTED" | "NEEDS_EDIT" | "SKIPPED",
+        notes: typeof req.body.notes === "string" ? req.body.notes : undefined,
+        reviewedBy: req.user.id,
+        reviewedByRole: req.user.role
+      });
+      await auditNdie({ actor, action: "NDIE_REVIEW_BULK_UPDATED", description: `NDIE bulk review decision: ${decision}`, ipAddress: req.ip, metadata: { importJobId, count: candidateIds.length } });
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  saveReviewSession: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      if (!req.user) {
+        res.status(401).json({ message: "Authentication required" });
+        return;
+      }
+      const actor = ndieActorFromRequest(req);
+      const importJobId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const result = await ndieService.saveReviewSession(actor, {
+        importJobId,
+        selectedCandidateId: typeof req.body.selectedCandidateId === "string" ? req.body.selectedCandidateId : null,
+        selectedPageNumber: Number.isFinite(Number(req.body.selectedPageNumber)) ? Number(req.body.selectedPageNumber) : null,
+        filters: req.body.filters && typeof req.body.filters === "object" ? req.body.filters : {},
+        scroll: req.body.scroll && typeof req.body.scroll === "object" ? req.body.scroll : {},
+        shortcuts: req.body.shortcuts && typeof req.body.shortcuts === "object" ? req.body.shortcuts : {},
+        savedBy: req.user.id,
+        savedByRole: req.user.role
+      });
+      await auditNdie({ actor, action: "NDIE_REVIEW_SESSION_SAVED", description: "NDIE review session autosaved", ipAddress: req.ip, metadata: { importJobId } });
+      res.json({ id: result.id, teacherSummary: result.teacherSummary });
     } catch (error) {
       next(error);
     }

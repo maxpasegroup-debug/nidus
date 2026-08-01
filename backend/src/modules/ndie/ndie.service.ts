@@ -9,7 +9,7 @@ import { createNdieContainer } from "./ndie.container.js";
 import { ndiePublisherService, type NdiePublishInput } from "./publisher/publisher.service.js";
 import { ndieQualityScoringService } from "./quality-scoring/quality-scoring.service.js";
 import { ndieQuestionDetectorService } from "./question-detector/question-detector.service.js";
-import { ndieReviewEngineService, type NdieReviewInput } from "./review-engine/review-engine.service.js";
+import { ndieReviewEngineService, type NdieBulkReviewInput, type NdieReviewInput, type NdieReviewSessionInput } from "./review-engine/review-engine.service.js";
 import { ndieQueueConfig, ndieQueueService } from "./queue/queue.service.js";
 import { ndiePdfRendererService } from "./pdf-renderer/pdf-renderer.service.js";
 import { ndieOcrService } from "./ocr/ocr.service.js";
@@ -105,6 +105,16 @@ export const ndieService = {
   async reviewCandidate(actor: NdieActor, input: NdieReviewInput) {
     await assertNdieCandidateAccess(actor, input.candidateId, "WRITE");
     return ndieReviewEngineService.reviewCandidate(input);
+  },
+
+  async bulkReview(actor: NdieActor, input: NdieBulkReviewInput) {
+    await assertNdieImportAccess(actor, input.importJobId, "WRITE");
+    return ndieReviewEngineService.bulkReview(input);
+  },
+
+  async saveReviewSession(actor: NdieActor, input: NdieReviewSessionInput) {
+    await assertNdieImportAccess(actor, input.importJobId, "WRITE");
+    return ndieReviewEngineService.saveReviewSession(input);
   },
 
   async publish(input: NdiePublishInput) {

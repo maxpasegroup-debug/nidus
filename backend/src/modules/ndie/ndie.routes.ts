@@ -28,5 +28,7 @@ ndieRouter.post("/imports/:id/replay", ndieController.replay);
 ndieRouter.post("/imports/:id/cancel", ndieController.cancelImport);
 ndieRouter.get("/imports/:id/replay-runs", ndieController.replayRuns);
 ndieRouter.post("/imports/:id/quality-report", ndieController.qualityReport);
+ndieRouter.patch("/imports/:id/review-session", ndieController.saveReviewSession);
+ndieRouter.patch("/imports/:id/review/bulk", ndieController.bulkReview);
 ndieRouter.patch("/questions/:candidateId/review", ndieController.reviewCandidate);
 ndieRouter.use(ndieErrorHandler);
