@@ -12,6 +12,7 @@ import { ndieOcrService } from "../ocr/ocr.service.js";
 import { ndiePdfRendererService } from "../pdf-renderer/pdf-renderer.service.js";
 import { ndieQuestionDetectorService } from "../question-detector/question-detector.service.js";
 import { ndieVisualDetectorService } from "../visual-detector/visual-detector.service.js";
+import { safeNdieFileName } from "../security/ndie-security.js";
 
 export type NdieCreateImportInput = {
   file: Express.Multer.File;
@@ -133,7 +134,7 @@ export const ndieSourceStorageService = {
           importJobId: importJob.id,
           sourceKind,
           originalName: input.file.originalname,
-          fileName: input.file.originalname.replace(/\s+/g, "-"),
+          fileName: safeNdieFileName(input.file.originalname, input.file.mimetype),
           fileType: input.file.mimetype,
           fileSize: input.file.size,
           storageProvider: "cloudinary",
@@ -142,7 +143,7 @@ export const ndieSourceStorageService = {
           checksum: fileChecksum,
           documentClass,
           pipeline,
-          classification: { documentClass, pipeline, phase: "SOURCE_STORAGE" },
+          classification: { documentClass, pipeline, phase: "SOURCE_STORAGE", checksum: fileChecksum },
           pageCount,
           preservationState: "PRESERVED",
           uploadedBy: input.userId

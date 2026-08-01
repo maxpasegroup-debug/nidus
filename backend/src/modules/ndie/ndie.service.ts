@@ -9,6 +9,7 @@ import { ndiePublisherService, type NdiePublishInput } from "./publisher/publish
 import { ndieQualityScoringService } from "./quality-scoring/quality-scoring.service.js";
 import { ndieQuestionDetectorService } from "./question-detector/question-detector.service.js";
 import { ndieReviewEngineService, type NdieReviewInput } from "./review-engine/review-engine.service.js";
+import { assertNdieCandidateAccess, assertNdieImportAccess, isNdieManager, type NdieActor } from "./security/ndie-security.js";
 import { ndieSourceStorageService, type NdieCreateImportInput } from "./source-storage/source-storage.service.js";
 import { ndieVisualDetectorService } from "./visual-detector/visual-detector.service.js";
 
@@ -31,55 +32,68 @@ export const ndieService = {
     return ndieSourceStorageService.createImport(input);
   },
 
-  getImport(importJobId: string) {
+  async getImport(actor: NdieActor, importJobId: string) {
+    await assertNdieImportAccess(actor, importJobId, "READ");
     return ndieSourceStorageService.getImport(importJobId);
   },
 
-  analyzeLayout(importJobId: string) {
+  async analyzeLayout(actor: NdieActor, importJobId: string) {
+    await assertNdieImportAccess(actor, importJobId, "WRITE");
     return ndieLayoutAnalyzerService.analyzeImport(importJobId);
   },
 
-  detectVisuals(importJobId: string) {
+  async detectVisuals(actor: NdieActor, importJobId: string) {
+    await assertNdieImportAccess(actor, importJobId, "WRITE");
     return ndieVisualDetectorService.detectImport(importJobId);
   },
 
-  detectQuestions(importJobId: string) {
+  async detectQuestions(actor: NdieActor, importJobId: string) {
+    await assertNdieImportAccess(actor, importJobId, "WRITE");
     return ndieQuestionDetectorService.detectImport(importJobId);
   },
 
-  mapAnswers(importJobId: string) {
+  async mapAnswers(actor: NdieActor, importJobId: string) {
+    await assertNdieImportAccess(actor, importJobId, "WRITE");
     return ndieAnswerKeyMapperService.mapImport(importJobId);
   },
 
-  validateAi(importJobId: string) {
+  async validateAi(actor: NdieActor, importJobId: string) {
+    await assertNdieImportAccess(actor, importJobId, "WRITE");
     return ndieAiValidatorService.validateImport(importJobId);
   },
 
-  getReviewWorkspace(importJobId: string) {
+  async getReviewWorkspace(actor: NdieActor, importJobId: string) {
+    await assertNdieImportAccess(actor, importJobId, "READ");
     return ndieReviewEngineService.getReviewWorkspace(importJobId);
   },
 
-  reviewCandidate(input: NdieReviewInput) {
+  async reviewCandidate(actor: NdieActor, input: NdieReviewInput) {
+    await assertNdieCandidateAccess(actor, input.candidateId, "WRITE");
     return ndieReviewEngineService.reviewCandidate(input);
   },
 
-  publish(input: NdiePublishInput) {
+  async publish(input: NdiePublishInput) {
+    await assertNdieImportAccess(input.requester, input.importJobId, "PUBLISH");
     return ndiePublisherService.publish(input);
   },
 
-  replay(input: NdieReplayInput) {
+  async replay(actor: NdieActor, input: NdieReplayInput) {
+    await assertNdieImportAccess(actor, input.importJobId, "WRITE");
     return ndieImportReplayService.replay(input);
   },
 
-  replayRuns(importJobId: string) {
+  async replayRuns(actor: NdieActor, importJobId: string) {
+    await assertNdieImportAccess(actor, importJobId, "READ");
     return ndieImportReplayService.list(importJobId);
   },
 
-  qualityReport(importJobId: string) {
+  async qualityReport(actor: NdieActor, importJobId: string) {
+    await assertNdieImportAccess(actor, importJobId, "READ");
     return ndieQualityScoringService.generate(importJobId);
   },
 
-  analytics() {
+  analytics(actor: NdieActor) {
+    if (!isNdieManager(actor)) throw Object.assign(new Error("NDIE analytics access denied"), { statusCode: 403 });
     return ndieAnalyticsService.overview();
   }
 };
