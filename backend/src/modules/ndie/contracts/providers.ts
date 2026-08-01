@@ -1,8 +1,9 @@
 import type { NdieOcrResult } from "./ocr-result.js";
 import type { NdieLayoutResult } from "./layout-result.js";
 import type { NdieFormulaResult } from "./formula-result.js";
+import type { NdieVisualResult } from "./visual-result.js";
 
-export type NdieProviderKind = "OCR" | "LAYOUT" | "FORMULA" | "QUESTION" | "OPTION" | "ANSWER_KEY" | "SOLUTION" | "AI" | "RENDERER" | "STORAGE";
+export type NdieProviderKind = "OCR" | "LAYOUT" | "FORMULA" | "VISUAL" | "QUESTION" | "OPTION" | "ANSWER_KEY" | "SOLUTION" | "AI" | "RENDERER" | "STORAGE";
 
 export type NdieProviderHealth = {
   id: string;
@@ -78,6 +79,36 @@ export interface FormulaProvider extends NdieProvider {
       metadata?: unknown;
     }>;
   }): Promise<NdieFormulaResult>;
+}
+
+export interface VisualProvider extends NdieProvider {
+  kind: "VISUAL";
+  detect(input: {
+    importJobId: string;
+    pageId: string;
+    pageNumber: number;
+    pageImageUrl?: string | null;
+    ocrJson?: unknown;
+    layoutJson?: unknown;
+    formulaElements: Array<{
+      id: string;
+      elementType: string;
+      text?: string | null;
+      coordinates: unknown;
+      readingOrder?: number | null;
+      confidence?: number | null;
+      metadata?: unknown;
+    }>;
+    layoutElements: Array<{
+      id: string;
+      elementType: string;
+      text?: string | null;
+      coordinates: unknown;
+      readingOrder?: number | null;
+      confidence?: number | null;
+      metadata?: unknown;
+    }>;
+  }): Promise<NdieVisualResult>;
 }
 
 export interface QuestionProvider extends NdieProvider {

@@ -59,6 +59,9 @@ export type NdieQueueMetrics = {
   formulaRunning: number;
   formulaCompleted: number;
   readyForVisualEngine: number;
+  visualRunning: number;
+  visualCompleted: number;
+  readyForQuestionEngine: number;
   dlq: number;
   averageDurationMs: number;
   pendingJobs: number;

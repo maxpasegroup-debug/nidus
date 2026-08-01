@@ -14,6 +14,7 @@ import { createDisabledProvider, ProviderRegistry } from "./providers/provider-r
 import { RuleBasedQuestionProvider } from "./question-detector/rule-based-question.provider.js";
 import { NdieFoundationService } from "./services/base-service.js";
 import { RuleBasedSolutionProvider } from "./solution-mapper/rule-based-solution.provider.js";
+import { RuleBasedVisualProvider } from "./visual-detector/rule-based-visual.provider.js";
 
 const serviceDefinitions = [
   ["DocumentClassifier", "Classifies documents by type, subject risk, scan status, and required pipeline."],
@@ -49,6 +50,7 @@ function buildRegistry() {
   registry.register(new MetadataPdfRendererProvider());
   registry.register(new RuleBasedLayoutProvider());
   registry.register(new RuleBasedFormulaProvider());
+  registry.register(new RuleBasedVisualProvider());
   registry.register(new RuleBasedQuestionProvider());
   registry.register(new RuleBasedOptionProvider());
   registry.register(new RuleBasedAnswerKeyProvider());
@@ -67,6 +69,15 @@ function buildRegistry() {
   registry.register(createDisabledProvider("formula.nougat", "FORMULA", "Nougat Formula"));
   registry.register(createDisabledProvider("formula.local-vision", "FORMULA", "Local Vision Formula"));
   registry.register(createDisabledProvider("formula.katex", "FORMULA", "KaTeX Formula Renderer"));
+  registry.register(createDisabledProvider("visual.azure-vision", "VISUAL", "Azure Vision"));
+  registry.register(createDisabledProvider("visual.google-vision", "VISUAL", "Google Vision"));
+  registry.register(createDisabledProvider("visual.opencv", "VISUAL", "OpenCV"));
+  registry.register(createDisabledProvider("visual.yolo", "VISUAL", "YOLO"));
+  registry.register(createDisabledProvider("visual.detectron2", "VISUAL", "Detectron2"));
+  registry.register(createDisabledProvider("visual.sam", "VISUAL", "Segment Anything"));
+  registry.register(createDisabledProvider("visual.grounding-dino", "VISUAL", "Grounding DINO"));
+  registry.register(createDisabledProvider("visual.florence", "VISUAL", "Florence"));
+  registry.register(createDisabledProvider("visual.custom-vision", "VISUAL", "Custom Vision Models"));
   registry.register(createDisabledProvider("ai.openai", "AI", "OpenAI Validator"));
   registry.register(createDisabledProvider("ai.gemini", "AI", "Gemini Validator"));
   registry.register(createDisabledProvider("ai.claude", "AI", "Claude Validator"));

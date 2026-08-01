@@ -47,6 +47,7 @@
     "test:ndie-ocr": "tsx src/scripts/ndie-ocr-verification.ts",
     "test:ndie-layout": "tsx src/scripts/ndie-layout-verification.ts",
     "test:ndie-formula": "tsx src/scripts/ndie-formula-verification.ts",
+    "test:ndie-visual": "tsx src/scripts/ndie-visual-verification.ts",
     "test:automation": "tsx src/scripts/automation-engine-verification.ts",
     "test:whatsapp": "tsx src/scripts/whatsapp-flow-verification.ts",
     "test:ai-director": "tsx src/scripts/ai-director-verification.ts",
