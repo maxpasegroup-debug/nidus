@@ -1,9 +1,7 @@
 "use client";
 
-import { NidusMathText, NidusQuestionContent } from "@/components/exam/nidus-math-renderer";
+import { RichStudentQuestionRenderer } from "@/components/tests/rich-student-renderer";
 import type { Question } from "@/types/test";
-
-const options = ["A", "B", "C", "D"] as const;
 
 export function QuestionCard({
   question,
@@ -34,33 +32,13 @@ export function QuestionCard({
           </span>
         ) : null}
       </div>
-      <h2 className="mt-5 text-xl font-semibold leading-8 text-[#071d36]">
-        <NidusQuestionContent content={question.contentJson} fallbackText={question.questionText} imageUrl={question.questionImage} />
-      </h2>
-      {visualNotes.length ? (
-        <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm font-semibold leading-6 text-amber-900">
-          <p className="font-black">Read the question exactly as shown by your teacher.</p>
-          <p className="mt-1">{visualNotes.join(" / ")}</p>
-        </div>
-      ) : null}
-      <div className="mt-6 grid gap-3">
-        {options.map((option) => {
-          const text = question[`option${option}` as keyof Question] as string;
-          return (
-            <button
-              key={option}
-              type="button"
-              onClick={() => onSelect(option)}
-              className={`rounded border px-4 py-3 text-left transition ${
-                selectedAnswer === option
-                  ? "border-[#b9913f] bg-[#fff7de] text-[#071d36]"
-                  : "border-[#071d36]/10 bg-[#fffdf8] text-[#071d36] hover:border-[#b9913f]/50"
-              }`}
-            >
-              <span className="font-semibold">{option}.</span> <NidusMathText text={text} />
-            </button>
-          );
-        })}
+      <div className="mt-5">
+        <RichStudentQuestionRenderer
+          question={question}
+          selectedAnswer={selectedAnswer}
+          onSelect={onSelect}
+          fallbackVisualNotes={visualNotes}
+        />
       </div>
     </div>
   );

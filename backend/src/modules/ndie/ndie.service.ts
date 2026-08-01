@@ -15,6 +15,7 @@ import { ndiePdfRendererService } from "./pdf-renderer/pdf-renderer.service.js";
 import { ndieOcrService } from "./ocr/ocr.service.js";
 import { assertNdieCandidateAccess, assertNdieImportAccess, isNdieManager, type NdieActor } from "./security/ndie-security.js";
 import { ndieSourceStorageService, type NdieCreateImportInput } from "./source-storage/source-storage.service.js";
+import { ndieStudentDeliveryService } from "./student-delivery/student-delivery.service.js";
 import { ndieVisualDetectorService } from "./visual-detector/visual-detector.service.js";
 import { ndieWorkerService } from "./worker/worker.service.js";
 
@@ -22,7 +23,7 @@ const container = createNdieContainer();
 
 export const ndieService = {
   async health() {
-    const [queue, worker, metrics, renderer, ocr, layout, formula, visual, question, evaluation, validation, publisher] = await Promise.all([
+    const [queue, worker, metrics, renderer, ocr, layout, formula, visual, question, evaluation, validation, publisher, studentDelivery] = await Promise.all([
       ndieQueueService.health(),
       ndieWorkerService.health(),
       ndieQueueService.metrics(),
@@ -34,7 +35,8 @@ export const ndieService = {
       ndieQuestionDetectorService.health(),
       ndieAnswerKeyMapperService.health(),
       ndieAiValidatorService.health(),
-      ndiePublisherService.health()
+      ndiePublisherService.health(),
+      ndieStudentDeliveryService.health()
     ]);
     return {
       service: "ndie",
@@ -54,6 +56,7 @@ export const ndieService = {
       evaluation,
       validation,
       publisher,
+      studentDelivery,
       pipelineEvents: NDIE_PIPELINE_EVENTS,
       services: container.services.map((service) => service.health()),
       providers: container.providerRegistry.health()

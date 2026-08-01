@@ -75,6 +75,7 @@ export type NdieQueueMetrics = {
   publishRunning: number;
   publishCompleted: number;
   readyForStudentDelivery: number;
+  deliveryReady: number;
   dlq: number;
   averageDurationMs: number;
   pendingJobs: number;

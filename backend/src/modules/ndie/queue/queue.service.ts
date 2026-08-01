@@ -193,6 +193,21 @@ export const ndieQueueService = {
     });
   },
 
+  async enqueueStudentDelivery(input: { importJobId: string; requestedBy?: string; testId?: string }) {
+    return this.enqueue({
+      importJobId: input.importJobId,
+      jobType: "PLACEHOLDER_STAGE",
+      stage: "STUDENT_DELIVERY",
+      payload: {
+        pipelineVersion: env.NDIE_PIPELINE_VERSION,
+        queuedBy: input.requestedBy ?? "ndie-publisher",
+        consumes: "CBT_READY_RICH_EXAM_PACKAGE",
+        produces: "STUDENT_RENDERING_READY",
+        testId: input.testId ?? null
+      } as Prisma.InputJsonValue
+    });
+  },
+
   transition: provider.transition.bind(provider),
   updateProgress: provider.updateProgress.bind(provider),
   cancel: provider.cancel.bind(provider),

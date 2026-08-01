@@ -221,6 +221,7 @@ export class DatabaseNdieQueueProvider implements NdieQueueProvider {
       publishRunning: count("PUBLISH_RUNNING"),
       publishCompleted: count("PUBLISH_COMPLETED"),
       readyForStudentDelivery: count("READY_FOR_STUDENT_DELIVERY"),
+      deliveryReady: count("DELIVERY_READY"),
       dlq: count("DLQ"),
       averageDurationMs: Math.round(aggregate._avg.durationMs ?? 0),
       pendingJobs: count("QUEUED") + count("RETRY_PENDING") + count("REPLAY_PENDING"),

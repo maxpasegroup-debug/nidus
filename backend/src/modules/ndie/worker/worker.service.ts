@@ -10,6 +10,7 @@ import { ndiePdfRendererService } from "../pdf-renderer/pdf-renderer.service.js"
 import { ndieQuestionDetectorService } from "../question-detector/question-detector.service.js";
 import { ndieQueueConfig, ndieQueueService, ndieWorkerId, logNdieQueueEvent } from "../queue/queue.service.js";
 import { ndiePublisherService } from "../publisher/publisher.service.js";
+import { ndieStudentDeliveryService } from "../student-delivery/student-delivery.service.js";
 import { ndieVisualDetectorService } from "../visual-detector/visual-detector.service.js";
 
 async function renderPdfForJob(jobId: string, workerId: string) {
@@ -171,6 +172,15 @@ async function runPublishForJob(jobId: string, workerId: string) {
   return result;
 }
 
+async function runStudentDeliveryForJob(jobId: string, workerId: string) {
+  const job = await prisma.ndieQueueJob.findUnique({ where: { id: jobId } });
+  if (!job) throw Object.assign(new Error("NDIE queue job not found"), { statusCode: 404 });
+
+  await ndieQueueService.transition(jobId, "DELIVERY_READY", { workerId, provider: "student-rich-renderer-v1" });
+  await ndieQueueService.updateProgress(jobId, 90, "DELIVERY_READY");
+  return ndieStudentDeliveryService.markDeliveryReady(job.importJobId);
+}
+
 export const ndieWorkerService = {
   async health() {
     const processing = await prisma.ndieQueueJob.count({ where: { state: "PROCESSING" } });
@@ -220,6 +230,8 @@ export const ndieWorkerService = {
         await runAiValidationForJob(jobId, workerId);
       } else if (job.stage === "PUBLISH") {
         await runPublishForJob(jobId, workerId);
+      } else if (job.stage === "STUDENT_DELIVERY") {
+        await runStudentDeliveryForJob(jobId, workerId);
       } else {
         await ndieQueueService.updateProgress(jobId, 60, "PLACEHOLDER_CHECKPOINT");
       }
@@ -227,7 +239,7 @@ export const ndieWorkerService = {
       await ndieQueueService.updateProgress(jobId, 100, job.stage);
       const completed = await ndieQueueService.transition(jobId, "COMPLETED", {
         workerId,
-          result: job.stage === "PDF_RENDERING" ? "PDF pages rendered and ready for OCR." : job.stage === "OCR" ? "OCR completed and ready for layout." : job.stage === "LAYOUT" ? "Layout completed and ready for formula engine." : job.stage === "FORMULA" ? "Formula intelligence completed and ready for visual engine." : job.stage === "VISUAL" ? "Visual intelligence completed and ready for question engine." : job.stage === "QUESTION" ? "Assessment intelligence completed and ready for answer engine." : job.stage === "ANSWER" ? "Evaluation intelligence completed and ready for AI validation." : job.stage === "AI_VALIDATION" ? "AI validation completed and ready for teacher review." : job.stage === "PUBLISH" ? "Rich publishing completed and ready for student delivery." : "Placeholder queue infrastructure completed without running document intelligence."
+          result: job.stage === "PDF_RENDERING" ? "PDF pages rendered and ready for OCR." : job.stage === "OCR" ? "OCR completed and ready for layout." : job.stage === "LAYOUT" ? "Layout completed and ready for formula engine." : job.stage === "FORMULA" ? "Formula intelligence completed and ready for visual engine." : job.stage === "VISUAL" ? "Visual intelligence completed and ready for question engine." : job.stage === "QUESTION" ? "Assessment intelligence completed and ready for answer engine." : job.stage === "ANSWER" ? "Evaluation intelligence completed and ready for AI validation." : job.stage === "AI_VALIDATION" ? "AI validation completed and ready for teacher review." : job.stage === "PUBLISH" ? "Rich publishing completed and ready for student delivery." : job.stage === "STUDENT_DELIVERY" ? "Student delivery renderer marked ready." : "Placeholder queue infrastructure completed without running document intelligence."
       });
       if (job.stage === "PDF_RENDERING") {
         await prisma.ndieImportJob.update({
@@ -273,6 +285,11 @@ export const ndieWorkerService = {
         await prisma.ndieImportJob.update({
           where: { id: completed.importJobId },
           data: { status: "READY_FOR_STUDENT_DELIVERY", currentCheckpoint: "READY_FOR_STUDENT_DELIVERY" }
+        });
+      } else if (job.stage === "STUDENT_DELIVERY") {
+        await prisma.ndieImportJob.update({
+          where: { id: completed.importJobId },
+          data: { status: "DELIVERY_READY", currentCheckpoint: "DELIVERY_READY" }
         });
       }
       await logNdieQueueEvent({
