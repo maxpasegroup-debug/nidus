@@ -133,5 +133,80 @@ export const ndieController = {
     } catch (error) {
       next(error);
     }
+  },
+
+  publish: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      if (!req.user) {
+        res.status(401).json({ message: "Authentication required" });
+        return;
+      }
+      const importJobId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      res.json(await ndieService.publish({
+        importJobId,
+        requester: {
+          id: req.user.id,
+          role: req.user.role,
+          roleMetadata: req.user.roleMetadata
+        },
+        title: typeof req.body.title === "string" ? req.body.title : undefined,
+        description: typeof req.body.description === "string" ? req.body.description : undefined,
+        batchId: typeof req.body.batchId === "string" ? req.body.batchId : undefined,
+        subject: typeof req.body.subject === "string" ? req.body.subject : undefined,
+        topic: typeof req.body.topic === "string" ? req.body.topic : undefined,
+        duration: Number.isFinite(Number(req.body.duration)) ? Number(req.body.duration) : undefined,
+        publishAt: typeof req.body.publishAt === "string" ? req.body.publishAt : undefined,
+        allowAutoApproved: req.body.allowAutoApproved === true
+      }));
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  replay: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      if (!req.user) {
+        res.status(401).json({ message: "Authentication required" });
+        return;
+      }
+      const importJobId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const stages = Array.isArray(req.body.stages) ? req.body.stages.map((stage: unknown) => String(stage)) : undefined;
+      res.json(await ndieService.replay({
+        importJobId,
+        requestedBy: req.user.id,
+        fromVersion: typeof req.body.fromVersion === "string" ? req.body.fromVersion : undefined,
+        toVersion: typeof req.body.toVersion === "string" ? req.body.toVersion : undefined,
+        fromCheckpoint: typeof req.body.fromCheckpoint === "string" ? req.body.fromCheckpoint : undefined,
+        stages
+      }));
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  replayRuns: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      const importJobId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      res.json(await ndieService.replayRuns(importJobId));
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  qualityReport: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      const importJobId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      res.json(await ndieService.qualityReport(importJobId));
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  analytics: async (_req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await ndieService.analytics());
+    } catch (error) {
+      next(error);
+    }
   }
 };

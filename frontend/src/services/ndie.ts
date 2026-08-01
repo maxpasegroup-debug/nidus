@@ -23,6 +23,20 @@ export type NdieQuestionCandidate = {
   reviewStatus: string;
 };
 
+export type NdieQualityScore = {
+  overall: number;
+  grade: string;
+  ocrConfidence?: number | null;
+  formulaAccuracy?: number | null;
+  layoutAccuracy?: number | null;
+  tableAccuracy?: number | null;
+  diagramPreservation?: number | null;
+  optionCompleteness?: number | null;
+  answerKeyConfidence?: number | null;
+  aiConfidence?: number | null;
+  teacherReviewCompletion?: number | null;
+};
+
 export type NdieReviewWorkspace = {
   id: string;
   sourceKind: string;
@@ -49,8 +63,26 @@ export type NdieReviewWorkspace = {
   questionCandidates: NdieQuestionCandidate[];
   answerKeyCandidates: Array<{ id: string; questionNumber?: string | null; answerJson: unknown; confidence?: number | null }>;
   solutionCandidates: Array<{ id: string; questionNumber?: string | null; solutionJson: unknown; confidence?: number | null }>;
-  qualityScores: Array<{ overall: number; grade: string; aiConfidence?: number | null }>;
+  qualityScores: NdieQualityScore[];
   providerRuns: Array<{ id: string; providerId: string; stage: string; status: string; confidence?: number | null }>;
+  reviewInsights?: {
+    counts: Record<string, number>;
+    heatmap: Array<{ candidateId: string; questionNumber?: string | null; confidence?: number | null; band: string; reviewStatus: string }>;
+    reviewQueue: Array<{ candidateId: string; questionNumber?: string | null; confidence?: number | null; band: string; reviewStatus: string; pageNumber: number }>;
+    pageRisk: Array<{ pageNumber: number; lowConfidenceElements: number; visualElements: number }>;
+    revisionSummary: Array<{ id: string; questionCandidateId?: string | null; revision: number; changeType: string; changedBy?: string | null; createdAt: string }>;
+  };
+};
+
+export type NdiePublishInput = {
+  title?: string;
+  description?: string;
+  batchId?: string;
+  subject?: string;
+  topic?: string;
+  duration?: number;
+  publishAt?: string;
+  allowAutoApproved?: boolean;
 };
 
 export async function getNdieReviewWorkspace(importId: string) {
@@ -65,5 +97,30 @@ export async function validateNdieImport(importId: string) {
 
 export async function reviewNdieCandidate(candidateId: string, input: { decision: "APPROVED" | "REJECTED" | "NEEDS_EDIT"; notes?: string; candidateJson?: unknown }) {
   const response = await apiClient.patch(`/ndie/questions/${candidateId}/review`, input);
+  return response.data;
+}
+
+export async function publishNdieImport(importId: string, input: NdiePublishInput) {
+  const response = await apiClient.post(`/ndie/imports/${importId}/publish`, input);
+  return response.data;
+}
+
+export async function replayNdieImport(importId: string, input: { stages?: string[] } = {}) {
+  const response = await apiClient.post(`/ndie/imports/${importId}/replay`, input);
+  return response.data;
+}
+
+export async function getNdieReplayRuns(importId: string) {
+  const response = await apiClient.get(`/ndie/imports/${importId}/replay-runs`);
+  return response.data;
+}
+
+export async function generateNdieQualityReport(importId: string) {
+  const response = await apiClient.post<NdieQualityScore>(`/ndie/imports/${importId}/quality-report`);
+  return response.data;
+}
+
+export async function getNdieAnalytics() {
+  const response = await apiClient.get("/ndie/analytics");
   return response.data;
 }

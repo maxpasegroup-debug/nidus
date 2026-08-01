@@ -1,8 +1,12 @@
 import { NDIE_PIPELINE_EVENTS } from "./contracts/pipeline-events.js";
 import { ndieAnswerKeyMapperService } from "./answer-key-mapper/answer-key-mapper.service.js";
 import { ndieAiValidatorService } from "./ai-validator/ai-validator.service.js";
+import { ndieAnalyticsService } from "./analytics/analytics.service.js";
+import { ndieImportReplayService, type NdieReplayInput } from "./import-replay/import-replay.service.js";
 import { ndieLayoutAnalyzerService } from "./layout-analyzer/layout-analyzer.service.js";
 import { createNdieContainer } from "./ndie.container.js";
+import { ndiePublisherService, type NdiePublishInput } from "./publisher/publisher.service.js";
+import { ndieQualityScoringService } from "./quality-scoring/quality-scoring.service.js";
 import { ndieQuestionDetectorService } from "./question-detector/question-detector.service.js";
 import { ndieReviewEngineService, type NdieReviewInput } from "./review-engine/review-engine.service.js";
 import { ndieSourceStorageService, type NdieCreateImportInput } from "./source-storage/source-storage.service.js";
@@ -57,5 +61,25 @@ export const ndieService = {
 
   reviewCandidate(input: NdieReviewInput) {
     return ndieReviewEngineService.reviewCandidate(input);
+  },
+
+  publish(input: NdiePublishInput) {
+    return ndiePublisherService.publish(input);
+  },
+
+  replay(input: NdieReplayInput) {
+    return ndieImportReplayService.replay(input);
+  },
+
+  replayRuns(importJobId: string) {
+    return ndieImportReplayService.list(importJobId);
+  },
+
+  qualityReport(importJobId: string) {
+    return ndieQualityScoringService.generate(importJobId);
+  },
+
+  analytics() {
+    return ndieAnalyticsService.overview();
   }
 };

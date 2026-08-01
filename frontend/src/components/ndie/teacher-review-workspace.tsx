@@ -2,10 +2,10 @@
 
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle, Check, FileText, RefreshCw, X } from "lucide-react";
+import { AlertTriangle, Check, FileText, RefreshCw, Rocket, X } from "lucide-react";
 import Image from "next/image";
 import { getApiErrorMessage } from "@/services/api";
-import { getNdieReviewWorkspace, reviewNdieCandidate, validateNdieImport, type NdieQuestionCandidate } from "@/services/ndie";
+import { generateNdieQualityReport, getNdieReviewWorkspace, publishNdieImport, replayNdieImport, reviewNdieCandidate, validateNdieImport, type NdieQuestionCandidate } from "@/services/ndie";
 
 function percent(value?: number | null) {
   if (typeof value !== "number") return "Not scored";
@@ -17,6 +17,13 @@ function confidenceTone(value?: number | null) {
   if (value >= 0.82) return "border-emerald-200 bg-emerald-50 text-emerald-800";
   if (value >= 0.45) return "border-amber-200 bg-amber-50 text-amber-800";
   return "border-rose-200 bg-rose-50 text-rose-800";
+}
+
+function bandTone(band: string) {
+  if (band === "GREEN") return "bg-emerald-500";
+  if (band === "AMBER") return "bg-amber-400";
+  if (band === "RED") return "bg-rose-500";
+  return "bg-slate-300";
 }
 
 function blockText(candidate: NdieQuestionCandidate) {
@@ -37,6 +44,8 @@ export function TeacherReviewWorkspace({ importId }: { importId: string }) {
   const queryClient = useQueryClient();
   const [selectedId, setSelectedId] = useState("");
   const [notes, setNotes] = useState("");
+  const [publishTitle, setPublishTitle] = useState("");
+  const [duration, setDuration] = useState(60);
   const query = useQuery({
     queryKey: ["ndie", "review", importId],
     queryFn: () => getNdieReviewWorkspace(importId),
@@ -68,6 +77,25 @@ export function TeacherReviewWorkspace({ importId }: { importId: string }) {
     }
   });
 
+  const replayMutation = useMutation({
+    mutationFn: () => replayNdieImport(importId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["ndie", "review", importId] })
+  });
+
+  const publishMutation = useMutation({
+    mutationFn: () => publishNdieImport(importId, {
+      title: publishTitle.trim() || undefined,
+      duration,
+      allowAutoApproved: false
+    }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["ndie", "review", importId] })
+  });
+
+  const qualityMutation = useMutation({
+    mutationFn: () => generateNdieQualityReport(importId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["ndie", "review", importId] })
+  });
+
   if (!importId) {
     return <EmptyReview message="Open this page with ?importId=NDIE_IMPORT_ID to review a processed paper." />;
   }
@@ -76,7 +104,12 @@ export function TeacherReviewWorkspace({ importId }: { importId: string }) {
   if (query.isError) return <EmptyReview message={getApiErrorMessage(query.error)} />;
   if (!workspace) return <EmptyReview message="NDIE import not found." />;
 
-  const errorMessage = validateMutation.error || reviewMutation.error ? getApiErrorMessage(validateMutation.error || reviewMutation.error) : "";
+  const approvedCount = candidates.filter((candidate) => candidate.reviewStatus === "APPROVED").length;
+  const latestQuality = workspace.qualityScores[0];
+  const reviewInsights = workspace.reviewInsights;
+  const errorMessage = validateMutation.error || reviewMutation.error || replayMutation.error || publishMutation.error || qualityMutation.error
+    ? getApiErrorMessage(validateMutation.error || reviewMutation.error || replayMutation.error || publishMutation.error || qualityMutation.error)
+    : "";
 
   return (
     <main className="min-h-screen bg-[var(--page-bg)] px-4 py-5 text-[var(--navy)] md:px-6">
@@ -88,21 +121,65 @@ export function TeacherReviewWorkspace({ importId }: { importId: string }) {
               <h1 className="text-3xl font-black tracking-tight">Review Imported Paper</h1>
               <p className="mt-1 text-sm text-[var(--muted-blue)]">{workspace.sourceDocuments[0]?.originalName || "Source document"} / {workspace.status} / {workspace.reviewStatus}</p>
             </div>
-            <button onClick={() => validateMutation.mutate()} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-[var(--navy)] px-4 text-sm font-black text-white disabled:opacity-60" disabled={validateMutation.isPending}>
-              <RefreshCw size={16} />
-              Re-run AI Check
-            </button>
+            <div className="flex flex-wrap gap-2">
+              <button onClick={() => replayMutation.mutate()} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 text-sm font-black disabled:opacity-60" disabled={replayMutation.isPending}>
+                <RefreshCw size={16} />
+                Replay Import
+              </button>
+              <button onClick={() => validateMutation.mutate()} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 text-sm font-black disabled:opacity-60" disabled={validateMutation.isPending}>
+                <RefreshCw size={16} />
+                Re-run AI Check
+              </button>
+              <button onClick={() => qualityMutation.mutate()} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-[var(--navy)] px-4 text-sm font-black text-white disabled:opacity-60" disabled={qualityMutation.isPending}>
+                <Check size={16} />
+                Quality Report
+              </button>
+            </div>
           </div>
         </header>
 
         <section className="grid gap-3 md:grid-cols-4">
           <Metric label="Questions" value={candidates.length} />
+          <Metric label="Approved" value={approvedCount} />
           <Metric label="Answers" value={workspace.answerKeyCandidates.length} />
-          <Metric label="Visual Elements" value={workspace.elements.filter((element) => ["FORMULA", "TABLE", "DIAGRAM", "GRAPH", "CHEMICAL_EQUATION"].includes(element.elementType)).length} />
-          <Metric label="Quality" value={workspace.qualityScores[0]?.grade || "Pending"} />
+          <Metric label="Quality" value={latestQuality ? `${Math.round(latestQuality.overall * 100)}%` : "Pending"} />
         </section>
 
         {errorMessage ? <div className="rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm font-bold text-rose-800">{errorMessage}</div> : null}
+        {publishMutation.isSuccess ? <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm font-bold text-emerald-800">NDIE import published to CBT successfully.</div> : null}
+
+        <section className="grid gap-4 xl:grid-cols-[1fr_1fr]">
+          <Panel title="Quality Report" eyebrow={latestQuality?.grade || "Pending"}>
+            <div className="grid gap-2 md:grid-cols-3">
+              <ScorePill label="OCR" value={latestQuality?.ocrConfidence} />
+              <ScorePill label="Formula" value={latestQuality?.formulaAccuracy} />
+              <ScorePill label="Layout" value={latestQuality?.layoutAccuracy} />
+              <ScorePill label="Tables" value={latestQuality?.tableAccuracy} />
+              <ScorePill label="Diagrams" value={latestQuality?.diagramPreservation} />
+              <ScorePill label="Teacher Review" value={latestQuality?.teacherReviewCompletion} />
+            </div>
+          </Panel>
+          <Panel title="Review Heatmap" eyebrow={`${reviewInsights?.reviewQueue.length ?? 0} to check`}>
+            <div className="flex flex-wrap gap-2">
+              {(reviewInsights?.heatmap ?? []).slice(0, 80).map((item) => (
+                <button key={item.candidateId} onClick={() => setSelectedId(item.candidateId)} className={`min-h-9 min-w-12 rounded-lg px-2 text-xs font-black text-white ${bandTone(item.band)}`} title={`${item.reviewStatus} / ${percent(item.confidence)}`}>
+                  Q{item.questionNumber || "?"}
+                </button>
+              ))}
+              {reviewInsights?.heatmap.length === 0 ? <p className="text-sm font-bold text-[var(--muted-blue)]">Run question detection and AI validation to generate the review heatmap.</p> : null}
+            </div>
+            {reviewInsights?.pageRisk?.length ? (
+              <div className="mt-4 grid gap-2">
+                {reviewInsights.pageRisk.slice(0, 3).map((page) => (
+                  <div key={page.pageNumber} className="flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2 text-sm font-bold">
+                    <span>Page {page.pageNumber}</span>
+                    <span>{page.lowConfidenceElements} low confidence / {page.visualElements} visual</span>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </Panel>
+        </section>
 
         <section className="grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
           <Panel title="Original Paper" eyebrow="Source of truth">
@@ -155,6 +232,18 @@ export function TeacherReviewWorkspace({ importId }: { importId: string }) {
             </div>
           </Panel>
         </section>
+
+        <Panel title="Publish to Student CBT" eyebrow="Final handoff">
+          <div className="grid gap-3 lg:grid-cols-[1fr_160px_auto]">
+            <input value={publishTitle} onChange={(event) => setPublishTitle(event.target.value)} placeholder="Exam title" className="min-h-11 rounded-lg border border-slate-200 px-3 text-sm font-bold outline-none focus:border-[var(--gold)]" />
+            <input value={duration} onChange={(event) => setDuration(Math.max(1, Number(event.target.value || 60)))} type="number" min={1} className="min-h-11 rounded-lg border border-slate-200 px-3 text-sm font-bold outline-none focus:border-[var(--gold)]" />
+            <button onClick={() => publishMutation.mutate()} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-[var(--navy)] px-4 text-sm font-black text-white disabled:opacity-60" disabled={publishMutation.isPending || approvedCount === 0}>
+              <Rocket size={16} />
+              Publish Approved
+            </button>
+          </div>
+          <p className="mt-2 text-xs font-bold text-[var(--muted-blue)]">Only teacher-approved candidates are published. Auto-approved candidates still need human approval unless explicitly allowed by backend input.</p>
+        </Panel>
       </section>
     </main>
   );
@@ -186,6 +275,15 @@ function Metric({ label, value }: { label: string; value: string | number }) {
     <div className="rounded-lg border border-[var(--border)] bg-white p-4 shadow-sm">
       <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--muted-blue)]">{label}</p>
       <p className="mt-2 text-2xl font-black text-[var(--gold)]">{value}</p>
+    </div>
+  );
+}
+
+function ScorePill({ label, value }: { label: string; value?: number | null }) {
+  return (
+    <div className={`rounded-lg border p-3 ${confidenceTone(value)}`}>
+      <p className="text-[11px] font-black uppercase tracking-[0.18em]">{label}</p>
+      <p className="mt-1 text-lg font-black">{percent(value)}</p>
     </div>
   );
 }
