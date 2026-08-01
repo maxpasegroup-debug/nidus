@@ -2,6 +2,7 @@ import type { NdieOcrResult } from "./ocr-result.js";
 import type { NdieLayoutResult } from "./layout-result.js";
 import type { NdieFormulaResult } from "./formula-result.js";
 import type { NdieVisualResult } from "./visual-result.js";
+import type { NdieAssessmentResult } from "./assessment-result.js";
 
 export type NdieProviderKind = "OCR" | "LAYOUT" | "FORMULA" | "VISUAL" | "QUESTION" | "OPTION" | "ANSWER_KEY" | "SOLUTION" | "AI" | "RENDERER" | "STORAGE";
 
@@ -126,17 +127,11 @@ export interface QuestionProvider extends NdieProvider {
       confidence?: number | null;
       metadata?: unknown;
     }>;
-  }): Promise<{
-    questions: Array<{
-      questionNumber: string;
-      questionType: string;
-      text: string;
-      sourceElementIds: string[];
-      sourceMap: Record<string, unknown>;
-      confidence: number;
-    }>;
-    confidence: number | null;
-  }>;
+    ocrPages?: unknown[];
+    layoutPages?: unknown[];
+    formulaElements?: unknown[];
+    visualElements?: unknown[];
+  }): Promise<NdieAssessmentResult>;
 }
 
 export interface OptionProvider extends NdieProvider {
