@@ -1,7 +1,7 @@
 import type { Prisma } from "../../../generated/prisma/client.js";
 import type { NdieJobState } from "./state-machine.js";
 
-export type NdieJobType = "IMPORT_PIPELINE" | "REPLAY_PIPELINE" | "PLACEHOLDER_STAGE";
+export type NdieJobType = "IMPORT_PIPELINE" | "REPLAY_PIPELINE" | "PLACEHOLDER_STAGE" | "PUBLISH_PIPELINE";
 
 export type NdieRetryPolicy = {
   maxAttempts: number;
@@ -71,6 +71,10 @@ export type NdieQueueMetrics = {
   aiValidationRunning: number;
   aiValidationCompleted: number;
   readyForTeacherReview: number;
+  readyForPublish: number;
+  publishRunning: number;
+  publishCompleted: number;
+  readyForStudentDelivery: number;
   dlq: number;
   averageDurationMs: number;
   pendingJobs: number;

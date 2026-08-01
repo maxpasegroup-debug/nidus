@@ -148,6 +148,6 @@ describe("NDIE Production Gate 10 AI validation and confidence engine", () => {
     expect(service).toContain("READY_FOR_TEACHER_REVIEW");
     expect(service).toContain("publishReadiness");
     expect(ndieService).toContain("ndieAiValidatorService.health()");
-    expect(worker).not.toContain("ndiePublisherService.publish");
+    expect(service).not.toContain("ndiePublisherService.publish");
   });
 });

@@ -22,7 +22,7 @@ const container = createNdieContainer();
 
 export const ndieService = {
   async health() {
-    const [queue, worker, metrics, renderer, ocr, layout, formula, visual, question, evaluation, validation] = await Promise.all([
+    const [queue, worker, metrics, renderer, ocr, layout, formula, visual, question, evaluation, validation, publisher] = await Promise.all([
       ndieQueueService.health(),
       ndieWorkerService.health(),
       ndieQueueService.metrics(),
@@ -33,7 +33,8 @@ export const ndieService = {
       ndieVisualDetectorService.health(),
       ndieQuestionDetectorService.health(),
       ndieAnswerKeyMapperService.health(),
-      ndieAiValidatorService.health()
+      ndieAiValidatorService.health(),
+      ndiePublisherService.health()
     ]);
     return {
       service: "ndie",
@@ -52,6 +53,7 @@ export const ndieService = {
       question,
       evaluation,
       validation,
+      publisher,
       pipelineEvents: NDIE_PIPELINE_EVENTS,
       services: container.services.map((service) => service.health()),
       providers: container.providerRegistry.health()
@@ -135,7 +137,7 @@ export const ndieService = {
   async cancelImport(actor: NdieActor, importJobId: string, reason?: string) {
     await assertNdieImportAccess(actor, importJobId, "WRITE");
     const importJob = await ndieSourceStorageService.getImport(importJobId);
-    const activeJob = importJob?.queueJobs.find((job) => ["QUEUED", "PROCESSING", "RENDERING", "OCR_RUNNING", "READY_FOR_LAYOUT", "LAYOUT_RUNNING", "READY_FOR_FORMULA_ENGINE", "FORMULA_RUNNING", "READY_FOR_VISUAL_ENGINE", "VISUAL_RUNNING", "READY_FOR_QUESTION_ENGINE", "QUESTION_RUNNING", "READY_FOR_ANSWER_ENGINE", "ANSWER_RUNNING", "READY_FOR_AI_VALIDATION", "AI_VALIDATION_RUNNING", "RETRY_PENDING", "REPLAY_PENDING"].includes(job.state));
+    const activeJob = importJob?.queueJobs.find((job) => ["QUEUED", "PROCESSING", "RENDERING", "OCR_RUNNING", "READY_FOR_LAYOUT", "LAYOUT_RUNNING", "READY_FOR_FORMULA_ENGINE", "FORMULA_RUNNING", "READY_FOR_VISUAL_ENGINE", "VISUAL_RUNNING", "READY_FOR_QUESTION_ENGINE", "QUESTION_RUNNING", "READY_FOR_ANSWER_ENGINE", "ANSWER_RUNNING", "READY_FOR_AI_VALIDATION", "AI_VALIDATION_RUNNING", "READY_FOR_PUBLISH", "PUBLISH_RUNNING", "RETRY_PENDING", "REPLAY_PENDING"].includes(job.state));
     if (!activeJob) throw Object.assign(new Error("No cancellable NDIE queue job found"), { statusCode: 404 });
     return ndieQueueService.cancel(activeJob.id, reason);
   },

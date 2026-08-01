@@ -158,6 +158,41 @@ export const ndieQueueService = {
     });
   },
 
+  async enqueuePublish(input: {
+    importJobId: string;
+    requestedBy: string;
+    requester: { id: string; role: string; roleMetadata?: Record<string, unknown> | null };
+    title?: string;
+    description?: string;
+    batchId?: string;
+    subject?: string;
+    topic?: string;
+    duration?: number;
+    publishAt?: string;
+  }) {
+    return this.enqueue({
+      importJobId: input.importJobId,
+      jobType: "PUBLISH_PIPELINE",
+      stage: "PUBLISH",
+      payload: {
+        pipelineVersion: env.NDIE_PIPELINE_VERSION,
+        queuedBy: input.requestedBy,
+        consumes: ["TEACHER_REVIEW", "NORMALIZED_QUESTION_JSON", "NORMALIZED_EVALUATION_JSON", "NORMALIZED_VALIDATION_JSON", "REVISION_HISTORY"],
+        produces: "CBT_READY_RICH_EXAM_PACKAGE",
+        requester: input.requester,
+        publishInput: {
+          title: input.title ?? null,
+          description: input.description ?? null,
+          batchId: input.batchId ?? null,
+          subject: input.subject ?? null,
+          topic: input.topic ?? null,
+          duration: input.duration ?? null,
+          publishAt: input.publishAt ?? null
+        }
+      } as Prisma.InputJsonValue
+    });
+  },
+
   transition: provider.transition.bind(provider),
   updateProgress: provider.updateProgress.bind(provider),
   cancel: provider.cancel.bind(provider),

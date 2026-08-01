@@ -1,4 +1,5 @@
 import { prisma } from "../../../config/prisma.js";
+import { Role } from "../../../generated/prisma/client.js";
 import { logger } from "../../../utils/logger.js";
 import { ndieAnswerKeyMapperService } from "../answer-key-mapper/answer-key-mapper.service.js";
 import { ndieAiValidatorService } from "../ai-validator/ai-validator.service.js";
@@ -8,6 +9,7 @@ import { ndieOcrService } from "../ocr/ocr.service.js";
 import { ndiePdfRendererService } from "../pdf-renderer/pdf-renderer.service.js";
 import { ndieQuestionDetectorService } from "../question-detector/question-detector.service.js";
 import { ndieQueueConfig, ndieQueueService, ndieWorkerId, logNdieQueueEvent } from "../queue/queue.service.js";
+import { ndiePublisherService } from "../publisher/publisher.service.js";
 import { ndieVisualDetectorService } from "../visual-detector/visual-detector.service.js";
 
 async function renderPdfForJob(jobId: string, workerId: string) {
@@ -134,6 +136,41 @@ async function runAiValidationForJob(jobId: string, workerId: string) {
   return result;
 }
 
+async function runPublishForJob(jobId: string, workerId: string) {
+  const job = await prisma.ndieQueueJob.findUnique({ where: { id: jobId } });
+  if (!job) throw Object.assign(new Error("NDIE queue job not found"), { statusCode: 404 });
+  const payload = job.payload && typeof job.payload === "object" && !Array.isArray(job.payload) ? job.payload as Record<string, unknown> : {};
+  const requester = payload.requester && typeof payload.requester === "object" && !Array.isArray(payload.requester) ? payload.requester as Record<string, unknown> : {};
+  const publishInput = payload.publishInput && typeof payload.publishInput === "object" && !Array.isArray(payload.publishInput) ? payload.publishInput as Record<string, unknown> : {};
+  const requesterId = typeof requester.id === "string" ? requester.id : "";
+  const requesterRole = typeof requester.role === "string" && requester.role in Role ? requester.role as Role : null;
+  if (!requesterId || !requesterRole) {
+    throw Object.assign(new Error("NDIE publish job is missing an authorized requester context."), { statusCode: 400 });
+  }
+
+  await ndieQueueService.transition(jobId, "PUBLISH_RUNNING", { workerId, provider: "publisher.rich-cbt-compat-v1" });
+  await ndieQueueService.updateProgress(jobId, 15, "PUBLISH_RUNNING");
+  const result = await ndiePublisherService.publish({
+    importJobId: job.importJobId,
+    requester: {
+      id: requesterId,
+      role: requesterRole,
+      roleMetadata: requester.roleMetadata && typeof requester.roleMetadata === "object" && !Array.isArray(requester.roleMetadata) ? requester.roleMetadata as Record<string, unknown> : null
+    },
+    title: typeof publishInput.title === "string" ? publishInput.title : undefined,
+    description: typeof publishInput.description === "string" ? publishInput.description : undefined,
+    batchId: typeof publishInput.batchId === "string" ? publishInput.batchId : undefined,
+    subject: typeof publishInput.subject === "string" ? publishInput.subject : undefined,
+    topic: typeof publishInput.topic === "string" ? publishInput.topic : undefined,
+    duration: Number.isFinite(Number(publishInput.duration)) ? Number(publishInput.duration) : undefined,
+    publishAt: typeof publishInput.publishAt === "string" ? publishInput.publishAt : undefined
+  });
+  await ndieQueueService.updateProgress(jobId, 90, "PUBLISH_COMPLETED");
+  await ndieQueueService.transition(jobId, "PUBLISH_COMPLETED", { workerId, testId: result.testId, packageId: result.packageId });
+  await ndieQueueService.transition(jobId, "READY_FOR_STUDENT_DELIVERY", { workerId, questionsPublished: result.questionsPublished });
+  return result;
+}
+
 export const ndieWorkerService = {
   async health() {
     const processing = await prisma.ndieQueueJob.count({ where: { state: "PROCESSING" } });
@@ -181,6 +218,8 @@ export const ndieWorkerService = {
         await runAnswerForJob(jobId, workerId);
       } else if (job.stage === "AI_VALIDATION") {
         await runAiValidationForJob(jobId, workerId);
+      } else if (job.stage === "PUBLISH") {
+        await runPublishForJob(jobId, workerId);
       } else {
         await ndieQueueService.updateProgress(jobId, 60, "PLACEHOLDER_CHECKPOINT");
       }
@@ -188,7 +227,7 @@ export const ndieWorkerService = {
       await ndieQueueService.updateProgress(jobId, 100, job.stage);
       const completed = await ndieQueueService.transition(jobId, "COMPLETED", {
         workerId,
-          result: job.stage === "PDF_RENDERING" ? "PDF pages rendered and ready for OCR." : job.stage === "OCR" ? "OCR completed and ready for layout." : job.stage === "LAYOUT" ? "Layout completed and ready for formula engine." : job.stage === "FORMULA" ? "Formula intelligence completed and ready for visual engine." : job.stage === "VISUAL" ? "Visual intelligence completed and ready for question engine." : job.stage === "QUESTION" ? "Assessment intelligence completed and ready for answer engine." : job.stage === "ANSWER" ? "Evaluation intelligence completed and ready for AI validation." : job.stage === "AI_VALIDATION" ? "AI validation completed and ready for teacher review." : "Placeholder queue infrastructure completed without running document intelligence."
+          result: job.stage === "PDF_RENDERING" ? "PDF pages rendered and ready for OCR." : job.stage === "OCR" ? "OCR completed and ready for layout." : job.stage === "LAYOUT" ? "Layout completed and ready for formula engine." : job.stage === "FORMULA" ? "Formula intelligence completed and ready for visual engine." : job.stage === "VISUAL" ? "Visual intelligence completed and ready for question engine." : job.stage === "QUESTION" ? "Assessment intelligence completed and ready for answer engine." : job.stage === "ANSWER" ? "Evaluation intelligence completed and ready for AI validation." : job.stage === "AI_VALIDATION" ? "AI validation completed and ready for teacher review." : job.stage === "PUBLISH" ? "Rich publishing completed and ready for student delivery." : "Placeholder queue infrastructure completed without running document intelligence."
       });
       if (job.stage === "PDF_RENDERING") {
         await prisma.ndieImportJob.update({
@@ -229,6 +268,11 @@ export const ndieWorkerService = {
         await prisma.ndieImportJob.update({
           where: { id: completed.importJobId },
           data: { status: "READY_FOR_TEACHER_REVIEW", currentCheckpoint: "READY_FOR_TEACHER_REVIEW" }
+        });
+      } else if (job.stage === "PUBLISH") {
+        await prisma.ndieImportJob.update({
+          where: { id: completed.importJobId },
+          data: { status: "READY_FOR_STUDENT_DELIVERY", currentCheckpoint: "READY_FOR_STUDENT_DELIVERY" }
         });
       }
       await logNdieQueueEvent({

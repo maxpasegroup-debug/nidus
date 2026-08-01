@@ -1,7 +1,9 @@
+import { createHash, randomUUID } from "node:crypto";
 import type { Role, Prisma } from "../../../generated/prisma/client.js";
 import { prisma } from "../../../config/prisma.js";
 import { NIDUS_QUESTION_CONTENT_FORMAT } from "../../document-intelligence/question-content.schema.js";
 import { testsService, type TestPayload } from "../../tests/tests.service.js";
+import type { NdieExamPackage, NdiePublishIntegrityIssue, NdiePublishResult, NdiePublishedAsset, NdiePublishedQuestion } from "../contracts/publish-package.js";
 
 type Requester = {
   id: string;
@@ -25,10 +27,35 @@ export type NdiePublishInput = {
 type CandidateJson = {
   blocks?: Array<Record<string, unknown>>;
   metadata?: Record<string, unknown>;
+  relationships?: Array<Record<string, unknown>>;
 };
+
+const OBJECTIVE_QUESTION_TYPES = new Set(["MCQ", "SINGLE_CORRECT_MCQ", "MULTIPLE_CORRECT_MCQ", "TRUE_FALSE", "ASSERTION_REASON"]);
+const CRITICAL_VALIDATION_STAGES = new Set(["AI_VALIDATION_COMPLETED", "VALIDATION_COMPLETED"]);
 
 function asRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+}
+
+function asArray(value: unknown): unknown[] {
+  return Array.isArray(value) ? value : [];
+}
+
+function stableChecksum(value: unknown) {
+  return createHash("sha256").update(JSON.stringify(value)).digest("hex");
+}
+
+function issue(input: Omit<NdiePublishIntegrityIssue, "issueId">): NdiePublishIntegrityIssue {
+  return {
+    issueId: `publish-issue-${stableChecksum(input).slice(0, 12)}`,
+    ...input
+  };
+}
+
+function latestProviderRun<T extends { stage: string; completedAt?: Date | null; startedAt: Date }>(runs: T[], stages: Set<string>) {
+  return runs
+    .filter((run) => stages.has(run.stage))
+    .sort((a, b) => (b.completedAt ?? b.startedAt).getTime() - (a.completedAt ?? a.startedAt).getTime())[0];
 }
 
 function textFromBlocks(blocks: Array<Record<string, unknown>>) {
@@ -91,7 +118,8 @@ function solutionByQuestionNumber(solutions: Array<{ questionNumber?: string | n
 }
 
 function correctOption(answer: Record<string, unknown>) {
-  const value = String(answer.correctOption || answer.correctAnswer || answer.answer || "").toUpperCase();
+  const correctOptions = Array.isArray(answer.correctOptions) ? answer.correctOptions : [];
+  const value = String(answer.correctOption || answer.correctAnswer || answer.answer || correctOptions[0] || "").toUpperCase();
   return /^[A-D]$/.test(value) ? value : "";
 }
 
@@ -103,6 +131,8 @@ function explanationText(solution: Record<string, unknown>, hasAnswer: boolean) 
 
 function contentBlocks(input: {
   candidateId: string;
+  questionNumber?: string | null;
+  questionType?: string | null;
   questionText: string;
   options: { A: string; B: string; C: string; D: string };
   correctAnswer: string;
@@ -115,6 +145,8 @@ function contentBlocks(input: {
   coordinates: Record<string, unknown>;
   confidence?: number | null;
   reviewStatus: string;
+  packageId?: string;
+  packageVersion?: number;
 }) {
   const sourceReference = {
     documentId: input.sourceDocumentId || undefined,
@@ -132,7 +164,7 @@ function contentBlocks(input: {
   return {
     schemaVersion: 1,
     format: NIDUS_QUESTION_CONTENT_FORMAT,
-    questionType: "SINGLE_CHOICE",
+    questionType: input.questionType === "MULTIPLE_CORRECT_MCQ" ? "MULTIPLE_ANSWER" : input.questionType === "NUMERICAL_ANSWER" || input.questionType === "INTEGER_TYPE" ? "NUMERICAL" : input.questionType === "FILL_BLANK" ? "FILL_BLANK" : input.questionType === "ASSERTION_REASON" ? "ASSERTION_REASON" : input.questionType === "CASE_STUDY" || input.questionType === "PASSAGE_BASED" ? "CASE_STUDY" : input.questionType === "MATCH_THE_FOLLOWING" ? "MATCHING" : input.questionType === "DIAGRAM_BASED" ? "DIAGRAM_LABEL" : input.questionType === "FILE_UPLOAD" ? "FILE_UPLOAD" : "SINGLE_CHOICE",
     source: "AI_IMPORT",
     blocks: [
       { id: `${input.candidateId}-paragraph-1`, type: "paragraph", text: input.questionText, sourceReference, confidence: input.confidence ?? undefined },
@@ -158,18 +190,191 @@ function contentBlocks(input: {
       negativeMarks: 0,
       importJobId: input.importJobId,
       ndieCandidateId: input.candidateId,
+      ndiePackageId: input.packageId,
+      ndiePackageVersion: input.packageVersion,
+      questionNumber: input.questionNumber || undefined,
+      originalQuestionType: input.questionType || undefined,
       aiConfidence: input.confidence ?? undefined,
       reviewStatus: input.reviewStatus
     }
   } satisfies Prisma.InputJsonObject;
 }
 
+function assetPackage(assets: Array<{
+  id: string;
+  assetType: string;
+  role: string | null;
+  url: string;
+  sourceDocumentId: string;
+  pageNumber: number | null;
+  metadata: Prisma.JsonValue | null;
+}>): NdiePublishedAsset[] {
+  return assets.map((asset) => ({
+    assetId: asset.id,
+    assetType: asset.assetType,
+    role: asset.role,
+    url: asset.url,
+    sourceDocumentId: asset.sourceDocumentId,
+    pageNumber: asset.pageNumber,
+    checksum: typeof asRecord(asset.metadata).checksum === "string" ? String(asRecord(asset.metadata).checksum) : null
+  }));
+}
+
+function linkIds(candidateJson: CandidateJson, key: string) {
+  const metadata = asRecord(candidateJson.metadata);
+  const values = [
+    ...asArray(metadata[key]),
+    ...asArray((candidateJson as Record<string, unknown>)[key])
+  ];
+  return values.map((value) => String(value)).filter(Boolean);
+}
+
+function validationIssues(providerRun: { outputSummary?: Prisma.JsonValue | null } | undefined) {
+  const output = asRecord(providerRun?.outputSummary);
+  const validation = asRecord(output.validation);
+  const issues = asArray(validation.issues).map(asRecord);
+  const warnings = asArray(validation.warnings).map(asRecord);
+  const readiness = asRecord(validation.publishReadiness);
+  return { issues, warnings, readiness };
+}
+
+function buildIntegrity(input: {
+  importJob: {
+    questionCandidates: Array<{ id: string; questionNumber: string | null; questionType: string; reviewStatus: string; candidateJson: Prisma.JsonValue; sourceMap?: Prisma.JsonValue | null }>;
+    answerKeyCandidates: Array<{ questionNumber?: string | null; answerJson: Prisma.JsonValue }>;
+    assets: Array<{ id: string; assetType: string; role: string | null; url: string; sourceDocumentId: string; pageNumber: number | null; metadata: Prisma.JsonValue | null }>;
+    providerRuns: Array<{ stage: string; outputSummary?: Prisma.JsonValue | null; completedAt?: Date | null; startedAt: Date }>;
+  };
+  approvedCandidates: Array<{ id: string; questionNumber: string | null; questionType: string; candidateJson: Prisma.JsonValue }>;
+}) {
+  const issues: NdiePublishIntegrityIssue[] = [];
+  const finalStatuses = new Set(["APPROVED", "REJECTED", "SKIPPED"]);
+  const pendingCandidates = input.importJob.questionCandidates.filter((candidate) => !finalStatuses.has(candidate.reviewStatus));
+  if (pendingCandidates.length) {
+    issues.push(issue({
+      severity: "CRITICAL",
+      issueType: "TEACHER_REVIEW_INCOMPLETE",
+      targetId: null,
+      reason: `${pendingCandidates.length} question candidate(s) still need teacher review.`,
+      blockPublish: true
+    }));
+  }
+
+  const rejectedCandidates = input.importJob.questionCandidates.filter((candidate) => candidate.reviewStatus === "REJECTED");
+  if (rejectedCandidates.length) {
+    issues.push(issue({
+      severity: "HIGH",
+      issueType: "REJECTED_QUESTION",
+      targetId: null,
+      reason: `${rejectedCandidates.length} rejected question candidate(s) remain in this import. Mark irrelevant candidates as skipped before publishing.`,
+      blockPublish: true
+    }));
+  }
+
+  if (!input.approvedCandidates.length) {
+    issues.push(issue({
+      severity: "CRITICAL",
+      issueType: "EMPTY_PACKAGE",
+      targetId: null,
+      reason: "No teacher-approved question candidates are available for publishing.",
+      blockPublish: true
+    }));
+  }
+
+  const answerMap = answerByQuestionNumber(input.importJob.answerKeyCandidates);
+  for (const candidate of input.approvedCandidates) {
+    const questionType = String(candidate.questionType || "").toUpperCase();
+    const answer = answerMap.get(String(candidate.questionNumber || "")) ?? {};
+    if (OBJECTIVE_QUESTION_TYPES.has(questionType) && !correctOption(answer)) {
+      issues.push(issue({
+        severity: "CRITICAL",
+        issueType: "MISSING_ANSWER",
+        targetId: candidate.id,
+        reason: `Question ${candidate.questionNumber || candidate.id} has no publishable answer key.`,
+        blockPublish: true
+      }));
+    }
+
+    const candidateJson = asRecord(candidate.candidateJson) as CandidateJson;
+    const visualLinks = linkIds(candidateJson, "visualLinks");
+    const assetIds = new Set(input.importJob.assets.map((asset) => asset.id));
+    const missingVisualLinks = visualLinks.filter((id) => !assetIds.has(id));
+    if (missingVisualLinks.length) {
+      issues.push(issue({
+        severity: "HIGH",
+        issueType: "MISSING_ASSET",
+        targetId: candidate.id,
+        reason: `Question ${candidate.questionNumber || candidate.id} links to missing visual asset(s): ${missingVisualLinks.slice(0, 3).join(", ")}.`,
+        blockPublish: true
+      }));
+    }
+  }
+
+  const validation = validationIssues(latestProviderRun(input.importJob.providerRuns, CRITICAL_VALIDATION_STAGES));
+  const criticalValidation = validation.issues.filter((item) => String(item.severity || "").toUpperCase() === "CRITICAL");
+  if (criticalValidation.length || validation.readiness.status === "BLOCKED") {
+    issues.push(issue({
+      severity: "CRITICAL",
+      issueType: "CRITICAL_VALIDATION",
+      targetId: null,
+      reason: criticalValidation[0]?.reason ? String(criticalValidation[0].reason) : "Latest NDIE validation blocks publishing.",
+      blockPublish: true
+    }));
+  }
+
+  const blockers = issues.filter((item) => item.blockPublish).length;
+  const score = Math.max(0, Math.round((1 - blockers / Math.max(1, input.approvedCandidates.length + 3)) * 100));
+  return {
+    status: blockers ? "BLOCKED" as const : "READY_FOR_PUBLISH" as const,
+    score,
+    issues
+  };
+}
+
 export const ndiePublisherService = {
-  async publish(input: NdiePublishInput) {
+  async health() {
+    const [publishedExams, readyImports, publishRuns, rollbacks] = await Promise.all([
+      prisma.ndieImportJob.count({ where: { status: "READY_FOR_STUDENT_DELIVERY" } }),
+      prisma.ndieImportJob.count({ where: { status: "READY_FOR_PUBLISH" } }),
+      prisma.ndieProviderRun.findMany({
+        where: { providerKind: "PUBLISHER", stage: "PUBLISH_COMPLETED", status: "COMPLETED" },
+        select: { confidence: true, outputSummary: true, completedAt: true },
+        orderBy: { completedAt: "desc" },
+        take: 50
+      }),
+      prisma.ndieRevision.count({ where: { changeType: "PUBLISH_VERSION" } })
+    ]);
+    const integrityScores = publishRuns
+      .map((run) => Number(asRecord(asRecord(run.outputSummary).integrity).score ?? run.confidence ?? 0))
+      .filter((score) => Number.isFinite(score));
+    const integrityScore = integrityScores.length ? Math.round(integrityScores.reduce((sum, score) => sum + score, 0) / integrityScores.length) : null;
+    return {
+      provider: "publisher.rich-cbt-compat-v1",
+      status: "ready",
+      publishedExams,
+      publishReadiness: {
+        readyImports,
+        latestPublishedAt: publishRuns[0]?.completedAt?.toISOString() ?? null
+      },
+      integrityScore,
+      rollbackAvailability: {
+        versions: rollbacks,
+        supported: true
+      }
+    };
+  },
+
+  async publish(input: NdiePublishInput): Promise<NdiePublishResult> {
     const importJob = await prisma.ndieImportJob.findUnique({
       where: { id: input.importJobId },
       include: {
         sourceDocuments: true,
+        assets: true,
+        elements: true,
+        providerRuns: true,
+        revisions: true,
+        qualityScores: { orderBy: { createdAt: "desc" }, take: 1 },
+        reviewDecisions: true,
         questionCandidates: { orderBy: [{ questionNumber: "asc" }, { createdAt: "asc" }] },
         answerKeyCandidates: true,
         solutionCandidates: true
@@ -180,6 +385,11 @@ export const ndiePublisherService = {
 
     const publishableStatuses = input.allowAutoApproved ? ["APPROVED", "AUTO_APPROVED"] : ["APPROVED"];
     const approvedCandidates = importJob.questionCandidates.filter((candidate) => publishableStatuses.includes(candidate.reviewStatus));
+    const integrity = buildIntegrity({ importJob, approvedCandidates });
+    if (integrity.status === "BLOCKED") {
+      const visible = integrity.issues.filter((item) => item.blockPublish).slice(0, 5).map((item) => item.reason).join(" ");
+      throw Object.assign(new Error(`NDIE package is not ready to publish. ${visible}`), { statusCode: 400, integrity });
+    }
     if (!approvedCandidates.length) {
       throw Object.assign(new Error("Approve at least one NDIE question candidate before publishing."), { statusCode: 400 });
     }
@@ -187,6 +397,9 @@ export const ndiePublisherService = {
     const answerMap = answerByQuestionNumber(importJob.answerKeyCandidates);
     const solutionMap = solutionByQuestionNumber(importJob.solutionCandidates);
     const sourceDocumentId = importJob.sourceDocuments[0]?.id ?? null;
+    const packageId = `ndie-package-${randomUUID()}`;
+    const packageVersion = importJob.revisions.filter((revision) => revision.changeType === "PUBLISH_VERSION").length + 1;
+    const publishedAssets = assetPackage(importJob.assets);
 
     const questions = approvedCandidates.map((candidate, index) => {
       const candidateJson = asRecord(candidate.candidateJson) as CandidateJson;
@@ -201,6 +414,9 @@ export const ndiePublisherService = {
       const explanation = explanationText(solution, Boolean(correctAnswer));
       const visualUrl = firstVisualUrl(blocks);
       const visualReviewRequired = ["DIAGRAM_BASED", "IMAGE_BASED"].includes(candidate.questionType) && !visualUrl;
+      const formulaLinks = linkIds(candidateJson, "formulaLinks");
+      const visualLinks = linkIds(candidateJson, "visualLinks");
+      const layoutLinks = linkIds(candidateJson, "layoutLinks");
 
       return {
         questionText,
@@ -209,6 +425,8 @@ export const ndiePublisherService = {
         visualReviewNotes: visualReviewRequired ? ["NDIE detected a visual question without a preserved crop. Attach the source crop before publishing."] as Prisma.InputJsonArray : undefined,
         contentJson: contentBlocks({
           candidateId: candidate.id,
+          questionNumber: candidate.questionNumber,
+          questionType: candidate.questionType,
           questionText,
           options,
           correctAnswer,
@@ -220,17 +438,19 @@ export const ndiePublisherService = {
           page,
           coordinates,
           confidence: candidate.confidence,
-          reviewStatus: candidate.reviewStatus
+          reviewStatus: candidate.reviewStatus,
+          packageId,
+          packageVersion
         }),
         sourceDocumentId: sourceDocumentId || undefined,
         sourcePageNumber: page,
-        boundingBoxes: { sourceMap: candidate.sourceMap ?? null } as Prisma.InputJsonObject,
-        assets: { sourceDocuments: importJob.sourceDocuments.map((doc) => ({ id: doc.id, url: doc.storageUrl, name: doc.originalName })) } as Prisma.InputJsonObject,
-        layout: { ndieCandidateJson: candidate.candidateJson } as Prisma.InputJsonObject,
+        boundingBoxes: { sourceMap: candidate.sourceMap ?? null, formulaLinks, visualLinks, layoutLinks } as Prisma.InputJsonObject,
+        assets: { sourceDocuments: importJob.sourceDocuments.map((doc) => ({ id: doc.id, url: doc.storageUrl, name: doc.originalName, checksum: doc.checksum })), publishedAssets: publishedAssets.filter((asset) => visualLinks.includes(asset.assetId)) } as Prisma.InputJsonObject,
+        layout: { ndieCandidateJson: candidate.candidateJson, relationships: candidateJson.relationships ?? [], sourceElementIds: layoutLinks } as Prisma.InputJsonObject,
         renderMode: "NDIE_RICH_V1",
         aiConfidence: candidate.confidence ?? undefined,
         reviewStatus: "APPROVED",
-        publishedVersion: 1,
+        publishedVersion: packageVersion,
         optionA: options.A,
         optionB: options.B,
         optionC: options.C,
@@ -244,8 +464,86 @@ export const ndiePublisherService = {
       };
     });
 
+    const richQuestions: NdiePublishedQuestion[] = approvedCandidates.map((candidate, index) => {
+      const question = questions[index];
+      const candidateJson = asRecord(candidate.candidateJson) as CandidateJson;
+      const answer = answerMap.get(String(candidate.questionNumber || "")) ?? null;
+      const solution = solutionMap.get(String(candidate.questionNumber || "")) ?? null;
+      const formulaLinks = linkIds(candidateJson, "formulaLinks");
+      const visualLinks = linkIds(candidateJson, "visualLinks");
+      const layoutLinks = linkIds(candidateJson, "layoutLinks");
+      const relationships = asArray(candidateJson.relationships).map(asRecord).map((relationship) => ({
+        relationshipType: String(relationship.relationshipType || "UNKNOWN"),
+        sourceId: candidate.id,
+        targetId: String(relationship.targetId || ""),
+        confidence: Number.isFinite(Number(relationship.confidence)) ? Number(relationship.confidence) : null,
+        sourceReference: asRecord(relationship.sourceReference)
+      })).filter((relationship) => relationship.targetId);
+      return {
+        candidateId: candidate.id,
+        questionNumber: candidate.questionNumber,
+        questionType: candidate.questionType as NdiePublishedQuestion["questionType"],
+        revision: packageVersion,
+        reviewStatus: "APPROVED",
+        confidence: candidate.confidence ?? null,
+        contentJson: question.contentJson as Record<string, unknown>,
+        sourceReferences: asArray(asRecord(question.contentJson).sourceReferences).map(asRecord),
+        formulaLinks,
+        visualLinks,
+        layoutLinks,
+        relationships,
+        evaluationRule: answer ? { answerKey: answer, markingRule: asRecord(answer.markingRule) } : null,
+        answer: answer ? asRecord(answer.answerJson) : null,
+        solution: solution ? asRecord(solution.solutionJson) : null,
+        renderHints: { mode: "NDIE_RICH_V1", legacyProjection: "A_D_COMPATIBLE", formulaRenderer: "KaTeX", imageZoom: true },
+        accessibility: { altTextRequired: visualLinks.length > 0, keyboardNavigable: true, screenReaderFallback: question.questionText },
+        checksums: {
+          candidate: stableChecksum(candidate.candidateJson),
+          content: stableChecksum(question.contentJson)
+        }
+      };
+    });
+
+    const packageTitle = input.title || `${importJob.subject || "NDIE"} Imported Exam`;
+    const examPackage: NdieExamPackage = {
+      schemaVersion: "ndie-rich-exam-package-v1",
+      packageId,
+      importJobId: importJob.id,
+      testId: null,
+      version: packageVersion,
+      title: packageTitle,
+      subject: input.subject || importJob.subject || null,
+      topic: input.topic || importJob.topic || null,
+      batchId: input.batchId || importJob.batchId || null,
+      createdAt: new Date().toISOString(),
+      createdBy: input.requester.id,
+      pipelineVersion: importJob.pipelineVersion,
+      sourceDocuments: importJob.sourceDocuments.map((doc) => ({
+        id: doc.id,
+        originalName: doc.originalName,
+        fileType: doc.fileType,
+        checksum: doc.checksum,
+        storageUrl: doc.storageUrl
+      })),
+      metadata: {
+        reviewDecisions: importJob.reviewDecisions.length,
+        validation: validationIssues(latestProviderRun(importJob.providerRuns, CRITICAL_VALIDATION_STAGES)).readiness,
+        quality: importJob.qualityScores[0] ?? null
+      },
+      questions: richQuestions,
+      assets: publishedAssets,
+      integrity,
+      accessibility: { formulasHaveFallbacks: true, visualsHaveSourceReferences: true, supportsZoom: true },
+      checksums: {
+        sourceDocuments: stableChecksum(importJob.sourceDocuments.map((doc) => ({ id: doc.id, checksum: doc.checksum }))),
+        questions: stableChecksum(richQuestions),
+        assets: stableChecksum(publishedAssets)
+      }
+    };
+    const packageChecksum = stableChecksum(examPackage);
+
     const payload: TestPayload = {
-      title: input.title || `${importJob.subject || "NDIE"} Imported Exam`,
+      title: packageTitle,
       description: input.description || "Published from NIDUS Document Intelligence Engine after teacher review.",
       examType: "NDIE_IMPORT",
       category: "Teacher Imported",
@@ -270,19 +568,69 @@ export const ndiePublisherService = {
       if (candidateId) questionByCandidateId.set(candidateId, question.id);
     }
 
+    const finalizedPackage = {
+      ...examPackage,
+      testId: test.id,
+      checksums: {
+        ...examPackage.checksums,
+        package: packageChecksum,
+        publishedTest: stableChecksum({ testId: test.id, questions: createdQuestions.map((question) => question.id) })
+      }
+    } satisfies NdieExamPackage;
+
     await prisma.$transaction([
       prisma.ndieImportJob.update({
         where: { id: importJob.id },
         data: {
           testId: test.id,
-          status: "PUBLISHED_TO_CBT",
-          currentCheckpoint: "PUBLISHED_TO_CBT",
+          status: "READY_FOR_STUDENT_DELIVERY",
+          currentCheckpoint: "READY_FOR_STUDENT_DELIVERY",
           reviewStatus: "PUBLISHED",
           teacherSummary: {
+            ...asRecord(importJob.teacherSummary),
             publishedTestId: test.id,
             publishedQuestions: createdQuestions.length,
-            publishedAt: new Date().toISOString()
+            publishedAt: new Date().toISOString(),
+            packageId,
+            packageVersion,
+            integrityScore: integrity.score,
+            publishStatus: "READY_FOR_STUDENT_DELIVERY"
           } as Prisma.InputJsonValue
+        }
+      }),
+      prisma.ndieRevision.create({
+        data: {
+          importJobId: importJob.id,
+          revision: packageVersion,
+          changeType: "PUBLISH_VERSION",
+          changeReason: "Immutable rich exam package published to CBT.",
+          snapshot: finalizedPackage as Prisma.InputJsonValue,
+          changedBy: input.requester.id,
+          changedByRole: input.requester.role
+        }
+      }),
+      prisma.ndieProviderRun.create({
+        data: {
+          importJobId: importJob.id,
+          providerId: "publisher.rich-cbt-compat-v1",
+          providerKind: "PUBLISHER",
+          stage: "PUBLISH_COMPLETED",
+          status: "COMPLETED",
+          inputSummary: {
+            approvedCandidates: approvedCandidates.length,
+            sourceDocuments: importJob.sourceDocuments.length,
+            assets: publishedAssets.length
+          } as Prisma.InputJsonValue,
+          outputSummary: {
+            packageId,
+            packageVersion,
+            testId: test.id,
+            questionsPublished: createdQuestions.length,
+            integrity,
+            checksum: finalizedPackage.checksums.package
+          } as Prisma.InputJsonValue,
+          confidence: integrity.score / 100,
+          completedAt: new Date()
         }
       }),
       ...Array.from(questionByCandidateId.entries()).map(([candidateId, questionId]) =>
@@ -300,8 +648,11 @@ export const ndiePublisherService = {
     return {
       importJobId: importJob.id,
       testId: test.id,
+      packageId,
+      packageVersion,
       questionsPublished: createdQuestions.length,
-      status: "PUBLISHED_TO_CBT"
+      status: "READY_FOR_STUDENT_DELIVERY",
+      integrityScore: integrity.score
     };
   }
 };
