@@ -593,6 +593,7 @@ export const ModelName = {
   NdieReplayRun: 'NdieReplayRun',
   NdieQualityScore: 'NdieQualityScore',
   NdieProviderRun: 'NdieProviderRun',
+  NdieQueueJob: 'NdieQueueJob',
   TeacherCalendarLogRecord: 'TeacherCalendarLogRecord',
   TeacherSyllabusProgressRecord: 'TeacherSyllabusProgressRecord',
   NdpReview: 'NdpReview',
@@ -625,7 +626,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "sessionToken" | "passwordReset" | "parentStudentInvitation" | "parentStudentLink" | "otp" | "course" | "module" | "lesson" | "enrollment" | "batch" | "batchStudent" | "teacherBatchAssignment" | "test" | "question" | "questionVersion" | "questionBankItem" | "testAttempt" | "cBTAnswerState" | "cBTIntegrityEvent" | "answer" | "psychometricTest" | "psychometricQuestion" | "psychometricAttempt" | "psychometricReport" | "psychometricAnswer" | "assessmentArenaAssessment" | "assessmentTraitMapping" | "assessmentDimensionMapping" | "assessmentQuestionBlueprint" | "assessmentTraitBlueprint" | "assessmentDimensionBlueprint" | "assessmentTrait" | "assessmentDimension" | "assessmentQuestion" | "assessmentQuestionOption" | "assessmentQuestionVersion" | "assessmentQuestionReview" | "assessmentReviewBoard" | "assessmentPilotRun" | "assessmentPilotResponse" | "assessmentQuestionExposure" | "assessmentAttempt" | "assessmentAttemptQuestion" | "assessmentAnswer" | "assessmentTraitScore" | "assessmentDimensionScore" | "assessmentIntegritySignal" | "assessmentRiskSignal" | "assessmentGrowthSnapshot" | "assessmentRankPrediction" | "assessmentReportSnapshot" | "topRankUser" | "topRankGateway" | "topRankProgram" | "topRankBatch" | "topRankSession" | "topRankStudentProfile" | "topRankEnrollment" | "topRankBatchAssignment" | "topRankProgramAgreement" | "topRankOrientationProgress" | "topRankAssessment" | "topRankAssessmentAnswer" | "topRankAPR" | "topRankMission" | "topRankMissionTask" | "topRankMissionCompletion" | "topRankMissionCalendar" | "topRankSignalSnapshot" | "topRankReadinessScore" | "topRankPerformanceTrend" | "topRankGrowthTrend" | "topRankRiskTrend" | "topRankMentorFeedback" | "topRankSignalWeightConfig" | "assessmentTraitLibraryItem" | "assessmentDimensionLibraryItem" | "assessmentTraitBandInterpretation" | "assessmentRiskInterpretation" | "assessmentReadinessInterpretation" | "assessmentSsbOlq" | "assessmentSsbOlqMapping" | "assessmentSsbOlqInterpretation" | "oLQScore" | "studyPlan" | "performanceAnalytics" | "revisionSchedule" | "liveClass" | "recordedLecture" | "lectureProgress" | "lecturePlaybackEvent" | "attendance" | "timetable" | "faculty" | "classroom" | "payroll" | "announcement" | "hostel" | "room" | "hostelAllocation" | "inOutEntry" | "hostelLeave" | "messMenu" | "disciplineRecord" | "paradePerformance" | "lead" | "followUp" | "admission" | "counsellingBooking" | "referral" | "payment" | "subscription" | "feeInstallment" | "invoice" | "feePlan" | "paymentTransactionLog" | "approvalRequest" | "scholarshipDiscount" | "financeDocument" | "notification" | "messageThread" | "message" | "emailLog" | "pushNotification" | "aIInterviewSession" | "aIInterviewQuestion" | "doubtQuery" | "aIRecommendation" | "aITutorSession" | "aITutorMessage" | "aITutorFeedback" | "aIResponseCache" | "learningTopicInsight" | "revisionQueueItem" | "cBTIntelligenceReport" | "contentIngestionJob" | "generatedContentAsset" | "offlineSyncEvent" | "learningAnalyticsSnapshot" | "dailyIntelligenceIssue" | "contentModerationItem" | "officerPotential" | "fitnessProfile" | "pTSchedule" | "pTAttendance" | "physicalEligibility" | "dailyFitnessLog" | "pYQCategory" | "pYQQuestion" | "currentAffair" | "currentAffairQuiz" | "quizBattle" | "quizBattleParticipant" | "leaderboard" | "mediaFolder" | "mediaFile" | "document" | "adminRole" | "permission" | "rolePermission" | "userRole" | "roleActivity" | "systemSetting" | "auditLog" | "queueJobLog" | "aIRequestLog" | "salesBoosterCampaign" | "salesBoosterMetricSnapshot" | "salesBoosterAudienceContact" | "guruQuest" | "guruLesson" | "guruLessonCompletion" | "guruReflectionQuestion" | "guruReflectionAnswer" | "guruChallenge" | "guruChallengeCompletion" | "guruProgress" | "guruAchievement" | "guruUserAchievement" | "guruCertificate" | "guruUserCertificate" | "guruDailyMission" | "guruDailyMissionCompletion" | "guruMentorNote" | "guruReflectionInsight" | "guruXpLedger" | "branch" | "institute" | "teacherAttendanceRecord" | "teacherAssignmentRecord" | "assignmentSubmissionRecord" | "teacherStudyMaterialRecord" | "teacherExamRecord" | "examImportJob" | "examUpload" | "ndieImportJob" | "ndieSourceDocument" | "ndiePage" | "ndiePageAsset" | "ndieElement" | "ndieQuestionCandidate" | "ndieAnswerKeyCandidate" | "ndieSolutionCandidate" | "ndieReviewDecision" | "ndieRevision" | "ndieReplayRun" | "ndieQualityScore" | "ndieProviderRun" | "teacherCalendarLogRecord" | "teacherSyllabusProgressRecord" | "ndpReview" | "ndpManualEntry" | "academicActivityAuditRecord" | "directorExpenseRecord" | "aiWorkflowRequest" | "aiWorkflowContext" | "aiWorkflowContextSource" | "aiWorkflowDraft" | "aiWorkflowDraftVersion" | "aiWorkflowReview" | "aiWorkflowApproval" | "aiWorkflowFeedback" | "aiWorkflowPublication" | "aiWorkflowAuditEvent" | "academicLeaveRequest"
+    modelProps: "user" | "sessionToken" | "passwordReset" | "parentStudentInvitation" | "parentStudentLink" | "otp" | "course" | "module" | "lesson" | "enrollment" | "batch" | "batchStudent" | "teacherBatchAssignment" | "test" | "question" | "questionVersion" | "questionBankItem" | "testAttempt" | "cBTAnswerState" | "cBTIntegrityEvent" | "answer" | "psychometricTest" | "psychometricQuestion" | "psychometricAttempt" | "psychometricReport" | "psychometricAnswer" | "assessmentArenaAssessment" | "assessmentTraitMapping" | "assessmentDimensionMapping" | "assessmentQuestionBlueprint" | "assessmentTraitBlueprint" | "assessmentDimensionBlueprint" | "assessmentTrait" | "assessmentDimension" | "assessmentQuestion" | "assessmentQuestionOption" | "assessmentQuestionVersion" | "assessmentQuestionReview" | "assessmentReviewBoard" | "assessmentPilotRun" | "assessmentPilotResponse" | "assessmentQuestionExposure" | "assessmentAttempt" | "assessmentAttemptQuestion" | "assessmentAnswer" | "assessmentTraitScore" | "assessmentDimensionScore" | "assessmentIntegritySignal" | "assessmentRiskSignal" | "assessmentGrowthSnapshot" | "assessmentRankPrediction" | "assessmentReportSnapshot" | "topRankUser" | "topRankGateway" | "topRankProgram" | "topRankBatch" | "topRankSession" | "topRankStudentProfile" | "topRankEnrollment" | "topRankBatchAssignment" | "topRankProgramAgreement" | "topRankOrientationProgress" | "topRankAssessment" | "topRankAssessmentAnswer" | "topRankAPR" | "topRankMission" | "topRankMissionTask" | "topRankMissionCompletion" | "topRankMissionCalendar" | "topRankSignalSnapshot" | "topRankReadinessScore" | "topRankPerformanceTrend" | "topRankGrowthTrend" | "topRankRiskTrend" | "topRankMentorFeedback" | "topRankSignalWeightConfig" | "assessmentTraitLibraryItem" | "assessmentDimensionLibraryItem" | "assessmentTraitBandInterpretation" | "assessmentRiskInterpretation" | "assessmentReadinessInterpretation" | "assessmentSsbOlq" | "assessmentSsbOlqMapping" | "assessmentSsbOlqInterpretation" | "oLQScore" | "studyPlan" | "performanceAnalytics" | "revisionSchedule" | "liveClass" | "recordedLecture" | "lectureProgress" | "lecturePlaybackEvent" | "attendance" | "timetable" | "faculty" | "classroom" | "payroll" | "announcement" | "hostel" | "room" | "hostelAllocation" | "inOutEntry" | "hostelLeave" | "messMenu" | "disciplineRecord" | "paradePerformance" | "lead" | "followUp" | "admission" | "counsellingBooking" | "referral" | "payment" | "subscription" | "feeInstallment" | "invoice" | "feePlan" | "paymentTransactionLog" | "approvalRequest" | "scholarshipDiscount" | "financeDocument" | "notification" | "messageThread" | "message" | "emailLog" | "pushNotification" | "aIInterviewSession" | "aIInterviewQuestion" | "doubtQuery" | "aIRecommendation" | "aITutorSession" | "aITutorMessage" | "aITutorFeedback" | "aIResponseCache" | "learningTopicInsight" | "revisionQueueItem" | "cBTIntelligenceReport" | "contentIngestionJob" | "generatedContentAsset" | "offlineSyncEvent" | "learningAnalyticsSnapshot" | "dailyIntelligenceIssue" | "contentModerationItem" | "officerPotential" | "fitnessProfile" | "pTSchedule" | "pTAttendance" | "physicalEligibility" | "dailyFitnessLog" | "pYQCategory" | "pYQQuestion" | "currentAffair" | "currentAffairQuiz" | "quizBattle" | "quizBattleParticipant" | "leaderboard" | "mediaFolder" | "mediaFile" | "document" | "adminRole" | "permission" | "rolePermission" | "userRole" | "roleActivity" | "systemSetting" | "auditLog" | "queueJobLog" | "aIRequestLog" | "salesBoosterCampaign" | "salesBoosterMetricSnapshot" | "salesBoosterAudienceContact" | "guruQuest" | "guruLesson" | "guruLessonCompletion" | "guruReflectionQuestion" | "guruReflectionAnswer" | "guruChallenge" | "guruChallengeCompletion" | "guruProgress" | "guruAchievement" | "guruUserAchievement" | "guruCertificate" | "guruUserCertificate" | "guruDailyMission" | "guruDailyMissionCompletion" | "guruMentorNote" | "guruReflectionInsight" | "guruXpLedger" | "branch" | "institute" | "teacherAttendanceRecord" | "teacherAssignmentRecord" | "assignmentSubmissionRecord" | "teacherStudyMaterialRecord" | "teacherExamRecord" | "examImportJob" | "examUpload" | "ndieImportJob" | "ndieSourceDocument" | "ndiePage" | "ndiePageAsset" | "ndieElement" | "ndieQuestionCandidate" | "ndieAnswerKeyCandidate" | "ndieSolutionCandidate" | "ndieReviewDecision" | "ndieRevision" | "ndieReplayRun" | "ndieQualityScore" | "ndieProviderRun" | "ndieQueueJob" | "teacherCalendarLogRecord" | "teacherSyllabusProgressRecord" | "ndpReview" | "ndpManualEntry" | "academicActivityAuditRecord" | "directorExpenseRecord" | "aiWorkflowRequest" | "aiWorkflowContext" | "aiWorkflowContextSource" | "aiWorkflowDraft" | "aiWorkflowDraftVersion" | "aiWorkflowReview" | "aiWorkflowApproval" | "aiWorkflowFeedback" | "aiWorkflowPublication" | "aiWorkflowAuditEvent" | "academicLeaveRequest"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -16095,6 +16096,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    NdieQueueJob: {
+      payload: Prisma.$NdieQueueJobPayload<ExtArgs>
+      fields: Prisma.NdieQueueJobFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.NdieQueueJobFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieQueueJobPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.NdieQueueJobFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieQueueJobPayload>
+        }
+        findFirst: {
+          args: Prisma.NdieQueueJobFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieQueueJobPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.NdieQueueJobFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieQueueJobPayload>
+        }
+        findMany: {
+          args: Prisma.NdieQueueJobFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieQueueJobPayload>[]
+        }
+        create: {
+          args: Prisma.NdieQueueJobCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieQueueJobPayload>
+        }
+        createMany: {
+          args: Prisma.NdieQueueJobCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.NdieQueueJobCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieQueueJobPayload>[]
+        }
+        delete: {
+          args: Prisma.NdieQueueJobDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieQueueJobPayload>
+        }
+        update: {
+          args: Prisma.NdieQueueJobUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieQueueJobPayload>
+        }
+        deleteMany: {
+          args: Prisma.NdieQueueJobDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.NdieQueueJobUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.NdieQueueJobUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieQueueJobPayload>[]
+        }
+        upsert: {
+          args: Prisma.NdieQueueJobUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieQueueJobPayload>
+        }
+        aggregate: {
+          args: Prisma.NdieQueueJobAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateNdieQueueJob>
+        }
+        groupBy: {
+          args: Prisma.NdieQueueJobGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NdieQueueJobGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.NdieQueueJobCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NdieQueueJobCountAggregateOutputType> | number
+        }
+      }
+    }
     TeacherCalendarLogRecord: {
       payload: Prisma.$TeacherCalendarLogRecordPayload<ExtArgs>
       fields: Prisma.TeacherCalendarLogRecordFieldRefs
@@ -20623,6 +20698,17 @@ export const NdiePageScalarFieldEnum = {
   width: 'width',
   height: 'height',
   rotation: 'rotation',
+  dpi: 'dpi',
+  aspectRatio: 'aspectRatio',
+  imageSizeBytes: 'imageSizeBytes',
+  checksum: 'checksum',
+  storageProvider: 'storageProvider',
+  storageLocation: 'storageLocation',
+  pipelineVersion: 'pipelineVersion',
+  providerVersion: 'providerVersion',
+  renderDurationMs: 'renderDurationMs',
+  renderedAt: 'renderedAt',
+  diagnostics: 'diagnostics',
   renderStatus: 'renderStatus',
   imageUrl: 'imageUrl',
   imagePublicId: 'imagePublicId',
@@ -20808,6 +20894,41 @@ export const NdieProviderRunScalarFieldEnum = {
 } as const
 
 export type NdieProviderRunScalarFieldEnum = (typeof NdieProviderRunScalarFieldEnum)[keyof typeof NdieProviderRunScalarFieldEnum]
+
+
+export const NdieQueueJobScalarFieldEnum = {
+  id: 'id',
+  importJobId: 'importJobId',
+  replayRunId: 'replayRunId',
+  jobType: 'jobType',
+  stage: 'stage',
+  state: 'state',
+  provider: 'provider',
+  workerId: 'workerId',
+  progress: 'progress',
+  currentStage: 'currentStage',
+  attempts: 'attempts',
+  maxAttempts: 'maxAttempts',
+  retryDelayMs: 'retryDelayMs',
+  backoffStrategy: 'backoffStrategy',
+  retryHistory: 'retryHistory',
+  diagnostics: 'diagnostics',
+  payload: 'payload',
+  result: 'result',
+  errorCategory: 'errorCategory',
+  errorMessage: 'errorMessage',
+  queuedAt: 'queuedAt',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  failedAt: 'failedAt',
+  cancelledAt: 'cancelledAt',
+  nextRunAt: 'nextRunAt',
+  durationMs: 'durationMs',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NdieQueueJobScalarFieldEnum = (typeof NdieQueueJobScalarFieldEnum)[keyof typeof NdieQueueJobScalarFieldEnum]
 
 
 export const TeacherCalendarLogRecordScalarFieldEnum = {
@@ -21762,6 +21883,7 @@ export type GlobalOmitConfig = {
   ndieReplayRun?: Prisma.NdieReplayRunOmit
   ndieQualityScore?: Prisma.NdieQualityScoreOmit
   ndieProviderRun?: Prisma.NdieProviderRunOmit
+  ndieQueueJob?: Prisma.NdieQueueJobOmit
   teacherCalendarLogRecord?: Prisma.TeacherCalendarLogRecordOmit
   teacherSyllabusProgressRecord?: Prisma.TeacherSyllabusProgressRecordOmit
   ndpReview?: Prisma.NdpReviewOmit

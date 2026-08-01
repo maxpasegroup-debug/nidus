@@ -209,11 +209,26 @@ export interface RendererProvider extends NdieProvider {
       width?: number;
       height?: number;
       rotation?: number;
+      dpi?: number;
+      aspectRatio?: number;
+      imageSizeBytes?: number;
+      checksum?: string;
+      storageProvider?: string;
+      storageLocation?: string;
+      providerVersion?: string;
+      renderDurationMs?: number;
+      renderedAt?: string;
+      diagnostics?: Record<string, unknown>;
       imageUrl?: string;
       imagePublicId?: string;
       thumbnailUrl?: string;
+      previewImage?: { url: string; publicId: string; sizeBytes?: number; checksum?: string };
+      reviewImage?: { url: string; publicId: string; sizeBytes?: number; checksum?: string };
+      ocrImage?: { url: string; publicId: string; sizeBytes?: number; checksum?: string };
+      thumbnailImage?: { url: string; publicId: string; sizeBytes?: number; checksum?: string };
       renderStatus: string;
     }>;
+    diagnostics?: Record<string, unknown>;
     providerRun: Record<string, unknown>;
   }>;
 }

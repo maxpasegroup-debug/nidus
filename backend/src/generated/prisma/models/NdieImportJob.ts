@@ -294,6 +294,7 @@ export type NdieImportJobWhereInput = {
   replayRuns?: Prisma.NdieReplayRunListRelationFilter
   qualityScores?: Prisma.NdieQualityScoreListRelationFilter
   providerRuns?: Prisma.NdieProviderRunListRelationFilter
+  queueJobs?: Prisma.NdieQueueJobListRelationFilter
 }
 
 export type NdieImportJobOrderByWithRelationInput = {
@@ -329,6 +330,7 @@ export type NdieImportJobOrderByWithRelationInput = {
   replayRuns?: Prisma.NdieReplayRunOrderByRelationAggregateInput
   qualityScores?: Prisma.NdieQualityScoreOrderByRelationAggregateInput
   providerRuns?: Prisma.NdieProviderRunOrderByRelationAggregateInput
+  queueJobs?: Prisma.NdieQueueJobOrderByRelationAggregateInput
 }
 
 export type NdieImportJobWhereUniqueInput = Prisma.AtLeast<{
@@ -367,6 +369,7 @@ export type NdieImportJobWhereUniqueInput = Prisma.AtLeast<{
   replayRuns?: Prisma.NdieReplayRunListRelationFilter
   qualityScores?: Prisma.NdieQualityScoreListRelationFilter
   providerRuns?: Prisma.NdieProviderRunListRelationFilter
+  queueJobs?: Prisma.NdieQueueJobListRelationFilter
 }, "id">
 
 export type NdieImportJobOrderByWithAggregationInput = {
@@ -454,6 +457,7 @@ export type NdieImportJobCreateInput = {
   replayRuns?: Prisma.NdieReplayRunCreateNestedManyWithoutImportJobInput
   qualityScores?: Prisma.NdieQualityScoreCreateNestedManyWithoutImportJobInput
   providerRuns?: Prisma.NdieProviderRunCreateNestedManyWithoutImportJobInput
+  queueJobs?: Prisma.NdieQueueJobCreateNestedManyWithoutImportJobInput
 }
 
 export type NdieImportJobUncheckedCreateInput = {
@@ -489,6 +493,7 @@ export type NdieImportJobUncheckedCreateInput = {
   replayRuns?: Prisma.NdieReplayRunUncheckedCreateNestedManyWithoutImportJobInput
   qualityScores?: Prisma.NdieQualityScoreUncheckedCreateNestedManyWithoutImportJobInput
   providerRuns?: Prisma.NdieProviderRunUncheckedCreateNestedManyWithoutImportJobInput
+  queueJobs?: Prisma.NdieQueueJobUncheckedCreateNestedManyWithoutImportJobInput
 }
 
 export type NdieImportJobUpdateInput = {
@@ -524,6 +529,7 @@ export type NdieImportJobUpdateInput = {
   replayRuns?: Prisma.NdieReplayRunUpdateManyWithoutImportJobNestedInput
   qualityScores?: Prisma.NdieQualityScoreUpdateManyWithoutImportJobNestedInput
   providerRuns?: Prisma.NdieProviderRunUpdateManyWithoutImportJobNestedInput
+  queueJobs?: Prisma.NdieQueueJobUpdateManyWithoutImportJobNestedInput
 }
 
 export type NdieImportJobUncheckedUpdateInput = {
@@ -559,6 +565,7 @@ export type NdieImportJobUncheckedUpdateInput = {
   replayRuns?: Prisma.NdieReplayRunUncheckedUpdateManyWithoutImportJobNestedInput
   qualityScores?: Prisma.NdieQualityScoreUncheckedUpdateManyWithoutImportJobNestedInput
   providerRuns?: Prisma.NdieProviderRunUncheckedUpdateManyWithoutImportJobNestedInput
+  queueJobs?: Prisma.NdieQueueJobUncheckedUpdateManyWithoutImportJobNestedInput
 }
 
 export type NdieImportJobCreateManyInput = {
@@ -862,6 +869,20 @@ export type NdieImportJobUpdateOneRequiredWithoutProviderRunsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.NdieImportJobUpdateToOneWithWhereWithoutProviderRunsInput, Prisma.NdieImportJobUpdateWithoutProviderRunsInput>, Prisma.NdieImportJobUncheckedUpdateWithoutProviderRunsInput>
 }
 
+export type NdieImportJobCreateNestedOneWithoutQueueJobsInput = {
+  create?: Prisma.XOR<Prisma.NdieImportJobCreateWithoutQueueJobsInput, Prisma.NdieImportJobUncheckedCreateWithoutQueueJobsInput>
+  connectOrCreate?: Prisma.NdieImportJobCreateOrConnectWithoutQueueJobsInput
+  connect?: Prisma.NdieImportJobWhereUniqueInput
+}
+
+export type NdieImportJobUpdateOneRequiredWithoutQueueJobsNestedInput = {
+  create?: Prisma.XOR<Prisma.NdieImportJobCreateWithoutQueueJobsInput, Prisma.NdieImportJobUncheckedCreateWithoutQueueJobsInput>
+  connectOrCreate?: Prisma.NdieImportJobCreateOrConnectWithoutQueueJobsInput
+  upsert?: Prisma.NdieImportJobUpsertWithoutQueueJobsInput
+  connect?: Prisma.NdieImportJobWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.NdieImportJobUpdateToOneWithWhereWithoutQueueJobsInput, Prisma.NdieImportJobUpdateWithoutQueueJobsInput>, Prisma.NdieImportJobUncheckedUpdateWithoutQueueJobsInput>
+}
+
 export type NdieImportJobCreateWithoutSourceDocumentsInput = {
   id?: string
   legacyImportJobId?: string | null
@@ -894,6 +915,7 @@ export type NdieImportJobCreateWithoutSourceDocumentsInput = {
   replayRuns?: Prisma.NdieReplayRunCreateNestedManyWithoutImportJobInput
   qualityScores?: Prisma.NdieQualityScoreCreateNestedManyWithoutImportJobInput
   providerRuns?: Prisma.NdieProviderRunCreateNestedManyWithoutImportJobInput
+  queueJobs?: Prisma.NdieQueueJobCreateNestedManyWithoutImportJobInput
 }
 
 export type NdieImportJobUncheckedCreateWithoutSourceDocumentsInput = {
@@ -928,6 +950,7 @@ export type NdieImportJobUncheckedCreateWithoutSourceDocumentsInput = {
   replayRuns?: Prisma.NdieReplayRunUncheckedCreateNestedManyWithoutImportJobInput
   qualityScores?: Prisma.NdieQualityScoreUncheckedCreateNestedManyWithoutImportJobInput
   providerRuns?: Prisma.NdieProviderRunUncheckedCreateNestedManyWithoutImportJobInput
+  queueJobs?: Prisma.NdieQueueJobUncheckedCreateNestedManyWithoutImportJobInput
 }
 
 export type NdieImportJobCreateOrConnectWithoutSourceDocumentsInput = {
@@ -978,6 +1001,7 @@ export type NdieImportJobUpdateWithoutSourceDocumentsInput = {
   replayRuns?: Prisma.NdieReplayRunUpdateManyWithoutImportJobNestedInput
   qualityScores?: Prisma.NdieQualityScoreUpdateManyWithoutImportJobNestedInput
   providerRuns?: Prisma.NdieProviderRunUpdateManyWithoutImportJobNestedInput
+  queueJobs?: Prisma.NdieQueueJobUpdateManyWithoutImportJobNestedInput
 }
 
 export type NdieImportJobUncheckedUpdateWithoutSourceDocumentsInput = {
@@ -1012,6 +1036,7 @@ export type NdieImportJobUncheckedUpdateWithoutSourceDocumentsInput = {
   replayRuns?: Prisma.NdieReplayRunUncheckedUpdateManyWithoutImportJobNestedInput
   qualityScores?: Prisma.NdieQualityScoreUncheckedUpdateManyWithoutImportJobNestedInput
   providerRuns?: Prisma.NdieProviderRunUncheckedUpdateManyWithoutImportJobNestedInput
+  queueJobs?: Prisma.NdieQueueJobUncheckedUpdateManyWithoutImportJobNestedInput
 }
 
 export type NdieImportJobCreateWithoutPagesInput = {
@@ -1046,6 +1071,7 @@ export type NdieImportJobCreateWithoutPagesInput = {
   replayRuns?: Prisma.NdieReplayRunCreateNestedManyWithoutImportJobInput
   qualityScores?: Prisma.NdieQualityScoreCreateNestedManyWithoutImportJobInput
   providerRuns?: Prisma.NdieProviderRunCreateNestedManyWithoutImportJobInput
+  queueJobs?: Prisma.NdieQueueJobCreateNestedManyWithoutImportJobInput
 }
 
 export type NdieImportJobUncheckedCreateWithoutPagesInput = {
@@ -1080,6 +1106,7 @@ export type NdieImportJobUncheckedCreateWithoutPagesInput = {
   replayRuns?: Prisma.NdieReplayRunUncheckedCreateNestedManyWithoutImportJobInput
   qualityScores?: Prisma.NdieQualityScoreUncheckedCreateNestedManyWithoutImportJobInput
   providerRuns?: Prisma.NdieProviderRunUncheckedCreateNestedManyWithoutImportJobInput
+  queueJobs?: Prisma.NdieQueueJobUncheckedCreateNestedManyWithoutImportJobInput
 }
 
 export type NdieImportJobCreateOrConnectWithoutPagesInput = {
@@ -1130,6 +1157,7 @@ export type NdieImportJobUpdateWithoutPagesInput = {
   replayRuns?: Prisma.NdieReplayRunUpdateManyWithoutImportJobNestedInput
   qualityScores?: Prisma.NdieQualityScoreUpdateManyWithoutImportJobNestedInput
   providerRuns?: Prisma.NdieProviderRunUpdateManyWithoutImportJobNestedInput
+  queueJobs?: Prisma.NdieQueueJobUpdateManyWithoutImportJobNestedInput
 }
 
 export type NdieImportJobUncheckedUpdateWithoutPagesInput = {
@@ -1164,6 +1192,7 @@ export type NdieImportJobUncheckedUpdateWithoutPagesInput = {
   replayRuns?: Prisma.NdieReplayRunUncheckedUpdateManyWithoutImportJobNestedInput
   qualityScores?: Prisma.NdieQualityScoreUncheckedUpdateManyWithoutImportJobNestedInput
   providerRuns?: Prisma.NdieProviderRunUncheckedUpdateManyWithoutImportJobNestedInput
+  queueJobs?: Prisma.NdieQueueJobUncheckedUpdateManyWithoutImportJobNestedInput
 }
 
 export type NdieImportJobCreateWithoutAssetsInput = {
@@ -1198,6 +1227,7 @@ export type NdieImportJobCreateWithoutAssetsInput = {
   replayRuns?: Prisma.NdieReplayRunCreateNestedManyWithoutImportJobInput
   qualityScores?: Prisma.NdieQualityScoreCreateNestedManyWithoutImportJobInput
   providerRuns?: Prisma.NdieProviderRunCreateNestedManyWithoutImportJobInput
+  queueJobs?: Prisma.NdieQueueJobCreateNestedManyWithoutImportJobInput
 }
 
 export type NdieImportJobUncheckedCreateWithoutAssetsInput = {
@@ -1232,6 +1262,7 @@ export type NdieImportJobUncheckedCreateWithoutAssetsInput = {
   replayRuns?: Prisma.NdieReplayRunUncheckedCreateNestedManyWithoutImportJobInput
   qualityScores?: Prisma.NdieQualityScoreUncheckedCreateNestedManyWithoutImportJobInput
   providerRuns?: Prisma.NdieProviderRunUncheckedCreateNestedManyWithoutImportJobInput
+  queueJobs?: Prisma.NdieQueueJobUncheckedCreateNestedManyWithoutImportJobInput
 }
 
 export type NdieImportJobCreateOrConnectWithoutAssetsInput = {
@@ -1282,6 +1313,7 @@ export type NdieImportJobUpdateWithoutAssetsInput = {
   replayRuns?: Prisma.NdieReplayRunUpdateManyWithoutImportJobNestedInput
   qualityScores?: Prisma.NdieQualityScoreUpdateManyWithoutImportJobNestedInput
   providerRuns?: Prisma.NdieProviderRunUpdateManyWithoutImportJobNestedInput
+  queueJobs?: Prisma.NdieQueueJobUpdateManyWithoutImportJobNestedInput
 }
 
 export type NdieImportJobUncheckedUpdateWithoutAssetsInput = {
@@ -1316,6 +1348,7 @@ export type NdieImportJobUncheckedUpdateWithoutAssetsInput = {
   replayRuns?: Prisma.NdieReplayRunUncheckedUpdateManyWithoutImportJobNestedInput
   qualityScores?: Prisma.NdieQualityScoreUncheckedUpdateManyWithoutImportJobNestedInput
   providerRuns?: Prisma.NdieProviderRunUncheckedUpdateManyWithoutImportJobNestedInput
+  queueJobs?: Prisma.NdieQueueJobUncheckedUpdateManyWithoutImportJobNestedInput
 }
 
 export type NdieImportJobCreateWithoutElementsInput = {
@@ -1350,6 +1383,7 @@ export type NdieImportJobCreateWithoutElementsInput = {
   replayRuns?: Prisma.NdieReplayRunCreateNestedManyWithoutImportJobInput
   qualityScores?: Prisma.NdieQualityScoreCreateNestedManyWithoutImportJobInput
   providerRuns?: Prisma.NdieProviderRunCreateNestedManyWithoutImportJobInput
+  queueJobs?: Prisma.NdieQueueJobCreateNestedManyWithoutImportJobInput
 }
 
 export type NdieImportJobUncheckedCreateWithoutElementsInput = {
@@ -1384,6 +1418,7 @@ export type NdieImportJobUncheckedCreateWithoutElementsInput = {
   replayRuns?: Prisma.NdieReplayRunUncheckedCreateNestedManyWithoutImportJobInput
   qualityScores?: Prisma.NdieQualityScoreUncheckedCreateNestedManyWithoutImportJobInput
   providerRuns?: Prisma.NdieProviderRunUncheckedCreateNestedManyWithoutImportJobInput
+  queueJobs?: Prisma.NdieQueueJobUncheckedCreateNestedManyWithoutImportJobInput
 }
 
 export type NdieImportJobCreateOrConnectWithoutElementsInput = {
@@ -1434,6 +1469,7 @@ export type NdieImportJobUpdateWithoutElementsInput = {
   replayRuns?: Prisma.NdieReplayRunUpdateManyWithoutImportJobNestedInput
   qualityScores?: Prisma.NdieQualityScoreUpdateManyWithoutImportJobNestedInput
   providerRuns?: Prisma.NdieProviderRunUpdateManyWithoutImportJobNestedInput
+  queueJobs?: Prisma.NdieQueueJobUpdateManyWithoutImportJobNestedInput
 }
 
 export type NdieImportJobUncheckedUpdateWithoutElementsInput = {
@@ -1468,6 +1504,7 @@ export type NdieImportJobUncheckedUpdateWithoutElementsInput = {
   replayRuns?: Prisma.NdieReplayRunUncheckedUpdateManyWithoutImportJobNestedInput
   qualityScores?: Prisma.NdieQualityScoreUncheckedUpdateManyWithoutImportJobNestedInput
   providerRuns?: Prisma.NdieProviderRunUncheckedUpdateManyWithoutImportJobNestedInput
+  queueJobs?: Prisma.NdieQueueJobUncheckedUpdateManyWithoutImportJobNestedInput
 }
 
 export type NdieImportJobCreateWithoutQuestionCandidatesInput = {
@@ -1502,6 +1539,7 @@ export type NdieImportJobCreateWithoutQuestionCandidatesInput = {
   replayRuns?: Prisma.NdieReplayRunCreateNestedManyWithoutImportJobInput
   qualityScores?: Prisma.NdieQualityScoreCreateNestedManyWithoutImportJobInput
   providerRuns?: Prisma.NdieProviderRunCreateNestedManyWithoutImportJobInput
+  queueJobs?: Prisma.NdieQueueJobCreateNestedManyWithoutImportJobInput
 }
 
 export type NdieImportJobUncheckedCreateWithoutQuestionCandidatesInput = {
@@ -1536,6 +1574,7 @@ export type NdieImportJobUncheckedCreateWithoutQuestionCandidatesInput = {
   replayRuns?: Prisma.NdieReplayRunUncheckedCreateNestedManyWithoutImportJobInput
   qualityScores?: Prisma.NdieQualityScoreUncheckedCreateNestedManyWithoutImportJobInput
   providerRuns?: Prisma.NdieProviderRunUncheckedCreateNestedManyWithoutImportJobInput
+  queueJobs?: Prisma.NdieQueueJobUncheckedCreateNestedManyWithoutImportJobInput
 }
 
 export type NdieImportJobCreateOrConnectWithoutQuestionCandidatesInput = {
@@ -1586,6 +1625,7 @@ export type NdieImportJobUpdateWithoutQuestionCandidatesInput = {
   replayRuns?: Prisma.NdieReplayRunUpdateManyWithoutImportJobNestedInput
   qualityScores?: Prisma.NdieQualityScoreUpdateManyWithoutImportJobNestedInput
   providerRuns?: Prisma.NdieProviderRunUpdateManyWithoutImportJobNestedInput
+  queueJobs?: Prisma.NdieQueueJobUpdateManyWithoutImportJobNestedInput
 }
 
 export type NdieImportJobUncheckedUpdateWithoutQuestionCandidatesInput = {
@@ -1620,6 +1660,7 @@ export type NdieImportJobUncheckedUpdateWithoutQuestionCandidatesInput = {
   replayRuns?: Prisma.NdieReplayRunUncheckedUpdateManyWithoutImportJobNestedInput
   qualityScores?: Prisma.NdieQualityScoreUncheckedUpdateManyWithoutImportJobNestedInput
   providerRuns?: Prisma.NdieProviderRunUncheckedUpdateManyWithoutImportJobNestedInput
+  queueJobs?: Prisma.NdieQueueJobUncheckedUpdateManyWithoutImportJobNestedInput
 }
 
 export type NdieImportJobCreateWithoutAnswerKeyCandidatesInput = {
@@ -1654,6 +1695,7 @@ export type NdieImportJobCreateWithoutAnswerKeyCandidatesInput = {
   replayRuns?: Prisma.NdieReplayRunCreateNestedManyWithoutImportJobInput
   qualityScores?: Prisma.NdieQualityScoreCreateNestedManyWithoutImportJobInput
   providerRuns?: Prisma.NdieProviderRunCreateNestedManyWithoutImportJobInput
+  queueJobs?: Prisma.NdieQueueJobCreateNestedManyWithoutImportJobInput
 }
 
 export type NdieImportJobUncheckedCreateWithoutAnswerKeyCandidatesInput = {
@@ -1688,6 +1730,7 @@ export type NdieImportJobUncheckedCreateWithoutAnswerKeyCandidatesInput = {
   replayRuns?: Prisma.NdieReplayRunUncheckedCreateNestedManyWithoutImportJobInput
   qualityScores?: Prisma.NdieQualityScoreUncheckedCreateNestedManyWithoutImportJobInput
   providerRuns?: Prisma.NdieProviderRunUncheckedCreateNestedManyWithoutImportJobInput
+  queueJobs?: Prisma.NdieQueueJobUncheckedCreateNestedManyWithoutImportJobInput
 }
 
 export type NdieImportJobCreateOrConnectWithoutAnswerKeyCandidatesInput = {
@@ -1738,6 +1781,7 @@ export type NdieImportJobUpdateWithoutAnswerKeyCandidatesInput = {
   replayRuns?: Prisma.NdieReplayRunUpdateManyWithoutImportJobNestedInput
   qualityScores?: Prisma.NdieQualityScoreUpdateManyWithoutImportJobNestedInput
   providerRuns?: Prisma.NdieProviderRunUpdateManyWithoutImportJobNestedInput
+  queueJobs?: Prisma.NdieQueueJobUpdateManyWithoutImportJobNestedInput
 }
 
 export type NdieImportJobUncheckedUpdateWithoutAnswerKeyCandidatesInput = {
@@ -1772,6 +1816,7 @@ export type NdieImportJobUncheckedUpdateWithoutAnswerKeyCandidatesInput = {
   replayRuns?: Prisma.NdieReplayRunUncheckedUpdateManyWithoutImportJobNestedInput
   qualityScores?: Prisma.NdieQualityScoreUncheckedUpdateManyWithoutImportJobNestedInput
   providerRuns?: Prisma.NdieProviderRunUncheckedUpdateManyWithoutImportJobNestedInput
+  queueJobs?: Prisma.NdieQueueJobUncheckedUpdateManyWithoutImportJobNestedInput
 }
 
 export type NdieImportJobCreateWithoutSolutionCandidatesInput = {
@@ -1806,6 +1851,7 @@ export type NdieImportJobCreateWithoutSolutionCandidatesInput = {
   replayRuns?: Prisma.NdieReplayRunCreateNestedManyWithoutImportJobInput
   qualityScores?: Prisma.NdieQualityScoreCreateNestedManyWithoutImportJobInput
   providerRuns?: Prisma.NdieProviderRunCreateNestedManyWithoutImportJobInput
+  queueJobs?: Prisma.NdieQueueJobCreateNestedManyWithoutImportJobInput
 }
 
 export type NdieImportJobUncheckedCreateWithoutSolutionCandidatesInput = {
@@ -1840,6 +1886,7 @@ export type NdieImportJobUncheckedCreateWithoutSolutionCandidatesInput = {
   replayRuns?: Prisma.NdieReplayRunUncheckedCreateNestedManyWithoutImportJobInput
   qualityScores?: Prisma.NdieQualityScoreUncheckedCreateNestedManyWithoutImportJobInput
   providerRuns?: Prisma.NdieProviderRunUncheckedCreateNestedManyWithoutImportJobInput
+  queueJobs?: Prisma.NdieQueueJobUncheckedCreateNestedManyWithoutImportJobInput
 }
 
 export type NdieImportJobCreateOrConnectWithoutSolutionCandidatesInput = {
@@ -1890,6 +1937,7 @@ export type NdieImportJobUpdateWithoutSolutionCandidatesInput = {
   replayRuns?: Prisma.NdieReplayRunUpdateManyWithoutImportJobNestedInput
   qualityScores?: Prisma.NdieQualityScoreUpdateManyWithoutImportJobNestedInput
   providerRuns?: Prisma.NdieProviderRunUpdateManyWithoutImportJobNestedInput
+  queueJobs?: Prisma.NdieQueueJobUpdateManyWithoutImportJobNestedInput
 }
 
 export type NdieImportJobUncheckedUpdateWithoutSolutionCandidatesInput = {
@@ -1924,6 +1972,7 @@ export type NdieImportJobUncheckedUpdateWithoutSolutionCandidatesInput = {
   replayRuns?: Prisma.NdieReplayRunUncheckedUpdateManyWithoutImportJobNestedInput
   qualityScores?: Prisma.NdieQualityScoreUncheckedUpdateManyWithoutImportJobNestedInput
   providerRuns?: Prisma.NdieProviderRunUncheckedUpdateManyWithoutImportJobNestedInput
+  queueJobs?: Prisma.NdieQueueJobUncheckedUpdateManyWithoutImportJobNestedInput
 }
 
 export type NdieImportJobCreateWithoutReviewDecisionsInput = {
@@ -1958,6 +2007,7 @@ export type NdieImportJobCreateWithoutReviewDecisionsInput = {
   replayRuns?: Prisma.NdieReplayRunCreateNestedManyWithoutImportJobInput
   qualityScores?: Prisma.NdieQualityScoreCreateNestedManyWithoutImportJobInput
   providerRuns?: Prisma.NdieProviderRunCreateNestedManyWithoutImportJobInput
+  queueJobs?: Prisma.NdieQueueJobCreateNestedManyWithoutImportJobInput
 }
 
 export type NdieImportJobUncheckedCreateWithoutReviewDecisionsInput = {
@@ -1992,6 +2042,7 @@ export type NdieImportJobUncheckedCreateWithoutReviewDecisionsInput = {
   replayRuns?: Prisma.NdieReplayRunUncheckedCreateNestedManyWithoutImportJobInput
   qualityScores?: Prisma.NdieQualityScoreUncheckedCreateNestedManyWithoutImportJobInput
   providerRuns?: Prisma.NdieProviderRunUncheckedCreateNestedManyWithoutImportJobInput
+  queueJobs?: Prisma.NdieQueueJobUncheckedCreateNestedManyWithoutImportJobInput
 }
 
 export type NdieImportJobCreateOrConnectWithoutReviewDecisionsInput = {
@@ -2042,6 +2093,7 @@ export type NdieImportJobUpdateWithoutReviewDecisionsInput = {
   replayRuns?: Prisma.NdieReplayRunUpdateManyWithoutImportJobNestedInput
   qualityScores?: Prisma.NdieQualityScoreUpdateManyWithoutImportJobNestedInput
   providerRuns?: Prisma.NdieProviderRunUpdateManyWithoutImportJobNestedInput
+  queueJobs?: Prisma.NdieQueueJobUpdateManyWithoutImportJobNestedInput
 }
 
 export type NdieImportJobUncheckedUpdateWithoutReviewDecisionsInput = {
@@ -2076,6 +2128,7 @@ export type NdieImportJobUncheckedUpdateWithoutReviewDecisionsInput = {
   replayRuns?: Prisma.NdieReplayRunUncheckedUpdateManyWithoutImportJobNestedInput
   qualityScores?: Prisma.NdieQualityScoreUncheckedUpdateManyWithoutImportJobNestedInput
   providerRuns?: Prisma.NdieProviderRunUncheckedUpdateManyWithoutImportJobNestedInput
+  queueJobs?: Prisma.NdieQueueJobUncheckedUpdateManyWithoutImportJobNestedInput
 }
 
 export type NdieImportJobCreateWithoutRevisionsInput = {
@@ -2110,6 +2163,7 @@ export type NdieImportJobCreateWithoutRevisionsInput = {
   replayRuns?: Prisma.NdieReplayRunCreateNestedManyWithoutImportJobInput
   qualityScores?: Prisma.NdieQualityScoreCreateNestedManyWithoutImportJobInput
   providerRuns?: Prisma.NdieProviderRunCreateNestedManyWithoutImportJobInput
+  queueJobs?: Prisma.NdieQueueJobCreateNestedManyWithoutImportJobInput
 }
 
 export type NdieImportJobUncheckedCreateWithoutRevisionsInput = {
@@ -2144,6 +2198,7 @@ export type NdieImportJobUncheckedCreateWithoutRevisionsInput = {
   replayRuns?: Prisma.NdieReplayRunUncheckedCreateNestedManyWithoutImportJobInput
   qualityScores?: Prisma.NdieQualityScoreUncheckedCreateNestedManyWithoutImportJobInput
   providerRuns?: Prisma.NdieProviderRunUncheckedCreateNestedManyWithoutImportJobInput
+  queueJobs?: Prisma.NdieQueueJobUncheckedCreateNestedManyWithoutImportJobInput
 }
 
 export type NdieImportJobCreateOrConnectWithoutRevisionsInput = {
@@ -2194,6 +2249,7 @@ export type NdieImportJobUpdateWithoutRevisionsInput = {
   replayRuns?: Prisma.NdieReplayRunUpdateManyWithoutImportJobNestedInput
   qualityScores?: Prisma.NdieQualityScoreUpdateManyWithoutImportJobNestedInput
   providerRuns?: Prisma.NdieProviderRunUpdateManyWithoutImportJobNestedInput
+  queueJobs?: Prisma.NdieQueueJobUpdateManyWithoutImportJobNestedInput
 }
 
 export type NdieImportJobUncheckedUpdateWithoutRevisionsInput = {
@@ -2228,6 +2284,7 @@ export type NdieImportJobUncheckedUpdateWithoutRevisionsInput = {
   replayRuns?: Prisma.NdieReplayRunUncheckedUpdateManyWithoutImportJobNestedInput
   qualityScores?: Prisma.NdieQualityScoreUncheckedUpdateManyWithoutImportJobNestedInput
   providerRuns?: Prisma.NdieProviderRunUncheckedUpdateManyWithoutImportJobNestedInput
+  queueJobs?: Prisma.NdieQueueJobUncheckedUpdateManyWithoutImportJobNestedInput
 }
 
 export type NdieImportJobCreateWithoutReplayRunsInput = {
@@ -2262,6 +2319,7 @@ export type NdieImportJobCreateWithoutReplayRunsInput = {
   revisions?: Prisma.NdieRevisionCreateNestedManyWithoutImportJobInput
   qualityScores?: Prisma.NdieQualityScoreCreateNestedManyWithoutImportJobInput
   providerRuns?: Prisma.NdieProviderRunCreateNestedManyWithoutImportJobInput
+  queueJobs?: Prisma.NdieQueueJobCreateNestedManyWithoutImportJobInput
 }
 
 export type NdieImportJobUncheckedCreateWithoutReplayRunsInput = {
@@ -2296,6 +2354,7 @@ export type NdieImportJobUncheckedCreateWithoutReplayRunsInput = {
   revisions?: Prisma.NdieRevisionUncheckedCreateNestedManyWithoutImportJobInput
   qualityScores?: Prisma.NdieQualityScoreUncheckedCreateNestedManyWithoutImportJobInput
   providerRuns?: Prisma.NdieProviderRunUncheckedCreateNestedManyWithoutImportJobInput
+  queueJobs?: Prisma.NdieQueueJobUncheckedCreateNestedManyWithoutImportJobInput
 }
 
 export type NdieImportJobCreateOrConnectWithoutReplayRunsInput = {
@@ -2346,6 +2405,7 @@ export type NdieImportJobUpdateWithoutReplayRunsInput = {
   revisions?: Prisma.NdieRevisionUpdateManyWithoutImportJobNestedInput
   qualityScores?: Prisma.NdieQualityScoreUpdateManyWithoutImportJobNestedInput
   providerRuns?: Prisma.NdieProviderRunUpdateManyWithoutImportJobNestedInput
+  queueJobs?: Prisma.NdieQueueJobUpdateManyWithoutImportJobNestedInput
 }
 
 export type NdieImportJobUncheckedUpdateWithoutReplayRunsInput = {
@@ -2380,6 +2440,7 @@ export type NdieImportJobUncheckedUpdateWithoutReplayRunsInput = {
   revisions?: Prisma.NdieRevisionUncheckedUpdateManyWithoutImportJobNestedInput
   qualityScores?: Prisma.NdieQualityScoreUncheckedUpdateManyWithoutImportJobNestedInput
   providerRuns?: Prisma.NdieProviderRunUncheckedUpdateManyWithoutImportJobNestedInput
+  queueJobs?: Prisma.NdieQueueJobUncheckedUpdateManyWithoutImportJobNestedInput
 }
 
 export type NdieImportJobCreateWithoutQualityScoresInput = {
@@ -2414,6 +2475,7 @@ export type NdieImportJobCreateWithoutQualityScoresInput = {
   revisions?: Prisma.NdieRevisionCreateNestedManyWithoutImportJobInput
   replayRuns?: Prisma.NdieReplayRunCreateNestedManyWithoutImportJobInput
   providerRuns?: Prisma.NdieProviderRunCreateNestedManyWithoutImportJobInput
+  queueJobs?: Prisma.NdieQueueJobCreateNestedManyWithoutImportJobInput
 }
 
 export type NdieImportJobUncheckedCreateWithoutQualityScoresInput = {
@@ -2448,6 +2510,7 @@ export type NdieImportJobUncheckedCreateWithoutQualityScoresInput = {
   revisions?: Prisma.NdieRevisionUncheckedCreateNestedManyWithoutImportJobInput
   replayRuns?: Prisma.NdieReplayRunUncheckedCreateNestedManyWithoutImportJobInput
   providerRuns?: Prisma.NdieProviderRunUncheckedCreateNestedManyWithoutImportJobInput
+  queueJobs?: Prisma.NdieQueueJobUncheckedCreateNestedManyWithoutImportJobInput
 }
 
 export type NdieImportJobCreateOrConnectWithoutQualityScoresInput = {
@@ -2498,6 +2561,7 @@ export type NdieImportJobUpdateWithoutQualityScoresInput = {
   revisions?: Prisma.NdieRevisionUpdateManyWithoutImportJobNestedInput
   replayRuns?: Prisma.NdieReplayRunUpdateManyWithoutImportJobNestedInput
   providerRuns?: Prisma.NdieProviderRunUpdateManyWithoutImportJobNestedInput
+  queueJobs?: Prisma.NdieQueueJobUpdateManyWithoutImportJobNestedInput
 }
 
 export type NdieImportJobUncheckedUpdateWithoutQualityScoresInput = {
@@ -2532,6 +2596,7 @@ export type NdieImportJobUncheckedUpdateWithoutQualityScoresInput = {
   revisions?: Prisma.NdieRevisionUncheckedUpdateManyWithoutImportJobNestedInput
   replayRuns?: Prisma.NdieReplayRunUncheckedUpdateManyWithoutImportJobNestedInput
   providerRuns?: Prisma.NdieProviderRunUncheckedUpdateManyWithoutImportJobNestedInput
+  queueJobs?: Prisma.NdieQueueJobUncheckedUpdateManyWithoutImportJobNestedInput
 }
 
 export type NdieImportJobCreateWithoutProviderRunsInput = {
@@ -2566,6 +2631,7 @@ export type NdieImportJobCreateWithoutProviderRunsInput = {
   revisions?: Prisma.NdieRevisionCreateNestedManyWithoutImportJobInput
   replayRuns?: Prisma.NdieReplayRunCreateNestedManyWithoutImportJobInput
   qualityScores?: Prisma.NdieQualityScoreCreateNestedManyWithoutImportJobInput
+  queueJobs?: Prisma.NdieQueueJobCreateNestedManyWithoutImportJobInput
 }
 
 export type NdieImportJobUncheckedCreateWithoutProviderRunsInput = {
@@ -2600,6 +2666,7 @@ export type NdieImportJobUncheckedCreateWithoutProviderRunsInput = {
   revisions?: Prisma.NdieRevisionUncheckedCreateNestedManyWithoutImportJobInput
   replayRuns?: Prisma.NdieReplayRunUncheckedCreateNestedManyWithoutImportJobInput
   qualityScores?: Prisma.NdieQualityScoreUncheckedCreateNestedManyWithoutImportJobInput
+  queueJobs?: Prisma.NdieQueueJobUncheckedCreateNestedManyWithoutImportJobInput
 }
 
 export type NdieImportJobCreateOrConnectWithoutProviderRunsInput = {
@@ -2650,6 +2717,7 @@ export type NdieImportJobUpdateWithoutProviderRunsInput = {
   revisions?: Prisma.NdieRevisionUpdateManyWithoutImportJobNestedInput
   replayRuns?: Prisma.NdieReplayRunUpdateManyWithoutImportJobNestedInput
   qualityScores?: Prisma.NdieQualityScoreUpdateManyWithoutImportJobNestedInput
+  queueJobs?: Prisma.NdieQueueJobUpdateManyWithoutImportJobNestedInput
 }
 
 export type NdieImportJobUncheckedUpdateWithoutProviderRunsInput = {
@@ -2684,6 +2752,163 @@ export type NdieImportJobUncheckedUpdateWithoutProviderRunsInput = {
   revisions?: Prisma.NdieRevisionUncheckedUpdateManyWithoutImportJobNestedInput
   replayRuns?: Prisma.NdieReplayRunUncheckedUpdateManyWithoutImportJobNestedInput
   qualityScores?: Prisma.NdieQualityScoreUncheckedUpdateManyWithoutImportJobNestedInput
+  queueJobs?: Prisma.NdieQueueJobUncheckedUpdateManyWithoutImportJobNestedInput
+}
+
+export type NdieImportJobCreateWithoutQueueJobsInput = {
+  id?: string
+  legacyImportJobId?: string | null
+  examId?: string | null
+  testId?: string | null
+  batchId?: string | null
+  subject?: string | null
+  topic?: string | null
+  sourceKind?: string
+  status?: string
+  reviewStatus?: string
+  pipelineVersion?: string
+  manifest?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  checkpoints?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentCheckpoint?: string | null
+  qualitySummary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  providerSummary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  teacherSummary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  uploadedBy: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sourceDocuments?: Prisma.NdieSourceDocumentCreateNestedManyWithoutImportJobInput
+  pages?: Prisma.NdiePageCreateNestedManyWithoutImportJobInput
+  assets?: Prisma.NdiePageAssetCreateNestedManyWithoutImportJobInput
+  elements?: Prisma.NdieElementCreateNestedManyWithoutImportJobInput
+  questionCandidates?: Prisma.NdieQuestionCandidateCreateNestedManyWithoutImportJobInput
+  answerKeyCandidates?: Prisma.NdieAnswerKeyCandidateCreateNestedManyWithoutImportJobInput
+  solutionCandidates?: Prisma.NdieSolutionCandidateCreateNestedManyWithoutImportJobInput
+  reviewDecisions?: Prisma.NdieReviewDecisionCreateNestedManyWithoutImportJobInput
+  revisions?: Prisma.NdieRevisionCreateNestedManyWithoutImportJobInput
+  replayRuns?: Prisma.NdieReplayRunCreateNestedManyWithoutImportJobInput
+  qualityScores?: Prisma.NdieQualityScoreCreateNestedManyWithoutImportJobInput
+  providerRuns?: Prisma.NdieProviderRunCreateNestedManyWithoutImportJobInput
+}
+
+export type NdieImportJobUncheckedCreateWithoutQueueJobsInput = {
+  id?: string
+  legacyImportJobId?: string | null
+  examId?: string | null
+  testId?: string | null
+  batchId?: string | null
+  subject?: string | null
+  topic?: string | null
+  sourceKind?: string
+  status?: string
+  reviewStatus?: string
+  pipelineVersion?: string
+  manifest?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  checkpoints?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentCheckpoint?: string | null
+  qualitySummary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  providerSummary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  teacherSummary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  uploadedBy: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sourceDocuments?: Prisma.NdieSourceDocumentUncheckedCreateNestedManyWithoutImportJobInput
+  pages?: Prisma.NdiePageUncheckedCreateNestedManyWithoutImportJobInput
+  assets?: Prisma.NdiePageAssetUncheckedCreateNestedManyWithoutImportJobInput
+  elements?: Prisma.NdieElementUncheckedCreateNestedManyWithoutImportJobInput
+  questionCandidates?: Prisma.NdieQuestionCandidateUncheckedCreateNestedManyWithoutImportJobInput
+  answerKeyCandidates?: Prisma.NdieAnswerKeyCandidateUncheckedCreateNestedManyWithoutImportJobInput
+  solutionCandidates?: Prisma.NdieSolutionCandidateUncheckedCreateNestedManyWithoutImportJobInput
+  reviewDecisions?: Prisma.NdieReviewDecisionUncheckedCreateNestedManyWithoutImportJobInput
+  revisions?: Prisma.NdieRevisionUncheckedCreateNestedManyWithoutImportJobInput
+  replayRuns?: Prisma.NdieReplayRunUncheckedCreateNestedManyWithoutImportJobInput
+  qualityScores?: Prisma.NdieQualityScoreUncheckedCreateNestedManyWithoutImportJobInput
+  providerRuns?: Prisma.NdieProviderRunUncheckedCreateNestedManyWithoutImportJobInput
+}
+
+export type NdieImportJobCreateOrConnectWithoutQueueJobsInput = {
+  where: Prisma.NdieImportJobWhereUniqueInput
+  create: Prisma.XOR<Prisma.NdieImportJobCreateWithoutQueueJobsInput, Prisma.NdieImportJobUncheckedCreateWithoutQueueJobsInput>
+}
+
+export type NdieImportJobUpsertWithoutQueueJobsInput = {
+  update: Prisma.XOR<Prisma.NdieImportJobUpdateWithoutQueueJobsInput, Prisma.NdieImportJobUncheckedUpdateWithoutQueueJobsInput>
+  create: Prisma.XOR<Prisma.NdieImportJobCreateWithoutQueueJobsInput, Prisma.NdieImportJobUncheckedCreateWithoutQueueJobsInput>
+  where?: Prisma.NdieImportJobWhereInput
+}
+
+export type NdieImportJobUpdateToOneWithWhereWithoutQueueJobsInput = {
+  where?: Prisma.NdieImportJobWhereInput
+  data: Prisma.XOR<Prisma.NdieImportJobUpdateWithoutQueueJobsInput, Prisma.NdieImportJobUncheckedUpdateWithoutQueueJobsInput>
+}
+
+export type NdieImportJobUpdateWithoutQueueJobsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyImportJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  examId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  testId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  batchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  pipelineVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  manifest?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  checkpoints?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentCheckpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qualitySummary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  providerSummary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  teacherSummary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  uploadedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sourceDocuments?: Prisma.NdieSourceDocumentUpdateManyWithoutImportJobNestedInput
+  pages?: Prisma.NdiePageUpdateManyWithoutImportJobNestedInput
+  assets?: Prisma.NdiePageAssetUpdateManyWithoutImportJobNestedInput
+  elements?: Prisma.NdieElementUpdateManyWithoutImportJobNestedInput
+  questionCandidates?: Prisma.NdieQuestionCandidateUpdateManyWithoutImportJobNestedInput
+  answerKeyCandidates?: Prisma.NdieAnswerKeyCandidateUpdateManyWithoutImportJobNestedInput
+  solutionCandidates?: Prisma.NdieSolutionCandidateUpdateManyWithoutImportJobNestedInput
+  reviewDecisions?: Prisma.NdieReviewDecisionUpdateManyWithoutImportJobNestedInput
+  revisions?: Prisma.NdieRevisionUpdateManyWithoutImportJobNestedInput
+  replayRuns?: Prisma.NdieReplayRunUpdateManyWithoutImportJobNestedInput
+  qualityScores?: Prisma.NdieQualityScoreUpdateManyWithoutImportJobNestedInput
+  providerRuns?: Prisma.NdieProviderRunUpdateManyWithoutImportJobNestedInput
+}
+
+export type NdieImportJobUncheckedUpdateWithoutQueueJobsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyImportJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  examId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  testId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  batchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  pipelineVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  manifest?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  checkpoints?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentCheckpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qualitySummary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  providerSummary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  teacherSummary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  uploadedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sourceDocuments?: Prisma.NdieSourceDocumentUncheckedUpdateManyWithoutImportJobNestedInput
+  pages?: Prisma.NdiePageUncheckedUpdateManyWithoutImportJobNestedInput
+  assets?: Prisma.NdiePageAssetUncheckedUpdateManyWithoutImportJobNestedInput
+  elements?: Prisma.NdieElementUncheckedUpdateManyWithoutImportJobNestedInput
+  questionCandidates?: Prisma.NdieQuestionCandidateUncheckedUpdateManyWithoutImportJobNestedInput
+  answerKeyCandidates?: Prisma.NdieAnswerKeyCandidateUncheckedUpdateManyWithoutImportJobNestedInput
+  solutionCandidates?: Prisma.NdieSolutionCandidateUncheckedUpdateManyWithoutImportJobNestedInput
+  reviewDecisions?: Prisma.NdieReviewDecisionUncheckedUpdateManyWithoutImportJobNestedInput
+  revisions?: Prisma.NdieRevisionUncheckedUpdateManyWithoutImportJobNestedInput
+  replayRuns?: Prisma.NdieReplayRunUncheckedUpdateManyWithoutImportJobNestedInput
+  qualityScores?: Prisma.NdieQualityScoreUncheckedUpdateManyWithoutImportJobNestedInput
+  providerRuns?: Prisma.NdieProviderRunUncheckedUpdateManyWithoutImportJobNestedInput
 }
 
 
@@ -2704,6 +2929,7 @@ export type NdieImportJobCountOutputType = {
   replayRuns: number
   qualityScores: number
   providerRuns: number
+  queueJobs: number
 }
 
 export type NdieImportJobCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2719,6 +2945,7 @@ export type NdieImportJobCountOutputTypeSelect<ExtArgs extends runtime.Types.Ext
   replayRuns?: boolean | NdieImportJobCountOutputTypeCountReplayRunsArgs
   qualityScores?: boolean | NdieImportJobCountOutputTypeCountQualityScoresArgs
   providerRuns?: boolean | NdieImportJobCountOutputTypeCountProviderRunsArgs
+  queueJobs?: boolean | NdieImportJobCountOutputTypeCountQueueJobsArgs
 }
 
 /**
@@ -2815,6 +3042,13 @@ export type NdieImportJobCountOutputTypeCountProviderRunsArgs<ExtArgs extends ru
   where?: Prisma.NdieProviderRunWhereInput
 }
 
+/**
+ * NdieImportJobCountOutputType without action
+ */
+export type NdieImportJobCountOutputTypeCountQueueJobsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.NdieQueueJobWhereInput
+}
+
 
 export type NdieImportJobSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2849,6 +3083,7 @@ export type NdieImportJobSelect<ExtArgs extends runtime.Types.Extensions.Interna
   replayRuns?: boolean | Prisma.NdieImportJob$replayRunsArgs<ExtArgs>
   qualityScores?: boolean | Prisma.NdieImportJob$qualityScoresArgs<ExtArgs>
   providerRuns?: boolean | Prisma.NdieImportJob$providerRunsArgs<ExtArgs>
+  queueJobs?: boolean | Prisma.NdieImportJob$queueJobsArgs<ExtArgs>
   _count?: boolean | Prisma.NdieImportJobCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["ndieImportJob"]>
 
@@ -2935,6 +3170,7 @@ export type NdieImportJobInclude<ExtArgs extends runtime.Types.Extensions.Intern
   replayRuns?: boolean | Prisma.NdieImportJob$replayRunsArgs<ExtArgs>
   qualityScores?: boolean | Prisma.NdieImportJob$qualityScoresArgs<ExtArgs>
   providerRuns?: boolean | Prisma.NdieImportJob$providerRunsArgs<ExtArgs>
+  queueJobs?: boolean | Prisma.NdieImportJob$queueJobsArgs<ExtArgs>
   _count?: boolean | Prisma.NdieImportJobCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type NdieImportJobIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -2955,6 +3191,7 @@ export type $NdieImportJobPayload<ExtArgs extends runtime.Types.Extensions.Inter
     replayRuns: Prisma.$NdieReplayRunPayload<ExtArgs>[]
     qualityScores: Prisma.$NdieQualityScorePayload<ExtArgs>[]
     providerRuns: Prisma.$NdieProviderRunPayload<ExtArgs>[]
+    queueJobs: Prisma.$NdieQueueJobPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -3383,6 +3620,7 @@ export interface Prisma__NdieImportJobClient<T, Null = never, ExtArgs extends ru
   replayRuns<T extends Prisma.NdieImportJob$replayRunsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.NdieImportJob$replayRunsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NdieReplayRunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   qualityScores<T extends Prisma.NdieImportJob$qualityScoresArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.NdieImportJob$qualityScoresArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NdieQualityScorePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   providerRuns<T extends Prisma.NdieImportJob$providerRunsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.NdieImportJob$providerRunsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NdieProviderRunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  queueJobs<T extends Prisma.NdieImportJob$queueJobsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.NdieImportJob$queueJobsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NdieQueueJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4110,6 +4348,30 @@ export type NdieImportJob$providerRunsArgs<ExtArgs extends runtime.Types.Extensi
   take?: number
   skip?: number
   distinct?: Prisma.NdieProviderRunScalarFieldEnum | Prisma.NdieProviderRunScalarFieldEnum[]
+}
+
+/**
+ * NdieImportJob.queueJobs
+ */
+export type NdieImportJob$queueJobsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the NdieQueueJob
+   */
+  select?: Prisma.NdieQueueJobSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the NdieQueueJob
+   */
+  omit?: Prisma.NdieQueueJobOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.NdieQueueJobInclude<ExtArgs> | null
+  where?: Prisma.NdieQueueJobWhereInput
+  orderBy?: Prisma.NdieQueueJobOrderByWithRelationInput | Prisma.NdieQueueJobOrderByWithRelationInput[]
+  cursor?: Prisma.NdieQueueJobWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.NdieQueueJobScalarFieldEnum | Prisma.NdieQueueJobScalarFieldEnum[]
 }
 
 /**

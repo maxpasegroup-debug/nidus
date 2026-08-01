@@ -1,10 +1,6 @@
 import type { Prisma } from "../../../generated/prisma/client.js";
 import { prisma } from "../../../config/prisma.js";
-import { ndieAiValidatorService } from "../ai-validator/ai-validator.service.js";
-import { ndieAnswerKeyMapperService } from "../answer-key-mapper/answer-key-mapper.service.js";
-import { ndieLayoutAnalyzerService } from "../layout-analyzer/layout-analyzer.service.js";
-import { ndieQuestionDetectorService } from "../question-detector/question-detector.service.js";
-import { ndieVisualDetectorService } from "../visual-detector/visual-detector.service.js";
+import { ndieQueueService } from "../queue/queue.service.js";
 
 export type NdieReplayInput = {
   importJobId: string;
@@ -70,15 +66,6 @@ function diff(before: Awaited<ReturnType<typeof snapshot>>, after: Awaited<Retur
   };
 }
 
-async function runStage(importJobId: string, stage: string) {
-  if (stage === "LAYOUT") return ndieLayoutAnalyzerService.analyzeImport(importJobId);
-  if (stage === "VISUALS") return ndieVisualDetectorService.detectImport(importJobId);
-  if (stage === "QUESTIONS") return ndieQuestionDetectorService.detectImport(importJobId);
-  if (stage === "ANSWERS") return ndieAnswerKeyMapperService.mapImport(importJobId);
-  if (stage === "AI_VALIDATION") return ndieAiValidatorService.validateImport(importJobId);
-  return { skipped: true, reason: `Unknown NDIE replay stage: ${stage}` };
-}
-
 export const ndieImportReplayService = {
   async replay(input: NdieReplayInput) {
     const importJob = await prisma.ndieImportJob.findUnique({ where: { id: input.importJobId } });
@@ -92,57 +79,31 @@ export const ndieImportReplayService = {
         requestedBy: input.requestedBy || null,
         fromVersion: input.fromVersion || importJob.pipelineVersion,
         toVersion: input.toVersion || importJob.pipelineVersion,
-        status: "RUNNING",
+        status: "QUEUED",
         checkpoint: input.fromCheckpoint || importJob.currentCheckpoint || "REQUESTED",
         comparisonJson: { before, stages } as Prisma.InputJsonValue
       }
     });
 
-    const stageResults: Array<Record<string, unknown>> = [];
-    try {
-      for (const stage of stages) {
-        const startedAt = Date.now();
-        const result = await runStage(input.importJobId, stage);
-        stageResults.push({
-          stage,
-          durationMs: Date.now() - startedAt,
-          result
-        });
+    const queueJob = await ndieQueueService.enqueueReplay({
+      importJobId: input.importJobId,
+      replayRunId: run.id,
+      stages,
+      requestedBy: input.requestedBy
+    });
+    const after = await snapshot(input.importJobId);
+    return prisma.ndieReplayRun.update({
+      where: { id: run.id },
+      data: {
+        checkpoint: queueJob.stage,
+        comparisonJson: {
+          replayRunId: run.id,
+          queueJobId: queueJob.id,
+          stages,
+          ...diff(before, after)
+        } as Prisma.InputJsonValue
       }
-
-      const after = await snapshot(input.importJobId);
-      const comparison = {
-        replayRunId: run.id,
-        stages,
-        stageResults,
-        ...diff(before, after)
-      };
-
-      return prisma.ndieReplayRun.update({
-        where: { id: run.id },
-        data: {
-          status: "SUCCEEDED",
-          checkpoint: stages.at(-1) || run.checkpoint,
-          comparisonJson: comparison as Prisma.InputJsonValue,
-          completedAt: new Date()
-        }
-      });
-    } catch (error) {
-      await prisma.ndieReplayRun.update({
-        where: { id: run.id },
-        data: {
-          status: "FAILED",
-          comparisonJson: {
-            before,
-            stages,
-            stageResults,
-            error: error instanceof Error ? error.message : "Replay failed"
-          } as Prisma.InputJsonValue,
-          completedAt: new Date()
-        }
-      });
-      throw error;
-    }
+    });
   },
 
   async list(importJobId: string) {

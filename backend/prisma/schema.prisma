@@ -3937,6 +3937,7 @@ model NdieImportJob {
   replayRuns           NdieReplayRun[]
   qualityScores        NdieQualityScore[]
   providerRuns         NdieProviderRun[]
+  queueJobs            NdieQueueJob[]
 
   @@index([legacyImportJobId])
   @@index([examId])
@@ -3991,6 +3992,17 @@ model NdiePage {
   width            Float?
   height           Float?
   rotation         Float?
+  dpi              Int?
+  aspectRatio      Float?
+  imageSizeBytes   Int?
+  checksum         String?
+  storageProvider  String?
+  storageLocation  String?
+  pipelineVersion  String?
+  providerVersion  String?
+  renderDurationMs Int?
+  renderedAt       DateTime?
+  diagnostics      Json?
   renderStatus     String   @default("PENDING_RENDER")
   imageUrl         String?
   imagePublicId    String?
@@ -4234,6 +4246,50 @@ model NdieProviderRun {
   @@index([providerKind])
   @@index([stage])
   @@index([status])
+}
+
+model NdieQueueJob {
+  id              String   @id @default(cuid())
+  importJobId     String
+  replayRunId     String?
+  jobType         String
+  stage           String
+  state           String   @default("QUEUED")
+  provider        String   @default("database")
+  workerId        String?
+  progress        Int      @default(0)
+  currentStage    String?
+  attempts        Int      @default(0)
+  maxAttempts     Int      @default(3)
+  retryDelayMs    Int      @default(30000)
+  backoffStrategy String   @default("EXPONENTIAL")
+  retryHistory    Json?
+  diagnostics     Json?
+  payload         Json?
+  result          Json?
+  errorCategory   String?
+  errorMessage    String?
+  queuedAt        DateTime @default(now())
+  startedAt       DateTime?
+  completedAt     DateTime?
+  failedAt        DateTime?
+  cancelledAt     DateTime?
+  nextRunAt       DateTime?
+  durationMs      Int?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  importJob       NdieImportJob @relation(fields: [importJobId], references: [id], onDelete: Cascade)
+
+  @@index([importJobId])
+  @@index([replayRunId])
+  @@index([jobType])
+  @@index([stage])
+  @@index([state])
+  @@index([provider])
+  @@index([workerId])
+  @@index([nextRunAt])
+  @@index([queuedAt])
 }
 
 model TeacherCalendarLogRecord {

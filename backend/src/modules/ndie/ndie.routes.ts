@@ -24,6 +24,7 @@ ndieRouter.post("/imports/:id/validate-ai", ndieController.validateAi);
 ndieRouter.get("/imports/:id/review", ndieController.reviewWorkspace);
 ndieRouter.post("/imports/:id/publish", ndieController.publish);
 ndieRouter.post("/imports/:id/replay", ndieController.replay);
+ndieRouter.post("/imports/:id/cancel", ndieController.cancelImport);
 ndieRouter.get("/imports/:id/replay-runs", ndieController.replayRuns);
 ndieRouter.post("/imports/:id/quality-report", ndieController.qualityReport);
 ndieRouter.patch("/questions/:candidateId/review", ndieController.reviewCandidate);

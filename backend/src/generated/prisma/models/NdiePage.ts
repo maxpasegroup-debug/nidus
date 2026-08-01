@@ -31,6 +31,10 @@ export type NdiePageAvgAggregateOutputType = {
   width: number | null
   height: number | null
   rotation: number | null
+  dpi: number | null
+  aspectRatio: number | null
+  imageSizeBytes: number | null
+  renderDurationMs: number | null
 }
 
 export type NdiePageSumAggregateOutputType = {
@@ -38,6 +42,10 @@ export type NdiePageSumAggregateOutputType = {
   width: number | null
   height: number | null
   rotation: number | null
+  dpi: number | null
+  aspectRatio: number | null
+  imageSizeBytes: number | null
+  renderDurationMs: number | null
 }
 
 export type NdiePageMinAggregateOutputType = {
@@ -48,6 +56,16 @@ export type NdiePageMinAggregateOutputType = {
   width: number | null
   height: number | null
   rotation: number | null
+  dpi: number | null
+  aspectRatio: number | null
+  imageSizeBytes: number | null
+  checksum: string | null
+  storageProvider: string | null
+  storageLocation: string | null
+  pipelineVersion: string | null
+  providerVersion: string | null
+  renderDurationMs: number | null
+  renderedAt: Date | null
   renderStatus: string | null
   imageUrl: string | null
   imagePublicId: string | null
@@ -66,6 +84,16 @@ export type NdiePageMaxAggregateOutputType = {
   width: number | null
   height: number | null
   rotation: number | null
+  dpi: number | null
+  aspectRatio: number | null
+  imageSizeBytes: number | null
+  checksum: string | null
+  storageProvider: string | null
+  storageLocation: string | null
+  pipelineVersion: string | null
+  providerVersion: string | null
+  renderDurationMs: number | null
+  renderedAt: Date | null
   renderStatus: string | null
   imageUrl: string | null
   imagePublicId: string | null
@@ -84,6 +112,17 @@ export type NdiePageCountAggregateOutputType = {
   width: number
   height: number
   rotation: number
+  dpi: number
+  aspectRatio: number
+  imageSizeBytes: number
+  checksum: number
+  storageProvider: number
+  storageLocation: number
+  pipelineVersion: number
+  providerVersion: number
+  renderDurationMs: number
+  renderedAt: number
+  diagnostics: number
   renderStatus: number
   imageUrl: number
   imagePublicId: number
@@ -103,6 +142,10 @@ export type NdiePageAvgAggregateInputType = {
   width?: true
   height?: true
   rotation?: true
+  dpi?: true
+  aspectRatio?: true
+  imageSizeBytes?: true
+  renderDurationMs?: true
 }
 
 export type NdiePageSumAggregateInputType = {
@@ -110,6 +153,10 @@ export type NdiePageSumAggregateInputType = {
   width?: true
   height?: true
   rotation?: true
+  dpi?: true
+  aspectRatio?: true
+  imageSizeBytes?: true
+  renderDurationMs?: true
 }
 
 export type NdiePageMinAggregateInputType = {
@@ -120,6 +167,16 @@ export type NdiePageMinAggregateInputType = {
   width?: true
   height?: true
   rotation?: true
+  dpi?: true
+  aspectRatio?: true
+  imageSizeBytes?: true
+  checksum?: true
+  storageProvider?: true
+  storageLocation?: true
+  pipelineVersion?: true
+  providerVersion?: true
+  renderDurationMs?: true
+  renderedAt?: true
   renderStatus?: true
   imageUrl?: true
   imagePublicId?: true
@@ -138,6 +195,16 @@ export type NdiePageMaxAggregateInputType = {
   width?: true
   height?: true
   rotation?: true
+  dpi?: true
+  aspectRatio?: true
+  imageSizeBytes?: true
+  checksum?: true
+  storageProvider?: true
+  storageLocation?: true
+  pipelineVersion?: true
+  providerVersion?: true
+  renderDurationMs?: true
+  renderedAt?: true
   renderStatus?: true
   imageUrl?: true
   imagePublicId?: true
@@ -156,6 +223,17 @@ export type NdiePageCountAggregateInputType = {
   width?: true
   height?: true
   rotation?: true
+  dpi?: true
+  aspectRatio?: true
+  imageSizeBytes?: true
+  checksum?: true
+  storageProvider?: true
+  storageLocation?: true
+  pipelineVersion?: true
+  providerVersion?: true
+  renderDurationMs?: true
+  renderedAt?: true
+  diagnostics?: true
   renderStatus?: true
   imageUrl?: true
   imagePublicId?: true
@@ -263,6 +341,17 @@ export type NdiePageGroupByOutputType = {
   width: number | null
   height: number | null
   rotation: number | null
+  dpi: number | null
+  aspectRatio: number | null
+  imageSizeBytes: number | null
+  checksum: string | null
+  storageProvider: string | null
+  storageLocation: string | null
+  pipelineVersion: string | null
+  providerVersion: string | null
+  renderDurationMs: number | null
+  renderedAt: Date | null
+  diagnostics: runtime.JsonValue | null
   renderStatus: string
   imageUrl: string | null
   imagePublicId: string | null
@@ -306,6 +395,17 @@ export type NdiePageWhereInput = {
   width?: Prisma.FloatNullableFilter<"NdiePage"> | number | null
   height?: Prisma.FloatNullableFilter<"NdiePage"> | number | null
   rotation?: Prisma.FloatNullableFilter<"NdiePage"> | number | null
+  dpi?: Prisma.IntNullableFilter<"NdiePage"> | number | null
+  aspectRatio?: Prisma.FloatNullableFilter<"NdiePage"> | number | null
+  imageSizeBytes?: Prisma.IntNullableFilter<"NdiePage"> | number | null
+  checksum?: Prisma.StringNullableFilter<"NdiePage"> | string | null
+  storageProvider?: Prisma.StringNullableFilter<"NdiePage"> | string | null
+  storageLocation?: Prisma.StringNullableFilter<"NdiePage"> | string | null
+  pipelineVersion?: Prisma.StringNullableFilter<"NdiePage"> | string | null
+  providerVersion?: Prisma.StringNullableFilter<"NdiePage"> | string | null
+  renderDurationMs?: Prisma.IntNullableFilter<"NdiePage"> | number | null
+  renderedAt?: Prisma.DateTimeNullableFilter<"NdiePage"> | Date | string | null
+  diagnostics?: Prisma.JsonNullableFilter<"NdiePage">
   renderStatus?: Prisma.StringFilter<"NdiePage"> | string
   imageUrl?: Prisma.StringNullableFilter<"NdiePage"> | string | null
   imagePublicId?: Prisma.StringNullableFilter<"NdiePage"> | string | null
@@ -330,6 +430,17 @@ export type NdiePageOrderByWithRelationInput = {
   width?: Prisma.SortOrderInput | Prisma.SortOrder
   height?: Prisma.SortOrderInput | Prisma.SortOrder
   rotation?: Prisma.SortOrderInput | Prisma.SortOrder
+  dpi?: Prisma.SortOrderInput | Prisma.SortOrder
+  aspectRatio?: Prisma.SortOrderInput | Prisma.SortOrder
+  imageSizeBytes?: Prisma.SortOrderInput | Prisma.SortOrder
+  checksum?: Prisma.SortOrderInput | Prisma.SortOrder
+  storageProvider?: Prisma.SortOrderInput | Prisma.SortOrder
+  storageLocation?: Prisma.SortOrderInput | Prisma.SortOrder
+  pipelineVersion?: Prisma.SortOrderInput | Prisma.SortOrder
+  providerVersion?: Prisma.SortOrderInput | Prisma.SortOrder
+  renderDurationMs?: Prisma.SortOrderInput | Prisma.SortOrder
+  renderedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  diagnostics?: Prisma.SortOrderInput | Prisma.SortOrder
   renderStatus?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePublicId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -358,6 +469,17 @@ export type NdiePageWhereUniqueInput = Prisma.AtLeast<{
   width?: Prisma.FloatNullableFilter<"NdiePage"> | number | null
   height?: Prisma.FloatNullableFilter<"NdiePage"> | number | null
   rotation?: Prisma.FloatNullableFilter<"NdiePage"> | number | null
+  dpi?: Prisma.IntNullableFilter<"NdiePage"> | number | null
+  aspectRatio?: Prisma.FloatNullableFilter<"NdiePage"> | number | null
+  imageSizeBytes?: Prisma.IntNullableFilter<"NdiePage"> | number | null
+  checksum?: Prisma.StringNullableFilter<"NdiePage"> | string | null
+  storageProvider?: Prisma.StringNullableFilter<"NdiePage"> | string | null
+  storageLocation?: Prisma.StringNullableFilter<"NdiePage"> | string | null
+  pipelineVersion?: Prisma.StringNullableFilter<"NdiePage"> | string | null
+  providerVersion?: Prisma.StringNullableFilter<"NdiePage"> | string | null
+  renderDurationMs?: Prisma.IntNullableFilter<"NdiePage"> | number | null
+  renderedAt?: Prisma.DateTimeNullableFilter<"NdiePage"> | Date | string | null
+  diagnostics?: Prisma.JsonNullableFilter<"NdiePage">
   renderStatus?: Prisma.StringFilter<"NdiePage"> | string
   imageUrl?: Prisma.StringNullableFilter<"NdiePage"> | string | null
   imagePublicId?: Prisma.StringNullableFilter<"NdiePage"> | string | null
@@ -382,6 +504,17 @@ export type NdiePageOrderByWithAggregationInput = {
   width?: Prisma.SortOrderInput | Prisma.SortOrder
   height?: Prisma.SortOrderInput | Prisma.SortOrder
   rotation?: Prisma.SortOrderInput | Prisma.SortOrder
+  dpi?: Prisma.SortOrderInput | Prisma.SortOrder
+  aspectRatio?: Prisma.SortOrderInput | Prisma.SortOrder
+  imageSizeBytes?: Prisma.SortOrderInput | Prisma.SortOrder
+  checksum?: Prisma.SortOrderInput | Prisma.SortOrder
+  storageProvider?: Prisma.SortOrderInput | Prisma.SortOrder
+  storageLocation?: Prisma.SortOrderInput | Prisma.SortOrder
+  pipelineVersion?: Prisma.SortOrderInput | Prisma.SortOrder
+  providerVersion?: Prisma.SortOrderInput | Prisma.SortOrder
+  renderDurationMs?: Prisma.SortOrderInput | Prisma.SortOrder
+  renderedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  diagnostics?: Prisma.SortOrderInput | Prisma.SortOrder
   renderStatus?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePublicId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -410,6 +543,17 @@ export type NdiePageScalarWhereWithAggregatesInput = {
   width?: Prisma.FloatNullableWithAggregatesFilter<"NdiePage"> | number | null
   height?: Prisma.FloatNullableWithAggregatesFilter<"NdiePage"> | number | null
   rotation?: Prisma.FloatNullableWithAggregatesFilter<"NdiePage"> | number | null
+  dpi?: Prisma.IntNullableWithAggregatesFilter<"NdiePage"> | number | null
+  aspectRatio?: Prisma.FloatNullableWithAggregatesFilter<"NdiePage"> | number | null
+  imageSizeBytes?: Prisma.IntNullableWithAggregatesFilter<"NdiePage"> | number | null
+  checksum?: Prisma.StringNullableWithAggregatesFilter<"NdiePage"> | string | null
+  storageProvider?: Prisma.StringNullableWithAggregatesFilter<"NdiePage"> | string | null
+  storageLocation?: Prisma.StringNullableWithAggregatesFilter<"NdiePage"> | string | null
+  pipelineVersion?: Prisma.StringNullableWithAggregatesFilter<"NdiePage"> | string | null
+  providerVersion?: Prisma.StringNullableWithAggregatesFilter<"NdiePage"> | string | null
+  renderDurationMs?: Prisma.IntNullableWithAggregatesFilter<"NdiePage"> | number | null
+  renderedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"NdiePage"> | Date | string | null
+  diagnostics?: Prisma.JsonNullableWithAggregatesFilter<"NdiePage">
   renderStatus?: Prisma.StringWithAggregatesFilter<"NdiePage"> | string
   imageUrl?: Prisma.StringNullableWithAggregatesFilter<"NdiePage"> | string | null
   imagePublicId?: Prisma.StringNullableWithAggregatesFilter<"NdiePage"> | string | null
@@ -428,6 +572,17 @@ export type NdiePageCreateInput = {
   width?: number | null
   height?: number | null
   rotation?: number | null
+  dpi?: number | null
+  aspectRatio?: number | null
+  imageSizeBytes?: number | null
+  checksum?: string | null
+  storageProvider?: string | null
+  storageLocation?: string | null
+  pipelineVersion?: string | null
+  providerVersion?: string | null
+  renderDurationMs?: number | null
+  renderedAt?: Date | string | null
+  diagnostics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   renderStatus?: string
   imageUrl?: string | null
   imagePublicId?: string | null
@@ -452,6 +607,17 @@ export type NdiePageUncheckedCreateInput = {
   width?: number | null
   height?: number | null
   rotation?: number | null
+  dpi?: number | null
+  aspectRatio?: number | null
+  imageSizeBytes?: number | null
+  checksum?: string | null
+  storageProvider?: string | null
+  storageLocation?: string | null
+  pipelineVersion?: string | null
+  providerVersion?: string | null
+  renderDurationMs?: number | null
+  renderedAt?: Date | string | null
+  diagnostics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   renderStatus?: string
   imageUrl?: string | null
   imagePublicId?: string | null
@@ -472,6 +638,17 @@ export type NdiePageUpdateInput = {
   width?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   height?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   rotation?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  dpi?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aspectRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  imageSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pipelineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  providerVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  renderDurationMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  renderedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  diagnostics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   renderStatus?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -496,6 +673,17 @@ export type NdiePageUncheckedUpdateInput = {
   width?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   height?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   rotation?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  dpi?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aspectRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  imageSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pipelineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  providerVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  renderDurationMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  renderedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  diagnostics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   renderStatus?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -518,6 +706,17 @@ export type NdiePageCreateManyInput = {
   width?: number | null
   height?: number | null
   rotation?: number | null
+  dpi?: number | null
+  aspectRatio?: number | null
+  imageSizeBytes?: number | null
+  checksum?: string | null
+  storageProvider?: string | null
+  storageLocation?: string | null
+  pipelineVersion?: string | null
+  providerVersion?: string | null
+  renderDurationMs?: number | null
+  renderedAt?: Date | string | null
+  diagnostics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   renderStatus?: string
   imageUrl?: string | null
   imagePublicId?: string | null
@@ -536,6 +735,17 @@ export type NdiePageUpdateManyMutationInput = {
   width?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   height?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   rotation?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  dpi?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aspectRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  imageSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pipelineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  providerVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  renderDurationMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  renderedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  diagnostics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   renderStatus?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -556,6 +766,17 @@ export type NdiePageUncheckedUpdateManyInput = {
   width?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   height?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   rotation?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  dpi?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aspectRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  imageSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pipelineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  providerVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  renderDurationMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  renderedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  diagnostics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   renderStatus?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -591,6 +812,17 @@ export type NdiePageCountOrderByAggregateInput = {
   width?: Prisma.SortOrder
   height?: Prisma.SortOrder
   rotation?: Prisma.SortOrder
+  dpi?: Prisma.SortOrder
+  aspectRatio?: Prisma.SortOrder
+  imageSizeBytes?: Prisma.SortOrder
+  checksum?: Prisma.SortOrder
+  storageProvider?: Prisma.SortOrder
+  storageLocation?: Prisma.SortOrder
+  pipelineVersion?: Prisma.SortOrder
+  providerVersion?: Prisma.SortOrder
+  renderDurationMs?: Prisma.SortOrder
+  renderedAt?: Prisma.SortOrder
+  diagnostics?: Prisma.SortOrder
   renderStatus?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
   imagePublicId?: Prisma.SortOrder
@@ -608,6 +840,10 @@ export type NdiePageAvgOrderByAggregateInput = {
   width?: Prisma.SortOrder
   height?: Prisma.SortOrder
   rotation?: Prisma.SortOrder
+  dpi?: Prisma.SortOrder
+  aspectRatio?: Prisma.SortOrder
+  imageSizeBytes?: Prisma.SortOrder
+  renderDurationMs?: Prisma.SortOrder
 }
 
 export type NdiePageMaxOrderByAggregateInput = {
@@ -618,6 +854,16 @@ export type NdiePageMaxOrderByAggregateInput = {
   width?: Prisma.SortOrder
   height?: Prisma.SortOrder
   rotation?: Prisma.SortOrder
+  dpi?: Prisma.SortOrder
+  aspectRatio?: Prisma.SortOrder
+  imageSizeBytes?: Prisma.SortOrder
+  checksum?: Prisma.SortOrder
+  storageProvider?: Prisma.SortOrder
+  storageLocation?: Prisma.SortOrder
+  pipelineVersion?: Prisma.SortOrder
+  providerVersion?: Prisma.SortOrder
+  renderDurationMs?: Prisma.SortOrder
+  renderedAt?: Prisma.SortOrder
   renderStatus?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
   imagePublicId?: Prisma.SortOrder
@@ -636,6 +882,16 @@ export type NdiePageMinOrderByAggregateInput = {
   width?: Prisma.SortOrder
   height?: Prisma.SortOrder
   rotation?: Prisma.SortOrder
+  dpi?: Prisma.SortOrder
+  aspectRatio?: Prisma.SortOrder
+  imageSizeBytes?: Prisma.SortOrder
+  checksum?: Prisma.SortOrder
+  storageProvider?: Prisma.SortOrder
+  storageLocation?: Prisma.SortOrder
+  pipelineVersion?: Prisma.SortOrder
+  providerVersion?: Prisma.SortOrder
+  renderDurationMs?: Prisma.SortOrder
+  renderedAt?: Prisma.SortOrder
   renderStatus?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
   imagePublicId?: Prisma.SortOrder
@@ -651,6 +907,10 @@ export type NdiePageSumOrderByAggregateInput = {
   width?: Prisma.SortOrder
   height?: Prisma.SortOrder
   rotation?: Prisma.SortOrder
+  dpi?: Prisma.SortOrder
+  aspectRatio?: Prisma.SortOrder
+  imageSizeBytes?: Prisma.SortOrder
+  renderDurationMs?: Prisma.SortOrder
 }
 
 export type NdiePageNullableScalarRelationFilter = {
@@ -780,6 +1040,17 @@ export type NdiePageCreateWithoutImportJobInput = {
   width?: number | null
   height?: number | null
   rotation?: number | null
+  dpi?: number | null
+  aspectRatio?: number | null
+  imageSizeBytes?: number | null
+  checksum?: string | null
+  storageProvider?: string | null
+  storageLocation?: string | null
+  pipelineVersion?: string | null
+  providerVersion?: string | null
+  renderDurationMs?: number | null
+  renderedAt?: Date | string | null
+  diagnostics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   renderStatus?: string
   imageUrl?: string | null
   imagePublicId?: string | null
@@ -802,6 +1073,17 @@ export type NdiePageUncheckedCreateWithoutImportJobInput = {
   width?: number | null
   height?: number | null
   rotation?: number | null
+  dpi?: number | null
+  aspectRatio?: number | null
+  imageSizeBytes?: number | null
+  checksum?: string | null
+  storageProvider?: string | null
+  storageLocation?: string | null
+  pipelineVersion?: string | null
+  providerVersion?: string | null
+  renderDurationMs?: number | null
+  renderedAt?: Date | string | null
+  diagnostics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   renderStatus?: string
   imageUrl?: string | null
   imagePublicId?: string | null
@@ -853,6 +1135,17 @@ export type NdiePageScalarWhereInput = {
   width?: Prisma.FloatNullableFilter<"NdiePage"> | number | null
   height?: Prisma.FloatNullableFilter<"NdiePage"> | number | null
   rotation?: Prisma.FloatNullableFilter<"NdiePage"> | number | null
+  dpi?: Prisma.IntNullableFilter<"NdiePage"> | number | null
+  aspectRatio?: Prisma.FloatNullableFilter<"NdiePage"> | number | null
+  imageSizeBytes?: Prisma.IntNullableFilter<"NdiePage"> | number | null
+  checksum?: Prisma.StringNullableFilter<"NdiePage"> | string | null
+  storageProvider?: Prisma.StringNullableFilter<"NdiePage"> | string | null
+  storageLocation?: Prisma.StringNullableFilter<"NdiePage"> | string | null
+  pipelineVersion?: Prisma.StringNullableFilter<"NdiePage"> | string | null
+  providerVersion?: Prisma.StringNullableFilter<"NdiePage"> | string | null
+  renderDurationMs?: Prisma.IntNullableFilter<"NdiePage"> | number | null
+  renderedAt?: Prisma.DateTimeNullableFilter<"NdiePage"> | Date | string | null
+  diagnostics?: Prisma.JsonNullableFilter<"NdiePage">
   renderStatus?: Prisma.StringFilter<"NdiePage"> | string
   imageUrl?: Prisma.StringNullableFilter<"NdiePage"> | string | null
   imagePublicId?: Prisma.StringNullableFilter<"NdiePage"> | string | null
@@ -871,6 +1164,17 @@ export type NdiePageCreateWithoutSourceDocumentInput = {
   width?: number | null
   height?: number | null
   rotation?: number | null
+  dpi?: number | null
+  aspectRatio?: number | null
+  imageSizeBytes?: number | null
+  checksum?: string | null
+  storageProvider?: string | null
+  storageLocation?: string | null
+  pipelineVersion?: string | null
+  providerVersion?: string | null
+  renderDurationMs?: number | null
+  renderedAt?: Date | string | null
+  diagnostics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   renderStatus?: string
   imageUrl?: string | null
   imagePublicId?: string | null
@@ -893,6 +1197,17 @@ export type NdiePageUncheckedCreateWithoutSourceDocumentInput = {
   width?: number | null
   height?: number | null
   rotation?: number | null
+  dpi?: number | null
+  aspectRatio?: number | null
+  imageSizeBytes?: number | null
+  checksum?: string | null
+  storageProvider?: string | null
+  storageLocation?: string | null
+  pipelineVersion?: string | null
+  providerVersion?: string | null
+  renderDurationMs?: number | null
+  renderedAt?: Date | string | null
+  diagnostics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   renderStatus?: string
   imageUrl?: string | null
   imagePublicId?: string | null
@@ -939,6 +1254,17 @@ export type NdiePageCreateWithoutAssetsInput = {
   width?: number | null
   height?: number | null
   rotation?: number | null
+  dpi?: number | null
+  aspectRatio?: number | null
+  imageSizeBytes?: number | null
+  checksum?: string | null
+  storageProvider?: string | null
+  storageLocation?: string | null
+  pipelineVersion?: string | null
+  providerVersion?: string | null
+  renderDurationMs?: number | null
+  renderedAt?: Date | string | null
+  diagnostics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   renderStatus?: string
   imageUrl?: string | null
   imagePublicId?: string | null
@@ -962,6 +1288,17 @@ export type NdiePageUncheckedCreateWithoutAssetsInput = {
   width?: number | null
   height?: number | null
   rotation?: number | null
+  dpi?: number | null
+  aspectRatio?: number | null
+  imageSizeBytes?: number | null
+  checksum?: string | null
+  storageProvider?: string | null
+  storageLocation?: string | null
+  pipelineVersion?: string | null
+  providerVersion?: string | null
+  renderDurationMs?: number | null
+  renderedAt?: Date | string | null
+  diagnostics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   renderStatus?: string
   imageUrl?: string | null
   imagePublicId?: string | null
@@ -997,6 +1334,17 @@ export type NdiePageUpdateWithoutAssetsInput = {
   width?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   height?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   rotation?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  dpi?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aspectRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  imageSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pipelineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  providerVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  renderDurationMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  renderedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  diagnostics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   renderStatus?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1020,6 +1368,17 @@ export type NdiePageUncheckedUpdateWithoutAssetsInput = {
   width?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   height?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   rotation?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  dpi?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aspectRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  imageSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pipelineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  providerVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  renderDurationMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  renderedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  diagnostics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   renderStatus?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1039,6 +1398,17 @@ export type NdiePageCreateWithoutElementsInput = {
   width?: number | null
   height?: number | null
   rotation?: number | null
+  dpi?: number | null
+  aspectRatio?: number | null
+  imageSizeBytes?: number | null
+  checksum?: string | null
+  storageProvider?: string | null
+  storageLocation?: string | null
+  pipelineVersion?: string | null
+  providerVersion?: string | null
+  renderDurationMs?: number | null
+  renderedAt?: Date | string | null
+  diagnostics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   renderStatus?: string
   imageUrl?: string | null
   imagePublicId?: string | null
@@ -1062,6 +1432,17 @@ export type NdiePageUncheckedCreateWithoutElementsInput = {
   width?: number | null
   height?: number | null
   rotation?: number | null
+  dpi?: number | null
+  aspectRatio?: number | null
+  imageSizeBytes?: number | null
+  checksum?: string | null
+  storageProvider?: string | null
+  storageLocation?: string | null
+  pipelineVersion?: string | null
+  providerVersion?: string | null
+  renderDurationMs?: number | null
+  renderedAt?: Date | string | null
+  diagnostics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   renderStatus?: string
   imageUrl?: string | null
   imagePublicId?: string | null
@@ -1097,6 +1478,17 @@ export type NdiePageUpdateWithoutElementsInput = {
   width?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   height?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   rotation?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  dpi?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aspectRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  imageSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pipelineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  providerVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  renderDurationMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  renderedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  diagnostics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   renderStatus?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1120,6 +1512,17 @@ export type NdiePageUncheckedUpdateWithoutElementsInput = {
   width?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   height?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   rotation?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  dpi?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aspectRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  imageSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pipelineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  providerVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  renderDurationMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  renderedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  diagnostics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   renderStatus?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1140,6 +1543,17 @@ export type NdiePageCreateManyImportJobInput = {
   width?: number | null
   height?: number | null
   rotation?: number | null
+  dpi?: number | null
+  aspectRatio?: number | null
+  imageSizeBytes?: number | null
+  checksum?: string | null
+  storageProvider?: string | null
+  storageLocation?: string | null
+  pipelineVersion?: string | null
+  providerVersion?: string | null
+  renderDurationMs?: number | null
+  renderedAt?: Date | string | null
+  diagnostics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   renderStatus?: string
   imageUrl?: string | null
   imagePublicId?: string | null
@@ -1158,6 +1572,17 @@ export type NdiePageUpdateWithoutImportJobInput = {
   width?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   height?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   rotation?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  dpi?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aspectRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  imageSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pipelineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  providerVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  renderDurationMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  renderedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  diagnostics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   renderStatus?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1180,6 +1605,17 @@ export type NdiePageUncheckedUpdateWithoutImportJobInput = {
   width?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   height?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   rotation?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  dpi?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aspectRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  imageSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pipelineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  providerVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  renderDurationMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  renderedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  diagnostics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   renderStatus?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1201,6 +1637,17 @@ export type NdiePageUncheckedUpdateManyWithoutImportJobInput = {
   width?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   height?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   rotation?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  dpi?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aspectRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  imageSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pipelineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  providerVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  renderDurationMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  renderedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  diagnostics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   renderStatus?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1220,6 +1667,17 @@ export type NdiePageCreateManySourceDocumentInput = {
   width?: number | null
   height?: number | null
   rotation?: number | null
+  dpi?: number | null
+  aspectRatio?: number | null
+  imageSizeBytes?: number | null
+  checksum?: string | null
+  storageProvider?: string | null
+  storageLocation?: string | null
+  pipelineVersion?: string | null
+  providerVersion?: string | null
+  renderDurationMs?: number | null
+  renderedAt?: Date | string | null
+  diagnostics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   renderStatus?: string
   imageUrl?: string | null
   imagePublicId?: string | null
@@ -1238,6 +1696,17 @@ export type NdiePageUpdateWithoutSourceDocumentInput = {
   width?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   height?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   rotation?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  dpi?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aspectRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  imageSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pipelineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  providerVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  renderDurationMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  renderedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  diagnostics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   renderStatus?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1260,6 +1729,17 @@ export type NdiePageUncheckedUpdateWithoutSourceDocumentInput = {
   width?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   height?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   rotation?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  dpi?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aspectRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  imageSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pipelineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  providerVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  renderDurationMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  renderedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  diagnostics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   renderStatus?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1281,6 +1761,17 @@ export type NdiePageUncheckedUpdateManyWithoutSourceDocumentInput = {
   width?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   height?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   rotation?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  dpi?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aspectRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  imageSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pipelineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  providerVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  renderDurationMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  renderedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  diagnostics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   renderStatus?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1341,6 +1832,17 @@ export type NdiePageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   width?: boolean
   height?: boolean
   rotation?: boolean
+  dpi?: boolean
+  aspectRatio?: boolean
+  imageSizeBytes?: boolean
+  checksum?: boolean
+  storageProvider?: boolean
+  storageLocation?: boolean
+  pipelineVersion?: boolean
+  providerVersion?: boolean
+  renderDurationMs?: boolean
+  renderedAt?: boolean
+  diagnostics?: boolean
   renderStatus?: boolean
   imageUrl?: boolean
   imagePublicId?: boolean
@@ -1366,6 +1868,17 @@ export type NdiePageSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   width?: boolean
   height?: boolean
   rotation?: boolean
+  dpi?: boolean
+  aspectRatio?: boolean
+  imageSizeBytes?: boolean
+  checksum?: boolean
+  storageProvider?: boolean
+  storageLocation?: boolean
+  pipelineVersion?: boolean
+  providerVersion?: boolean
+  renderDurationMs?: boolean
+  renderedAt?: boolean
+  diagnostics?: boolean
   renderStatus?: boolean
   imageUrl?: boolean
   imagePublicId?: boolean
@@ -1388,6 +1901,17 @@ export type NdiePageSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   width?: boolean
   height?: boolean
   rotation?: boolean
+  dpi?: boolean
+  aspectRatio?: boolean
+  imageSizeBytes?: boolean
+  checksum?: boolean
+  storageProvider?: boolean
+  storageLocation?: boolean
+  pipelineVersion?: boolean
+  providerVersion?: boolean
+  renderDurationMs?: boolean
+  renderedAt?: boolean
+  diagnostics?: boolean
   renderStatus?: boolean
   imageUrl?: boolean
   imagePublicId?: boolean
@@ -1410,6 +1934,17 @@ export type NdiePageSelectScalar = {
   width?: boolean
   height?: boolean
   rotation?: boolean
+  dpi?: boolean
+  aspectRatio?: boolean
+  imageSizeBytes?: boolean
+  checksum?: boolean
+  storageProvider?: boolean
+  storageLocation?: boolean
+  pipelineVersion?: boolean
+  providerVersion?: boolean
+  renderDurationMs?: boolean
+  renderedAt?: boolean
+  diagnostics?: boolean
   renderStatus?: boolean
   imageUrl?: boolean
   imagePublicId?: boolean
@@ -1422,7 +1957,7 @@ export type NdiePageSelectScalar = {
   updatedAt?: boolean
 }
 
-export type NdiePageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "importJobId" | "sourceDocumentId" | "pageNumber" | "width" | "height" | "rotation" | "renderStatus" | "imageUrl" | "imagePublicId" | "thumbnailUrl" | "ocrStatus" | "ocrText" | "ocrJson" | "layoutJson" | "createdAt" | "updatedAt", ExtArgs["result"]["ndiePage"]>
+export type NdiePageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "importJobId" | "sourceDocumentId" | "pageNumber" | "width" | "height" | "rotation" | "dpi" | "aspectRatio" | "imageSizeBytes" | "checksum" | "storageProvider" | "storageLocation" | "pipelineVersion" | "providerVersion" | "renderDurationMs" | "renderedAt" | "diagnostics" | "renderStatus" | "imageUrl" | "imagePublicId" | "thumbnailUrl" | "ocrStatus" | "ocrText" | "ocrJson" | "layoutJson" | "createdAt" | "updatedAt", ExtArgs["result"]["ndiePage"]>
 export type NdiePageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   importJob?: boolean | Prisma.NdieImportJobDefaultArgs<ExtArgs>
   sourceDocument?: boolean | Prisma.NdieSourceDocumentDefaultArgs<ExtArgs>
@@ -1455,6 +1990,17 @@ export type $NdiePagePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     width: number | null
     height: number | null
     rotation: number | null
+    dpi: number | null
+    aspectRatio: number | null
+    imageSizeBytes: number | null
+    checksum: string | null
+    storageProvider: string | null
+    storageLocation: string | null
+    pipelineVersion: string | null
+    providerVersion: string | null
+    renderDurationMs: number | null
+    renderedAt: Date | null
+    diagnostics: runtime.JsonValue | null
     renderStatus: string
     imageUrl: string | null
     imagePublicId: string | null
@@ -1899,6 +2445,17 @@ export interface NdiePageFieldRefs {
   readonly width: Prisma.FieldRef<"NdiePage", 'Float'>
   readonly height: Prisma.FieldRef<"NdiePage", 'Float'>
   readonly rotation: Prisma.FieldRef<"NdiePage", 'Float'>
+  readonly dpi: Prisma.FieldRef<"NdiePage", 'Int'>
+  readonly aspectRatio: Prisma.FieldRef<"NdiePage", 'Float'>
+  readonly imageSizeBytes: Prisma.FieldRef<"NdiePage", 'Int'>
+  readonly checksum: Prisma.FieldRef<"NdiePage", 'String'>
+  readonly storageProvider: Prisma.FieldRef<"NdiePage", 'String'>
+  readonly storageLocation: Prisma.FieldRef<"NdiePage", 'String'>
+  readonly pipelineVersion: Prisma.FieldRef<"NdiePage", 'String'>
+  readonly providerVersion: Prisma.FieldRef<"NdiePage", 'String'>
+  readonly renderDurationMs: Prisma.FieldRef<"NdiePage", 'Int'>
+  readonly renderedAt: Prisma.FieldRef<"NdiePage", 'DateTime'>
+  readonly diagnostics: Prisma.FieldRef<"NdiePage", 'Json'>
   readonly renderStatus: Prisma.FieldRef<"NdiePage", 'String'>
   readonly imageUrl: Prisma.FieldRef<"NdiePage", 'String'>
   readonly imagePublicId: Prisma.FieldRef<"NdiePage", 'String'>

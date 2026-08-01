@@ -5,13 +5,7 @@ import { env } from "../../../config/env.js";
 import { prisma } from "../../../config/prisma.js";
 import type { NdieImportManifest } from "../contracts/import-manifest.js";
 import type { NdieCheckpoint } from "../contracts/pipeline-events.js";
-import { ndieAnswerKeyMapperService } from "../answer-key-mapper/answer-key-mapper.service.js";
-import { ndieAiValidatorService } from "../ai-validator/ai-validator.service.js";
-import { ndieLayoutAnalyzerService } from "../layout-analyzer/layout-analyzer.service.js";
-import { ndieOcrService } from "../ocr/ocr.service.js";
-import { ndiePdfRendererService } from "../pdf-renderer/pdf-renderer.service.js";
-import { ndieQuestionDetectorService } from "../question-detector/question-detector.service.js";
-import { ndieVisualDetectorService } from "../visual-detector/visual-detector.service.js";
+import { ndieQueueService } from "../queue/queue.service.js";
 import { safeNdieFileName } from "../security/ndie-security.js";
 
 export type NdieCreateImportInput = {
@@ -157,57 +151,35 @@ export const ndieSourceStorageService = {
       };
     });
 
-    const renderResult = await ndiePdfRendererService.renderSourceDocument({
+    const queueJob = await ndieQueueService.enqueueImport({
       importJobId: created.importJob.id,
       sourceDocumentId: created.sourceDocument.id,
-      fileType: input.file.mimetype,
-      fileBuffer: input.file.buffer,
-      storageUrl: uploadResult.secureUrl,
-      storagePublicId: uploadResult.publicId
+      fileType: input.file.mimetype
     });
-
-    const ocrResult = await ndieOcrService.runOcr(created.importJob.id);
-    const layoutResult = await ndieLayoutAnalyzerService.analyzeImport(created.importJob.id);
-    const visualResult = await ndieVisualDetectorService.detectImport(created.importJob.id);
-    const questionResult = await ndieQuestionDetectorService.detectImport(created.importJob.id);
-    const answerResult = await ndieAnswerKeyMapperService.mapImport(created.importJob.id);
-    const aiResult = await ndieAiValidatorService.validateImport(created.importJob.id);
-    const completedManifest: NdieImportManifest = {
+    const queuedManifest: NdieImportManifest = {
       ...manifest,
-      pages: renderResult.pageCount,
-      questionsDetected: questionResult.questionsDetected,
-      formulaCount: visualResult.formulaCount,
-      tables: visualResult.tableCount,
-      diagrams: visualResult.diagramCount,
-      graphs: visualResult.graphCount,
-      ocrConfidence: null,
       checkpoints: manifest.checkpoints.map((checkpoint) => {
-        if (["DOCUMENT_CLASSIFIED", "PAGES_RENDERED", "OCR_COMPLETED", "LAYOUT_ANALYZED", "FORMULAS_DETECTED", "VISUALS_DETECTED", "QUESTIONS_DETECTED", "OPTIONS_DETECTED", "ANSWER_KEYS_MAPPED", "SOLUTIONS_MAPPED", "AI_VALIDATED", "CONFIDENCE_SCORED"].includes(checkpoint.name)) {
-          return { ...checkpoint, status: "SUCCEEDED" };
+        if (checkpoint.name === "READY_FOR_REVIEW") {
+          return { ...checkpoint, status: "PENDING" };
         }
         return checkpoint;
       })
     };
 
-    await prisma.ndieImportJob.update({
+    const importJob = await prisma.ndieImportJob.update({
       where: { id: created.importJob.id },
       data: {
-        status: "READY_FOR_REVIEW",
-        currentCheckpoint: "READY_FOR_REVIEW",
-        manifest: completedManifest as unknown as Prisma.InputJsonValue
+        status: "QUEUED",
+        currentCheckpoint: queueJob.stage,
+        manifest: queuedManifest as unknown as Prisma.InputJsonValue
       }
     });
 
     return {
       ...created,
-      manifest: completedManifest,
-      renderResult,
-      ocrResult,
-      layoutResult,
-      visualResult,
-      questionResult,
-      answerResult,
-      aiResult
+      importJob,
+      manifest: queuedManifest,
+      queueJob
     };
   },
 
@@ -219,7 +191,8 @@ export const ndieSourceStorageService = {
         pages: { orderBy: { pageNumber: "asc" } },
         assets: true,
         qualityScores: { orderBy: { createdAt: "desc" }, take: 1 },
-        providerRuns: { orderBy: { startedAt: "desc" }, take: 20 }
+        providerRuns: { orderBy: { startedAt: "desc" }, take: 20 },
+        queueJobs: { orderBy: { queuedAt: "desc" }, take: 20 }
       }
     });
   }

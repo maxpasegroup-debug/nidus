@@ -43,6 +43,7 @@
     "test:ai": "tsx src/scripts/ai-flow-verification.ts",
     "test:ops": "tsx src/scripts/ops-flow-verification.ts",
     "test:events": "tsx src/scripts/event-engine-verification.ts",
+    "test:ndie-renderer": "tsx src/scripts/ndie-pdf-renderer-verification.ts",
     "test:automation": "tsx src/scripts/automation-engine-verification.ts",
     "test:whatsapp": "tsx src/scripts/whatsapp-flow-verification.ts",
     "test:ai-director": "tsx src/scripts/ai-director-verification.ts",
@@ -63,6 +64,7 @@
     "test:cbt": "tsx src/scripts/cbt-flow-verification.ts"
   },
   "dependencies": {
+    "@napi-rs/canvas": "^1.0.3",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "latest",
     "@sentry/node": "^10.53.1",
@@ -84,12 +86,14 @@
     "morgan": "^1.10.1",
     "multer": "^2.1.1",
     "nodemailer": "^8.0.7",
+    "pdfjs-dist": "^5.6.205",
     "pdfkit": "^0.18.0",
     "pg": "^8.20.0",
     "pino": "^10.3.1",
     "pino-http": "^11.0.0",
     "razorpay": "^2.9.6",
     "resend": "^6.12.3",
+    "sharp": "^0.35.3",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "zod": "latest"

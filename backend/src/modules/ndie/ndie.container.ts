@@ -8,6 +8,7 @@ import { RuleBasedLayoutProvider } from "./layout-analyzer/rule-based-layout.pro
 import { StubOcrProvider } from "./ocr/stub-ocr.provider.js";
 import { RuleBasedOptionProvider } from "./option-detector/rule-based-option.provider.js";
 import { MetadataPdfRendererProvider } from "./pdf-renderer/metadata-pdf-renderer.provider.js";
+import { PdfJsRendererProvider } from "./pdf-renderer/pdfjs-pdf-renderer.provider.js";
 import { createDisabledProvider, ProviderRegistry } from "./providers/provider-registry.js";
 import { RuleBasedQuestionProvider } from "./question-detector/rule-based-question.provider.js";
 import { NdieFoundationService } from "./services/base-service.js";
@@ -42,6 +43,7 @@ const serviceDefinitions = [
 function buildRegistry() {
   const registry = new ProviderRegistry();
   registry.register(new StubOcrProvider());
+  registry.register(new PdfJsRendererProvider());
   registry.register(new MetadataPdfRendererProvider());
   registry.register(new RuleBasedLayoutProvider());
   registry.register(new RuleBasedFormulaProvider());

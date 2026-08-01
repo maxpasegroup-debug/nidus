@@ -260,6 +260,7 @@ export const ModelName = {
   NdieReplayRun: 'NdieReplayRun',
   NdieQualityScore: 'NdieQualityScore',
   NdieProviderRun: 'NdieProviderRun',
+  NdieQueueJob: 'NdieQueueJob',
   TeacherCalendarLogRecord: 'TeacherCalendarLogRecord',
   TeacherSyllabusProgressRecord: 'TeacherSyllabusProgressRecord',
   NdpReview: 'NdpReview',
@@ -3526,6 +3527,17 @@ export const NdiePageScalarFieldEnum = {
   width: 'width',
   height: 'height',
   rotation: 'rotation',
+  dpi: 'dpi',
+  aspectRatio: 'aspectRatio',
+  imageSizeBytes: 'imageSizeBytes',
+  checksum: 'checksum',
+  storageProvider: 'storageProvider',
+  storageLocation: 'storageLocation',
+  pipelineVersion: 'pipelineVersion',
+  providerVersion: 'providerVersion',
+  renderDurationMs: 'renderDurationMs',
+  renderedAt: 'renderedAt',
+  diagnostics: 'diagnostics',
   renderStatus: 'renderStatus',
   imageUrl: 'imageUrl',
   imagePublicId: 'imagePublicId',
@@ -3711,6 +3723,41 @@ export const NdieProviderRunScalarFieldEnum = {
 } as const
 
 export type NdieProviderRunScalarFieldEnum = (typeof NdieProviderRunScalarFieldEnum)[keyof typeof NdieProviderRunScalarFieldEnum]
+
+
+export const NdieQueueJobScalarFieldEnum = {
+  id: 'id',
+  importJobId: 'importJobId',
+  replayRunId: 'replayRunId',
+  jobType: 'jobType',
+  stage: 'stage',
+  state: 'state',
+  provider: 'provider',
+  workerId: 'workerId',
+  progress: 'progress',
+  currentStage: 'currentStage',
+  attempts: 'attempts',
+  maxAttempts: 'maxAttempts',
+  retryDelayMs: 'retryDelayMs',
+  backoffStrategy: 'backoffStrategy',
+  retryHistory: 'retryHistory',
+  diagnostics: 'diagnostics',
+  payload: 'payload',
+  result: 'result',
+  errorCategory: 'errorCategory',
+  errorMessage: 'errorMessage',
+  queuedAt: 'queuedAt',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  failedAt: 'failedAt',
+  cancelledAt: 'cancelledAt',
+  nextRunAt: 'nextRunAt',
+  durationMs: 'durationMs',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NdieQueueJobScalarFieldEnum = (typeof NdieQueueJobScalarFieldEnum)[keyof typeof NdieQueueJobScalarFieldEnum]
 
 
 export const TeacherCalendarLogRecordScalarFieldEnum = {

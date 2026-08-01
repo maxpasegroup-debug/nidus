@@ -9,19 +9,33 @@ import { ndiePublisherService, type NdiePublishInput } from "./publisher/publish
 import { ndieQualityScoringService } from "./quality-scoring/quality-scoring.service.js";
 import { ndieQuestionDetectorService } from "./question-detector/question-detector.service.js";
 import { ndieReviewEngineService, type NdieReviewInput } from "./review-engine/review-engine.service.js";
+import { ndieQueueConfig, ndieQueueService } from "./queue/queue.service.js";
+import { ndiePdfRendererService } from "./pdf-renderer/pdf-renderer.service.js";
 import { assertNdieCandidateAccess, assertNdieImportAccess, isNdieManager, type NdieActor } from "./security/ndie-security.js";
 import { ndieSourceStorageService, type NdieCreateImportInput } from "./source-storage/source-storage.service.js";
 import { ndieVisualDetectorService } from "./visual-detector/visual-detector.service.js";
+import { ndieWorkerService } from "./worker/worker.service.js";
 
 const container = createNdieContainer();
 
 export const ndieService = {
-  health() {
+  async health() {
+    const [queue, worker, metrics, renderer] = await Promise.all([
+      ndieQueueService.health(),
+      ndieWorkerService.health(),
+      ndieQueueService.metrics(),
+      ndiePdfRendererService.health()
+    ]);
     return {
       service: "ndie",
       status: container.flags.enabled ? "ready" : "disabled",
       philosophy: "NDIE understands structured visual documents, not plain text dumps.",
       flags: container.flags,
+      queueConfig: ndieQueueConfig,
+      queue,
+      worker,
+      metrics,
+      renderer,
       pipelineEvents: NDIE_PIPELINE_EVENTS,
       services: container.services.map((service) => service.health()),
       providers: container.providerRegistry.health()
@@ -85,6 +99,14 @@ export const ndieService = {
   async replayRuns(actor: NdieActor, importJobId: string) {
     await assertNdieImportAccess(actor, importJobId, "READ");
     return ndieImportReplayService.list(importJobId);
+  },
+
+  async cancelImport(actor: NdieActor, importJobId: string, reason?: string) {
+    await assertNdieImportAccess(actor, importJobId, "WRITE");
+    const importJob = await ndieSourceStorageService.getImport(importJobId);
+    const activeJob = importJob?.queueJobs.find((job) => ["QUEUED", "PROCESSING", "RETRY_PENDING", "REPLAY_PENDING"].includes(job.state));
+    if (!activeJob) throw Object.assign(new Error("No cancellable NDIE queue job found"), { statusCode: 404 });
+    return ndieQueueService.cancel(activeJob.id, reason);
   },
 
   async qualityReport(actor: NdieActor, importJobId: string) {

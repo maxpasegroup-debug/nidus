@@ -1063,6 +1063,11 @@ export type NdieQualityScore = Prisma.NdieQualityScoreModel
  */
 export type NdieProviderRun = Prisma.NdieProviderRunModel
 /**
+ * Model NdieQueueJob
+ * 
+ */
+export type NdieQueueJob = Prisma.NdieQueueJobModel
+/**
  * Model TeacherCalendarLogRecord
  * 
  */

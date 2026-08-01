@@ -4,9 +4,9 @@ import { ndieService } from "./ndie.service.js";
 import { auditNdie, ndieActorFromRequest, validateNdieUpload } from "./security/ndie-security.js";
 
 export const ndieController = {
-  health: (_req: Request, res: Response, next: NextFunction) => {
+  health: async (_req: Request, res: Response, next: NextFunction) => {
     try {
-      res.json(ndieService.health());
+      res.json(await ndieService.health());
     } catch (error) {
       next(error);
     }
@@ -225,6 +225,25 @@ export const ndieController = {
       const importJobId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
       const actor = ndieActorFromRequest(req);
       res.json(await ndieService.replayRuns(actor, importJobId));
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  cancelImport: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      const actor = ndieActorFromRequest(req);
+      const importJobId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const reason = typeof req.body.reason === "string" ? req.body.reason : undefined;
+      const result = await ndieService.cancelImport(actor, importJobId, reason);
+      await auditNdie({
+        actor,
+        action: "NDIE_IMPORT_CANCELLED",
+        description: "NDIE import queue job cancelled",
+        ipAddress: req.ip,
+        metadata: { importJobId, queueJobId: result.id }
+      });
+      res.json(result);
     } catch (error) {
       next(error);
     }
