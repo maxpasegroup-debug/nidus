@@ -1,5 +1,6 @@
 import type { NdieOcrResult } from "./ocr-result.js";
 import type { NdieLayoutResult } from "./layout-result.js";
+import type { NdieFormulaResult } from "./formula-result.js";
 
 export type NdieProviderKind = "OCR" | "LAYOUT" | "FORMULA" | "QUESTION" | "OPTION" | "ANSWER_KEY" | "SOLUTION" | "AI" | "RENDERER" | "STORAGE";
 
@@ -64,25 +65,19 @@ export interface FormulaProvider extends NdieProvider {
     pageId: string;
     pageNumber: number;
     ocrText?: string | null;
+    ocrJson?: unknown;
+    layoutJson?: unknown;
+    pageImageUrl?: string | null;
     layoutElements: Array<{
       id: string;
       elementType: string;
       text?: string | null;
       coordinates: unknown;
       readingOrder?: number | null;
+      confidence?: number | null;
+      metadata?: unknown;
     }>;
-  }): Promise<{
-    elements: Array<{
-      elementType: "FORMULA" | "CHEMICAL_EQUATION";
-      text: string;
-      normalizedText?: string;
-      coordinates: Record<string, unknown>;
-      readingOrder?: number;
-      confidence?: number;
-      metadata?: Record<string, unknown>;
-    }>;
-    confidence: number | null;
-  }>;
+  }): Promise<NdieFormulaResult>;
 }
 
 export interface QuestionProvider extends NdieProvider {

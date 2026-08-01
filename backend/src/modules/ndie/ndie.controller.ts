@@ -83,6 +83,18 @@ export const ndieController = {
     }
   },
 
+  detectFormulas: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      const importJobId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const actor = ndieActorFromRequest(req);
+      const result = await ndieService.detectFormulas(actor, importJobId);
+      await auditNdie({ actor, action: "NDIE_IMPORT_UPDATED", description: "NDIE formula intelligence requested", ipAddress: req.ip, metadata: { importJobId } });
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  },
+
   detectQuestions: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       const importJobId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;

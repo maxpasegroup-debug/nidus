@@ -17,6 +17,7 @@ ndieRouter.get("/analytics", ndieController.analytics);
 ndieRouter.post("/imports", uploadRateLimiter, ndieUpload.single("file"), ndieController.createImport);
 ndieRouter.get("/imports/:id", ndieController.getImport);
 ndieRouter.post("/imports/:id/analyze-layout", ndieController.analyzeLayout);
+ndieRouter.post("/imports/:id/detect-formulas", ndieController.detectFormulas);
 ndieRouter.post("/imports/:id/detect-visuals", ndieController.detectVisuals);
 ndieRouter.post("/imports/:id/detect-questions", ndieController.detectQuestions);
 ndieRouter.post("/imports/:id/map-answers", ndieController.mapAnswers);

@@ -3,6 +3,7 @@ import { ndieAnswerKeyMapperService } from "./answer-key-mapper/answer-key-mappe
 import { ndieAiValidatorService } from "./ai-validator/ai-validator.service.js";
 import { ndieAnalyticsService } from "./analytics/analytics.service.js";
 import { ndieImportReplayService, type NdieReplayInput } from "./import-replay/import-replay.service.js";
+import { ndieFormulaAnalyzerService } from "./formula-analyzer/formula-analyzer.service.js";
 import { ndieLayoutAnalyzerService } from "./layout-analyzer/layout-analyzer.service.js";
 import { createNdieContainer } from "./ndie.container.js";
 import { ndiePublisherService, type NdiePublishInput } from "./publisher/publisher.service.js";
@@ -21,13 +22,14 @@ const container = createNdieContainer();
 
 export const ndieService = {
   async health() {
-    const [queue, worker, metrics, renderer, ocr, layout] = await Promise.all([
+    const [queue, worker, metrics, renderer, ocr, layout, formula] = await Promise.all([
       ndieQueueService.health(),
       ndieWorkerService.health(),
       ndieQueueService.metrics(),
       ndiePdfRendererService.health(),
       ndieOcrService.health(),
-      ndieLayoutAnalyzerService.health()
+      ndieLayoutAnalyzerService.health(),
+      ndieFormulaAnalyzerService.health()
     ]);
     return {
       service: "ndie",
@@ -41,6 +43,7 @@ export const ndieService = {
       renderer,
       ocr,
       layout,
+      formula,
       pipelineEvents: NDIE_PIPELINE_EVENTS,
       services: container.services.map((service) => service.health()),
       providers: container.providerRegistry.health()
@@ -64,6 +67,11 @@ export const ndieService = {
   async detectVisuals(actor: NdieActor, importJobId: string) {
     await assertNdieImportAccess(actor, importJobId, "WRITE");
     return ndieVisualDetectorService.detectImport(importJobId);
+  },
+
+  async detectFormulas(actor: NdieActor, importJobId: string) {
+    await assertNdieImportAccess(actor, importJobId, "WRITE");
+    return ndieFormulaAnalyzerService.detectImport(importJobId);
   },
 
   async detectQuestions(actor: NdieActor, importJobId: string) {
@@ -109,7 +117,7 @@ export const ndieService = {
   async cancelImport(actor: NdieActor, importJobId: string, reason?: string) {
     await assertNdieImportAccess(actor, importJobId, "WRITE");
     const importJob = await ndieSourceStorageService.getImport(importJobId);
-    const activeJob = importJob?.queueJobs.find((job) => ["QUEUED", "PROCESSING", "RENDERING", "OCR_RUNNING", "READY_FOR_LAYOUT", "LAYOUT_RUNNING", "RETRY_PENDING", "REPLAY_PENDING"].includes(job.state));
+    const activeJob = importJob?.queueJobs.find((job) => ["QUEUED", "PROCESSING", "RENDERING", "OCR_RUNNING", "READY_FOR_LAYOUT", "LAYOUT_RUNNING", "READY_FOR_FORMULA_ENGINE", "FORMULA_RUNNING", "RETRY_PENDING", "REPLAY_PENDING"].includes(job.state));
     if (!activeJob) throw Object.assign(new Error("No cancellable NDIE queue job found"), { statusCode: 404 });
     return ndieQueueService.cancel(activeJob.id, reason);
   },

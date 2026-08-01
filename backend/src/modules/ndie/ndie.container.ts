@@ -61,6 +61,11 @@ function buildRegistry() {
   registry.register(createDisabledProvider("layout.docling", "LAYOUT", "Docling Layout"));
   registry.register(createDisabledProvider("layout.azure", "LAYOUT", "Azure Layout"));
   registry.register(createDisabledProvider("formula.mathpix", "FORMULA", "Mathpix Formula"));
+  registry.register(createDisabledProvider("formula.azure", "FORMULA", "Azure AI Formula"));
+  registry.register(createDisabledProvider("formula.google-document-ai", "FORMULA", "Google Document AI Formula"));
+  registry.register(createDisabledProvider("formula.pix2tex", "FORMULA", "Pix2Tex Formula"));
+  registry.register(createDisabledProvider("formula.nougat", "FORMULA", "Nougat Formula"));
+  registry.register(createDisabledProvider("formula.local-vision", "FORMULA", "Local Vision Formula"));
   registry.register(createDisabledProvider("formula.katex", "FORMULA", "KaTeX Formula Renderer"));
   registry.register(createDisabledProvider("ai.openai", "AI", "OpenAI Validator"));
   registry.register(createDisabledProvider("ai.gemini", "AI", "Gemini Validator"));

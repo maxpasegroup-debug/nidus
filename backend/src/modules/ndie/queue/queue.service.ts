@@ -88,6 +88,20 @@ export const ndieQueueService = {
     });
   },
 
+  async enqueueFormula(input: { importJobId: string; requestedBy?: string }) {
+    return this.enqueue({
+      importJobId: input.importJobId,
+      jobType: "PLACEHOLDER_STAGE",
+      stage: "FORMULA",
+      payload: {
+        pipelineVersion: env.NDIE_PIPELINE_VERSION,
+        queuedBy: input.requestedBy ?? "ndie-worker",
+        consumes: ["RENDERED_PAGE_IMAGES", "NORMALIZED_OCR_JSON", "NORMALIZED_LAYOUT_JSON"],
+        produces: "NORMALIZED_FORMULA_JSON"
+      } as Prisma.InputJsonValue
+    });
+  },
+
   transition: provider.transition.bind(provider),
   updateProgress: provider.updateProgress.bind(provider),
   cancel: provider.cancel.bind(provider),
