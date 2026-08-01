@@ -3,8 +3,9 @@ import type { NdieLayoutResult } from "./layout-result.js";
 import type { NdieFormulaResult } from "./formula-result.js";
 import type { NdieVisualResult } from "./visual-result.js";
 import type { NdieAssessmentResult } from "./assessment-result.js";
+import type { NdieEvaluationResult } from "./evaluation-result.js";
 
-export type NdieProviderKind = "OCR" | "LAYOUT" | "FORMULA" | "VISUAL" | "QUESTION" | "OPTION" | "ANSWER_KEY" | "SOLUTION" | "AI" | "RENDERER" | "STORAGE";
+export type NdieProviderKind = "OCR" | "LAYOUT" | "FORMULA" | "VISUAL" | "QUESTION" | "OPTION" | "EVALUATION" | "ANSWER_KEY" | "SOLUTION" | "AI" | "RENDERER" | "STORAGE";
 
 export type NdieProviderHealth = {
   id: string;
@@ -180,6 +181,30 @@ export interface SolutionProvider extends NdieProvider {
     }>;
     confidence: number | null;
   }>;
+}
+
+export interface EvaluationProvider extends NdieProvider {
+  kind: "EVALUATION";
+  evaluate(input: {
+    importJobId: string;
+    sourceKind: string;
+    assessment: NdieAssessmentResult["assessment"] | null;
+    elements: Array<{
+      id: string;
+      pageNumber: number;
+      elementType: string;
+      text?: string | null;
+      normalizedText?: string | null;
+      coordinates: unknown;
+      readingOrder?: number | null;
+      confidence?: number | null;
+      metadata?: unknown;
+    }>;
+    ocrPages?: unknown[];
+    layoutPages?: unknown[];
+    formulaElements?: unknown[];
+    visualElements?: unknown[];
+  }): Promise<NdieEvaluationResult>;
 }
 
 export interface AiProvider extends NdieProvider {

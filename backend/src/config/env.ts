@@ -83,6 +83,7 @@ const envSchema = z.object({
   NDIE_VISUAL_CONFIDENCE_WARNING: z.coerce.number().min(0).max(1).default(0.72),
   NDIE_QUESTION_PROVIDER: z.string().default("question.rule-based"),
   NDIE_OPTION_PROVIDER: z.string().default("option.rule-based"),
+  NDIE_EVALUATION_PROVIDER: z.string().default("evaluation.rule-based"),
   NDIE_ANSWER_KEY_PROVIDER: z.string().default("answer-key.rule-based"),
   NDIE_SOLUTION_PROVIDER: z.string().default("solution.rule-based"),
   NDIE_AI_PROVIDER: z.string().default("ai.rule-based"),

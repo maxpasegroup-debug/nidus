@@ -49,6 +49,7 @@
     "test:ndie-formula": "tsx src/scripts/ndie-formula-verification.ts",
     "test:ndie-visual": "tsx src/scripts/ndie-visual-verification.ts",
     "test:ndie-assessment": "tsx src/scripts/ndie-assessment-verification.ts",
+    "test:ndie-evaluation": "tsx src/scripts/ndie-evaluation-verification.ts",
     "test:automation": "tsx src/scripts/automation-engine-verification.ts",
     "test:whatsapp": "tsx src/scripts/whatsapp-flow-verification.ts",
     "test:ai-director": "tsx src/scripts/ai-director-verification.ts",

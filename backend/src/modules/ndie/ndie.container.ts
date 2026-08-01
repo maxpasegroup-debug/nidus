@@ -3,6 +3,7 @@ import { RuleBasedAnswerKeyProvider } from "./answer-key-mapper/rule-based-answe
 import { OpenAiValidatorProvider } from "./ai-validator/openai-ai.provider.js";
 import { RuleBasedAiValidatorProvider } from "./ai-validator/rule-based-ai.provider.js";
 import { NdieEventBus } from "./events/event-bus.js";
+import { RuleBasedEvaluationProvider } from "./evaluation-intelligence/rule-based-evaluation.provider.js";
 import { RuleBasedFormulaProvider } from "./formula-analyzer/rule-based-formula.provider.js";
 import { RuleBasedLayoutProvider } from "./layout-analyzer/rule-based-layout.provider.js";
 import { StubOcrProvider } from "./ocr/stub-ocr.provider.js";
@@ -53,6 +54,7 @@ function buildRegistry() {
   registry.register(new RuleBasedVisualProvider());
   registry.register(new RuleBasedQuestionProvider());
   registry.register(new RuleBasedOptionProvider());
+  registry.register(new RuleBasedEvaluationProvider());
   registry.register(new RuleBasedAnswerKeyProvider());
   registry.register(new RuleBasedSolutionProvider());
   registry.register(new RuleBasedAiValidatorProvider());

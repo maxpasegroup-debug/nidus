@@ -1,5 +1,6 @@
 import { prisma } from "../../../config/prisma.js";
 import { logger } from "../../../utils/logger.js";
+import { ndieAnswerKeyMapperService } from "../answer-key-mapper/answer-key-mapper.service.js";
 import { ndieFormulaAnalyzerService } from "../formula-analyzer/formula-analyzer.service.js";
 import { ndieLayoutAnalyzerService } from "../layout-analyzer/layout-analyzer.service.js";
 import { ndieOcrService } from "../ocr/ocr.service.js";
@@ -106,6 +107,19 @@ async function runQuestionForJob(jobId: string, workerId: string) {
   return result;
 }
 
+async function runAnswerForJob(jobId: string, workerId: string) {
+  const job = await prisma.ndieQueueJob.findUnique({ where: { id: jobId } });
+  if (!job) throw Object.assign(new Error("NDIE queue job not found"), { statusCode: 404 });
+
+  await ndieQueueService.transition(jobId, "ANSWER_RUNNING", { workerId, provider: "evaluation.rule-based" });
+  await ndieQueueService.updateProgress(jobId, 15, "ANSWER_RUNNING");
+  const result = await ndieAnswerKeyMapperService.mapImport(job.importJobId);
+  await ndieQueueService.updateProgress(jobId, 90, "ANSWER_COMPLETED");
+  await ndieQueueService.transition(jobId, "ANSWER_COMPLETED", { workerId, answersMapped: result.answersMapped, solutionsMapped: result.solutionsMapped });
+  await ndieQueueService.transition(jobId, "READY_FOR_AI_VALIDATION", { workerId, providerId: result.evaluationProvider });
+  return result;
+}
+
 export const ndieWorkerService = {
   async health() {
     const processing = await prisma.ndieQueueJob.count({ where: { state: "PROCESSING" } });
@@ -149,6 +163,8 @@ export const ndieWorkerService = {
         await runVisualForJob(jobId, workerId);
       } else if (job.stage === "QUESTION") {
         await runQuestionForJob(jobId, workerId);
+      } else if (job.stage === "ANSWER") {
+        await runAnswerForJob(jobId, workerId);
       } else {
         await ndieQueueService.updateProgress(jobId, 60, "PLACEHOLDER_CHECKPOINT");
       }
@@ -156,7 +172,7 @@ export const ndieWorkerService = {
       await ndieQueueService.updateProgress(jobId, 100, job.stage);
       const completed = await ndieQueueService.transition(jobId, "COMPLETED", {
         workerId,
-          result: job.stage === "PDF_RENDERING" ? "PDF pages rendered and ready for OCR." : job.stage === "OCR" ? "OCR completed and ready for layout." : job.stage === "LAYOUT" ? "Layout completed and ready for formula engine." : job.stage === "FORMULA" ? "Formula intelligence completed and ready for visual engine." : job.stage === "VISUAL" ? "Visual intelligence completed and ready for question engine." : job.stage === "QUESTION" ? "Assessment intelligence completed and ready for answer engine." : "Placeholder queue infrastructure completed without running document intelligence."
+          result: job.stage === "PDF_RENDERING" ? "PDF pages rendered and ready for OCR." : job.stage === "OCR" ? "OCR completed and ready for layout." : job.stage === "LAYOUT" ? "Layout completed and ready for formula engine." : job.stage === "FORMULA" ? "Formula intelligence completed and ready for visual engine." : job.stage === "VISUAL" ? "Visual intelligence completed and ready for question engine." : job.stage === "QUESTION" ? "Assessment intelligence completed and ready for answer engine." : job.stage === "ANSWER" ? "Evaluation intelligence completed and ready for AI validation." : "Placeholder queue infrastructure completed without running document intelligence."
       });
       if (job.stage === "PDF_RENDERING") {
         await prisma.ndieImportJob.update({
@@ -187,6 +203,11 @@ export const ndieWorkerService = {
         await prisma.ndieImportJob.update({
           where: { id: completed.importJobId },
           data: { status: "READY_FOR_ANSWER_ENGINE", currentCheckpoint: "READY_FOR_ANSWER_ENGINE" }
+        });
+      } else if (job.stage === "ANSWER") {
+        await prisma.ndieImportJob.update({
+          where: { id: completed.importJobId },
+          data: { status: "READY_FOR_AI_VALIDATION", currentCheckpoint: "READY_FOR_AI_VALIDATION" }
         });
       }
       await logNdieQueueEvent({
