@@ -580,6 +580,19 @@ export const ModelName = {
   TeacherExamRecord: 'TeacherExamRecord',
   ExamImportJob: 'ExamImportJob',
   ExamUpload: 'ExamUpload',
+  NdieImportJob: 'NdieImportJob',
+  NdieSourceDocument: 'NdieSourceDocument',
+  NdiePage: 'NdiePage',
+  NdiePageAsset: 'NdiePageAsset',
+  NdieElement: 'NdieElement',
+  NdieQuestionCandidate: 'NdieQuestionCandidate',
+  NdieAnswerKeyCandidate: 'NdieAnswerKeyCandidate',
+  NdieSolutionCandidate: 'NdieSolutionCandidate',
+  NdieReviewDecision: 'NdieReviewDecision',
+  NdieRevision: 'NdieRevision',
+  NdieReplayRun: 'NdieReplayRun',
+  NdieQualityScore: 'NdieQualityScore',
+  NdieProviderRun: 'NdieProviderRun',
   TeacherCalendarLogRecord: 'TeacherCalendarLogRecord',
   TeacherSyllabusProgressRecord: 'TeacherSyllabusProgressRecord',
   NdpReview: 'NdpReview',
@@ -612,7 +625,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "sessionToken" | "passwordReset" | "parentStudentInvitation" | "parentStudentLink" | "otp" | "course" | "module" | "lesson" | "enrollment" | "batch" | "batchStudent" | "teacherBatchAssignment" | "test" | "question" | "questionVersion" | "questionBankItem" | "testAttempt" | "cBTAnswerState" | "cBTIntegrityEvent" | "answer" | "psychometricTest" | "psychometricQuestion" | "psychometricAttempt" | "psychometricReport" | "psychometricAnswer" | "assessmentArenaAssessment" | "assessmentTraitMapping" | "assessmentDimensionMapping" | "assessmentQuestionBlueprint" | "assessmentTraitBlueprint" | "assessmentDimensionBlueprint" | "assessmentTrait" | "assessmentDimension" | "assessmentQuestion" | "assessmentQuestionOption" | "assessmentQuestionVersion" | "assessmentQuestionReview" | "assessmentReviewBoard" | "assessmentPilotRun" | "assessmentPilotResponse" | "assessmentQuestionExposure" | "assessmentAttempt" | "assessmentAttemptQuestion" | "assessmentAnswer" | "assessmentTraitScore" | "assessmentDimensionScore" | "assessmentIntegritySignal" | "assessmentRiskSignal" | "assessmentGrowthSnapshot" | "assessmentRankPrediction" | "assessmentReportSnapshot" | "topRankUser" | "topRankGateway" | "topRankProgram" | "topRankBatch" | "topRankSession" | "topRankStudentProfile" | "topRankEnrollment" | "topRankBatchAssignment" | "topRankProgramAgreement" | "topRankOrientationProgress" | "topRankAssessment" | "topRankAssessmentAnswer" | "topRankAPR" | "topRankMission" | "topRankMissionTask" | "topRankMissionCompletion" | "topRankMissionCalendar" | "topRankSignalSnapshot" | "topRankReadinessScore" | "topRankPerformanceTrend" | "topRankGrowthTrend" | "topRankRiskTrend" | "topRankMentorFeedback" | "topRankSignalWeightConfig" | "assessmentTraitLibraryItem" | "assessmentDimensionLibraryItem" | "assessmentTraitBandInterpretation" | "assessmentRiskInterpretation" | "assessmentReadinessInterpretation" | "assessmentSsbOlq" | "assessmentSsbOlqMapping" | "assessmentSsbOlqInterpretation" | "oLQScore" | "studyPlan" | "performanceAnalytics" | "revisionSchedule" | "liveClass" | "recordedLecture" | "lectureProgress" | "lecturePlaybackEvent" | "attendance" | "timetable" | "faculty" | "classroom" | "payroll" | "announcement" | "hostel" | "room" | "hostelAllocation" | "inOutEntry" | "hostelLeave" | "messMenu" | "disciplineRecord" | "paradePerformance" | "lead" | "followUp" | "admission" | "counsellingBooking" | "referral" | "payment" | "subscription" | "feeInstallment" | "invoice" | "feePlan" | "paymentTransactionLog" | "approvalRequest" | "scholarshipDiscount" | "financeDocument" | "notification" | "messageThread" | "message" | "emailLog" | "pushNotification" | "aIInterviewSession" | "aIInterviewQuestion" | "doubtQuery" | "aIRecommendation" | "aITutorSession" | "aITutorMessage" | "aITutorFeedback" | "aIResponseCache" | "learningTopicInsight" | "revisionQueueItem" | "cBTIntelligenceReport" | "contentIngestionJob" | "generatedContentAsset" | "offlineSyncEvent" | "learningAnalyticsSnapshot" | "dailyIntelligenceIssue" | "contentModerationItem" | "officerPotential" | "fitnessProfile" | "pTSchedule" | "pTAttendance" | "physicalEligibility" | "dailyFitnessLog" | "pYQCategory" | "pYQQuestion" | "currentAffair" | "currentAffairQuiz" | "quizBattle" | "quizBattleParticipant" | "leaderboard" | "mediaFolder" | "mediaFile" | "document" | "adminRole" | "permission" | "rolePermission" | "userRole" | "roleActivity" | "systemSetting" | "auditLog" | "queueJobLog" | "aIRequestLog" | "salesBoosterCampaign" | "salesBoosterMetricSnapshot" | "salesBoosterAudienceContact" | "guruQuest" | "guruLesson" | "guruLessonCompletion" | "guruReflectionQuestion" | "guruReflectionAnswer" | "guruChallenge" | "guruChallengeCompletion" | "guruProgress" | "guruAchievement" | "guruUserAchievement" | "guruCertificate" | "guruUserCertificate" | "guruDailyMission" | "guruDailyMissionCompletion" | "guruMentorNote" | "guruReflectionInsight" | "guruXpLedger" | "branch" | "institute" | "teacherAttendanceRecord" | "teacherAssignmentRecord" | "assignmentSubmissionRecord" | "teacherStudyMaterialRecord" | "teacherExamRecord" | "examImportJob" | "examUpload" | "teacherCalendarLogRecord" | "teacherSyllabusProgressRecord" | "ndpReview" | "ndpManualEntry" | "academicActivityAuditRecord" | "directorExpenseRecord" | "aiWorkflowRequest" | "aiWorkflowContext" | "aiWorkflowContextSource" | "aiWorkflowDraft" | "aiWorkflowDraftVersion" | "aiWorkflowReview" | "aiWorkflowApproval" | "aiWorkflowFeedback" | "aiWorkflowPublication" | "aiWorkflowAuditEvent" | "academicLeaveRequest"
+    modelProps: "user" | "sessionToken" | "passwordReset" | "parentStudentInvitation" | "parentStudentLink" | "otp" | "course" | "module" | "lesson" | "enrollment" | "batch" | "batchStudent" | "teacherBatchAssignment" | "test" | "question" | "questionVersion" | "questionBankItem" | "testAttempt" | "cBTAnswerState" | "cBTIntegrityEvent" | "answer" | "psychometricTest" | "psychometricQuestion" | "psychometricAttempt" | "psychometricReport" | "psychometricAnswer" | "assessmentArenaAssessment" | "assessmentTraitMapping" | "assessmentDimensionMapping" | "assessmentQuestionBlueprint" | "assessmentTraitBlueprint" | "assessmentDimensionBlueprint" | "assessmentTrait" | "assessmentDimension" | "assessmentQuestion" | "assessmentQuestionOption" | "assessmentQuestionVersion" | "assessmentQuestionReview" | "assessmentReviewBoard" | "assessmentPilotRun" | "assessmentPilotResponse" | "assessmentQuestionExposure" | "assessmentAttempt" | "assessmentAttemptQuestion" | "assessmentAnswer" | "assessmentTraitScore" | "assessmentDimensionScore" | "assessmentIntegritySignal" | "assessmentRiskSignal" | "assessmentGrowthSnapshot" | "assessmentRankPrediction" | "assessmentReportSnapshot" | "topRankUser" | "topRankGateway" | "topRankProgram" | "topRankBatch" | "topRankSession" | "topRankStudentProfile" | "topRankEnrollment" | "topRankBatchAssignment" | "topRankProgramAgreement" | "topRankOrientationProgress" | "topRankAssessment" | "topRankAssessmentAnswer" | "topRankAPR" | "topRankMission" | "topRankMissionTask" | "topRankMissionCompletion" | "topRankMissionCalendar" | "topRankSignalSnapshot" | "topRankReadinessScore" | "topRankPerformanceTrend" | "topRankGrowthTrend" | "topRankRiskTrend" | "topRankMentorFeedback" | "topRankSignalWeightConfig" | "assessmentTraitLibraryItem" | "assessmentDimensionLibraryItem" | "assessmentTraitBandInterpretation" | "assessmentRiskInterpretation" | "assessmentReadinessInterpretation" | "assessmentSsbOlq" | "assessmentSsbOlqMapping" | "assessmentSsbOlqInterpretation" | "oLQScore" | "studyPlan" | "performanceAnalytics" | "revisionSchedule" | "liveClass" | "recordedLecture" | "lectureProgress" | "lecturePlaybackEvent" | "attendance" | "timetable" | "faculty" | "classroom" | "payroll" | "announcement" | "hostel" | "room" | "hostelAllocation" | "inOutEntry" | "hostelLeave" | "messMenu" | "disciplineRecord" | "paradePerformance" | "lead" | "followUp" | "admission" | "counsellingBooking" | "referral" | "payment" | "subscription" | "feeInstallment" | "invoice" | "feePlan" | "paymentTransactionLog" | "approvalRequest" | "scholarshipDiscount" | "financeDocument" | "notification" | "messageThread" | "message" | "emailLog" | "pushNotification" | "aIInterviewSession" | "aIInterviewQuestion" | "doubtQuery" | "aIRecommendation" | "aITutorSession" | "aITutorMessage" | "aITutorFeedback" | "aIResponseCache" | "learningTopicInsight" | "revisionQueueItem" | "cBTIntelligenceReport" | "contentIngestionJob" | "generatedContentAsset" | "offlineSyncEvent" | "learningAnalyticsSnapshot" | "dailyIntelligenceIssue" | "contentModerationItem" | "officerPotential" | "fitnessProfile" | "pTSchedule" | "pTAttendance" | "physicalEligibility" | "dailyFitnessLog" | "pYQCategory" | "pYQQuestion" | "currentAffair" | "currentAffairQuiz" | "quizBattle" | "quizBattleParticipant" | "leaderboard" | "mediaFolder" | "mediaFile" | "document" | "adminRole" | "permission" | "rolePermission" | "userRole" | "roleActivity" | "systemSetting" | "auditLog" | "queueJobLog" | "aIRequestLog" | "salesBoosterCampaign" | "salesBoosterMetricSnapshot" | "salesBoosterAudienceContact" | "guruQuest" | "guruLesson" | "guruLessonCompletion" | "guruReflectionQuestion" | "guruReflectionAnswer" | "guruChallenge" | "guruChallengeCompletion" | "guruProgress" | "guruAchievement" | "guruUserAchievement" | "guruCertificate" | "guruUserCertificate" | "guruDailyMission" | "guruDailyMissionCompletion" | "guruMentorNote" | "guruReflectionInsight" | "guruXpLedger" | "branch" | "institute" | "teacherAttendanceRecord" | "teacherAssignmentRecord" | "assignmentSubmissionRecord" | "teacherStudyMaterialRecord" | "teacherExamRecord" | "examImportJob" | "examUpload" | "ndieImportJob" | "ndieSourceDocument" | "ndiePage" | "ndiePageAsset" | "ndieElement" | "ndieQuestionCandidate" | "ndieAnswerKeyCandidate" | "ndieSolutionCandidate" | "ndieReviewDecision" | "ndieRevision" | "ndieReplayRun" | "ndieQualityScore" | "ndieProviderRun" | "teacherCalendarLogRecord" | "teacherSyllabusProgressRecord" | "ndpReview" | "ndpManualEntry" | "academicActivityAuditRecord" | "directorExpenseRecord" | "aiWorkflowRequest" | "aiWorkflowContext" | "aiWorkflowContextSource" | "aiWorkflowDraft" | "aiWorkflowDraftVersion" | "aiWorkflowReview" | "aiWorkflowApproval" | "aiWorkflowFeedback" | "aiWorkflowPublication" | "aiWorkflowAuditEvent" | "academicLeaveRequest"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -15120,6 +15133,968 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    NdieImportJob: {
+      payload: Prisma.$NdieImportJobPayload<ExtArgs>
+      fields: Prisma.NdieImportJobFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.NdieImportJobFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieImportJobPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.NdieImportJobFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieImportJobPayload>
+        }
+        findFirst: {
+          args: Prisma.NdieImportJobFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieImportJobPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.NdieImportJobFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieImportJobPayload>
+        }
+        findMany: {
+          args: Prisma.NdieImportJobFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieImportJobPayload>[]
+        }
+        create: {
+          args: Prisma.NdieImportJobCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieImportJobPayload>
+        }
+        createMany: {
+          args: Prisma.NdieImportJobCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.NdieImportJobCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieImportJobPayload>[]
+        }
+        delete: {
+          args: Prisma.NdieImportJobDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieImportJobPayload>
+        }
+        update: {
+          args: Prisma.NdieImportJobUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieImportJobPayload>
+        }
+        deleteMany: {
+          args: Prisma.NdieImportJobDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.NdieImportJobUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.NdieImportJobUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieImportJobPayload>[]
+        }
+        upsert: {
+          args: Prisma.NdieImportJobUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieImportJobPayload>
+        }
+        aggregate: {
+          args: Prisma.NdieImportJobAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateNdieImportJob>
+        }
+        groupBy: {
+          args: Prisma.NdieImportJobGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NdieImportJobGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.NdieImportJobCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NdieImportJobCountAggregateOutputType> | number
+        }
+      }
+    }
+    NdieSourceDocument: {
+      payload: Prisma.$NdieSourceDocumentPayload<ExtArgs>
+      fields: Prisma.NdieSourceDocumentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.NdieSourceDocumentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieSourceDocumentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.NdieSourceDocumentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieSourceDocumentPayload>
+        }
+        findFirst: {
+          args: Prisma.NdieSourceDocumentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieSourceDocumentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.NdieSourceDocumentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieSourceDocumentPayload>
+        }
+        findMany: {
+          args: Prisma.NdieSourceDocumentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieSourceDocumentPayload>[]
+        }
+        create: {
+          args: Prisma.NdieSourceDocumentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieSourceDocumentPayload>
+        }
+        createMany: {
+          args: Prisma.NdieSourceDocumentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.NdieSourceDocumentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieSourceDocumentPayload>[]
+        }
+        delete: {
+          args: Prisma.NdieSourceDocumentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieSourceDocumentPayload>
+        }
+        update: {
+          args: Prisma.NdieSourceDocumentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieSourceDocumentPayload>
+        }
+        deleteMany: {
+          args: Prisma.NdieSourceDocumentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.NdieSourceDocumentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.NdieSourceDocumentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieSourceDocumentPayload>[]
+        }
+        upsert: {
+          args: Prisma.NdieSourceDocumentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieSourceDocumentPayload>
+        }
+        aggregate: {
+          args: Prisma.NdieSourceDocumentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateNdieSourceDocument>
+        }
+        groupBy: {
+          args: Prisma.NdieSourceDocumentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NdieSourceDocumentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.NdieSourceDocumentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NdieSourceDocumentCountAggregateOutputType> | number
+        }
+      }
+    }
+    NdiePage: {
+      payload: Prisma.$NdiePagePayload<ExtArgs>
+      fields: Prisma.NdiePageFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.NdiePageFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdiePagePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.NdiePageFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdiePagePayload>
+        }
+        findFirst: {
+          args: Prisma.NdiePageFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdiePagePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.NdiePageFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdiePagePayload>
+        }
+        findMany: {
+          args: Prisma.NdiePageFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdiePagePayload>[]
+        }
+        create: {
+          args: Prisma.NdiePageCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdiePagePayload>
+        }
+        createMany: {
+          args: Prisma.NdiePageCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.NdiePageCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdiePagePayload>[]
+        }
+        delete: {
+          args: Prisma.NdiePageDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdiePagePayload>
+        }
+        update: {
+          args: Prisma.NdiePageUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdiePagePayload>
+        }
+        deleteMany: {
+          args: Prisma.NdiePageDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.NdiePageUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.NdiePageUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdiePagePayload>[]
+        }
+        upsert: {
+          args: Prisma.NdiePageUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdiePagePayload>
+        }
+        aggregate: {
+          args: Prisma.NdiePageAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateNdiePage>
+        }
+        groupBy: {
+          args: Prisma.NdiePageGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NdiePageGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.NdiePageCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NdiePageCountAggregateOutputType> | number
+        }
+      }
+    }
+    NdiePageAsset: {
+      payload: Prisma.$NdiePageAssetPayload<ExtArgs>
+      fields: Prisma.NdiePageAssetFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.NdiePageAssetFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdiePageAssetPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.NdiePageAssetFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdiePageAssetPayload>
+        }
+        findFirst: {
+          args: Prisma.NdiePageAssetFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdiePageAssetPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.NdiePageAssetFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdiePageAssetPayload>
+        }
+        findMany: {
+          args: Prisma.NdiePageAssetFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdiePageAssetPayload>[]
+        }
+        create: {
+          args: Prisma.NdiePageAssetCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdiePageAssetPayload>
+        }
+        createMany: {
+          args: Prisma.NdiePageAssetCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.NdiePageAssetCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdiePageAssetPayload>[]
+        }
+        delete: {
+          args: Prisma.NdiePageAssetDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdiePageAssetPayload>
+        }
+        update: {
+          args: Prisma.NdiePageAssetUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdiePageAssetPayload>
+        }
+        deleteMany: {
+          args: Prisma.NdiePageAssetDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.NdiePageAssetUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.NdiePageAssetUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdiePageAssetPayload>[]
+        }
+        upsert: {
+          args: Prisma.NdiePageAssetUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdiePageAssetPayload>
+        }
+        aggregate: {
+          args: Prisma.NdiePageAssetAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateNdiePageAsset>
+        }
+        groupBy: {
+          args: Prisma.NdiePageAssetGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NdiePageAssetGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.NdiePageAssetCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NdiePageAssetCountAggregateOutputType> | number
+        }
+      }
+    }
+    NdieElement: {
+      payload: Prisma.$NdieElementPayload<ExtArgs>
+      fields: Prisma.NdieElementFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.NdieElementFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieElementPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.NdieElementFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieElementPayload>
+        }
+        findFirst: {
+          args: Prisma.NdieElementFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieElementPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.NdieElementFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieElementPayload>
+        }
+        findMany: {
+          args: Prisma.NdieElementFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieElementPayload>[]
+        }
+        create: {
+          args: Prisma.NdieElementCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieElementPayload>
+        }
+        createMany: {
+          args: Prisma.NdieElementCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.NdieElementCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieElementPayload>[]
+        }
+        delete: {
+          args: Prisma.NdieElementDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieElementPayload>
+        }
+        update: {
+          args: Prisma.NdieElementUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieElementPayload>
+        }
+        deleteMany: {
+          args: Prisma.NdieElementDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.NdieElementUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.NdieElementUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieElementPayload>[]
+        }
+        upsert: {
+          args: Prisma.NdieElementUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieElementPayload>
+        }
+        aggregate: {
+          args: Prisma.NdieElementAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateNdieElement>
+        }
+        groupBy: {
+          args: Prisma.NdieElementGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NdieElementGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.NdieElementCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NdieElementCountAggregateOutputType> | number
+        }
+      }
+    }
+    NdieQuestionCandidate: {
+      payload: Prisma.$NdieQuestionCandidatePayload<ExtArgs>
+      fields: Prisma.NdieQuestionCandidateFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.NdieQuestionCandidateFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieQuestionCandidatePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.NdieQuestionCandidateFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieQuestionCandidatePayload>
+        }
+        findFirst: {
+          args: Prisma.NdieQuestionCandidateFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieQuestionCandidatePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.NdieQuestionCandidateFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieQuestionCandidatePayload>
+        }
+        findMany: {
+          args: Prisma.NdieQuestionCandidateFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieQuestionCandidatePayload>[]
+        }
+        create: {
+          args: Prisma.NdieQuestionCandidateCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieQuestionCandidatePayload>
+        }
+        createMany: {
+          args: Prisma.NdieQuestionCandidateCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.NdieQuestionCandidateCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieQuestionCandidatePayload>[]
+        }
+        delete: {
+          args: Prisma.NdieQuestionCandidateDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieQuestionCandidatePayload>
+        }
+        update: {
+          args: Prisma.NdieQuestionCandidateUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieQuestionCandidatePayload>
+        }
+        deleteMany: {
+          args: Prisma.NdieQuestionCandidateDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.NdieQuestionCandidateUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.NdieQuestionCandidateUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieQuestionCandidatePayload>[]
+        }
+        upsert: {
+          args: Prisma.NdieQuestionCandidateUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieQuestionCandidatePayload>
+        }
+        aggregate: {
+          args: Prisma.NdieQuestionCandidateAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateNdieQuestionCandidate>
+        }
+        groupBy: {
+          args: Prisma.NdieQuestionCandidateGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NdieQuestionCandidateGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.NdieQuestionCandidateCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NdieQuestionCandidateCountAggregateOutputType> | number
+        }
+      }
+    }
+    NdieAnswerKeyCandidate: {
+      payload: Prisma.$NdieAnswerKeyCandidatePayload<ExtArgs>
+      fields: Prisma.NdieAnswerKeyCandidateFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.NdieAnswerKeyCandidateFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieAnswerKeyCandidatePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.NdieAnswerKeyCandidateFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieAnswerKeyCandidatePayload>
+        }
+        findFirst: {
+          args: Prisma.NdieAnswerKeyCandidateFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieAnswerKeyCandidatePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.NdieAnswerKeyCandidateFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieAnswerKeyCandidatePayload>
+        }
+        findMany: {
+          args: Prisma.NdieAnswerKeyCandidateFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieAnswerKeyCandidatePayload>[]
+        }
+        create: {
+          args: Prisma.NdieAnswerKeyCandidateCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieAnswerKeyCandidatePayload>
+        }
+        createMany: {
+          args: Prisma.NdieAnswerKeyCandidateCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.NdieAnswerKeyCandidateCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieAnswerKeyCandidatePayload>[]
+        }
+        delete: {
+          args: Prisma.NdieAnswerKeyCandidateDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieAnswerKeyCandidatePayload>
+        }
+        update: {
+          args: Prisma.NdieAnswerKeyCandidateUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieAnswerKeyCandidatePayload>
+        }
+        deleteMany: {
+          args: Prisma.NdieAnswerKeyCandidateDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.NdieAnswerKeyCandidateUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.NdieAnswerKeyCandidateUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieAnswerKeyCandidatePayload>[]
+        }
+        upsert: {
+          args: Prisma.NdieAnswerKeyCandidateUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieAnswerKeyCandidatePayload>
+        }
+        aggregate: {
+          args: Prisma.NdieAnswerKeyCandidateAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateNdieAnswerKeyCandidate>
+        }
+        groupBy: {
+          args: Prisma.NdieAnswerKeyCandidateGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NdieAnswerKeyCandidateGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.NdieAnswerKeyCandidateCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NdieAnswerKeyCandidateCountAggregateOutputType> | number
+        }
+      }
+    }
+    NdieSolutionCandidate: {
+      payload: Prisma.$NdieSolutionCandidatePayload<ExtArgs>
+      fields: Prisma.NdieSolutionCandidateFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.NdieSolutionCandidateFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieSolutionCandidatePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.NdieSolutionCandidateFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieSolutionCandidatePayload>
+        }
+        findFirst: {
+          args: Prisma.NdieSolutionCandidateFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieSolutionCandidatePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.NdieSolutionCandidateFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieSolutionCandidatePayload>
+        }
+        findMany: {
+          args: Prisma.NdieSolutionCandidateFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieSolutionCandidatePayload>[]
+        }
+        create: {
+          args: Prisma.NdieSolutionCandidateCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieSolutionCandidatePayload>
+        }
+        createMany: {
+          args: Prisma.NdieSolutionCandidateCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.NdieSolutionCandidateCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieSolutionCandidatePayload>[]
+        }
+        delete: {
+          args: Prisma.NdieSolutionCandidateDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieSolutionCandidatePayload>
+        }
+        update: {
+          args: Prisma.NdieSolutionCandidateUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieSolutionCandidatePayload>
+        }
+        deleteMany: {
+          args: Prisma.NdieSolutionCandidateDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.NdieSolutionCandidateUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.NdieSolutionCandidateUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieSolutionCandidatePayload>[]
+        }
+        upsert: {
+          args: Prisma.NdieSolutionCandidateUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieSolutionCandidatePayload>
+        }
+        aggregate: {
+          args: Prisma.NdieSolutionCandidateAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateNdieSolutionCandidate>
+        }
+        groupBy: {
+          args: Prisma.NdieSolutionCandidateGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NdieSolutionCandidateGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.NdieSolutionCandidateCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NdieSolutionCandidateCountAggregateOutputType> | number
+        }
+      }
+    }
+    NdieReviewDecision: {
+      payload: Prisma.$NdieReviewDecisionPayload<ExtArgs>
+      fields: Prisma.NdieReviewDecisionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.NdieReviewDecisionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieReviewDecisionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.NdieReviewDecisionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieReviewDecisionPayload>
+        }
+        findFirst: {
+          args: Prisma.NdieReviewDecisionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieReviewDecisionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.NdieReviewDecisionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieReviewDecisionPayload>
+        }
+        findMany: {
+          args: Prisma.NdieReviewDecisionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieReviewDecisionPayload>[]
+        }
+        create: {
+          args: Prisma.NdieReviewDecisionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieReviewDecisionPayload>
+        }
+        createMany: {
+          args: Prisma.NdieReviewDecisionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.NdieReviewDecisionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieReviewDecisionPayload>[]
+        }
+        delete: {
+          args: Prisma.NdieReviewDecisionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieReviewDecisionPayload>
+        }
+        update: {
+          args: Prisma.NdieReviewDecisionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieReviewDecisionPayload>
+        }
+        deleteMany: {
+          args: Prisma.NdieReviewDecisionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.NdieReviewDecisionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.NdieReviewDecisionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieReviewDecisionPayload>[]
+        }
+        upsert: {
+          args: Prisma.NdieReviewDecisionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieReviewDecisionPayload>
+        }
+        aggregate: {
+          args: Prisma.NdieReviewDecisionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateNdieReviewDecision>
+        }
+        groupBy: {
+          args: Prisma.NdieReviewDecisionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NdieReviewDecisionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.NdieReviewDecisionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NdieReviewDecisionCountAggregateOutputType> | number
+        }
+      }
+    }
+    NdieRevision: {
+      payload: Prisma.$NdieRevisionPayload<ExtArgs>
+      fields: Prisma.NdieRevisionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.NdieRevisionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieRevisionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.NdieRevisionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieRevisionPayload>
+        }
+        findFirst: {
+          args: Prisma.NdieRevisionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieRevisionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.NdieRevisionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieRevisionPayload>
+        }
+        findMany: {
+          args: Prisma.NdieRevisionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieRevisionPayload>[]
+        }
+        create: {
+          args: Prisma.NdieRevisionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieRevisionPayload>
+        }
+        createMany: {
+          args: Prisma.NdieRevisionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.NdieRevisionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieRevisionPayload>[]
+        }
+        delete: {
+          args: Prisma.NdieRevisionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieRevisionPayload>
+        }
+        update: {
+          args: Prisma.NdieRevisionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieRevisionPayload>
+        }
+        deleteMany: {
+          args: Prisma.NdieRevisionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.NdieRevisionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.NdieRevisionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieRevisionPayload>[]
+        }
+        upsert: {
+          args: Prisma.NdieRevisionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieRevisionPayload>
+        }
+        aggregate: {
+          args: Prisma.NdieRevisionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateNdieRevision>
+        }
+        groupBy: {
+          args: Prisma.NdieRevisionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NdieRevisionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.NdieRevisionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NdieRevisionCountAggregateOutputType> | number
+        }
+      }
+    }
+    NdieReplayRun: {
+      payload: Prisma.$NdieReplayRunPayload<ExtArgs>
+      fields: Prisma.NdieReplayRunFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.NdieReplayRunFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieReplayRunPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.NdieReplayRunFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieReplayRunPayload>
+        }
+        findFirst: {
+          args: Prisma.NdieReplayRunFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieReplayRunPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.NdieReplayRunFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieReplayRunPayload>
+        }
+        findMany: {
+          args: Prisma.NdieReplayRunFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieReplayRunPayload>[]
+        }
+        create: {
+          args: Prisma.NdieReplayRunCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieReplayRunPayload>
+        }
+        createMany: {
+          args: Prisma.NdieReplayRunCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.NdieReplayRunCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieReplayRunPayload>[]
+        }
+        delete: {
+          args: Prisma.NdieReplayRunDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieReplayRunPayload>
+        }
+        update: {
+          args: Prisma.NdieReplayRunUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieReplayRunPayload>
+        }
+        deleteMany: {
+          args: Prisma.NdieReplayRunDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.NdieReplayRunUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.NdieReplayRunUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieReplayRunPayload>[]
+        }
+        upsert: {
+          args: Prisma.NdieReplayRunUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieReplayRunPayload>
+        }
+        aggregate: {
+          args: Prisma.NdieReplayRunAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateNdieReplayRun>
+        }
+        groupBy: {
+          args: Prisma.NdieReplayRunGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NdieReplayRunGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.NdieReplayRunCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NdieReplayRunCountAggregateOutputType> | number
+        }
+      }
+    }
+    NdieQualityScore: {
+      payload: Prisma.$NdieQualityScorePayload<ExtArgs>
+      fields: Prisma.NdieQualityScoreFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.NdieQualityScoreFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieQualityScorePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.NdieQualityScoreFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieQualityScorePayload>
+        }
+        findFirst: {
+          args: Prisma.NdieQualityScoreFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieQualityScorePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.NdieQualityScoreFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieQualityScorePayload>
+        }
+        findMany: {
+          args: Prisma.NdieQualityScoreFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieQualityScorePayload>[]
+        }
+        create: {
+          args: Prisma.NdieQualityScoreCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieQualityScorePayload>
+        }
+        createMany: {
+          args: Prisma.NdieQualityScoreCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.NdieQualityScoreCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieQualityScorePayload>[]
+        }
+        delete: {
+          args: Prisma.NdieQualityScoreDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieQualityScorePayload>
+        }
+        update: {
+          args: Prisma.NdieQualityScoreUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieQualityScorePayload>
+        }
+        deleteMany: {
+          args: Prisma.NdieQualityScoreDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.NdieQualityScoreUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.NdieQualityScoreUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieQualityScorePayload>[]
+        }
+        upsert: {
+          args: Prisma.NdieQualityScoreUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieQualityScorePayload>
+        }
+        aggregate: {
+          args: Prisma.NdieQualityScoreAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateNdieQualityScore>
+        }
+        groupBy: {
+          args: Prisma.NdieQualityScoreGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NdieQualityScoreGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.NdieQualityScoreCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NdieQualityScoreCountAggregateOutputType> | number
+        }
+      }
+    }
+    NdieProviderRun: {
+      payload: Prisma.$NdieProviderRunPayload<ExtArgs>
+      fields: Prisma.NdieProviderRunFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.NdieProviderRunFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieProviderRunPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.NdieProviderRunFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieProviderRunPayload>
+        }
+        findFirst: {
+          args: Prisma.NdieProviderRunFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieProviderRunPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.NdieProviderRunFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieProviderRunPayload>
+        }
+        findMany: {
+          args: Prisma.NdieProviderRunFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieProviderRunPayload>[]
+        }
+        create: {
+          args: Prisma.NdieProviderRunCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieProviderRunPayload>
+        }
+        createMany: {
+          args: Prisma.NdieProviderRunCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.NdieProviderRunCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieProviderRunPayload>[]
+        }
+        delete: {
+          args: Prisma.NdieProviderRunDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieProviderRunPayload>
+        }
+        update: {
+          args: Prisma.NdieProviderRunUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieProviderRunPayload>
+        }
+        deleteMany: {
+          args: Prisma.NdieProviderRunDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.NdieProviderRunUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.NdieProviderRunUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieProviderRunPayload>[]
+        }
+        upsert: {
+          args: Prisma.NdieProviderRunUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdieProviderRunPayload>
+        }
+        aggregate: {
+          args: Prisma.NdieProviderRunAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateNdieProviderRun>
+        }
+        groupBy: {
+          args: Prisma.NdieProviderRunGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NdieProviderRunGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.NdieProviderRunCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NdieProviderRunCountAggregateOutputType> | number
+        }
+      }
+    }
     TeacherCalendarLogRecord: {
       payload: Prisma.$TeacherCalendarLogRecordPayload<ExtArgs>
       fields: Prisma.TeacherCalendarLogRecordFieldRefs
@@ -19589,6 +20564,252 @@ export const ExamUploadScalarFieldEnum = {
 export type ExamUploadScalarFieldEnum = (typeof ExamUploadScalarFieldEnum)[keyof typeof ExamUploadScalarFieldEnum]
 
 
+export const NdieImportJobScalarFieldEnum = {
+  id: 'id',
+  legacyImportJobId: 'legacyImportJobId',
+  examId: 'examId',
+  testId: 'testId',
+  batchId: 'batchId',
+  subject: 'subject',
+  topic: 'topic',
+  sourceKind: 'sourceKind',
+  status: 'status',
+  reviewStatus: 'reviewStatus',
+  pipelineVersion: 'pipelineVersion',
+  manifest: 'manifest',
+  checkpoints: 'checkpoints',
+  currentCheckpoint: 'currentCheckpoint',
+  qualitySummary: 'qualitySummary',
+  providerSummary: 'providerSummary',
+  teacherSummary: 'teacherSummary',
+  uploadedBy: 'uploadedBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NdieImportJobScalarFieldEnum = (typeof NdieImportJobScalarFieldEnum)[keyof typeof NdieImportJobScalarFieldEnum]
+
+
+export const NdieSourceDocumentScalarFieldEnum = {
+  id: 'id',
+  importJobId: 'importJobId',
+  sourceKind: 'sourceKind',
+  originalName: 'originalName',
+  fileName: 'fileName',
+  fileType: 'fileType',
+  fileSize: 'fileSize',
+  storageProvider: 'storageProvider',
+  storageUrl: 'storageUrl',
+  storagePublicId: 'storagePublicId',
+  checksum: 'checksum',
+  documentClass: 'documentClass',
+  pipeline: 'pipeline',
+  classification: 'classification',
+  pageCount: 'pageCount',
+  preservationState: 'preservationState',
+  uploadedBy: 'uploadedBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NdieSourceDocumentScalarFieldEnum = (typeof NdieSourceDocumentScalarFieldEnum)[keyof typeof NdieSourceDocumentScalarFieldEnum]
+
+
+export const NdiePageScalarFieldEnum = {
+  id: 'id',
+  importJobId: 'importJobId',
+  sourceDocumentId: 'sourceDocumentId',
+  pageNumber: 'pageNumber',
+  width: 'width',
+  height: 'height',
+  rotation: 'rotation',
+  renderStatus: 'renderStatus',
+  imageUrl: 'imageUrl',
+  imagePublicId: 'imagePublicId',
+  thumbnailUrl: 'thumbnailUrl',
+  ocrStatus: 'ocrStatus',
+  ocrText: 'ocrText',
+  ocrJson: 'ocrJson',
+  layoutJson: 'layoutJson',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NdiePageScalarFieldEnum = (typeof NdiePageScalarFieldEnum)[keyof typeof NdiePageScalarFieldEnum]
+
+
+export const NdiePageAssetScalarFieldEnum = {
+  id: 'id',
+  importJobId: 'importJobId',
+  sourceDocumentId: 'sourceDocumentId',
+  pageId: 'pageId',
+  assetType: 'assetType',
+  role: 'role',
+  pageNumber: 'pageNumber',
+  coordinates: 'coordinates',
+  storageProvider: 'storageProvider',
+  url: 'url',
+  publicId: 'publicId',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+} as const
+
+export type NdiePageAssetScalarFieldEnum = (typeof NdiePageAssetScalarFieldEnum)[keyof typeof NdiePageAssetScalarFieldEnum]
+
+
+export const NdieElementScalarFieldEnum = {
+  id: 'id',
+  importJobId: 'importJobId',
+  sourceDocumentId: 'sourceDocumentId',
+  pageId: 'pageId',
+  pageNumber: 'pageNumber',
+  elementType: 'elementType',
+  text: 'text',
+  normalizedText: 'normalizedText',
+  coordinates: 'coordinates',
+  readingOrder: 'readingOrder',
+  confidence: 'confidence',
+  providerId: 'providerId',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+} as const
+
+export type NdieElementScalarFieldEnum = (typeof NdieElementScalarFieldEnum)[keyof typeof NdieElementScalarFieldEnum]
+
+
+export const NdieQuestionCandidateScalarFieldEnum = {
+  id: 'id',
+  importJobId: 'importJobId',
+  questionNumber: 'questionNumber',
+  questionType: 'questionType',
+  candidateJson: 'candidateJson',
+  sourceMap: 'sourceMap',
+  confidence: 'confidence',
+  status: 'status',
+  reviewStatus: 'reviewStatus',
+  approvedQuestionId: 'approvedQuestionId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NdieQuestionCandidateScalarFieldEnum = (typeof NdieQuestionCandidateScalarFieldEnum)[keyof typeof NdieQuestionCandidateScalarFieldEnum]
+
+
+export const NdieAnswerKeyCandidateScalarFieldEnum = {
+  id: 'id',
+  importJobId: 'importJobId',
+  sourceDocumentId: 'sourceDocumentId',
+  questionNumber: 'questionNumber',
+  answerJson: 'answerJson',
+  confidence: 'confidence',
+  status: 'status',
+  createdAt: 'createdAt'
+} as const
+
+export type NdieAnswerKeyCandidateScalarFieldEnum = (typeof NdieAnswerKeyCandidateScalarFieldEnum)[keyof typeof NdieAnswerKeyCandidateScalarFieldEnum]
+
+
+export const NdieSolutionCandidateScalarFieldEnum = {
+  id: 'id',
+  importJobId: 'importJobId',
+  sourceDocumentId: 'sourceDocumentId',
+  questionNumber: 'questionNumber',
+  solutionJson: 'solutionJson',
+  confidence: 'confidence',
+  status: 'status',
+  createdAt: 'createdAt'
+} as const
+
+export type NdieSolutionCandidateScalarFieldEnum = (typeof NdieSolutionCandidateScalarFieldEnum)[keyof typeof NdieSolutionCandidateScalarFieldEnum]
+
+
+export const NdieReviewDecisionScalarFieldEnum = {
+  id: 'id',
+  importJobId: 'importJobId',
+  questionCandidateId: 'questionCandidateId',
+  decision: 'decision',
+  notes: 'notes',
+  snapshot: 'snapshot',
+  reviewedBy: 'reviewedBy',
+  reviewedByRole: 'reviewedByRole',
+  createdAt: 'createdAt'
+} as const
+
+export type NdieReviewDecisionScalarFieldEnum = (typeof NdieReviewDecisionScalarFieldEnum)[keyof typeof NdieReviewDecisionScalarFieldEnum]
+
+
+export const NdieRevisionScalarFieldEnum = {
+  id: 'id',
+  importJobId: 'importJobId',
+  questionCandidateId: 'questionCandidateId',
+  revision: 'revision',
+  changeType: 'changeType',
+  changeReason: 'changeReason',
+  snapshot: 'snapshot',
+  changedBy: 'changedBy',
+  changedByRole: 'changedByRole',
+  createdAt: 'createdAt'
+} as const
+
+export type NdieRevisionScalarFieldEnum = (typeof NdieRevisionScalarFieldEnum)[keyof typeof NdieRevisionScalarFieldEnum]
+
+
+export const NdieReplayRunScalarFieldEnum = {
+  id: 'id',
+  importJobId: 'importJobId',
+  requestedBy: 'requestedBy',
+  fromVersion: 'fromVersion',
+  toVersion: 'toVersion',
+  status: 'status',
+  checkpoint: 'checkpoint',
+  comparisonJson: 'comparisonJson',
+  error: 'error',
+  createdAt: 'createdAt',
+  completedAt: 'completedAt'
+} as const
+
+export type NdieReplayRunScalarFieldEnum = (typeof NdieReplayRunScalarFieldEnum)[keyof typeof NdieReplayRunScalarFieldEnum]
+
+
+export const NdieQualityScoreScalarFieldEnum = {
+  id: 'id',
+  importJobId: 'importJobId',
+  overall: 'overall',
+  grade: 'grade',
+  ocrConfidence: 'ocrConfidence',
+  formulaAccuracy: 'formulaAccuracy',
+  layoutAccuracy: 'layoutAccuracy',
+  tableAccuracy: 'tableAccuracy',
+  diagramPreservation: 'diagramPreservation',
+  optionCompleteness: 'optionCompleteness',
+  answerKeyConfidence: 'answerKeyConfidence',
+  aiConfidence: 'aiConfidence',
+  teacherReviewCompletion: 'teacherReviewCompletion',
+  details: 'details',
+  createdAt: 'createdAt'
+} as const
+
+export type NdieQualityScoreScalarFieldEnum = (typeof NdieQualityScoreScalarFieldEnum)[keyof typeof NdieQualityScoreScalarFieldEnum]
+
+
+export const NdieProviderRunScalarFieldEnum = {
+  id: 'id',
+  importJobId: 'importJobId',
+  providerId: 'providerId',
+  providerKind: 'providerKind',
+  stage: 'stage',
+  status: 'status',
+  inputSummary: 'inputSummary',
+  outputSummary: 'outputSummary',
+  confidence: 'confidence',
+  error: 'error',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt'
+} as const
+
+export type NdieProviderRunScalarFieldEnum = (typeof NdieProviderRunScalarFieldEnum)[keyof typeof NdieProviderRunScalarFieldEnum]
+
+
 export const TeacherCalendarLogRecordScalarFieldEnum = {
   id: 'id',
   calendarId: 'calendarId',
@@ -20528,6 +21749,19 @@ export type GlobalOmitConfig = {
   teacherExamRecord?: Prisma.TeacherExamRecordOmit
   examImportJob?: Prisma.ExamImportJobOmit
   examUpload?: Prisma.ExamUploadOmit
+  ndieImportJob?: Prisma.NdieImportJobOmit
+  ndieSourceDocument?: Prisma.NdieSourceDocumentOmit
+  ndiePage?: Prisma.NdiePageOmit
+  ndiePageAsset?: Prisma.NdiePageAssetOmit
+  ndieElement?: Prisma.NdieElementOmit
+  ndieQuestionCandidate?: Prisma.NdieQuestionCandidateOmit
+  ndieAnswerKeyCandidate?: Prisma.NdieAnswerKeyCandidateOmit
+  ndieSolutionCandidate?: Prisma.NdieSolutionCandidateOmit
+  ndieReviewDecision?: Prisma.NdieReviewDecisionOmit
+  ndieRevision?: Prisma.NdieRevisionOmit
+  ndieReplayRun?: Prisma.NdieReplayRunOmit
+  ndieQualityScore?: Prisma.NdieQualityScoreOmit
+  ndieProviderRun?: Prisma.NdieProviderRunOmit
   teacherCalendarLogRecord?: Prisma.TeacherCalendarLogRecordOmit
   teacherSyllabusProgressRecord?: Prisma.TeacherSyllabusProgressRecordOmit
   ndpReview?: Prisma.NdpReviewOmit

@@ -247,6 +247,19 @@ export const ModelName = {
   TeacherExamRecord: 'TeacherExamRecord',
   ExamImportJob: 'ExamImportJob',
   ExamUpload: 'ExamUpload',
+  NdieImportJob: 'NdieImportJob',
+  NdieSourceDocument: 'NdieSourceDocument',
+  NdiePage: 'NdiePage',
+  NdiePageAsset: 'NdiePageAsset',
+  NdieElement: 'NdieElement',
+  NdieQuestionCandidate: 'NdieQuestionCandidate',
+  NdieAnswerKeyCandidate: 'NdieAnswerKeyCandidate',
+  NdieSolutionCandidate: 'NdieSolutionCandidate',
+  NdieReviewDecision: 'NdieReviewDecision',
+  NdieRevision: 'NdieRevision',
+  NdieReplayRun: 'NdieReplayRun',
+  NdieQualityScore: 'NdieQualityScore',
+  NdieProviderRun: 'NdieProviderRun',
   TeacherCalendarLogRecord: 'TeacherCalendarLogRecord',
   TeacherSyllabusProgressRecord: 'TeacherSyllabusProgressRecord',
   NdpReview: 'NdpReview',
@@ -3452,6 +3465,252 @@ export const ExamUploadScalarFieldEnum = {
 } as const
 
 export type ExamUploadScalarFieldEnum = (typeof ExamUploadScalarFieldEnum)[keyof typeof ExamUploadScalarFieldEnum]
+
+
+export const NdieImportJobScalarFieldEnum = {
+  id: 'id',
+  legacyImportJobId: 'legacyImportJobId',
+  examId: 'examId',
+  testId: 'testId',
+  batchId: 'batchId',
+  subject: 'subject',
+  topic: 'topic',
+  sourceKind: 'sourceKind',
+  status: 'status',
+  reviewStatus: 'reviewStatus',
+  pipelineVersion: 'pipelineVersion',
+  manifest: 'manifest',
+  checkpoints: 'checkpoints',
+  currentCheckpoint: 'currentCheckpoint',
+  qualitySummary: 'qualitySummary',
+  providerSummary: 'providerSummary',
+  teacherSummary: 'teacherSummary',
+  uploadedBy: 'uploadedBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NdieImportJobScalarFieldEnum = (typeof NdieImportJobScalarFieldEnum)[keyof typeof NdieImportJobScalarFieldEnum]
+
+
+export const NdieSourceDocumentScalarFieldEnum = {
+  id: 'id',
+  importJobId: 'importJobId',
+  sourceKind: 'sourceKind',
+  originalName: 'originalName',
+  fileName: 'fileName',
+  fileType: 'fileType',
+  fileSize: 'fileSize',
+  storageProvider: 'storageProvider',
+  storageUrl: 'storageUrl',
+  storagePublicId: 'storagePublicId',
+  checksum: 'checksum',
+  documentClass: 'documentClass',
+  pipeline: 'pipeline',
+  classification: 'classification',
+  pageCount: 'pageCount',
+  preservationState: 'preservationState',
+  uploadedBy: 'uploadedBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NdieSourceDocumentScalarFieldEnum = (typeof NdieSourceDocumentScalarFieldEnum)[keyof typeof NdieSourceDocumentScalarFieldEnum]
+
+
+export const NdiePageScalarFieldEnum = {
+  id: 'id',
+  importJobId: 'importJobId',
+  sourceDocumentId: 'sourceDocumentId',
+  pageNumber: 'pageNumber',
+  width: 'width',
+  height: 'height',
+  rotation: 'rotation',
+  renderStatus: 'renderStatus',
+  imageUrl: 'imageUrl',
+  imagePublicId: 'imagePublicId',
+  thumbnailUrl: 'thumbnailUrl',
+  ocrStatus: 'ocrStatus',
+  ocrText: 'ocrText',
+  ocrJson: 'ocrJson',
+  layoutJson: 'layoutJson',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NdiePageScalarFieldEnum = (typeof NdiePageScalarFieldEnum)[keyof typeof NdiePageScalarFieldEnum]
+
+
+export const NdiePageAssetScalarFieldEnum = {
+  id: 'id',
+  importJobId: 'importJobId',
+  sourceDocumentId: 'sourceDocumentId',
+  pageId: 'pageId',
+  assetType: 'assetType',
+  role: 'role',
+  pageNumber: 'pageNumber',
+  coordinates: 'coordinates',
+  storageProvider: 'storageProvider',
+  url: 'url',
+  publicId: 'publicId',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+} as const
+
+export type NdiePageAssetScalarFieldEnum = (typeof NdiePageAssetScalarFieldEnum)[keyof typeof NdiePageAssetScalarFieldEnum]
+
+
+export const NdieElementScalarFieldEnum = {
+  id: 'id',
+  importJobId: 'importJobId',
+  sourceDocumentId: 'sourceDocumentId',
+  pageId: 'pageId',
+  pageNumber: 'pageNumber',
+  elementType: 'elementType',
+  text: 'text',
+  normalizedText: 'normalizedText',
+  coordinates: 'coordinates',
+  readingOrder: 'readingOrder',
+  confidence: 'confidence',
+  providerId: 'providerId',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+} as const
+
+export type NdieElementScalarFieldEnum = (typeof NdieElementScalarFieldEnum)[keyof typeof NdieElementScalarFieldEnum]
+
+
+export const NdieQuestionCandidateScalarFieldEnum = {
+  id: 'id',
+  importJobId: 'importJobId',
+  questionNumber: 'questionNumber',
+  questionType: 'questionType',
+  candidateJson: 'candidateJson',
+  sourceMap: 'sourceMap',
+  confidence: 'confidence',
+  status: 'status',
+  reviewStatus: 'reviewStatus',
+  approvedQuestionId: 'approvedQuestionId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NdieQuestionCandidateScalarFieldEnum = (typeof NdieQuestionCandidateScalarFieldEnum)[keyof typeof NdieQuestionCandidateScalarFieldEnum]
+
+
+export const NdieAnswerKeyCandidateScalarFieldEnum = {
+  id: 'id',
+  importJobId: 'importJobId',
+  sourceDocumentId: 'sourceDocumentId',
+  questionNumber: 'questionNumber',
+  answerJson: 'answerJson',
+  confidence: 'confidence',
+  status: 'status',
+  createdAt: 'createdAt'
+} as const
+
+export type NdieAnswerKeyCandidateScalarFieldEnum = (typeof NdieAnswerKeyCandidateScalarFieldEnum)[keyof typeof NdieAnswerKeyCandidateScalarFieldEnum]
+
+
+export const NdieSolutionCandidateScalarFieldEnum = {
+  id: 'id',
+  importJobId: 'importJobId',
+  sourceDocumentId: 'sourceDocumentId',
+  questionNumber: 'questionNumber',
+  solutionJson: 'solutionJson',
+  confidence: 'confidence',
+  status: 'status',
+  createdAt: 'createdAt'
+} as const
+
+export type NdieSolutionCandidateScalarFieldEnum = (typeof NdieSolutionCandidateScalarFieldEnum)[keyof typeof NdieSolutionCandidateScalarFieldEnum]
+
+
+export const NdieReviewDecisionScalarFieldEnum = {
+  id: 'id',
+  importJobId: 'importJobId',
+  questionCandidateId: 'questionCandidateId',
+  decision: 'decision',
+  notes: 'notes',
+  snapshot: 'snapshot',
+  reviewedBy: 'reviewedBy',
+  reviewedByRole: 'reviewedByRole',
+  createdAt: 'createdAt'
+} as const
+
+export type NdieReviewDecisionScalarFieldEnum = (typeof NdieReviewDecisionScalarFieldEnum)[keyof typeof NdieReviewDecisionScalarFieldEnum]
+
+
+export const NdieRevisionScalarFieldEnum = {
+  id: 'id',
+  importJobId: 'importJobId',
+  questionCandidateId: 'questionCandidateId',
+  revision: 'revision',
+  changeType: 'changeType',
+  changeReason: 'changeReason',
+  snapshot: 'snapshot',
+  changedBy: 'changedBy',
+  changedByRole: 'changedByRole',
+  createdAt: 'createdAt'
+} as const
+
+export type NdieRevisionScalarFieldEnum = (typeof NdieRevisionScalarFieldEnum)[keyof typeof NdieRevisionScalarFieldEnum]
+
+
+export const NdieReplayRunScalarFieldEnum = {
+  id: 'id',
+  importJobId: 'importJobId',
+  requestedBy: 'requestedBy',
+  fromVersion: 'fromVersion',
+  toVersion: 'toVersion',
+  status: 'status',
+  checkpoint: 'checkpoint',
+  comparisonJson: 'comparisonJson',
+  error: 'error',
+  createdAt: 'createdAt',
+  completedAt: 'completedAt'
+} as const
+
+export type NdieReplayRunScalarFieldEnum = (typeof NdieReplayRunScalarFieldEnum)[keyof typeof NdieReplayRunScalarFieldEnum]
+
+
+export const NdieQualityScoreScalarFieldEnum = {
+  id: 'id',
+  importJobId: 'importJobId',
+  overall: 'overall',
+  grade: 'grade',
+  ocrConfidence: 'ocrConfidence',
+  formulaAccuracy: 'formulaAccuracy',
+  layoutAccuracy: 'layoutAccuracy',
+  tableAccuracy: 'tableAccuracy',
+  diagramPreservation: 'diagramPreservation',
+  optionCompleteness: 'optionCompleteness',
+  answerKeyConfidence: 'answerKeyConfidence',
+  aiConfidence: 'aiConfidence',
+  teacherReviewCompletion: 'teacherReviewCompletion',
+  details: 'details',
+  createdAt: 'createdAt'
+} as const
+
+export type NdieQualityScoreScalarFieldEnum = (typeof NdieQualityScoreScalarFieldEnum)[keyof typeof NdieQualityScoreScalarFieldEnum]
+
+
+export const NdieProviderRunScalarFieldEnum = {
+  id: 'id',
+  importJobId: 'importJobId',
+  providerId: 'providerId',
+  providerKind: 'providerKind',
+  stage: 'stage',
+  status: 'status',
+  inputSummary: 'inputSummary',
+  outputSummary: 'outputSummary',
+  confidence: 'confidence',
+  error: 'error',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt'
+} as const
+
+export type NdieProviderRunScalarFieldEnum = (typeof NdieProviderRunScalarFieldEnum)[keyof typeof NdieProviderRunScalarFieldEnum]
 
 
 export const TeacherCalendarLogRecordScalarFieldEnum = {

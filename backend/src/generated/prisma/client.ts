@@ -1022,6 +1022,71 @@ export type ExamImportJob = Prisma.ExamImportJobModel
  */
 export type ExamUpload = Prisma.ExamUploadModel
 /**
+ * Model NdieImportJob
+ * 
+ */
+export type NdieImportJob = Prisma.NdieImportJobModel
+/**
+ * Model NdieSourceDocument
+ * 
+ */
+export type NdieSourceDocument = Prisma.NdieSourceDocumentModel
+/**
+ * Model NdiePage
+ * 
+ */
+export type NdiePage = Prisma.NdiePageModel
+/**
+ * Model NdiePageAsset
+ * 
+ */
+export type NdiePageAsset = Prisma.NdiePageAssetModel
+/**
+ * Model NdieElement
+ * 
+ */
+export type NdieElement = Prisma.NdieElementModel
+/**
+ * Model NdieQuestionCandidate
+ * 
+ */
+export type NdieQuestionCandidate = Prisma.NdieQuestionCandidateModel
+/**
+ * Model NdieAnswerKeyCandidate
+ * 
+ */
+export type NdieAnswerKeyCandidate = Prisma.NdieAnswerKeyCandidateModel
+/**
+ * Model NdieSolutionCandidate
+ * 
+ */
+export type NdieSolutionCandidate = Prisma.NdieSolutionCandidateModel
+/**
+ * Model NdieReviewDecision
+ * 
+ */
+export type NdieReviewDecision = Prisma.NdieReviewDecisionModel
+/**
+ * Model NdieRevision
+ * 
+ */
+export type NdieRevision = Prisma.NdieRevisionModel
+/**
+ * Model NdieReplayRun
+ * 
+ */
+export type NdieReplayRun = Prisma.NdieReplayRunModel
+/**
+ * Model NdieQualityScore
+ * 
+ */
+export type NdieQualityScore = Prisma.NdieQualityScoreModel
+/**
+ * Model NdieProviderRun
+ * 
+ */
+export type NdieProviderRun = Prisma.NdieProviderRunModel
+/**
  * Model TeacherCalendarLogRecord
  * 
  */

@@ -80,7 +80,7 @@ export default function TestAttemptPage() {
   const [submitStarted, setSubmitStarted] = useState(false);
   const [focusWarnings, setFocusWarnings] = useState(0);
   const startedAtRef = useRef<number | null>(null);
-  const questionEnteredAtRef = useRef<number>(Date.now());
+  const questionEnteredAtRef = useRef<number>(0);
   const timeSpentRef = useRef<Record<string, number>>({});
 
   const questions = useMemo(() => attempt?.test?.questions ?? [], [attempt]);
@@ -109,9 +109,14 @@ export default function TestAttemptPage() {
   const attemptedWithReview = new Set([...answeredIndexes, ...review]);
   const cleanRemaining = Math.max(0, questions.length - attemptedWithReview.size);
 
+  useEffect(() => {
+    questionEnteredAtRef.current = Date.now();
+  }, []);
+
   function flushActiveQuestionTime() {
     if (!activeQuestion) return;
-    const elapsed = Math.max(0, Math.round((Date.now() - questionEnteredAtRef.current) / 1000));
+    const enteredAt = questionEnteredAtRef.current || Date.now();
+    const elapsed = Math.max(0, Math.round((Date.now() - enteredAt) / 1000));
     timeSpentRef.current[activeQuestion.id] = (timeSpentRef.current[activeQuestion.id] ?? 0) + elapsed;
     questionEnteredAtRef.current = Date.now();
   }

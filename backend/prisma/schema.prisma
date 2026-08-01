@@ -3903,6 +3903,339 @@ model ExamUpload {
   @@index([importJobId, sourceKind])
 }
 
+model NdieImportJob {
+  id                   String   @id @default(cuid())
+  legacyImportJobId    String?
+  examId               String?
+  testId               String?
+  batchId              String?
+  subject              String?
+  topic                String?
+  sourceKind           String   @default("QUESTION_PAPER")
+  status               String   @default("CREATED")
+  reviewStatus         String   @default("PENDING_REVIEW")
+  pipelineVersion      String   @default("1.0-foundation")
+  manifest             Json?
+  checkpoints          Json?
+  currentCheckpoint    String?
+  qualitySummary       Json?
+  providerSummary      Json?
+  teacherSummary       Json?
+  uploadedBy           String
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  sourceDocuments      NdieSourceDocument[]
+  pages                NdiePage[]
+  assets               NdiePageAsset[]
+  elements             NdieElement[]
+  questionCandidates   NdieQuestionCandidate[]
+  answerKeyCandidates  NdieAnswerKeyCandidate[]
+  solutionCandidates   NdieSolutionCandidate[]
+  reviewDecisions      NdieReviewDecision[]
+  revisions            NdieRevision[]
+  replayRuns           NdieReplayRun[]
+  qualityScores        NdieQualityScore[]
+  providerRuns         NdieProviderRun[]
+
+  @@index([legacyImportJobId])
+  @@index([examId])
+  @@index([testId])
+  @@index([batchId])
+  @@index([uploadedBy])
+  @@index([status])
+  @@index([reviewStatus])
+  @@index([sourceKind])
+  @@index([pipelineVersion])
+  @@index([batchId, createdAt])
+}
+
+model NdieSourceDocument {
+  id                String   @id @default(cuid())
+  importJobId       String
+  sourceKind        String   @default("QUESTION_PAPER")
+  originalName      String
+  fileName          String
+  fileType          String
+  fileSize          Int
+  storageProvider   String   @default("cloudinary")
+  storageUrl        String
+  storagePublicId   String
+  checksum          String?
+  documentClass     String   @default("UNKNOWN")
+  pipeline          String   @default("UNCLASSIFIED")
+  classification    Json?
+  pageCount         Int?
+  preservationState String   @default("PRESERVED")
+  uploadedBy        String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  importJob         NdieImportJob @relation(fields: [importJobId], references: [id], onDelete: Cascade)
+  pages             NdiePage[]
+  assets            NdiePageAsset[]
+  elements          NdieElement[]
+
+  @@index([importJobId])
+  @@index([sourceKind])
+  @@index([documentClass])
+  @@index([pipeline])
+  @@index([storagePublicId])
+}
+
+model NdiePage {
+  id               String   @id @default(cuid())
+  importJobId      String
+  sourceDocumentId String
+  pageNumber       Int
+  width            Float?
+  height           Float?
+  rotation         Float?
+  renderStatus     String   @default("PENDING_RENDER")
+  imageUrl         String?
+  imagePublicId    String?
+  thumbnailUrl     String?
+  ocrStatus        String   @default("PENDING_OCR")
+  ocrText          String?
+  ocrJson          Json?
+  layoutJson       Json?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  importJob        NdieImportJob      @relation(fields: [importJobId], references: [id], onDelete: Cascade)
+  sourceDocument   NdieSourceDocument @relation(fields: [sourceDocumentId], references: [id], onDelete: Cascade)
+  assets           NdiePageAsset[]
+  elements         NdieElement[]
+
+  @@unique([sourceDocumentId, pageNumber])
+  @@index([importJobId])
+  @@index([sourceDocumentId])
+  @@index([renderStatus])
+  @@index([ocrStatus])
+}
+
+model NdiePageAsset {
+  id               String   @id @default(cuid())
+  importJobId      String
+  sourceDocumentId String
+  pageId           String?
+  assetType        String
+  role             String?
+  pageNumber       Int?
+  coordinates      Json?
+  storageProvider  String   @default("cloudinary")
+  url              String
+  publicId         String
+  metadata         Json?
+  createdAt        DateTime @default(now())
+
+  importJob        NdieImportJob      @relation(fields: [importJobId], references: [id], onDelete: Cascade)
+  sourceDocument   NdieSourceDocument @relation(fields: [sourceDocumentId], references: [id], onDelete: Cascade)
+  page             NdiePage?          @relation(fields: [pageId], references: [id], onDelete: SetNull)
+
+  @@index([importJobId])
+  @@index([sourceDocumentId])
+  @@index([pageId])
+  @@index([assetType])
+  @@index([role])
+}
+
+model NdieElement {
+  id               String   @id @default(cuid())
+  importJobId      String
+  sourceDocumentId String
+  pageId           String?
+  pageNumber       Int
+  elementType      String
+  text             String?
+  normalizedText   String?
+  coordinates      Json
+  readingOrder     Int?
+  confidence       Float?
+  providerId       String?
+  metadata         Json?
+  createdAt        DateTime @default(now())
+
+  importJob        NdieImportJob      @relation(fields: [importJobId], references: [id], onDelete: Cascade)
+  sourceDocument   NdieSourceDocument @relation(fields: [sourceDocumentId], references: [id], onDelete: Cascade)
+  page             NdiePage?          @relation(fields: [pageId], references: [id], onDelete: SetNull)
+
+  @@index([importJobId])
+  @@index([sourceDocumentId])
+  @@index([pageId])
+  @@index([elementType])
+  @@index([pageNumber, readingOrder])
+}
+
+model NdieQuestionCandidate {
+  id                 String   @id @default(cuid())
+  importJobId        String
+  questionNumber     String?
+  questionType       String   @default("MCQ")
+  candidateJson      Json
+  sourceMap          Json?
+  confidence         Float?
+  status             String   @default("PENDING_REVIEW")
+  reviewStatus       String   @default("PENDING_REVIEW")
+  approvedQuestionId String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  importJob          NdieImportJob @relation(fields: [importJobId], references: [id], onDelete: Cascade)
+  reviewDecisions    NdieReviewDecision[]
+  revisions          NdieRevision[]
+
+  @@index([importJobId])
+  @@index([questionNumber])
+  @@index([questionType])
+  @@index([status])
+  @@index([reviewStatus])
+  @@index([approvedQuestionId])
+}
+
+model NdieAnswerKeyCandidate {
+  id               String   @id @default(cuid())
+  importJobId      String
+  sourceDocumentId String?
+  questionNumber   String?
+  answerJson       Json
+  confidence       Float?
+  status           String   @default("PENDING_MAPPING")
+  createdAt        DateTime @default(now())
+
+  importJob        NdieImportJob @relation(fields: [importJobId], references: [id], onDelete: Cascade)
+
+  @@index([importJobId])
+  @@index([sourceDocumentId])
+  @@index([questionNumber])
+  @@index([status])
+}
+
+model NdieSolutionCandidate {
+  id               String   @id @default(cuid())
+  importJobId      String
+  sourceDocumentId String?
+  questionNumber   String?
+  solutionJson     Json
+  confidence       Float?
+  status           String   @default("PENDING_MAPPING")
+  createdAt        DateTime @default(now())
+
+  importJob        NdieImportJob @relation(fields: [importJobId], references: [id], onDelete: Cascade)
+
+  @@index([importJobId])
+  @@index([sourceDocumentId])
+  @@index([questionNumber])
+  @@index([status])
+}
+
+model NdieReviewDecision {
+  id                  String   @id @default(cuid())
+  importJobId          String
+  questionCandidateId  String?
+  decision             String
+  notes                String?
+  snapshot             Json?
+  reviewedBy           String
+  reviewedByRole       String?
+  createdAt            DateTime @default(now())
+
+  importJob            NdieImportJob @relation(fields: [importJobId], references: [id], onDelete: Cascade)
+  questionCandidate    NdieQuestionCandidate? @relation(fields: [questionCandidateId], references: [id], onDelete: SetNull)
+
+  @@index([importJobId])
+  @@index([questionCandidateId])
+  @@index([decision])
+  @@index([reviewedBy])
+}
+
+model NdieRevision {
+  id                  String   @id @default(cuid())
+  importJobId          String
+  questionCandidateId  String?
+  revision             Int      @default(1)
+  changeType           String
+  changeReason         String?
+  snapshot             Json
+  changedBy            String?
+  changedByRole        String?
+  createdAt            DateTime @default(now())
+
+  importJob            NdieImportJob @relation(fields: [importJobId], references: [id], onDelete: Cascade)
+  questionCandidate    NdieQuestionCandidate? @relation(fields: [questionCandidateId], references: [id], onDelete: SetNull)
+
+  @@index([importJobId])
+  @@index([questionCandidateId])
+  @@index([changeType])
+  @@index([changedBy])
+}
+
+model NdieReplayRun {
+  id              String   @id @default(cuid())
+  importJobId      String
+  requestedBy      String?
+  fromVersion      String?
+  toVersion        String
+  status           String   @default("REQUESTED")
+  checkpoint       String?
+  comparisonJson   Json?
+  error            String?
+  createdAt        DateTime @default(now())
+  completedAt      DateTime?
+
+  importJob        NdieImportJob @relation(fields: [importJobId], references: [id], onDelete: Cascade)
+
+  @@index([importJobId])
+  @@index([requestedBy])
+  @@index([status])
+}
+
+model NdieQualityScore {
+  id                       String   @id @default(cuid())
+  importJobId               String
+  overall                   Float
+  grade                     String
+  ocrConfidence             Float?
+  formulaAccuracy           Float?
+  layoutAccuracy            Float?
+  tableAccuracy             Float?
+  diagramPreservation       Float?
+  optionCompleteness        Float?
+  answerKeyConfidence       Float?
+  aiConfidence              Float?
+  teacherReviewCompletion   Float?
+  details                   Json?
+  createdAt                 DateTime @default(now())
+
+  importJob                 NdieImportJob @relation(fields: [importJobId], references: [id], onDelete: Cascade)
+
+  @@index([importJobId])
+  @@index([grade])
+}
+
+model NdieProviderRun {
+  id              String   @id @default(cuid())
+  importJobId      String
+  providerId       String
+  providerKind     String
+  stage            String
+  status           String   @default("REQUESTED")
+  inputSummary     Json?
+  outputSummary    Json?
+  confidence       Float?
+  error            String?
+  startedAt        DateTime @default(now())
+  completedAt      DateTime?
+
+  importJob        NdieImportJob @relation(fields: [importJobId], references: [id], onDelete: Cascade)
+
+  @@index([importJobId])
+  @@index([providerId])
+  @@index([providerKind])
+  @@index([stage])
+  @@index([status])
+}
+
 model TeacherCalendarLogRecord {
   id               String   @id @default(cuid())
   calendarId       String

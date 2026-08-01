@@ -43,17 +43,17 @@ export default function DirectorAdmissionsPage() {
   const approvalsQuery = useQuery({ queryKey: ["director", "admission-review", "approvals"], queryFn: getApprovals });
   const followupsQuery = useQuery({ queryKey: ["director", "admission-review", "followups"], queryFn: getFollowups });
 
-  const leads = leadsQuery.data ?? [];
-  const admissions = admissionsQuery.data ?? [];
-  const approvals = approvalsQuery.data ?? [];
-  const followups = followupsQuery.data ?? [];
-  const activeLeads = leads.filter((lead) => lead.status !== "ENROLLED" && lead.status !== "LOST");
-  const applications = activeLeads.filter((lead) => hasNote(lead, "application") || hasNote(lead, "Ready For Admission") || lead.status === "COUNSELLING");
-  const pendingDocuments = applications.filter((lead) => !hasNote(lead, "DOCUMENTS: VERIFIED"));
-  const feesPending = activeLeads.filter((lead) => hasNote(lead, "Fees: PENDING") || (!hasNote(lead, "Fees: PAID") && !hasNote(lead, "Fees: APPROVED")));
-  const pendingApprovals = approvals.filter((approval) => approval.status === "PENDING");
-  const todayFollowups = followups.filter((item) => isToday(item.followUpDate) && item.status !== "COMPLETED");
-  const todayAdmissions = admissions.filter((admission) => isToday(admission.admissionDate));
+  const leads = useMemo(() => leadsQuery.data ?? [], [leadsQuery.data]);
+  const admissions = useMemo(() => admissionsQuery.data ?? [], [admissionsQuery.data]);
+  const approvals = useMemo(() => approvalsQuery.data ?? [], [approvalsQuery.data]);
+  const followups = useMemo(() => followupsQuery.data ?? [], [followupsQuery.data]);
+  const activeLeads = useMemo(() => leads.filter((lead) => lead.status !== "ENROLLED" && lead.status !== "LOST"), [leads]);
+  const applications = useMemo(() => activeLeads.filter((lead) => hasNote(lead, "application") || hasNote(lead, "Ready For Admission") || lead.status === "COUNSELLING"), [activeLeads]);
+  const pendingDocuments = useMemo(() => applications.filter((lead) => !hasNote(lead, "DOCUMENTS: VERIFIED")), [applications]);
+  const feesPending = useMemo(() => activeLeads.filter((lead) => hasNote(lead, "Fees: PENDING") || (!hasNote(lead, "Fees: PAID") && !hasNote(lead, "Fees: APPROVED"))), [activeLeads]);
+  const pendingApprovals = useMemo(() => approvals.filter((approval) => approval.status === "PENDING"), [approvals]);
+  const todayFollowups = useMemo(() => followups.filter((item) => isToday(item.followUpDate) && item.status !== "COMPLETED"), [followups]);
+  const todayAdmissions = useMemo(() => admissions.filter((admission) => isToday(admission.admissionDate)), [admissions]);
   const conversion = leads.length ? Math.round((admissions.length / leads.length) * 100) : 0;
   const revenueForecast = applications.reduce((sum, lead) => sum + moneyFromLead(lead), 0);
   const loading = leadsQuery.isLoading || admissionsQuery.isLoading || approvalsQuery.isLoading || followupsQuery.isLoading;

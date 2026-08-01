@@ -85,6 +85,37 @@ export async function uploadBufferToCloudinary(file: Express.Multer.File, folder
   });
 }
 
+export async function uploadBufferToCloudinaryResource(
+  input: { buffer: Buffer; originalname: string; mimetype: string },
+  folder = "nidus/media",
+  resourceType: "image" | "video" | "raw" = resourceTypeForMime(input.mimetype)
+): Promise<CloudinaryUploadResult> {
+  if (!allowedMediaMimeTypes.has(input.mimetype)) throw new Error("Unsupported file type. Upload images, PDFs, Word, PowerPoint, or videos only.");
+  if (!assertCloudinaryReady()) throw new Error("Cloudinary is not configured");
+
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder,
+        resource_type: resourceType,
+        use_filename: true,
+        unique_filename: true,
+        overwrite: false,
+        type: "authenticated",
+        access_mode: "authenticated"
+      },
+      (error, result?: UploadApiResponse) => {
+        if (error || !result) {
+          reject(error ?? new Error("Cloudinary upload failed"));
+          return;
+        }
+        resolve({ secureUrl: result.secure_url, publicId: result.public_id, resourceType: result.resource_type, format: result.format });
+      }
+    );
+    stream.end(input.buffer);
+  });
+}
+
 export async function deleteCloudinaryAsset(publicId: string, mimeType?: string) {
   if (!assertCloudinaryReady()) return { result: "skipped" };
   return cloudinary.uploader.destroy(publicId, { resource_type: mimeType ? resourceTypeForMime(mimeType) : "image", type: "authenticated" });
@@ -97,6 +128,21 @@ export function signedMediaUrl(publicId: string, mimeType?: string) {
     sign_url: true,
     type: "authenticated",
     resource_type: mimeType ? resourceTypeForMime(mimeType) : "image",
+    expires_at: Math.floor(Date.now() / 1000) + 10 * 60
+  });
+}
+
+export function signedCloudinaryPageImageUrl(publicId: string, pageNumber: number) {
+  assertCloudinaryReady();
+  return cloudinary.url(publicId, {
+    secure: true,
+    sign_url: true,
+    type: "authenticated",
+    resource_type: "image",
+    format: "jpg",
+    transformation: [
+      { page: pageNumber, width: 1800, crop: "limit", quality: "auto", fetch_format: "jpg" }
+    ],
     expires_at: Math.floor(Date.now() / 1000) + 10 * 60
   });
 }
