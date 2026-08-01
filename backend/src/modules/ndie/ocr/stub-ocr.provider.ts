@@ -20,9 +20,38 @@ export class StubOcrProvider implements OcrProvider {
   }
 
   async recognize(input: { importJobId: string; pageId: string; pageNumber: number; imageUrl?: string | null }) {
+    const normalized = {
+      schemaVersion: "ndie-ocr-v1" as const,
+      providerId: this.id,
+      providerVersion: "stub",
+      pageId: input.pageId,
+      pageNumber: input.pageNumber,
+      language: null,
+      languages: [],
+      rotation: null,
+      confidence: null,
+      text: "",
+      blocks: [],
+      diagnostics: {
+        blankPage: false,
+        lowConfidence: false,
+        missingText: true,
+        languageMismatch: false,
+        rotatedPage: false,
+        providerFailure: false,
+        retryable: false,
+        issues: ["WAITING_FOR_REAL_OCR_PROVIDER"]
+      },
+      preprocessing: {},
+      durationMs: 0,
+      createdAt: new Date().toISOString()
+    };
     return {
       text: "",
       confidence: null,
+      language: null,
+      languages: [],
+      normalized,
       raw: {
         provider: this.id,
         pageId: input.pageId,

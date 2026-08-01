@@ -11,6 +11,7 @@ import { ndieQuestionDetectorService } from "./question-detector/question-detect
 import { ndieReviewEngineService, type NdieReviewInput } from "./review-engine/review-engine.service.js";
 import { ndieQueueConfig, ndieQueueService } from "./queue/queue.service.js";
 import { ndiePdfRendererService } from "./pdf-renderer/pdf-renderer.service.js";
+import { ndieOcrService } from "./ocr/ocr.service.js";
 import { assertNdieCandidateAccess, assertNdieImportAccess, isNdieManager, type NdieActor } from "./security/ndie-security.js";
 import { ndieSourceStorageService, type NdieCreateImportInput } from "./source-storage/source-storage.service.js";
 import { ndieVisualDetectorService } from "./visual-detector/visual-detector.service.js";
@@ -20,11 +21,12 @@ const container = createNdieContainer();
 
 export const ndieService = {
   async health() {
-    const [queue, worker, metrics, renderer] = await Promise.all([
+    const [queue, worker, metrics, renderer, ocr] = await Promise.all([
       ndieQueueService.health(),
       ndieWorkerService.health(),
       ndieQueueService.metrics(),
-      ndiePdfRendererService.health()
+      ndiePdfRendererService.health(),
+      ndieOcrService.health()
     ]);
     return {
       service: "ndie",
@@ -36,6 +38,7 @@ export const ndieService = {
       worker,
       metrics,
       renderer,
+      ocr,
       pipelineEvents: NDIE_PIPELINE_EVENTS,
       services: container.services.map((service) => service.health()),
       providers: container.providerRegistry.health()

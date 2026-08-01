@@ -6,6 +6,7 @@ import { NdieEventBus } from "./events/event-bus.js";
 import { RuleBasedFormulaProvider } from "./formula-analyzer/rule-based-formula.provider.js";
 import { RuleBasedLayoutProvider } from "./layout-analyzer/rule-based-layout.provider.js";
 import { StubOcrProvider } from "./ocr/stub-ocr.provider.js";
+import { TesseractOcrProvider } from "./ocr/tesseract-ocr.provider.js";
 import { RuleBasedOptionProvider } from "./option-detector/rule-based-option.provider.js";
 import { MetadataPdfRendererProvider } from "./pdf-renderer/metadata-pdf-renderer.provider.js";
 import { PdfJsRendererProvider } from "./pdf-renderer/pdfjs-pdf-renderer.provider.js";
@@ -43,6 +44,7 @@ const serviceDefinitions = [
 function buildRegistry() {
   const registry = new ProviderRegistry();
   registry.register(new StubOcrProvider());
+  registry.register(new TesseractOcrProvider());
   registry.register(new PdfJsRendererProvider());
   registry.register(new MetadataPdfRendererProvider());
   registry.register(new RuleBasedLayoutProvider());

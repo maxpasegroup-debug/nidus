@@ -1,5 +1,6 @@
 import { prisma } from "../../../config/prisma.js";
 import { logger } from "../../../utils/logger.js";
+import { ndieOcrService } from "../ocr/ocr.service.js";
 import { ndiePdfRendererService } from "../pdf-renderer/pdf-renderer.service.js";
 import { ndieQueueConfig, ndieQueueService, ndieWorkerId, logNdieQueueEvent } from "../queue/queue.service.js";
 
@@ -36,6 +37,19 @@ async function renderPdfForJob(jobId: string, workerId: string) {
   return result;
 }
 
+async function runOcrForJob(jobId: string, workerId: string) {
+  const job = await prisma.ndieQueueJob.findUnique({ where: { id: jobId } });
+  if (!job) throw Object.assign(new Error("NDIE queue job not found"), { statusCode: 404 });
+
+  await ndieQueueService.transition(jobId, "OCR_RUNNING", { workerId, provider: "ocr.tesseract" });
+  await ndieQueueService.updateProgress(jobId, 15, "OCR_RUNNING");
+  const result = await ndieOcrService.runOcr(job.importJobId);
+  await ndieQueueService.updateProgress(jobId, 90, "OCR_COMPLETED");
+  await ndieQueueService.transition(jobId, "OCR_COMPLETED", { workerId, pagesProcessed: result.pages.length });
+  await ndieQueueService.transition(jobId, "READY_FOR_LAYOUT", { workerId, providerId: result.providerId });
+  return result;
+}
+
 export const ndieWorkerService = {
   async health() {
     const processing = await prisma.ndieQueueJob.count({ where: { state: "PROCESSING" } });
@@ -69,6 +83,8 @@ export const ndieWorkerService = {
 
       if (job.stage === "PDF_RENDERING") {
         await renderPdfForJob(jobId, workerId);
+      } else if (job.stage === "OCR") {
+        await runOcrForJob(jobId, workerId);
       } else {
         await ndieQueueService.updateProgress(jobId, 60, "PLACEHOLDER_CHECKPOINT");
       }
@@ -76,12 +92,17 @@ export const ndieWorkerService = {
       await ndieQueueService.updateProgress(jobId, 100, job.stage);
       const completed = await ndieQueueService.transition(jobId, "COMPLETED", {
         workerId,
-        result: job.stage === "PDF_RENDERING" ? "PDF pages rendered and ready for OCR." : "Placeholder queue infrastructure completed without running document intelligence."
+        result: job.stage === "PDF_RENDERING" ? "PDF pages rendered and ready for OCR." : job.stage === "OCR" ? "OCR completed and ready for layout." : "Placeholder queue infrastructure completed without running document intelligence."
       });
       if (job.stage === "PDF_RENDERING") {
         await prisma.ndieImportJob.update({
           where: { id: completed.importJobId },
           data: { status: "READY_FOR_OCR", currentCheckpoint: "READY_FOR_OCR" }
+        });
+      } else if (job.stage === "OCR") {
+        await prisma.ndieImportJob.update({
+          where: { id: completed.importJobId },
+          data: { status: "READY_FOR_LAYOUT", currentCheckpoint: "READY_FOR_LAYOUT" }
         });
       }
       await logNdieQueueEvent({

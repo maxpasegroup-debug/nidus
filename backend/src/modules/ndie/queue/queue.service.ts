@@ -60,6 +60,20 @@ export const ndieQueueService = {
     });
   },
 
+  async enqueueOcr(input: { importJobId: string; requestedBy?: string }) {
+    return this.enqueue({
+      importJobId: input.importJobId,
+      jobType: "PLACEHOLDER_STAGE",
+      stage: "OCR",
+      payload: {
+        pipelineVersion: env.NDIE_PIPELINE_VERSION,
+        queuedBy: input.requestedBy ?? "ndie-worker",
+        consumes: "RENDERED_PAGE_OCR_IMAGE",
+        produces: "NORMALIZED_OCR_JSON"
+      } as Prisma.InputJsonValue
+    });
+  },
+
   transition: provider.transition.bind(provider),
   updateProgress: provider.updateProgress.bind(provider),
   cancel: provider.cancel.bind(provider),

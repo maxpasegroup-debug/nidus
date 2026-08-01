@@ -50,6 +50,9 @@ export type NdieQueueMetrics = {
   rendering: number;
   pagesCreated: number;
   readyForOcr: number;
+  ocrRunning: number;
+  ocrCompleted: number;
+  readyForLayout: number;
   dlq: number;
   averageDurationMs: number;
   pendingJobs: number;

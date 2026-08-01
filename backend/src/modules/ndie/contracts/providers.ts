@@ -1,3 +1,5 @@
+import type { NdieOcrResult } from "./ocr-result.js";
+
 export type NdieProviderKind = "OCR" | "LAYOUT" | "FORMULA" | "QUESTION" | "OPTION" | "ANSWER_KEY" | "SOLUTION" | "AI" | "RENDERER" | "STORAGE";
 
 export type NdieProviderHealth = {
@@ -23,9 +25,16 @@ export interface OcrProvider extends NdieProvider {
     pageId: string;
     pageNumber: number;
     imageUrl?: string | null;
+    imageBuffer?: Buffer;
+    languageHints?: string[];
+    rotation?: number | null;
+    preprocessing?: Record<string, unknown>;
   }): Promise<{
     text: string;
     confidence: number | null;
+    language?: string | null;
+    languages?: string[];
+    normalized?: NdieOcrResult["normalized"];
     raw: Record<string, unknown>;
   }>;
 }
