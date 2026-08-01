@@ -76,6 +76,7 @@ const envSchema = z.object({
   NDIE_OCR_PREPROCESS_BINARIZE: envBoolean(false),
   NDIE_OCR_MAX_IMAGE_PIXELS: z.coerce.number().int().positive().default(80_000_000),
   NDIE_LAYOUT_PROVIDER: z.string().default("layout.rule-based"),
+  NDIE_LAYOUT_CONFIDENCE_WARNING: z.coerce.number().min(0).max(1).default(0.7),
   NDIE_FORMULA_PROVIDER: z.string().default("formula.rule-based"),
   NDIE_QUESTION_PROVIDER: z.string().default("question.rule-based"),
   NDIE_OPTION_PROVIDER: z.string().default("option.rule-based"),

@@ -59,7 +59,6 @@ describe("NDIE Production Gate 3 enterprise PDF rendering", () => {
     expect(worker).toContain('"RENDERING"');
     expect(worker).toContain('"PAGES_CREATED"');
     expect(worker).toContain('"READY_FOR_OCR"');
-    expect(worker).not.toContain("runOcr");
     expect(() => assertNdieJobTransition("PROCESSING", "RENDERING")).not.toThrow();
     expect(() => assertNdieJobTransition("RENDERING", "READY_FOR_OCR")).toThrow();
     expect(stateMachine).toContain('"READY_FOR_OCR"');

@@ -1,5 +1,6 @@
 import { prisma } from "../../../config/prisma.js";
 import { logger } from "../../../utils/logger.js";
+import { ndieLayoutAnalyzerService } from "../layout-analyzer/layout-analyzer.service.js";
 import { ndieOcrService } from "../ocr/ocr.service.js";
 import { ndiePdfRendererService } from "../pdf-renderer/pdf-renderer.service.js";
 import { ndieQueueConfig, ndieQueueService, ndieWorkerId, logNdieQueueEvent } from "../queue/queue.service.js";
@@ -50,6 +51,19 @@ async function runOcrForJob(jobId: string, workerId: string) {
   return result;
 }
 
+async function runLayoutForJob(jobId: string, workerId: string) {
+  const job = await prisma.ndieQueueJob.findUnique({ where: { id: jobId } });
+  if (!job) throw Object.assign(new Error("NDIE queue job not found"), { statusCode: 404 });
+
+  await ndieQueueService.transition(jobId, "LAYOUT_RUNNING", { workerId, provider: "layout.rule-based" });
+  await ndieQueueService.updateProgress(jobId, 15, "LAYOUT_RUNNING");
+  const result = await ndieLayoutAnalyzerService.analyzeImport(job.importJobId);
+  await ndieQueueService.updateProgress(jobId, 90, "LAYOUT_COMPLETED");
+  await ndieQueueService.transition(jobId, "LAYOUT_COMPLETED", { workerId, pagesAnalyzed: result.pages.length });
+  await ndieQueueService.transition(jobId, "READY_FOR_FORMULA_ENGINE", { workerId, providerId: result.providerId });
+  return result;
+}
+
 export const ndieWorkerService = {
   async health() {
     const processing = await prisma.ndieQueueJob.count({ where: { state: "PROCESSING" } });
@@ -85,6 +99,8 @@ export const ndieWorkerService = {
         await renderPdfForJob(jobId, workerId);
       } else if (job.stage === "OCR") {
         await runOcrForJob(jobId, workerId);
+      } else if (job.stage === "LAYOUT") {
+        await runLayoutForJob(jobId, workerId);
       } else {
         await ndieQueueService.updateProgress(jobId, 60, "PLACEHOLDER_CHECKPOINT");
       }
@@ -92,7 +108,7 @@ export const ndieWorkerService = {
       await ndieQueueService.updateProgress(jobId, 100, job.stage);
       const completed = await ndieQueueService.transition(jobId, "COMPLETED", {
         workerId,
-        result: job.stage === "PDF_RENDERING" ? "PDF pages rendered and ready for OCR." : job.stage === "OCR" ? "OCR completed and ready for layout." : "Placeholder queue infrastructure completed without running document intelligence."
+          result: job.stage === "PDF_RENDERING" ? "PDF pages rendered and ready for OCR." : job.stage === "OCR" ? "OCR completed and ready for layout." : job.stage === "LAYOUT" ? "Layout completed and ready for formula engine." : "Placeholder queue infrastructure completed without running document intelligence."
       });
       if (job.stage === "PDF_RENDERING") {
         await prisma.ndieImportJob.update({
@@ -103,6 +119,11 @@ export const ndieWorkerService = {
         await prisma.ndieImportJob.update({
           where: { id: completed.importJobId },
           data: { status: "READY_FOR_LAYOUT", currentCheckpoint: "READY_FOR_LAYOUT" }
+        });
+      } else if (job.stage === "LAYOUT") {
+        await prisma.ndieImportJob.update({
+          where: { id: completed.importJobId },
+          data: { status: "READY_FOR_FORMULA_ENGINE", currentCheckpoint: "READY_FOR_FORMULA_ENGINE" }
         });
       }
       await logNdieQueueEvent({

@@ -1,4 +1,5 @@
 import type { NdieOcrResult } from "./ocr-result.js";
+import type { NdieLayoutResult } from "./layout-result.js";
 
 export type NdieProviderKind = "OCR" | "LAYOUT" | "FORMULA" | "QUESTION" | "OPTION" | "ANSWER_KEY" | "SOLUTION" | "AI" | "RENDERER" | "STORAGE";
 
@@ -47,21 +48,13 @@ export interface LayoutProvider extends NdieProvider {
     pageNumber: number;
     width?: number | null;
     height?: number | null;
+    rotation?: number | null;
+    dpi?: number | null;
+    aspectRatio?: number | null;
     imageUrl?: string | null;
     ocrText?: string | null;
-  }): Promise<{
-    elements: Array<{
-      elementType: string;
-      text?: string;
-      normalizedText?: string;
-      coordinates: Record<string, unknown>;
-      readingOrder?: number;
-      confidence?: number;
-      metadata?: Record<string, unknown>;
-    }>;
-    layoutJson: Record<string, unknown>;
-    confidence: number | null;
-  }>;
+    ocrJson?: unknown;
+  }): Promise<NdieLayoutResult>;
 }
 
 export interface FormulaProvider extends NdieProvider {

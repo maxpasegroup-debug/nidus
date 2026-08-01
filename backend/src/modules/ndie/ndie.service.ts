@@ -21,12 +21,13 @@ const container = createNdieContainer();
 
 export const ndieService = {
   async health() {
-    const [queue, worker, metrics, renderer, ocr] = await Promise.all([
+    const [queue, worker, metrics, renderer, ocr, layout] = await Promise.all([
       ndieQueueService.health(),
       ndieWorkerService.health(),
       ndieQueueService.metrics(),
       ndiePdfRendererService.health(),
-      ndieOcrService.health()
+      ndieOcrService.health(),
+      ndieLayoutAnalyzerService.health()
     ]);
     return {
       service: "ndie",
@@ -39,6 +40,7 @@ export const ndieService = {
       metrics,
       renderer,
       ocr,
+      layout,
       pipelineEvents: NDIE_PIPELINE_EVENTS,
       services: container.services.map((service) => service.health()),
       providers: container.providerRegistry.health()
@@ -107,7 +109,7 @@ export const ndieService = {
   async cancelImport(actor: NdieActor, importJobId: string, reason?: string) {
     await assertNdieImportAccess(actor, importJobId, "WRITE");
     const importJob = await ndieSourceStorageService.getImport(importJobId);
-    const activeJob = importJob?.queueJobs.find((job) => ["QUEUED", "PROCESSING", "RETRY_PENDING", "REPLAY_PENDING"].includes(job.state));
+    const activeJob = importJob?.queueJobs.find((job) => ["QUEUED", "PROCESSING", "RENDERING", "OCR_RUNNING", "READY_FOR_LAYOUT", "LAYOUT_RUNNING", "RETRY_PENDING", "REPLAY_PENDING"].includes(job.state));
     if (!activeJob) throw Object.assign(new Error("No cancellable NDIE queue job found"), { statusCode: 404 });
     return ndieQueueService.cancel(activeJob.id, reason);
   },
