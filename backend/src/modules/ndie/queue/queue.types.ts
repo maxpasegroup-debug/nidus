@@ -14,6 +14,8 @@ export type NdieQueueJobInput = {
   replayRunId?: string | null;
   jobType: NdieJobType;
   stage: string;
+  priority?: number;
+  queueClass?: "IMPORT" | "REPLAY" | "PUBLISH" | "DELIVERY" | "INTELLIGENCE";
   payload?: Prisma.InputJsonValue;
   retryPolicy?: Partial<NdieRetryPolicy>;
 };
@@ -37,6 +39,8 @@ export type NdieQueueJobSnapshot = {
   failedAt: Date | null;
   cancelledAt: Date | null;
   durationMs: number | null;
+  priority?: number | null;
+  queueClass?: string | null;
 };
 
 export type NdieQueueMetrics = {

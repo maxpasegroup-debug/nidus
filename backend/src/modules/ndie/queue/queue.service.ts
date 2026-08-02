@@ -3,6 +3,7 @@ import type { Prisma } from "../../../generated/prisma/client.js";
 import { env } from "../../../config/env.js";
 import { logger } from "../../../utils/logger.js";
 import { DatabaseNdieQueueProvider } from "./database-queue.provider.js";
+import { ndiePerformanceService } from "../performance/performance.service.js";
 import type { NdieQueueJobInput, NdieQueueProvider, NdieRetryPolicy } from "./queue.types.js";
 
 const provider: NdieQueueProvider = new DatabaseNdieQueueProvider();
@@ -23,8 +24,22 @@ export const ndieQueueService = {
   providerId: provider.id,
 
   enqueue(input: NdieQueueJobInput) {
+    const performance = ndiePerformanceService.poolForStage(input.stage);
+    const existingPayload = input.payload && typeof input.payload === "object" && !Array.isArray(input.payload) ? input.payload as Record<string, unknown> : {};
     return provider.enqueue({
       ...input,
+      queueClass: input.queueClass ?? performance.kind,
+      priority: input.priority ?? (input.stage === "PUBLISH" ? 80 : input.stage === "STUDENT_DELIVERY" ? 70 : input.replayRunId ? 40 : 50),
+      payload: {
+        ...existingPayload,
+        performance: {
+          queueClass: input.queueClass ?? performance.kind,
+          priority: input.priority ?? (input.stage === "PUBLISH" ? 80 : input.stage === "STUDENT_DELIVERY" ? 70 : input.replayRunId ? 40 : 50),
+          workerPoolSize: performance.poolSize,
+          chunkSize: performance.chunkSize,
+          cacheKey: ndiePerformanceService.cacheKey({ importJobId: input.importJobId, stage: input.stage })
+        }
+      } as Prisma.InputJsonValue,
       retryPolicy: {
         ...ndieQueueConfig.retryPolicy,
         ...input.retryPolicy
@@ -37,6 +52,8 @@ export const ndieQueueService = {
       importJobId: input.importJobId,
       jobType: "IMPORT_PIPELINE",
       stage: input.fileType === "application/pdf" ? "PDF_RENDERING" : "IMPORT_PIPELINE_PLACEHOLDER",
+      queueClass: "IMPORT",
+      priority: 50,
       payload: {
         pipelineVersion: env.NDIE_PIPELINE_VERSION,
         queuedBy: "ndie-source-storage",
@@ -52,6 +69,8 @@ export const ndieQueueService = {
       replayRunId: input.replayRunId,
       jobType: "REPLAY_PIPELINE",
       stage: "REPLAY_PIPELINE_PLACEHOLDER",
+      queueClass: "REPLAY",
+      priority: 40,
       payload: {
         stages: input.stages,
         requestedBy: input.requestedBy ?? null,
@@ -65,6 +84,8 @@ export const ndieQueueService = {
       importJobId: input.importJobId,
       jobType: "PLACEHOLDER_STAGE",
       stage: "OCR",
+      queueClass: "IMPORT",
+      priority: 55,
       payload: {
         pipelineVersion: env.NDIE_PIPELINE_VERSION,
         queuedBy: input.requestedBy ?? "ndie-worker",
@@ -79,6 +100,8 @@ export const ndieQueueService = {
       importJobId: input.importJobId,
       jobType: "PLACEHOLDER_STAGE",
       stage: "LAYOUT",
+      queueClass: "IMPORT",
+      priority: 55,
       payload: {
         pipelineVersion: env.NDIE_PIPELINE_VERSION,
         queuedBy: input.requestedBy ?? "ndie-worker",
@@ -93,6 +116,8 @@ export const ndieQueueService = {
       importJobId: input.importJobId,
       jobType: "PLACEHOLDER_STAGE",
       stage: "FORMULA",
+      queueClass: "IMPORT",
+      priority: 55,
       payload: {
         pipelineVersion: env.NDIE_PIPELINE_VERSION,
         queuedBy: input.requestedBy ?? "ndie-worker",
@@ -107,6 +132,8 @@ export const ndieQueueService = {
       importJobId: input.importJobId,
       jobType: "PLACEHOLDER_STAGE",
       stage: "VISUAL",
+      queueClass: "IMPORT",
+      priority: 55,
       payload: {
         pipelineVersion: env.NDIE_PIPELINE_VERSION,
         queuedBy: input.requestedBy ?? "ndie-worker",
@@ -121,6 +148,8 @@ export const ndieQueueService = {
       importJobId: input.importJobId,
       jobType: "PLACEHOLDER_STAGE",
       stage: "QUESTION",
+      queueClass: "IMPORT",
+      priority: 55,
       payload: {
         pipelineVersion: env.NDIE_PIPELINE_VERSION,
         queuedBy: input.requestedBy ?? "ndie-worker",
@@ -135,6 +164,8 @@ export const ndieQueueService = {
       importJobId: input.importJobId,
       jobType: "PLACEHOLDER_STAGE",
       stage: "ANSWER",
+      queueClass: "IMPORT",
+      priority: 55,
       payload: {
         pipelineVersion: env.NDIE_PIPELINE_VERSION,
         queuedBy: input.requestedBy ?? "ndie-worker",
@@ -149,6 +180,8 @@ export const ndieQueueService = {
       importJobId: input.importJobId,
       jobType: "PLACEHOLDER_STAGE",
       stage: "AI_VALIDATION",
+      queueClass: "IMPORT",
+      priority: 60,
       payload: {
         pipelineVersion: env.NDIE_PIPELINE_VERSION,
         queuedBy: input.requestedBy ?? "ndie-worker",
@@ -174,6 +207,8 @@ export const ndieQueueService = {
       importJobId: input.importJobId,
       jobType: "PUBLISH_PIPELINE",
       stage: "PUBLISH",
+      queueClass: "PUBLISH",
+      priority: 80,
       payload: {
         pipelineVersion: env.NDIE_PIPELINE_VERSION,
         queuedBy: input.requestedBy,
@@ -198,6 +233,8 @@ export const ndieQueueService = {
       importJobId: input.importJobId,
       jobType: "PLACEHOLDER_STAGE",
       stage: "STUDENT_DELIVERY",
+      queueClass: "DELIVERY",
+      priority: 70,
       payload: {
         pipelineVersion: env.NDIE_PIPELINE_VERSION,
         queuedBy: input.requestedBy ?? "ndie-publisher",

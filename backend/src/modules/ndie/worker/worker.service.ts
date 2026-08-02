@@ -10,6 +10,8 @@ import { ndiePdfRendererService } from "../pdf-renderer/pdf-renderer.service.js"
 import { ndieQuestionDetectorService } from "../question-detector/question-detector.service.js";
 import { ndieQueueConfig, ndieQueueService, ndieWorkerId, logNdieQueueEvent } from "../queue/queue.service.js";
 import { ndiePublisherService } from "../publisher/publisher.service.js";
+import { ndiePerformanceService } from "../performance/performance.service.js";
+import { ndieWorkerRegistryService } from "../performance/worker-registry.service.js";
 import { ndieStudentDeliveryService } from "../student-delivery/student-delivery.service.js";
 import { ndieVisualDetectorService } from "../visual-detector/visual-detector.service.js";
 
@@ -189,7 +191,8 @@ export const ndieWorkerService = {
       workerIdPrefix: "ndie-worker",
       concurrency: ndieQueueConfig.workerConcurrency,
       processing,
-      note: "Gate 2 workers execute checkpoint-safe placeholder jobs only."
+      registry: ndieWorkerRegistryService.health(),
+      note: "Gate 14 workers expose heartbeat-aware pool metadata while preserving checkpoint-safe execution."
     };
   },
 
@@ -204,8 +207,11 @@ export const ndieWorkerService = {
       where: { id: jobId },
       data: { workerId }
     });
+    const pool = ndiePerformanceService.poolForStage(job.stage).kind;
+    ndieWorkerRegistryService.register({ workerId, pool, currentJobId: jobId, currentStage: job.stage });
 
     try {
+      ndieWorkerRegistryService.heartbeat(workerId, { currentJobId: jobId, currentStage: job.stage });
       await ndieQueueService.transition(jobId, "PROCESSING", { workerId });
       await ndieQueueService.updateProgress(jobId, 10, job.stage);
 
@@ -301,6 +307,7 @@ export const ndieWorkerService = {
         result: "COMPLETED",
         retryCount: completed.attempts
       });
+      ndieWorkerRegistryService.gracefulShutdown(workerId);
       return completed;
     } catch (error) {
       const failed = await ndieQueueService.failOrRetry(jobId, error instanceof Error ? error : new Error("NDIE worker failed"), workerId);
@@ -312,7 +319,8 @@ export const ndieWorkerService = {
             durationMs: Date.now() - startedAt,
             result: failed.state,
             retryCount: failed.attempts
-          });
+              });
+      ndieWorkerRegistryService.gracefulShutdown(workerId);
       return failed;
     }
   }
