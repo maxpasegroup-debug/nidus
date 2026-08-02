@@ -1,4 +1,5 @@
 import { env } from "../../../config/env.js";
+import { ndieComplianceService } from "../security/compliance.service.js";
 
 type WorkerRecord = {
   workerId: string;
@@ -18,7 +19,9 @@ function staleCutoff() {
 }
 
 export const ndieWorkerRegistryService = {
-  register(input: Pick<WorkerRecord, "workerId" | "pool"> & Partial<Pick<WorkerRecord, "currentJobId" | "currentStage">>) {
+  register(input: Pick<WorkerRecord, "workerId" | "pool"> & Partial<Pick<WorkerRecord, "currentJobId" | "currentStage">> & { sharedSecret?: string | null }) {
+    const secret = ndieComplianceService.validateWorkerSecret(input.sharedSecret);
+    if (!secret.valid) throw Object.assign(new Error("NDIE worker heartbeat rejected."), { statusCode: 403 });
     const now = new Date().toISOString();
     const current = workers.get(input.workerId);
     const record: WorkerRecord = {

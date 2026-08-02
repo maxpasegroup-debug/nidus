@@ -29,7 +29,11 @@ export type NdieAuditAction =
   | "NDIE_REVIEW_BULK_UPDATED"
   | "NDIE_REVIEW_SESSION_SAVED"
   | "NDIE_QUALITY_REPORT_REQUESTED"
-  | "NDIE_ANALYTICS_VIEWED";
+  | "NDIE_ANALYTICS_VIEWED"
+  | "NDIE_UPLOAD_QUARANTINED"
+  | "NDIE_SECURITY_EVENT"
+  | "NDIE_AUTHORIZATION_DENIED"
+  | "NDIE_EXPORT_REQUESTED";
 
 const managementRoles = new Set<Role>([Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD]);
 const teacherRoles = new Set<Role>([Role.TEACHER, Role.PHYSICAL_TRAINER]);
@@ -112,7 +116,13 @@ export async function assertNdieImportAccess(actor: NdieActor, importJobId: stri
     if (ownsImport || hasBatchAccess) return importJob;
   }
 
-  logger.warn("NDIE import access denied", { actorId: actor.id, role: actor.role, importJobId, mode });
+  logger.warn("NDIE import access denied", { actorId: actor.id, role: actor.role, instituteId: actor.instituteId, branchId: actor.branchId, importJobId, mode });
+  await auditNdie({
+    actor,
+    action: "NDIE_AUTHORIZATION_DENIED",
+    description: "NDIE authorization denied",
+    metadata: { importJobId, mode, resource: "NdieImportJob", result: "DENIED", reason: "OWNERSHIP_OR_TENANT_SCOPE_MISMATCH" }
+  });
   throw statusError("NDIE import access denied", 403);
 }
 
@@ -139,7 +149,22 @@ export async function auditNdie(input: {
         userId: input.actor?.id ?? null,
         action: input.action,
         module: "ndie",
-        description: input.description,
+        description: JSON.stringify({
+          message: input.description,
+          actor: input.actor ? {
+            id: input.actor.id,
+            role: input.actor.role,
+            institution: input.actor.instituteId ?? null,
+            branch: input.actor.branchId ?? null
+          } : null,
+          resource: input.metadata?.resource ?? input.metadata?.importJobId ?? input.metadata?.candidateId ?? null,
+          result: input.metadata?.result ?? "RECORDED",
+          reason: input.metadata?.reason ?? null,
+          before: input.metadata?.before ?? null,
+          after: input.metadata?.after ?? null,
+          metadata: input.metadata ?? {},
+          timestamp: new Date().toISOString()
+        }),
         ipAddress: input.ipAddress ?? null
       }
     });

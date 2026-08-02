@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from "express";
 import type { AuthenticatedRequest } from "../../middlewares/session.middleware.js";
 import { ndieService } from "./ndie.service.js";
 import { auditNdie, ndieActorFromRequest, validateNdieUpload } from "./security/ndie-security.js";
+import { ndieComplianceService } from "./security/compliance.service.js";
 
 export const ndieController = {
   health: async (_req: Request, res: Response, next: NextFunction) => {
@@ -20,6 +21,22 @@ export const ndieController = {
       }
       validateNdieUpload(req.file);
       const actor = ndieActorFromRequest(req);
+      const uploadSecurity = ndieComplianceService.inspectUpload(req.file!);
+      if (uploadSecurity.status === "QUARANTINE_REQUIRED") {
+        await auditNdie({
+          actor,
+          action: "NDIE_UPLOAD_QUARANTINED",
+          description: "NDIE upload quarantined by security policy",
+          ipAddress: req.ip,
+          metadata: {
+            resource: req.file?.originalname,
+            result: "QUARANTINED",
+            reason: uploadSecurity.quarantineReasons.join(","),
+            after: uploadSecurity
+          }
+        });
+        throw Object.assign(new Error("Uploaded document requires security review before NDIE processing."), { statusCode: 423 });
+      }
       const result = await ndieService.createImport({
         file: req.file!,
         userId: req.user.id,
@@ -28,7 +45,8 @@ export const ndieController = {
         batchId: typeof req.body.batchId === "string" ? req.body.batchId : undefined,
         subject: typeof req.body.subject === "string" ? req.body.subject : undefined,
         topic: typeof req.body.topic === "string" ? req.body.topic : undefined,
-        sourceKind: typeof req.body.sourceKind === "string" ? req.body.sourceKind : undefined
+        sourceKind: typeof req.body.sourceKind === "string" ? req.body.sourceKind : undefined,
+        uploadSecurity
       });
       await auditNdie({
         actor,

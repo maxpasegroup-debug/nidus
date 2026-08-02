@@ -14,6 +14,7 @@ import { ndieQueueConfig, ndieQueueService } from "./queue/queue.service.js";
 import { ndiePdfRendererService } from "./pdf-renderer/pdf-renderer.service.js";
 import { ndiePerformanceService } from "./performance/performance.service.js";
 import { ndieOcrService } from "./ocr/ocr.service.js";
+import { ndieComplianceService } from "./security/compliance.service.js";
 import { assertNdieCandidateAccess, assertNdieImportAccess, isNdieManager, type NdieActor } from "./security/ndie-security.js";
 import { ndieSourceStorageService, type NdieCreateImportInput } from "./source-storage/source-storage.service.js";
 import { ndieStudentDeliveryService } from "./student-delivery/student-delivery.service.js";
@@ -24,11 +25,12 @@ const container = createNdieContainer();
 
 export const ndieService = {
   async health() {
-    const [queue, worker, metrics, performance, renderer, ocr, layout, formula, visual, question, evaluation, validation, publisher, studentDelivery] = await Promise.all([
+    const [queue, worker, metrics, performance, security, renderer, ocr, layout, formula, visual, question, evaluation, validation, publisher, studentDelivery] = await Promise.all([
       ndieQueueService.health(),
       ndieWorkerService.health(),
       ndieQueueService.metrics(),
       ndiePerformanceService.health(),
+      ndieComplianceService.health(),
       ndiePdfRendererService.health(),
       ndieOcrService.health(),
       ndieLayoutAnalyzerService.health(),
@@ -50,6 +52,7 @@ export const ndieService = {
       worker,
       metrics,
       performance,
+      security,
       renderer,
       ocr,
       layout,

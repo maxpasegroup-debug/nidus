@@ -7,6 +7,7 @@ import type { NdieImportManifest } from "../contracts/import-manifest.js";
 import type { NdieCheckpoint } from "../contracts/pipeline-events.js";
 import { ndieQueueService } from "../queue/queue.service.js";
 import { safeNdieFileName } from "../security/ndie-security.js";
+import type { NdieUploadSecurityResult } from "../security/compliance.service.js";
 
 export type NdieCreateImportInput = {
   file: Express.Multer.File;
@@ -17,6 +18,7 @@ export type NdieCreateImportInput = {
   subject?: string;
   topic?: string;
   sourceKind?: string;
+  uploadSecurity?: NdieUploadSecurityResult;
 };
 
 function normalizedSourceKind(value?: string) {
@@ -102,7 +104,12 @@ export const ndieSourceStorageService = {
     const checkpoints = foundationCheckpoints(true);
     const manifest = buildManifest({ file: input.file, sourceKind, pageCount, checkpoints });
     const uploadResult = await uploadBufferToCloudinary(input.file, "nidus/ndie/sources");
-    const fileChecksum = checksum(input.file.buffer);
+    const fileChecksum = input.uploadSecurity?.sha256 ?? checksum(input.file.buffer);
+    const duplicate = await prisma.ndieSourceDocument.findFirst({
+      where: { checksum: fileChecksum },
+      select: { id: true, importJobId: true, originalName: true, uploadedBy: true, createdAt: true },
+      orderBy: { createdAt: "desc" }
+    });
 
     const created = await prisma.$transaction(async (tx) => {
       const importJob = await tx.ndieImportJob.create({
@@ -137,7 +144,26 @@ export const ndieSourceStorageService = {
           checksum: fileChecksum,
           documentClass,
           pipeline,
-          classification: { documentClass, pipeline, phase: "SOURCE_STORAGE", checksum: fileChecksum },
+          classification: {
+            documentClass,
+            pipeline,
+            phase: "SOURCE_STORAGE",
+            checksum: fileChecksum,
+            security: input.uploadSecurity ?? null,
+            duplicate: duplicate ? {
+              sourceDocumentId: duplicate.id,
+              importJobId: duplicate.importJobId,
+              originalName: duplicate.originalName,
+              uploadedBy: duplicate.uploadedBy,
+              createdAt: duplicate.createdAt.toISOString()
+            } : null,
+            compliance: {
+              encryptionAtRest: "provider-managed-required",
+              retentionPolicy: "NDIE_RETENTION_DAYS",
+              signedAssetLifecycle: "refresh-required",
+              secureDeletion: "policy-hook"
+            }
+          },
           pageCount,
           preservationState: "PRESERVED",
           uploadedBy: input.userId
