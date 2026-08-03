@@ -14,8 +14,11 @@ const manageRoles = [Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER
 ndieRouter.use(protect, allowRoles(...manageRoles));
 ndieRouter.use(requireNdieEnabled);
 ndieRouter.get("/analytics", ndieController.analytics);
+ndieRouter.get("/operations", ndieController.operations);
+ndieRouter.get("/operations/diagnostics", ndieController.operationsDiagnostics);
 ndieRouter.post("/imports", uploadRateLimiter, ndieUpload.single("file"), ndieController.createImport);
 ndieRouter.get("/imports/:id", ndieController.getImport);
+ndieRouter.get("/imports/:id/timeline", ndieController.importTimeline);
 ndieRouter.post("/imports/:id/analyze-layout", ndieController.analyzeLayout);
 ndieRouter.post("/imports/:id/detect-formulas", ndieController.detectFormulas);
 ndieRouter.post("/imports/:id/detect-visuals", ndieController.detectVisuals);

@@ -14,6 +14,7 @@ import { ndieQueueConfig, ndieQueueService } from "./queue/queue.service.js";
 import { ndiePdfRendererService } from "./pdf-renderer/pdf-renderer.service.js";
 import { ndiePerformanceService } from "./performance/performance.service.js";
 import { ndieOcrService } from "./ocr/ocr.service.js";
+import { ndieOperationsService } from "./operations/operations.service.js";
 import { ndieComplianceService } from "./security/compliance.service.js";
 import { assertNdieCandidateAccess, assertNdieImportAccess, isNdieManager, type NdieActor } from "./security/ndie-security.js";
 import { ndieSourceStorageService, type NdieCreateImportInput } from "./source-storage/source-storage.service.js";
@@ -25,12 +26,13 @@ const container = createNdieContainer();
 
 export const ndieService = {
   async health() {
-    const [queue, worker, metrics, performance, security, renderer, ocr, layout, formula, visual, question, evaluation, validation, publisher, studentDelivery] = await Promise.all([
+    const [queue, worker, metrics, performance, security, operations, renderer, ocr, layout, formula, visual, question, evaluation, validation, publisher, studentDelivery] = await Promise.all([
       ndieQueueService.health(),
       ndieWorkerService.health(),
       ndieQueueService.metrics(),
       ndiePerformanceService.health(),
       ndieComplianceService.health(),
+      ndieOperationsService.health(),
       ndiePdfRendererService.health(),
       ndieOcrService.health(),
       ndieLayoutAnalyzerService.health(),
@@ -53,6 +55,12 @@ export const ndieService = {
       metrics,
       performance,
       security,
+      operations,
+      enterpriseHealth: {
+        overallStatus: operations.status,
+        categories: operations.categories,
+        generatedAt: new Date().toISOString()
+      },
       renderer,
       ocr,
       layout,
@@ -159,5 +167,20 @@ export const ndieService = {
   analytics(actor: NdieActor) {
     if (!isNdieManager(actor)) throw Object.assign(new Error("NDIE analytics access denied"), { statusCode: 403 });
     return ndieAnalyticsService.overview();
+  },
+
+  operations(actor: NdieActor) {
+    if (!isNdieManager(actor)) throw Object.assign(new Error("NDIE operations access denied"), { statusCode: 403 });
+    return ndieOperationsService.overview();
+  },
+
+  operationsDiagnostics(actor: NdieActor) {
+    if (!isNdieManager(actor)) throw Object.assign(new Error("NDIE diagnostics access denied"), { statusCode: 403 });
+    return ndieOperationsService.diagnostics();
+  },
+
+  async importTimeline(actor: NdieActor, importJobId: string) {
+    await assertNdieImportAccess(actor, importJobId, "READ");
+    return ndieOperationsService.timeline(importJobId);
   }
 };

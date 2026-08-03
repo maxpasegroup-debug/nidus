@@ -358,5 +358,39 @@ export const ndieController = {
     } catch (error) {
       next(error);
     }
+  },
+
+  operations: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      const actor = ndieActorFromRequest(req);
+      const result = await ndieService.operations(actor);
+      await auditNdie({ actor, action: "NDIE_OPERATIONS_VIEWED", description: "NDIE operations center viewed", ipAddress: req.ip });
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  operationsDiagnostics: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      const actor = ndieActorFromRequest(req);
+      const result = await ndieService.operationsDiagnostics(actor);
+      await auditNdie({ actor, action: "NDIE_DIAGNOSTICS_VIEWED", description: "NDIE operations diagnostics viewed", ipAddress: req.ip });
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  importTimeline: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      const importJobId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const actor = ndieActorFromRequest(req);
+      const result = await ndieService.importTimeline(actor, importJobId);
+      await auditNdie({ actor, action: "NDIE_TIMELINE_VIEWED", description: "NDIE import pipeline timeline viewed", ipAddress: req.ip, metadata: { importJobId } });
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
   }
 };
