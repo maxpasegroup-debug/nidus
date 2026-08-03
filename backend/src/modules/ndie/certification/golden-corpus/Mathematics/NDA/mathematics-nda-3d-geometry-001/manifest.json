@@ -1,0 +1,21 @@
+{
+  "documentId": "mathematics-nda-3d-geometry-001",
+  "exam": "NDA",
+  "subject": "Mathematics",
+  "difficulty": "HIGH_STAKES",
+  "documentType": "TEXT_FIXTURE",
+  "language": "en",
+  "pages": 2,
+  "contains": {
+    "formulas": true,
+    "diagrams": true,
+    "graphs": false,
+    "tables": false,
+    "ocrRisk": true,
+    "rotation": false,
+    "handwriting": false
+  },
+  "expectedProcessingStages": ["ocr", "layout", "formula", "visual", "assessment", "evaluation", "validation", "publishingPackage"],
+  "expectedReviewStatus": "TEACHER_REVIEW_REQUIRED",
+  "expectedPublishReadiness": "READY_WITH_REVIEW"
+}

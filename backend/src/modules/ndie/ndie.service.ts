@@ -2,10 +2,12 @@ import { NDIE_PIPELINE_EVENTS } from "./contracts/pipeline-events.js";
 import { ndieAnswerKeyMapperService } from "./answer-key-mapper/answer-key-mapper.service.js";
 import { ndieAiValidatorService } from "./ai-validator/ai-validator.service.js";
 import { ndieAnalyticsService } from "./analytics/analytics.service.js";
+import { certificationService } from "./certification/certification.service.js";
 import { ndieImportReplayService, type NdieReplayInput } from "./import-replay/import-replay.service.js";
 import { ndieFormulaAnalyzerService } from "./formula-analyzer/formula-analyzer.service.js";
 import { ndieLayoutAnalyzerService } from "./layout-analyzer/layout-analyzer.service.js";
 import { createNdieContainer } from "./ndie.container.js";
+import { ndieProviderOrchestratorService } from "./provider-orchestrator/provider-orchestrator.service.js";
 import { ndiePublisherService, type NdiePublishInput } from "./publisher/publisher.service.js";
 import { ndieQualityScoringService } from "./quality-scoring/quality-scoring.service.js";
 import { ndieQuestionDetectorService } from "./question-detector/question-detector.service.js";
@@ -18,6 +20,7 @@ import { ndieOperationsService } from "./operations/operations.service.js";
 import { ndieComplianceService } from "./security/compliance.service.js";
 import { assertNdieCandidateAccess, assertNdieImportAccess, isNdieManager, type NdieActor } from "./security/ndie-security.js";
 import { ndieSourceStorageService, type NdieCreateImportInput } from "./source-storage/source-storage.service.js";
+import { stemIntelligenceService } from "./stem-intelligence/stem-intelligence.service.js";
 import { ndieStudentDeliveryService } from "./student-delivery/student-delivery.service.js";
 import { ndieVisualDetectorService } from "./visual-detector/visual-detector.service.js";
 import { ndieWorkerService } from "./worker/worker.service.js";
@@ -26,13 +29,16 @@ const container = createNdieContainer();
 
 export const ndieService = {
   async health() {
-    const [queue, worker, metrics, performance, security, operations, renderer, ocr, layout, formula, visual, question, evaluation, validation, publisher, studentDelivery] = await Promise.all([
+    const [queue, worker, metrics, performance, security, operations, certification, providerOrchestrator, stemIntelligence, renderer, ocr, layout, formula, visual, question, evaluation, validation, publisher, studentDelivery] = await Promise.all([
       ndieQueueService.health(),
       ndieWorkerService.health(),
       ndieQueueService.metrics(),
       ndiePerformanceService.health(),
       ndieComplianceService.health(),
       ndieOperationsService.health(),
+      certificationService.health(),
+      Promise.resolve(ndieProviderOrchestratorService.health()),
+      Promise.resolve(stemIntelligenceService.health()),
       ndiePdfRendererService.health(),
       ndieOcrService.health(),
       ndieLayoutAnalyzerService.health(),
@@ -56,9 +62,17 @@ export const ndieService = {
       performance,
       security,
       operations,
+      certification,
+      providerOrchestrator,
+      stemIntelligence,
       enterpriseHealth: {
         overallStatus: operations.status,
-        categories: operations.categories,
+        categories: {
+          ...operations.categories,
+          certification: certification.certificationStatus,
+          providers: providerOrchestrator.status,
+          stemIntelligence: stemIntelligence.status
+        },
         generatedAt: new Date().toISOString()
       },
       renderer,

@@ -1,0 +1,15 @@
+Chemistry Reactions
+
+Q1. The balanced equation for hydrogen and oxygen forming water is:
+(A) H2 + O2 -> H2O
+(B) 2H2 + O2 -> 2H2O
+(C) H + O -> HO
+(D) H2 + 2O2 -> H2O2
+
+Q2. In the periodic table, Na+ indicates:
+(A) neutral sodium atom
+(B) sodium cation
+(C) chloride ion
+(D) sodium isotope
+
+Answer Key: 1-B, 2-B

@@ -1,0 +1,15 @@
+Physics Circuits
+
+Q1. In the circuit shown, R1 = 2 ohm and R2 = 4 ohm are connected in parallel across 12 V. The equivalent resistance is:
+(A) 4/3 ohm
+(B) 2 ohm
+(C) 6 ohm
+(D) 8 ohm
+
+Q2. A velocity-time graph is a straight line with slope 3 m/s^2. The acceleration is:
+(A) 1 m/s^2
+(B) 2 m/s^2
+(C) 3 m/s^2
+(D) 9 m/s^2
+
+Answer Key: 1-A, 2-C
