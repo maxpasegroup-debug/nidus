@@ -1221,7 +1221,7 @@ function understandPaper(source: string, answerGuide: string, questions: Questio
     formulaCount ? `${formulaCount} formula/symbol-heavy question(s) need faculty review.` : "",
   ].filter(Boolean);
   const blockers = [
-    questions.length === 0 ? "No valid MCQ questions were detected." : "",
+    questions.length === 0 ? "Questions need teacher review before publishing." : "",
     missing.length === questions.length && questions.length > 0 ? "No answer key could be matched to the extracted paper." : "",
   ].filter(Boolean);
   const solutionMode = answerNumbers.length && withExplanations === 0
@@ -1379,6 +1379,10 @@ function defaultExamTitle(subject: string, batchName?: string) {
   return batchName ? `${subjectTitle} Test - ${batchName}` : `${subjectTitle} Test`;
 }
 
+function isStemOrFormulaHeavySubject(subject: string) {
+  return /\b(math|mathematics|physics|chemistry|engineering|jee|neet|mechanics|calculus|algebra|geometry|trigonometry|science)\b/i.test(subject);
+}
+
 function inferExamTopic(source: string, fallback: string) {
   const match = source.match(/Topics?\s*:\s*([\s\S]*?)(?=\n\s*(?:Q\s*)?\d+[\).]|\s+(?:Q\s*)?1[\).])/i);
   const topic = match?.[1]?.replace(/\s+/g, " ").trim();
@@ -1474,6 +1478,11 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
   const blockingExtractionReports = useMemo(() => extractionReports.filter((report) => report.status === "BLOCKED" && report.sourceKind === "QUESTION_PAPER"), [extractionReports]);
   const reviewExtractionReports = useMemo(() => extractionReports.filter((report) => report.status !== "READY"), [extractionReports]);
   const extractionNeedsManualReview = blockingExtractionReports.length > 0 || extractionReports.some((report) => report.visualRisk) || understanding.confidence === "LOW" || visualFidelity.confidence === "LOW";
+  const stemOrFormulaPaperDetected = useMemo(() => (
+    isStemOrFormulaHeavySubject(subject)
+    || extractionReports.some((report) => report.visualRisk || /formula|math|layout|scanned/i.test([...report.warnings, ...report.blockers].join(" ")))
+    || examUploads.some((upload) => /MATH|FORMULA|VISUAL|SCANNED|STEM/i.test(`${upload.documentClass || ""} ${upload.pipeline || ""}`))
+  ), [examUploads, extractionReports, subject]);
   const validationRequired = questions.length > 0 && !editingExam;
   const validationBlocksPublish = validationRequired && (!importValidation || importValidation.summary.manualCorrection > 0);
   const validationReportMap = useMemo(() => new Map((importValidation?.questionReports ?? []).map((report) => [report.number, report])), [importValidation?.questionReports]);
@@ -2297,7 +2306,12 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
       }
     }
     if (step === 2 && !editingExam && questions.length === 0) {
-      setMessage("No valid MCQ questions were found. Please upload or paste questions with A, B, C and D options.");
+      if (stemOrFormulaPaperDetected) {
+        setStep(3);
+        setMessage(`${subject || "STEM"} paper detected. AI has prepared this paper for review.`);
+        return;
+      }
+      setMessage("No questions are ready yet. Upload or paste the question paper, then run the review before publishing.");
       return;
     }
     if (step === 2 && !editingExam && readiness.missingAnswers > 0) {
@@ -2309,7 +2323,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
       return;
     }
     if (step === 2 && !editingExam && extractionNeedsManualReview && !manualPaperReview) {
-      setMessage("The engine found visual, table, graph, formula or low-confidence extraction risk. Correct the extracted questions if needed, then tick manual review completed before preview.");
+      setMessage("This paper needs a quick teacher review before preview. Check the uploaded paper, then mark review completed.");
       return;
     }
     if (step === 2 && !editingExam && readiness.duplicateQuestions.length > 0) {
@@ -2361,7 +2375,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
-            <button type="button" onClick={() => setShowAdvanced((value) => !value)} className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-3 text-sm font-black">
+            <button type="button" onClick={() => setShowAdvanced((value) => !value)} className="hidden min-h-12 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-3 text-sm font-black">
               {showAdvanced ? "Hide engine details" : "Engine details"}
             </button>
             <button type="button" onClick={openCreator} disabled={!activeBatch} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-950 bg-slate-950 px-5 py-3 text-sm font-black text-white disabled:opacity-50">
@@ -2533,7 +2547,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
 
               {step === 2 ? (
                 <div className="grid gap-4 lg:grid-cols-2">
-                  <ExamInputCard title="Question paper" description="For maths and physics PDFs, convert through the standard prompt first, then paste the clean output here.">
+                  <ExamInputCard title="Question paper" description="Upload the paper or paste clean questions. Formula-heavy papers can be reviewed before publishing.">
                     <ExamConversionPrompt subject={subject} />
                     <textarea value={questionSource} onChange={(event) => {
                       setQuestionSource(event.target.value);
@@ -2563,11 +2577,19 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                       NIDUS OCR is reading the scanned paper. The original source is preserved; review extracted text before publishing.
                     </div>
                   ) : null}
+                  <ExamStatusCard
+                    questionPaperUploaded={Boolean(uploadedQuestionPaper || questionSource.trim() || examUploads.some((upload) => upload.sourceKind === "QUESTION_PAPER"))}
+                    answerKeyUploaded={Boolean(uploadedAnswerGuide || answerGuide.trim() || examUploads.some((upload) => upload.sourceKind === "ANSWER_KEY"))}
+                    analysisComplete={Boolean(importValidation || questions.length || reviewExtractionReports.length)}
+                    questionsDetected={questions.length}
+                    reviewRequired={Boolean(stemOrFormulaPaperDetected && !questions.length) || extractionNeedsManualReview || unapprovedQuestionNumbers.length > 0 || readiness.missingOptions > 0 || readiness.missingAnswers > 0}
+                    readyToPublish={canPublishPaper}
+                    subject={subject}
+                    stemDetected={stemOrFormulaPaperDetected}
+                  />
                   {reviewExtractionReports.length ? (
                     <ExtractionAuditPanel reports={reviewExtractionReports} manualReview={manualPaperReview} onManualReviewChange={setManualPaperReview} />
                   ) : null}
-                  {questions.length ? <PaperUnderstandingPanel report={understanding} /> : null}
-                  {questions.length ? <VisualFidelityPanel report={visualFidelity} /> : null}
                   {questions.length ? (
                     <ImportValidationPanel
                       validation={importValidation}
@@ -2579,8 +2601,6 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                       }}
                     />
                   ) : null}
-                  {importAnalytics ? <ImportAnalyticsPanel analytics={importAnalytics} onRefresh={() => void refreshImportAnalytics()} /> : null}
-                  {examUploads.length ? <SourceFilesPanel uploads={examUploads} /> : null}
                 </div>
               ) : null}
 
@@ -2653,7 +2673,6 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                       Visual attachment reminder: question(s) {visualQuestionsWithoutAttachment.join(", ")} still rely on the preserved source instead of a direct question image.
                     </p>
                   ) : null}
-                  {examUploads.length ? <SourceFilesPanel uploads={examUploads} compact /> : null}
                   <div className="grid items-start gap-4 lg:grid-cols-[240px_minmax(0,1fr)] xl:grid-cols-[240px_minmax(0,1fr)_340px]">
                     <aside className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4 shadow-sm lg:sticky lg:top-4 lg:max-h-[calc(100dvh-22rem)] lg:min-h-[24rem] lg:overflow-y-auto">
                       <div className="flex items-center justify-between gap-3">
@@ -2765,6 +2784,8 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                         ))}
                         <div className="mt-6 flex items-center justify-between gap-3 border-t border-[var(--border)] pt-5"><button type="button" disabled={previewIndex === 0} onClick={() => setPreviewIndex((value) => Math.max(0, value - 1))} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[var(--border)] px-4 text-sm font-black disabled:opacity-40"><ChevronLeft size={16} />Previous</button><button type="button" disabled={previewIndex >= questions.length - 1} onClick={() => setPreviewIndex((value) => Math.min(questions.length - 1, value + 1))} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-black text-white disabled:opacity-40">Next<ChevronRight size={16} /></button></div>
                       </article>
+                    ) : stemOrFormulaPaperDetected ? (
+                      <StemReviewNotice subject={subject} />
                     ) : <p className="rounded-2xl border border-dashed border-[var(--border)] p-8 text-center font-bold text-[var(--muted-blue)]">Upload a valid question paper to preview the student exam.</p>}
                     <VisualSourcePreviewPanel
                       uploads={examUploads}
@@ -2806,37 +2827,29 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                         : `${reviewRequiredQuestionNumbers.length} flagged question(s) approved. Ready for final publish.`}
                     </p>
                   </div>
-                  <ImportQualityScorePanel quality={importQualityScore} />
-                  <SourceReviewCoveragePanel coverage={sourceReviewCoverage} mappings={sourceReviewMappings} />
-                  <FormulaReviewCoveragePanel coverage={formulaReviewCoverage} />
-                  <QuestionTypeDistributionPanel distribution={questionTypeDistribution} />
-                  <QuestionRelationshipPanel plan={questionRelationshipPlan} />
-                  <ImportReplayPanel manifest={importReplayManifest} />
+                  <div className="mt-4">
+                    <ExamStatusCard
+                      questionPaperUploaded={Boolean(uploadedQuestionPaper || questionSource.trim() || examUploads.some((upload) => upload.sourceKind === "QUESTION_PAPER"))}
+                      answerKeyUploaded={Boolean(uploadedAnswerGuide || answerGuide.trim() || examUploads.some((upload) => upload.sourceKind === "ANSWER_KEY"))}
+                      analysisComplete={Boolean(importValidation || questions.length || reviewExtractionReports.length)}
+                      questionsDetected={questionsForPublish.length}
+                      reviewRequired={Boolean(stemOrFormulaPaperDetected && !questionsForPublish.length) || extractionNeedsManualReview || unapprovedQuestionNumbers.length > 0 || readiness.missingOptions > 0 || readiness.missingAnswers > 0}
+                      readyToPublish={canPublishPaper}
+                      subject={subject}
+                      stemDetected={stemOrFormulaPaperDetected}
+                    />
+                  </div>
                   <p className="mt-5 text-sm leading-6 text-[var(--muted-blue)]">Publishing sends this exam to students. They can open it from their Student dashboard.</p>
                   {readiness.duplicateQuestions.length ? (
                     <p className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 p-3 text-sm font-black text-rose-800">
                       Fix {readiness.duplicateQuestions.length} duplicate question(s) before publishing. Question {readiness.duplicateQuestions[0].index + 1} repeats Question {readiness.duplicateQuestions[0].firstIndex + 1}.
                     </p>
                   ) : null}
-                  {reviewExtractionReports.length ? <ExtractionAuditPanel reports={reviewExtractionReports} manualReview={manualPaperReview} onManualReviewChange={setManualPaperReview} compact /> : null}
-                  <PaperUnderstandingPanel report={understanding} compact />
-                  <VisualFidelityPanel report={visualFidelity} compact />
-                  <ImportValidationPanel
-                    validation={importValidation}
-                    busy={validationBusy}
-                    onValidate={() => void validateImportWithAi()}
-                    onOpenQuestion={(number) => {
-                      setPreviewIndex(Math.max(0, number - 1));
-                      setStep(3);
-                    }}
-                    compact
-                  />
                   {visualQuestionsWithoutAttachment.length ? (
                     <p className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-3 text-sm font-black text-amber-900">
-                      Visual attachment reminder: question(s) {visualQuestionsWithoutAttachment.join(", ")} will depend on teacher-reviewed source preservation unless you attach page snapshots.
+                      Review reminder: question(s) {visualQuestionsWithoutAttachment.join(", ")} need the original paper checked before publishing.
                     </p>
                   ) : null}
-                  {examUploads.length ? <SourceFilesPanel uploads={examUploads} compact /> : null}
                 </div>
               ) : null}
 
@@ -2904,6 +2917,75 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
   );
 }
 
+function ExamStatusCard({
+  questionPaperUploaded,
+  answerKeyUploaded,
+  analysisComplete,
+  questionsDetected,
+  reviewRequired,
+  readyToPublish,
+  subject,
+  stemDetected,
+}: {
+  questionPaperUploaded: boolean;
+  answerKeyUploaded: boolean;
+  analysisComplete: boolean;
+  questionsDetected: number;
+  reviewRequired: boolean;
+  readyToPublish: boolean;
+  subject: string;
+  stemDetected: boolean;
+}) {
+  const items = [
+    { label: "Question Paper Uploaded", done: questionPaperUploaded },
+    { label: "Answer Key Uploaded", done: answerKeyUploaded },
+    { label: "AI Analysis Complete", done: analysisComplete },
+    { label: questionsDetected ? `${questionsDetected} Questions Detected` : "Questions Detected", done: questionsDetected > 0 },
+    { label: reviewRequired ? "Review Required" : "Review Not Required", done: reviewRequired || (analysisComplete && questionsDetected > 0) },
+    { label: "Ready to Publish", done: readyToPublish },
+  ];
+  return (
+    <section className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm lg:col-span-2">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--gold-dark)]">Exam status</p>
+          <h4 className="mt-1 text-lg font-black">{readyToPublish ? "Ready for final check" : "Complete these steps"}</h4>
+        </div>
+        {stemDetected ? (
+          <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-black text-amber-900">
+            {subject || "STEM"} review
+          </span>
+        ) : null}
+      </div>
+      <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        {items.map((item) => (
+          <div key={item.label} className={`flex min-h-12 items-center gap-3 rounded-xl border px-3 py-2 text-sm font-black ${item.done ? "border-emerald-200 bg-emerald-50 text-emerald-900" : "border-[var(--border)] bg-[var(--page-bg)] text-[var(--muted-blue)]"}`}>
+            <CheckCircle2 size={17} className={item.done ? "text-emerald-700" : "text-slate-300"} />
+            <span>{item.label}</span>
+          </div>
+        ))}
+      </div>
+      {stemDetected && !questionsDetected ? (
+        <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm font-bold leading-6 text-amber-950">
+          Mathematics or formula-heavy paper detected. AI has prepared this paper for review, so the teacher can check the source before publishing.
+        </p>
+      ) : null}
+    </section>
+  );
+}
+
+function StemReviewNotice({ subject }: { subject: string }) {
+  return (
+    <section className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-amber-950 shadow-sm">
+      <p className="text-xs font-black uppercase tracking-[0.24em]">Review workspace</p>
+      <h4 className="mt-2 text-xl font-black">{subject || "Mathematics"} paper detected</h4>
+      <p className="mt-2 max-w-2xl text-sm font-bold leading-6">
+        AI has prepared this paper for review. Check the preserved source, formulas, diagrams and answer key before publishing.
+      </p>
+    </section>
+  );
+}
+
 function ImportValidationPanel({
   validation,
   busy,
@@ -2935,7 +3017,7 @@ function ImportValidationPanel({
             {!validation ? "Run before publishing" : validation.publishReady ? "Import validated" : "Review flagged questions"}
           </h4>
           <p className="mt-1 text-sm font-bold opacity-75">
-            {validation ? `${validation.provider} / ${validation.engine}` : "Checks answer keys, weak options, formula risk, visual risk and publish readiness."}
+            {validation ? "Review the flagged items, then continue to publish." : "Checks the paper, answer key and questions before students see the exam."}
           </p>
         </div>
         <button type="button" onClick={onValidate} disabled={busy} className="min-h-10 rounded-xl border border-slate-950 bg-slate-950 px-4 text-sm font-black text-white disabled:opacity-60">
@@ -2945,10 +3027,10 @@ function ImportValidationPanel({
       {validation ? (
         <>
           <div className="mt-3 grid gap-2 sm:grid-cols-4">
-            <MiniFact label="Confidence" value={`${validation.averageConfidence}%`} />
-            <MiniFact label="High" value={heatMap.high.length || validation.summary.autoApproved} />
+            <MiniFact label="Approved" value={heatMap.high.length || validation.summary.autoApproved} />
             <MiniFact label="Review" value={heatMap.review.length || validation.summary.needsReview} />
             <MiniFact label="Fix" value={heatMap.fix.length || validation.summary.manualCorrection} />
+            <MiniFact label="Ready" value={validation.publishReady ? "Yes" : "No"} />
           </div>
           <ConfidenceHeatMap reports={validation.questionReports} onOpenQuestion={onOpenQuestion} compact={compact} />
           {flagged.length ? (
@@ -2991,11 +3073,11 @@ function ConfidenceHeatMap({
   return (
     <div className="mt-3 rounded-xl border border-current/10 bg-white/60 p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-xs font-black uppercase tracking-[0.2em] opacity-75">Confidence heat map</p>
+        <p className="text-xs font-black uppercase tracking-[0.2em] opacity-75">Review map</p>
         <div className="flex flex-wrap gap-1 text-[10px] font-black uppercase tracking-[0.12em]">
-          <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-emerald-900">High 90-100</span>
-          <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-1 text-amber-900">Review 70-89</span>
-          <span className="rounded-full border border-rose-200 bg-rose-50 px-2 py-1 text-rose-900">Fix below 70</span>
+          <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-emerald-900">Approved</span>
+          <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-1 text-amber-900">Review</span>
+          <span className="rounded-full border border-rose-200 bg-rose-50 px-2 py-1 text-rose-900">Fix</span>
         </div>
       </div>
       <div className="mt-3 grid grid-cols-8 gap-2 sm:grid-cols-10 md:grid-cols-12">
@@ -3018,39 +3100,6 @@ function ConfidenceHeatMap({
         <p className="mt-2 text-xs font-bold opacity-75">{reports.length - visibleReports.length} more question(s) are available in the full check view.</p>
       ) : null}
     </div>
-  );
-}
-
-function ImportAnalyticsPanel({ analytics, onRefresh }: { analytics: ImportAnalyticsPayload; onRefresh: () => void }) {
-  return (
-    <section className="rounded-2xl border border-[var(--border)] bg-white p-4 lg:col-span-2">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--gold-dark)]">Import analytics</p>
-          <h4 className="mt-1 text-lg font-black">Document intelligence activity</h4>
-          <p className="mt-1 text-sm font-bold text-[var(--muted-blue)]">Tracks imports, review load and visual-risk papers for this batch.</p>
-        </div>
-        <button type="button" onClick={onRefresh} className="min-h-10 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 text-sm font-black">
-          Refresh
-        </button>
-      </div>
-      <div className="mt-3 grid gap-2 sm:grid-cols-6">
-        <MiniFact label="Jobs" value={analytics.totals.importJobs} />
-        <MiniFact label="Uploads" value={analytics.totals.uploads} />
-        <MiniFact label="Review" value={analytics.totals.reviewRequired} />
-        <MiniFact label="Auto" value={analytics.totals.autoClassified} />
-        <MiniFact label="Visual Risk" value={analytics.totals.visualRiskUploads} />
-        <MiniFact label="Avg AI" value={`${analytics.totals.averageConfidence}%`} />
-      </div>
-      <div className="mt-3 flex flex-wrap gap-2">
-        {Object.entries(analytics.byDocumentClass).map(([key, value]) => (
-          <span key={key} className="rounded-full border border-[var(--border)] bg-[var(--page-bg)] px-3 py-1 text-xs font-black">{key}: {value}</span>
-        ))}
-        {Object.entries(analytics.byPipeline).map(([key, value]) => (
-          <span key={key} className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-black text-blue-900">{key}: {value}</span>
-        ))}
-      </div>
-    </section>
   );
 }
 
@@ -3622,37 +3671,6 @@ function VisualSourcePreviewPanel({
   );
 }
 
-function SourceFilesPanel({ uploads, compact = false }: { uploads: ExamUploadRecord[]; compact?: boolean }) {
-  return (
-    <div className={`rounded-2xl border border-emerald-200 bg-emerald-50 p-4 ${compact ? "" : "lg:col-span-2"}`}>
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-800">Preserved source files</p>
-          <h4 className="mt-1 text-lg font-black text-emerald-950">{uploads.length} original file{uploads.length === 1 ? "" : "s"} saved</h4>
-        </div>
-        <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-emerald-800">Exam audit ready</span>
-      </div>
-      <div className="mt-3 grid gap-2">
-        {uploads.map((upload) => (
-          <div key={upload.id} className="rounded-xl border border-emerald-100 bg-white p-3 text-sm">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div>
-                <p className="font-black text-slate-950">{upload.originalName || upload.fileName}</p>
-                <p className="mt-1 text-xs font-bold text-[var(--muted-blue)]">{String(upload.sourceKind).replace(/_/g, " ")} / {Math.max(1, Math.round(upload.fileSize / 1024))} KB / {upload.extractionStatus || "UPLOADED"}</p>
-              </div>
-              {upload.localPreviewUrl || upload.signedUrl || upload.cloudinaryUrl ? (
-                <a href={upload.localPreviewUrl || upload.signedUrl || upload.cloudinaryUrl} target="_blank" rel="noreferrer" className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-800">
-                  Open source
-                </a>
-              ) : null}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 function PaperUnderstandingPanel({ report, compact = false }: { report: PaperUnderstandingReport; compact?: boolean }) {
   const tone = report.confidence === "HIGH"
     ? "border-emerald-200 bg-emerald-50 text-emerald-950"
@@ -3803,13 +3821,17 @@ function FormulaReviewPanel({
 
 function ExtractionAuditPanel({ reports, manualReview, onManualReviewChange, compact = false }: { reports: ExtractionReport[]; manualReview: boolean; onManualReviewChange: (value: boolean) => void; compact?: boolean }) {
   const hasBlocker = reports.some((report) => report.status === "BLOCKED");
+  const friendlyNote = (item: string) => item
+    .replace(/No numbered MCQ questions were detected\./i, "Questions need review in the next step.")
+    .replace(/Maths\/formula PDF extraction is fragmented\. The source paper was preserved, but auto-created questions would be inaccurate\./i, "Formula-heavy layout needs teacher review.")
+    .replace(/Only a few questions were detected from the PDF\./i, "Only part of the paper was detected automatically.");
   return (
     <div className={`rounded-2xl border p-4 ${hasBlocker ? "border-amber-300 bg-amber-50" : "border-blue-200 bg-blue-50"} ${compact ? "" : "lg:col-span-2"}`}>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className={`text-xs font-black uppercase tracking-[0.24em] ${hasBlocker ? "text-amber-800" : "text-blue-800"}`}>Paper digitizing check</p>
           <h4 className="mt-1 text-lg font-black">{hasBlocker ? "Manual review required" : "Review recommended"}</h4>
-          <p className="mt-1 text-sm leading-6 text-[var(--muted-blue)]">PDF text extraction cannot preserve diagrams, formula layout, charts or scanned images. Check the extracted questions before publishing.</p>
+          <p className="mt-1 text-sm leading-6 text-[var(--muted-blue)]">This paper may contain formulas, diagrams, tables or scanned pages. Check it once before publishing.</p>
         </div>
         <label className="flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-black">
           <input type="checkbox" checked={manualReview} onChange={(event) => onManualReviewChange(event.target.checked)} />
@@ -3823,10 +3845,10 @@ function ExtractionAuditPanel({ reports, manualReview, onManualReviewChange, com
               <p className="font-black">{report.fileName}</p>
               <span className={`rounded-full px-3 py-1 text-xs font-black ${report.status === "BLOCKED" ? "bg-amber-100 text-amber-900" : "bg-blue-100 text-blue-900"}`}>{report.status.replace(/_/g, " ")}</span>
             </div>
-            <p className="mt-1 text-xs font-bold text-[var(--muted-blue)]">{report.detectedQuestions} detected item(s) / {report.textCharacters} text characters</p>
+            <p className="mt-1 text-xs font-bold text-[var(--muted-blue)]">{report.detectedQuestions || "Review"} detected item(s)</p>
             {[...report.blockers, ...report.warnings].length ? (
               <ul className="mt-2 grid gap-1 text-xs font-bold leading-5 text-slate-700">
-                {[...report.blockers, ...report.warnings].map((item) => <li key={item}>- {item}</li>)}
+                {[...report.blockers, ...report.warnings].slice(0, 3).map((item) => <li key={item}>- {friendlyNote(item)}</li>)}
               </ul>
             ) : null}
           </div>
@@ -3967,6 +3989,7 @@ Now convert the attached paper completely.`;
 function ExamConversionPrompt({ subject }: { subject: string }) {
   const prompt = examConversionPrompt(subject);
   const [copied, setCopied] = useState(false);
+  const [open, setOpen] = useState(false);
 
   async function copyPrompt() {
     try {
@@ -3979,14 +4002,36 @@ function ExamConversionPrompt({ subject }: { subject: string }) {
   }
 
   return (
-    <details className="mb-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-950" open>
-      <summary className="cursor-pointer list-none font-black">Maths / Physics PDF conversion prompt</summary>
-      <p className="mt-2 text-xs font-bold leading-5">Use this when a PDF contains formulas, triangles, diagrams, graphs or tables. Paste this prompt with the PDF in ChatGPT, then paste the converted output below.</p>
-      <pre className="mt-3 max-h-64 overflow-auto rounded-lg border border-amber-200 bg-white p-3 text-xs leading-5 text-slate-900 whitespace-pre-wrap">{prompt}</pre>
-      <button type="button" onClick={() => void copyPrompt()} className="mt-3 rounded-lg border border-amber-300 bg-white px-3 py-2 text-xs font-black text-amber-950">
-        {copied ? "Copied" : "Copy Prompt"}
+    <>
+      <button type="button" onClick={() => setOpen(true)} className="mb-3 inline-flex min-h-10 items-center justify-center rounded-xl border border-amber-200 bg-amber-50 px-4 text-xs font-black text-amber-950">
+        Copy AI Prompt
       </button>
-    </details>
+      {open ? (
+        <div className="fixed inset-0 z-[70] flex items-end justify-center bg-slate-950/55 p-0 sm:items-center sm:p-4">
+          <div className="flex max-h-[88dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-3xl border border-slate-950 bg-white shadow-2xl sm:rounded-3xl">
+            <div className="flex shrink-0 items-start justify-between gap-4 border-b border-[var(--border)] p-4">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--gold-dark)]">AI prompt</p>
+                <h4 className="mt-1 text-lg font-black">Maths / Physics conversion prompt</h4>
+                <p className="mt-1 text-xs font-bold leading-5 text-[var(--muted-blue)]">Use only when a PDF contains formulas, diagrams, graphs or tables.</p>
+              </div>
+              <button type="button" onClick={() => setOpen(false)} className="grid h-10 w-10 place-items-center rounded-full border border-[var(--border)]">
+                <X size={17} />
+              </button>
+            </div>
+            <div className="min-h-0 flex-1 overflow-y-auto p-4">
+              <pre className="max-h-[54dvh] overflow-auto rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3 text-xs leading-5 text-slate-900 whitespace-pre-wrap">{prompt}</pre>
+            </div>
+            <div className="flex shrink-0 flex-wrap justify-end gap-2 border-t border-[var(--border)] p-4">
+              <button type="button" onClick={() => setOpen(false)} className="min-h-11 rounded-xl border border-[var(--border)] px-4 text-sm font-black">Close</button>
+              <button type="button" onClick={() => void copyPrompt()} className="min-h-11 rounded-xl border border-slate-950 bg-slate-950 px-4 text-sm font-black text-white">
+                {copied ? "Copied" : "Copy Prompt"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </>
   );
 }
 
