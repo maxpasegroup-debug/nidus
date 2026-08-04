@@ -3530,6 +3530,26 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
 }
 
 type ExamPaperReviewStatus = "Ready" | "Needs Review" | "Missing Answer" | "Missing Formula" | "Missing Diagram" | "Incomplete" | "Rejected" | "Approved";
+type SmartReviewFilter = "ALL" | "READY" | "NEEDS_REVIEW" | "MISSING_ANSWERS" | "FORMULA_ISSUES" | "DIAGRAM_ISSUES" | "LOW_CONFIDENCE" | "DUPLICATES" | "INCOMPLETE" | "REJECTED";
+type ReviewFindingSeverity = "READY" | "LOW" | "MEDIUM" | "HIGH";
+type ReviewFinding = {
+  id: string;
+  questionNumber: number;
+  title: string;
+  detail: string;
+  severity: ReviewFindingSeverity;
+  filter: SmartReviewFilter;
+};
+type AiReviewReport = {
+  findings: ReviewFinding[];
+  ready: number;
+  attention: number;
+  highRisk: number;
+  mediumRisk: number;
+  lowRisk: number;
+  publishReadiness: number;
+  reasons: string[];
+};
 
 function displayReviewStatus(question: AiDraftQuestion): ExamPaperReviewStatus {
   if (question.reviewStatus === "APPROVED") return "Approved";
@@ -3549,6 +3569,13 @@ function reviewStatusTone(status: ExamPaperReviewStatus) {
   return "border-blue-200 bg-blue-50 text-blue-900";
 }
 
+function reviewSeverityTone(severity: ReviewFindingSeverity) {
+  if (severity === "READY") return "border-emerald-200 bg-emerald-50 text-emerald-900";
+  if (severity === "HIGH") return "border-rose-200 bg-rose-50 text-rose-900";
+  if (severity === "MEDIUM") return "border-amber-200 bg-amber-50 text-amber-950";
+  return "border-blue-200 bg-blue-50 text-blue-900";
+}
+
 function normalizeQuestionForPreview(question: AiDraftQuestion, index: number): AiDraftQuestion {
   const nextNumber = Number.isFinite(question.number) && question.number > 0 ? question.number : index + 1;
   return {
@@ -3565,33 +3592,186 @@ function normalizeQuestionForPreview(question: AiDraftQuestion, index: number): 
   };
 }
 
-function reviewGroups(draft: AiExamDraft) {
+function questionMatchesSmartFilter(question: AiDraftQuestion, filter: SmartReviewFilter, findings: ReviewFinding[]) {
+  if (filter === "ALL") return true;
+  const status = displayReviewStatus(question);
+  const questionFindings = findings.filter((finding) => finding.questionNumber === question.number);
+  if (filter === "READY") return status === "Ready" || status === "Approved";
+  if (filter === "NEEDS_REVIEW") return status === "Needs Review" || questionFindings.some((finding) => finding.filter === "NEEDS_REVIEW");
+  if (filter === "MISSING_ANSWERS") return questionFindings.some((finding) => finding.filter === "MISSING_ANSWERS");
+  if (filter === "FORMULA_ISSUES") return questionFindings.some((finding) => finding.filter === "FORMULA_ISSUES");
+  if (filter === "DIAGRAM_ISSUES") return questionFindings.some((finding) => finding.filter === "DIAGRAM_ISSUES");
+  if (filter === "LOW_CONFIDENCE") return questionFindings.some((finding) => finding.filter === "LOW_CONFIDENCE");
+  if (filter === "DUPLICATES") return questionFindings.some((finding) => finding.filter === "DUPLICATES");
+  if (filter === "INCOMPLETE") return status === "Incomplete" || questionFindings.some((finding) => finding.filter === "INCOMPLETE");
+  if (filter === "REJECTED") return status === "Rejected";
+  return true;
+}
+
+function reviewGroups(draft: AiExamDraft, filter: SmartReviewFilter, report: AiReviewReport) {
   const normalized = draft.questions.map(normalizeQuestionForPreview);
+  const filtered = normalized.filter((question) => questionMatchesSmartFilter(question, filter, report.findings));
   const groups = [
-    { title: "High Confidence", questions: normalized.filter((question) => ["Ready", "Approved"].includes(displayReviewStatus(question))) },
-    { title: "Needs Review", questions: normalized.filter((question) => displayReviewStatus(question) === "Needs Review") },
-    { title: "Incomplete Questions", questions: normalized.filter((question) => ["Missing Answer", "Missing Formula", "Missing Diagram", "Incomplete"].includes(displayReviewStatus(question))) },
-    { title: "Rejected", questions: normalized.filter((question) => displayReviewStatus(question) === "Rejected") },
+    { title: "High Confidence", questions: filtered.filter((question) => ["Ready", "Approved"].includes(displayReviewStatus(question))) },
+    { title: "Needs Review", questions: filtered.filter((question) => displayReviewStatus(question) === "Needs Review") },
+    { title: "Incomplete Questions", questions: filtered.filter((question) => ["Missing Answer", "Missing Formula", "Missing Diagram", "Incomplete"].includes(displayReviewStatus(question))) },
+    { title: "Rejected", questions: filtered.filter((question) => displayReviewStatus(question) === "Rejected") },
   ];
   return groups.filter((group) => group.questions.length);
 }
 
-function ReviewSummaryStrip({ draft }: { draft: AiExamDraft }) {
-  const statuses = draft.questions.map(displayReviewStatus);
-  const ready = statuses.filter((status) => status === "Ready" || status === "Approved").length;
-  const needsReview = statuses.filter((status) => status === "Needs Review").length;
-  const formulaIssues = statuses.filter((status) => status === "Missing Formula").length;
-  const diagramIssues = statuses.filter((status) => status === "Missing Diagram").length;
-  const answerIssues = statuses.filter((status) => status === "Missing Answer").length;
-  const readiness = draft.questionCount ? Math.round((ready / draft.questionCount) * 100) : 0;
+function buildAiReviewReport(draft: AiExamDraft): AiReviewReport {
+  const questions = draft.questions.map(normalizeQuestionForPreview);
+  const normalizedText = (value: string) => cleanDraftText(value).toLowerCase();
+  const firstSeen = new Map<string, number>();
+  const duplicateNumbers = new Set<number>();
+  for (const question of questions) {
+    const key = normalizedText(question.questionText);
+    if (!key || key.length < 12) continue;
+    const first = firstSeen.get(key);
+    if (first) duplicateNumbers.add(question.number);
+    else firstSeen.set(key, question.number);
+  }
+  const findings: ReviewFinding[] = [];
+  for (const question of questions) {
+    const status = displayReviewStatus(question);
+    const optionMissing = question.missingItems.includes("Option") || question.options.some((option) => /requires review/i.test(option.text));
+    const formulaMissing = question.missingItems.includes("Formula");
+    const diagramMissing = question.missingItems.includes("Diagram");
+    const answerMissing = question.missingItems.includes("Answer") || !question.linkedAnswer;
+    const solutionMissing = question.missingItems.includes("Solution") || !question.linkedSolution;
+    const lowConfidence = question.draftConfidence < 0.7;
+    const sourceMissing = !question.sourcePage && !question.sourceReference;
+    const duplicate = duplicateNumbers.has(question.number);
+
+    if (status === "Ready" || status === "Approved") {
+      findings.push({ id: `ready-${question.number}`, questionNumber: question.number, title: "Ready", detail: "Question looks ready for teacher approval.", severity: "READY", filter: "READY" });
+    }
+    if (optionMissing) findings.push({ id: `option-${question.number}`, questionNumber: question.number, title: "Missing option", detail: "One or more options need teacher review.", severity: "HIGH", filter: "INCOMPLETE" });
+    if (formulaMissing) findings.push({ id: `formula-${question.number}`, questionNumber: question.number, title: "Formula should be reviewed", detail: "Formula preview needs teacher confirmation.", severity: "MEDIUM", filter: "FORMULA_ISSUES" });
+    if (diagramMissing) findings.push({ id: `diagram-${question.number}`, questionNumber: question.number, title: "Diagram appears incomplete", detail: "Diagram, graph or table source needs review.", severity: "MEDIUM", filter: "DIAGRAM_ISSUES" });
+    if (answerMissing) findings.push({ id: `answer-${question.number}`, questionNumber: question.number, title: "Missing answer key", detail: "Correct answer is not confidently linked.", severity: "HIGH", filter: "MISSING_ANSWERS" });
+    if (solutionMissing && question.linkedAnswer) findings.push({ id: `solution-${question.number}`, questionNumber: question.number, title: "Solution not linked", detail: "No solution preview is linked.", severity: "LOW", filter: "NEEDS_REVIEW" });
+    if (lowConfidence) findings.push({ id: `confidence-${question.number}`, questionNumber: question.number, title: "Confidence low", detail: "AI is not fully confident about this question.", severity: "MEDIUM", filter: "LOW_CONFIDENCE" });
+    if (sourceMissing) findings.push({ id: `source-${question.number}`, questionNumber: question.number, title: "Source crop missing", detail: "Original source reference is not linked yet.", severity: "LOW", filter: "NEEDS_REVIEW" });
+    if (duplicate) findings.push({ id: `duplicate-${question.number}`, questionNumber: question.number, title: `Duplicate Question ${question.number}`, detail: "This question appears similar to an earlier question.", severity: "HIGH", filter: "DUPLICATES" });
+    if (status === "Rejected") findings.push({ id: `rejected-${question.number}`, questionNumber: question.number, title: "Rejected", detail: "Question is marked rejected.", severity: "HIGH", filter: "REJECTED" });
+    if (status === "Needs Review" && !findings.some((finding) => finding.questionNumber === question.number && finding.severity !== "READY")) {
+      findings.push({ id: `review-${question.number}`, questionNumber: question.number, title: "Needs Review", detail: "Teacher confirmation is needed.", severity: "MEDIUM", filter: "NEEDS_REVIEW" });
+    }
+  }
+  const ready = questions.filter((question) => ["Ready", "Approved"].includes(displayReviewStatus(question))).length;
+  const highRisk = findings.filter((finding) => finding.severity === "HIGH").length;
+  const mediumRisk = findings.filter((finding) => finding.severity === "MEDIUM").length;
+  const lowRisk = findings.filter((finding) => finding.severity === "LOW").length;
+  const attention = Array.from(new Set(findings.filter((finding) => finding.severity !== "READY").map((finding) => finding.questionNumber))).length;
+  const publishReadiness = questions.length ? Math.max(0, Math.min(100, Math.round((ready / questions.length) * 100) - highRisk * 4 - mediumRisk * 2 - lowRisk)) : 0;
+  const reasons = [
+    answerIssueCount(findings) ? `${answerIssueCount(findings)} question(s) missing answers` : "",
+    findings.filter((finding) => finding.filter === "FORMULA_ISSUES").length ? `${findings.filter((finding) => finding.filter === "FORMULA_ISSUES").length} formula review pending` : "",
+    findings.filter((finding) => finding.filter === "DIAGRAM_ISSUES").length ? `${findings.filter((finding) => finding.filter === "DIAGRAM_ISSUES").length} diagram review pending` : "",
+    findings.filter((finding) => finding.filter === "DUPLICATES").length ? `${findings.filter((finding) => finding.filter === "DUPLICATES").length} duplicate question(s)` : "",
+  ].filter(Boolean);
+  return { findings, ready, attention, highRisk, mediumRisk, lowRisk, publishReadiness, reasons };
+}
+
+function answerIssueCount(findings: ReviewFinding[]) {
+  return findings.filter((finding) => finding.filter === "MISSING_ANSWERS").length;
+}
+
+function ReviewSummaryStrip({ report }: { report: AiReviewReport }) {
   return (
     <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-6">
-      <MiniFact label="Ready" value={ready} />
-      <MiniFact label="Needs Review" value={needsReview} />
-      <MiniFact label="Formula Issues" value={formulaIssues} />
-      <MiniFact label="Diagram Issues" value={diagramIssues} />
-      <MiniFact label="Answer Issues" value={answerIssues} />
-      <MiniFact label="Publish Readiness" value={`${readiness}%`} />
+      <MiniFact label="Ready" value={report.ready} />
+      <MiniFact label="Needs Attention" value={report.attention} />
+      <MiniFact label="High Risk" value={report.highRisk} />
+      <MiniFact label="Medium Risk" value={report.mediumRisk} />
+      <MiniFact label="Low Risk" value={report.lowRisk} />
+      <MiniFact label="Publish Readiness" value={`${report.publishReadiness}%`} />
+    </div>
+  );
+}
+
+const smartReviewFilters: Array<{ id: SmartReviewFilter; label: string }> = [
+  { id: "ALL", label: "All" },
+  { id: "READY", label: "Ready" },
+  { id: "NEEDS_REVIEW", label: "Needs Review" },
+  { id: "MISSING_ANSWERS", label: "Missing Answers" },
+  { id: "FORMULA_ISSUES", label: "Formula Issues" },
+  { id: "DIAGRAM_ISSUES", label: "Diagram Issues" },
+  { id: "LOW_CONFIDENCE", label: "Low Confidence" },
+  { id: "DUPLICATES", label: "Duplicates" },
+  { id: "INCOMPLETE", label: "Incomplete" },
+  { id: "REJECTED", label: "Rejected" },
+];
+
+function smartFilterCount(filter: SmartReviewFilter, draft: AiExamDraft, report: AiReviewReport) {
+  const questions = draft.questions.map(normalizeQuestionForPreview);
+  return questions.filter((question) => questionMatchesSmartFilter(question, filter, report.findings)).length;
+}
+
+function SmartReviewFilters({ activeFilter, draft, onChange, report }: { activeFilter: SmartReviewFilter; draft: AiExamDraft; onChange: (filter: SmartReviewFilter) => void; report: AiReviewReport }) {
+  return (
+    <div className="mt-5 flex gap-2 overflow-x-auto pb-1">
+      {smartReviewFilters.map((filter) => (
+        <button
+          key={filter.id}
+          type="button"
+          onClick={() => onChange(filter.id)}
+          className={`shrink-0 rounded-full border px-4 py-2 text-xs font-black transition ${
+            activeFilter === filter.id
+              ? "border-[var(--navy)] bg-[var(--navy)] text-white"
+              : "border-[var(--border)] bg-white text-[var(--muted-blue)] hover:border-[var(--navy)] hover:text-[var(--navy)]"
+          }`}
+        >
+          {filter.label} <span className="ml-1 opacity-75">{smartFilterCount(filter.id, draft, report)}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function AiReviewAssistantPanel({ onOpenFinding, report }: { onOpenFinding: (finding: ReviewFinding) => void; report: AiReviewReport }) {
+  const attentionFindings = report.findings.filter((finding) => finding.severity !== "READY");
+  const visibleFindings = attentionFindings.slice(0, 8);
+  return (
+    <div className="mt-5 rounded-3xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold-dark)]">AI Review Report</p>
+          <h5 className="mt-1 text-lg font-black">Review only what needs attention</h5>
+        </div>
+        <span className={`rounded-full px-4 py-2 text-xs font-black ${report.publishReadiness >= 90 ? "bg-emerald-50 text-emerald-800" : report.publishReadiness >= 75 ? "bg-amber-50 text-amber-900" : "bg-rose-50 text-rose-900"}`}>
+          {report.publishReadiness}% Publish Readiness
+        </span>
+      </div>
+      {report.reasons.length ? (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {report.reasons.map((reason) => (
+            <span key={reason} className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-black text-amber-950">{reason}</span>
+          ))}
+        </div>
+      ) : null}
+      <div className="mt-4 grid gap-2">
+        {visibleFindings.length ? visibleFindings.map((finding) => (
+          <button
+            key={finding.id}
+            type="button"
+            onClick={() => onOpenFinding(finding)}
+            className={`rounded-2xl border p-3 text-left transition hover:-translate-y-0.5 hover:shadow-sm ${reviewSeverityTone(finding.severity)}`}
+          >
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-sm font-black">Question {finding.questionNumber}: {finding.title}</p>
+              <span className="rounded-full bg-white/70 px-3 py-1 text-[10px] font-black uppercase tracking-[0.14em]">{finding.severity === "HIGH" ? "High Risk" : finding.severity === "MEDIUM" ? "Medium Risk" : "Low Risk"}</span>
+            </div>
+            <p className="mt-1 text-xs font-bold opacity-80">{finding.detail}</p>
+          </button>
+        )) : (
+          <p className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-black text-emerald-900">
+            Every question looks ready. Teacher approval can move quickly.
+          </p>
+        )}
+      </div>
     </div>
   );
 }
@@ -3613,10 +3793,10 @@ function VisualPreview({ question }: { question: AiDraftQuestion }) {
   );
 }
 
-function ExamPaperQuestionCard({ question }: { question: AiDraftQuestion }) {
+function ExamPaperQuestionCard({ active, question }: { active?: boolean; question: AiDraftQuestion }) {
   const status = displayReviewStatus(question);
   return (
-    <article className="rounded-3xl border border-[var(--border)] bg-white p-5 shadow-sm">
+    <article id={`exam-review-question-${question.number}`} className={`rounded-3xl border bg-white p-5 shadow-sm transition ${active ? "border-[var(--gold)] ring-4 ring-[rgba(185,138,48,0.18)]" : "border-[var(--border)]"}`}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.2em] text-[var(--gold-dark)]">Question {question.number}</p>
@@ -3674,7 +3854,17 @@ function ExamPaperQuestionCard({ question }: { question: AiDraftQuestion }) {
 }
 
 function AiDraftPreview({ draft }: { draft: AiExamDraft }) {
-  const groups = reviewGroups(draft);
+  const [activeFilter, setActiveFilter] = useState<SmartReviewFilter>("ALL");
+  const [activeQuestion, setActiveQuestion] = useState<number | null>(null);
+  const report = useMemo(() => buildAiReviewReport(draft), [draft]);
+  const groups = useMemo(() => reviewGroups(draft, activeFilter, report), [activeFilter, draft, report]);
+  const openFinding = (finding: ReviewFinding) => {
+    setActiveFilter(finding.filter);
+    setActiveQuestion(finding.questionNumber);
+    window.setTimeout(() => {
+      document.getElementById(`exam-review-question-${finding.questionNumber}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 80);
+  };
   return (
     <section className="rounded-3xl border border-[var(--border)] bg-white p-5 shadow-sm">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -3687,7 +3877,9 @@ function AiDraftPreview({ draft }: { draft: AiExamDraft }) {
           {draft.needsReview ? "Teacher Review Needed" : "Draft Ready"}
         </span>
       </div>
-      <ReviewSummaryStrip draft={draft} />
+      <ReviewSummaryStrip report={report} />
+      <AiReviewAssistantPanel report={report} onOpenFinding={openFinding} />
+      <SmartReviewFilters activeFilter={activeFilter} draft={draft} report={report} onChange={setActiveFilter} />
       <div className="mt-5 grid gap-5">
         {groups.map((group) => (
           <section key={group.title} className="grid gap-3">
@@ -3695,12 +3887,12 @@ function AiDraftPreview({ draft }: { draft: AiExamDraft }) {
               <h5 className="text-sm font-black uppercase tracking-[0.2em] text-[var(--muted-blue)]">{group.title}</h5>
               <span className="rounded-full bg-[var(--page-bg)] px-3 py-1 text-xs font-black text-[var(--muted-blue)]">{group.questions.length}</span>
             </div>
-            {group.questions.map((question) => <ExamPaperQuestionCard key={`${group.title}-${question.number}`} question={question} />)}
+            {group.questions.map((question) => <ExamPaperQuestionCard key={`${group.title}-${question.number}`} question={question} active={activeQuestion === question.number} />)}
           </section>
         ))}
         {!groups.length ? (
           <p className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--page-bg)] p-5 text-sm font-black text-[var(--muted-blue)]">
-            Upload a question paper to generate the exam paper preview.
+            {draft.questions.length ? "No questions match this review filter." : "Upload a question paper to generate the exam paper preview."}
           </p>
         ) : null}
       </div>
@@ -4241,24 +4433,24 @@ function ImportReplayPanel({ manifest }: { manifest: ImportReplayManifest }) {
     <section className={`mt-4 rounded-2xl border p-4 ${manifest.replayAvailable ? "border-cyan-200 bg-cyan-50 text-cyan-950" : "border-slate-200 bg-slate-50 text-slate-800"}`}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.25em] opacity-75">Import replay</p>
-          <h4 className="mt-1 text-lg font-black">{manifest.replayAvailable ? "Original paper can be reprocessed later" : "Replay needs preserved source"}</h4>
-          <p className="mt-1 text-sm font-bold opacity-75">Future OCR/layout upgrades can compare a new extraction with the current teacher-approved draft.</p>
+          <p className="text-xs font-black uppercase tracking-[0.25em] opacity-75">Original paper backup</p>
+          <h4 className="mt-1 text-lg font-black">{manifest.replayAvailable ? "Original paper is safely preserved" : "Original paper backup needs attention"}</h4>
+          <p className="mt-1 text-sm font-bold opacity-75">Future improvements can compare a new draft with the current teacher-approved paper.</p>
         </div>
         <span className="rounded-full bg-white/80 px-3 py-1 text-xs font-black">{manifest.sourceUploads.length} source file(s)</span>
       </div>
       <div className="mt-3 grid gap-2 sm:grid-cols-4">
         <MiniFact label="Questions" value={manifest.lastKnownQuestionCount} />
-        <MiniFact label="Source Hash" value={manifest.preservedQuestionTextHash} />
-        <MiniFact label="Visual Map" value={`${manifest.sourceReviewCoverage.visualConfirmed}/${manifest.sourceReviewCoverage.visualRequired}`} />
-        <MiniFact label="Modes" value={manifest.replayModes.length} />
+        <MiniFact label="Backup ID" value={manifest.preservedQuestionTextHash} />
+        <MiniFact label="Visuals Checked" value={`${manifest.sourceReviewCoverage.visualConfirmed}/${manifest.sourceReviewCoverage.visualRequired}`} />
+        <MiniFact label="Review Options" value={manifest.replayModes.length} />
       </div>
       {manifest.sourceUploads.length ? (
         <div className="mt-3 grid gap-2">
           {manifest.sourceUploads.slice(0, 5).map((upload) => (
             <div key={upload.uploadId} className="rounded-xl border border-current/10 bg-white/80 p-3 text-xs font-bold leading-5">
               <p className="font-black">{upload.originalName}</p>
-              <p className="mt-1 opacity-80">{upload.sourceKind.replace(/_/g, " ")} / {upload.documentClass || "UNKNOWN"} / {upload.pipeline || "UNCLASSIFIED"}</p>
+              <p className="mt-1 opacity-80">{upload.sourceKind.replace(/_/g, " ")} / {upload.documentClass || "UNKNOWN"}</p>
             </div>
           ))}
         </div>
