@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { PointerEvent, ReactNode } from "react";
+import Image from "next/image";
 import { BookOpen, CheckCircle2, FileText, Pencil, Plus, Trophy, X } from "lucide-react";
 import { NidusMathText } from "@/components/exam/nidus-math-renderer";
 import { buildNidusQuestionContent, type NidusQuestionContent } from "@/components/exam/nidus-question-content";
@@ -101,8 +102,12 @@ type TeacherDocumentType =
   | "SCANNED_DOCUMENT"
   | "ANSWER_KEY"
   | "SOLUTION_DOCUMENT"
+  | "WORKSHEET"
+  | "NOTES"
   | "MIXED_DOCUMENT"
   | "UNKNOWN";
+
+type TeacherUploadState = "IDLE" | "ANALYZING_DOCUMENT" | "UNDERSTANDING_PAPER" | "BUILDING_AI_DRAFT" | "PREPARING_REVIEW" | "DRAFT_READY" | "NEEDS_REVIEW" | "READY_FOR_PUBLISH" | "PASSWORD_PROTECTED" | "CORRUPTED_FILE" | "UNSUPPORTED_DOCUMENT";
 
 type ExamUploadRecord = {
   id: string;
@@ -227,32 +232,71 @@ type ImportQualityScore = {
   generatedAt: string;
 };
 
-type AiDraftReviewStatus = "READY" | "NEEDS_REVIEW" | "MISSING_ANSWER" | "MISSING_ASSET";
+type AiDraftReviewStatus = "READY" | "NEEDS_REVIEW" | "MISSING_OPTION" | "MISSING_FORMULA" | "MISSING_DIAGRAM" | "MISSING_ANSWER" | "MISSING_SOLUTION" | "MISSING_ASSET" | "INCOMPLETE" | "REJECTED" | "APPROVED";
+
+type UniversalQuestionType =
+  | RichQuestionType
+  | "TRUE_FALSE"
+  | "SHORT_ANSWER"
+  | "LONG_ANSWER"
+  | "PASSAGE_BASED"
+  | "TABLE_BASED"
+  | "GRAPH_BASED"
+  | "DIAGRAM_BASED"
+  | "MIXED_EXAM"
+  | "UNKNOWN";
 
 type AiDraftQuestion = {
   number: number;
   questionText: string;
-  options: Array<{ label: "A" | "B" | "C" | "D"; text: string }>;
-  questionType: RichQuestionType;
+  options: Array<{ label: string; text: string }>;
+  questionType: UniversalQuestionType;
   draftConfidence: number;
   reviewStatus: AiDraftReviewStatus;
   linkedAssets: string[];
   linkedAnswer?: string;
   linkedSolution?: string;
+  recoveredFormula?: string;
+  sourceReference?: string;
+  sourcePage?: number;
+  boundingRegion?: CropBox;
+  originalCrop?: string;
+  missingItems: Array<"Option" | "Formula" | "Diagram" | "Answer" | "Solution">;
   originalCropRequired: boolean;
   notes: string[];
 };
 
+type AiDraftQuality = {
+  formulaPreservation: "High" | "Medium" | "Needs Review";
+  visualPreservation: "High" | "Medium" | "Needs Review";
+  questionCompleteness: "High" | "Medium" | "Needs Review";
+  answerCompleteness: "High" | "Medium" | "Needs Review";
+  overall: "High" | "Medium" | "Needs Review";
+};
+
 type AiExamDraft = {
-  schema: "NIDUS_AI_EXAM_DRAFT_V1";
+  schema: "NIDUS_AI_EXAM_DRAFT_V1" | "NIDUS_AI_RECONSTRUCTION_DRAFT_V1" | "NIDUS_AI_UNIVERSAL_EXAM_DRAFT_V1";
   questions: AiDraftQuestion[];
   questionCount: number;
   questionTypes: string[];
   answerKeysLinked: number;
+  solutionsLinked?: number;
+  formulaReviewCount?: number;
+  visualReviewCount?: number;
   needsReview: number;
-  overallQuality: "High" | "Medium" | "Needs Review";
+  quality: AiDraftQuality;
+  overallQuality: AiDraftQuality["overall"];
   message: string;
   createdAt: string;
+};
+
+type AiReconstructionResult = {
+  engine: "NIDUS_AI_RECONSTRUCTION_ENGINE_V1";
+  mode: "NDIE_PRIMARY" | "AI_RECONSTRUCTION" | "NDIE_FALLBACK";
+  provider: string;
+  draft: AiExamDraft;
+  confidence: number;
+  reviewFlags: string[];
 };
 
 type ResultRow = {
@@ -576,6 +620,67 @@ function questionTypeLabel(value: RichQuestionType) {
   return richQuestionTypes.find((type) => type.value === value)?.label || value.replace(/_/g, " ");
 }
 
+function inferUniversalQuestionType(question: QuestionDraft, signal?: PaperUnderstandingReport["questionSignals"][number]): UniversalQuestionType {
+  const text = `${question.questionText} ${question.optionA} ${question.optionB} ${question.optionC} ${question.optionD}`.toLowerCase();
+  const optionValues = [question.optionA, question.optionB, question.optionC, question.optionD].map((option) => cleanDraftText(option)).filter(Boolean);
+  if (signal?.graphRisk || /\b(graph|chart|axis|plot|curve)\b/i.test(text)) return "GRAPH_BASED";
+  if (signal?.tableRisk || /\b(table|tabular|column|row)\b/i.test(text)) return "TABLE_BASED";
+  if (signal?.visualRequired || /\b(diagram|figure|circuit|structure|map|shown)\b/i.test(text)) return "DIAGRAM_BASED";
+  if (/\b(assertion|reason)\b/i.test(text)) return "ASSERTION_REASON";
+  if (/\b(match\s+the\s+following|column\s+i|column\s+ii)\b/i.test(text)) return "MATCHING";
+  if (/\b(case study|passage|read the following|paragraph)\b/i.test(text)) return "PASSAGE_BASED";
+  if (/\b(true|false)\b/i.test(text) && optionValues.length <= 2) return "TRUE_FALSE";
+  if (/\b(integer|numerical|value of|find the value|calculate)\b/i.test(text) && optionValues.length < 3) return "NUMERICAL";
+  if (/\bfill in the blank|blank\b/i.test(text)) return "FILL_BLANK";
+  if (/\b(explain|describe|write short note|derive|prove)\b/i.test(text)) return text.length > 220 ? "LONG_ANSWER" : "SHORT_ANSWER";
+  if (optionValues.filter((option) => !/^Option [A-D]$/i.test(option)).length >= 4) {
+    const correct = question.correctAnswer.trim();
+    return /[, ]/.test(correct) && correct.split(/[,\s]+/).filter(Boolean).length > 1 ? "MULTIPLE_ANSWER" : "SINGLE_CHOICE";
+  }
+  return text.trim() ? "UNKNOWN" : "MIXED_EXAM";
+}
+
+function universalQuestionTypeLabel(value: UniversalQuestionType | string) {
+  const rich = richQuestionTypes.find((type) => type.value === value);
+  if (rich) return rich.label;
+  const labels: Record<string, string> = {
+    TRUE_FALSE: "True / False",
+    SHORT_ANSWER: "Short Answer",
+    LONG_ANSWER: "Long Answer",
+    PASSAGE_BASED: "Passage Based",
+    TABLE_BASED: "Table Based",
+    GRAPH_BASED: "Graph Based",
+    DIAGRAM_BASED: "Diagram Based",
+    MIXED_EXAM: "Mixed Exam",
+    UNKNOWN: "Unknown",
+  };
+  return labels[value] || value.replace(/_/g, " ");
+}
+
+function optionsForUniversalQuestion(question: QuestionDraft, questionType: UniversalQuestionType) {
+  if (questionType === "NUMERICAL" || questionType === "FILL_BLANK" || questionType === "SHORT_ANSWER" || questionType === "LONG_ANSWER" || questionType === "UNKNOWN" || questionType === "MIXED_EXAM") return [];
+  const rawOptions = [
+    { label: "A", text: cleanDraftOptionText(question.optionA, "A") },
+    { label: "B", text: cleanDraftOptionText(question.optionB, "B") },
+    { label: "C", text: cleanDraftOptionText(question.optionC, "C") },
+    { label: "D", text: cleanDraftOptionText(question.optionD, "D") },
+  ];
+  if (questionType === "TRUE_FALSE") {
+    const meaningful = rawOptions.filter((option) => !/^Option [A-D] requires review$/i.test(option.text));
+    return meaningful.length ? meaningful.slice(0, 2) : [{ label: "A", text: "True" }, { label: "B", text: "False" }];
+  }
+  return rawOptions;
+}
+
+function reviewStatusFromMissingItems(missingItems: AiDraftQuestion["missingItems"], fallbackNeedsReview: boolean): AiDraftReviewStatus {
+  if (missingItems.includes("Diagram")) return "MISSING_DIAGRAM";
+  if (missingItems.includes("Formula")) return "MISSING_FORMULA";
+  if (missingItems.includes("Option")) return "MISSING_OPTION";
+  if (missingItems.includes("Answer")) return "MISSING_ANSWER";
+  if (missingItems.includes("Solution")) return "MISSING_SOLUTION";
+  return fallbackNeedsReview ? "NEEDS_REVIEW" : "READY";
+}
+
 function cleanDraftText(value: string) {
   return normalizeExtractedText(value)
     .replace(/<[^>]+>/g, " ")
@@ -603,13 +708,37 @@ function aiQualityLabel(confidence: number, needsReview: number) {
   return "High";
 }
 
-function buildAiExamDraft(input: {
+function qualityFromRatio(ratio: number) {
+  if (ratio >= 0.9) return "High";
+  if (ratio >= 0.7) return "Medium";
+  return "Needs Review";
+}
+
+function hasStemNotation(value: string) {
+  return /[∫√πθλΩ≈≤≥÷×∞Σµ₀-₉⁰-⁹]|\\(?:frac|sqrt|int|sum|lim|vec|begin)|\^|_\{|[a-z]\s*=\s*[^.,;]+/i.test(value);
+}
+
+function isFragmentedStemText(value: string) {
+  const lines = value.split(/\n+/).map((line) => line.trim()).filter(Boolean);
+  const tinyFragments = lines.filter((line) => line.length <= 4 && /[a-z0-9=+\-*/()]/i.test(line)).length;
+  return hasStemNotation(value) && tinyFragments >= 3;
+}
+
+function sourceReferenceLabel(mapping?: SourceReviewMapping) {
+  if (!mapping) return undefined;
+  return `Page ${mapping.page}`;
+}
+
+function buildUniversalExamDraft(input: {
   questions: QuestionDraft[];
   answerGuide: string;
   understanding: PaperUnderstandingReport;
   visualFidelity: VisualFidelityReport;
   importValidation: ImportValidationPayload | null;
   questionTypePlan: Array<{ number: number; selected: RichQuestionType }>;
+  sourceReviewMappings: Record<number, SourceReviewMapping>;
+  relationshipPlan: QuestionRelationshipPlan;
+  readiness: ReturnType<typeof paperReadiness>;
   questionVisuals: Record<number, string>;
   visualAssets: QuestionVisualAsset[];
   formulaReviews: Record<number, FormulaReviewEntry>;
@@ -625,39 +754,64 @@ function buildAiExamDraft(input: {
     const signal = input.understanding.questionSignals[index];
     const validation = validationMap.get(number);
     const answer = answerMap.get(number);
-    const questionType = input.questionTypePlan[index]?.selected || inferRichQuestionType(question, signal);
+    const questionType = inferUniversalQuestionType(question, signal);
+    const formulaReview = input.formulaReviews[number];
+    const sourceMapping = input.sourceReviewMappings[number];
+    const relationshipGroups = relationshipGroupsForQuestion(input.relationshipPlan, number);
+    const stemText = `${question.questionText}\n${question.optionA}\n${question.optionB}\n${question.optionC}\n${question.optionD}`;
+    const formulaRecovered = Boolean(formulaReview?.latex || (signal?.formulaRisk && hasStemNotation(stemText)));
+    const formulaNeedsCrop = Boolean(signal?.formulaRisk && (!formulaReview?.latex || isFragmentedStemText(stemText)));
+    const options = optionsForUniversalQuestion(question, questionType);
     const linkedAssets = [
       input.questionVisuals[number] ? "Question visual" : "",
-      signal?.formulaRisk || input.formulaReviews[number] ? "Formula" : "",
+      formulaRecovered ? "Formula" : "",
       signal?.tableRisk ? "Table" : "",
       signal?.graphRisk ? "Graph" : "",
       signal?.visualRequired ? "Diagram" : "",
+      sourceMapping ? `Source page ${sourceMapping.page}` : "",
+      relationshipGroups.length ? "Shared source" : "",
     ].filter(Boolean);
     const draftConfidence = typeof validation?.confidence === "number"
       ? Math.max(0, Math.min(1, validation.confidence / 100))
       : signal?.confidence === "HIGH" ? 0.92 : signal?.confidence === "MEDIUM" ? 0.74 : 0.52;
     const needsAsset = Boolean((signal?.visualRequired || signal?.tableRisk || signal?.graphRisk) && !input.questionVisuals[number] && input.visualAssets.length === 0);
+    const missingItems: AiDraftQuestion["missingItems"] = [
+      options.length > 0 && options.some((option) => /requires review/i.test(option.text)) ? "Option" : "",
+      formulaNeedsCrop ? "Formula" : "",
+      needsAsset || (signal?.visualRequired && !sourceMapping && !input.visualAssets.length) ? "Diagram" : "",
+      input.answerGuide.trim() && !answer?.answer && !question.correctAnswer ? "Answer" : "",
+      answer?.answer && !answer.explanation && !question.explanation ? "Solution" : "",
+    ].filter((item): item is AiDraftQuestion["missingItems"][number] => Boolean(item));
     const missingAnswer = Boolean(input.answerGuide.trim() && !answer?.answer && !question.correctAnswer);
-    const needsReview = draftConfidence < 0.8 || signal?.formulaRisk || signal?.visualRequired || signal?.tableRisk || signal?.graphRisk || validation?.status === "MANUAL_CORRECTION_REQUIRED";
-    const reviewStatus: AiDraftReviewStatus = needsAsset ? "MISSING_ASSET" : missingAnswer ? "MISSING_ANSWER" : needsReview ? "NEEDS_REVIEW" : "READY";
+    const needsReview = draftConfidence < 0.8 || missingItems.length > 0 || formulaNeedsCrop || needsAsset || signal?.visualRequired || signal?.tableRisk || signal?.graphRisk || validation?.status === "MANUAL_CORRECTION_REQUIRED";
+    const reviewStatus = reviewStatusFromMissingItems(missingItems, needsReview);
+    const notes = [
+      ...(signal?.notes ?? []),
+      ...(validation?.issues ?? []),
+      formulaNeedsCrop ? "Formula image and source crop preserved for review." : "",
+      needsAsset ? "Diagram, graph or table source needs confirmation." : "",
+      missingAnswer ? "Answer needs teacher confirmation." : "",
+      relationshipGroups.length ? `${relationshipGroups.length} shared resource link(s) detected.` : "",
+    ].filter(Boolean);
 
     return {
       number,
       questionText: cleanDraftQuestionText(question.questionText),
-      options: [
-        { label: "A", text: cleanDraftOptionText(question.optionA, "A") },
-        { label: "B", text: cleanDraftOptionText(question.optionB, "B") },
-        { label: "C", text: cleanDraftOptionText(question.optionC, "C") },
-        { label: "D", text: cleanDraftOptionText(question.optionD, "D") },
-      ],
+      options,
       questionType,
       draftConfidence,
       reviewStatus,
       linkedAssets,
       linkedAnswer: answer?.answer || question.correctAnswer || undefined,
       linkedSolution: answer?.explanation || question.explanation || undefined,
+      recoveredFormula: formulaReview?.latex || (formulaRecovered ? cleanDraftText(stemText) : undefined),
+      sourceReference: sourceReferenceLabel(sourceMapping) || (input.visualAssets.length ? "Original paper" : undefined),
+      sourcePage: sourceMapping?.page || (input.visualAssets[0]?.pageNumber ?? undefined),
+      boundingRegion: sourceMapping?.coordinates,
+      originalCrop: input.questionVisuals[number],
+      missingItems,
       originalCropRequired: reviewStatus !== "READY",
-      notes: Array.from(new Set([...(signal?.notes ?? []), ...(validation?.issues ?? [])])).slice(0, 3),
+      notes: Array.from(new Set(notes)).slice(0, 4),
     };
   });
 
@@ -666,33 +820,65 @@ function buildAiExamDraft(input: {
       number: 1,
       questionText: `${input.subject || "Exam"} paper preserved. NIDUS AI prepared this document for visual review before publishing.`,
       options: [],
-      questionType: "SINGLE_CHOICE",
+      questionType: input.stemOrFormulaPaperDetected ? "MIXED_EXAM" : "UNKNOWN",
       draftConfidence: input.stemOrFormulaPaperDetected ? 0.58 : 0.45,
       reviewStatus: "NEEDS_REVIEW",
-      linkedAssets: input.visualAssets.length ? ["Original paper pages"] : ["Original document"],
+      linkedAssets: input.visualAssets.length ? input.visualAssets.slice(0, 8).map((asset) => asset.pageNumber ? `Page ${asset.pageNumber}` : asset.label) : ["Original document"],
+      sourceReference: input.visualAssets.length ? "Original paper" : undefined,
+      sourcePage: input.visualAssets[0]?.pageNumber,
+      missingItems: ["Option", "Answer"],
       originalCropRequired: true,
-      notes: ["Open the review workspace to confirm questions from the preserved source."],
+      notes: ["No content was discarded. Open the review workspace to confirm the preserved source."],
     });
   }
 
   const answerKeysLinked = draftQuestions.filter((question) => question.linkedAnswer).length;
+  const solutionsLinked = draftQuestions.filter((question) => question.linkedSolution).length;
   const needsReview = draftQuestions.filter((question) => question.reviewStatus !== "READY").length;
+  const formulaReviewCount = draftQuestions.filter((question) => question.missingItems.includes("Formula") || question.recoveredFormula).length;
+  const visualReviewCount = draftQuestions.filter((question) => question.missingItems.includes("Diagram") || question.linkedAssets.some((asset) => /diagram|graph|table|visual|page|source/i.test(asset))).length;
+  const formulaTotal = Math.max(input.visualFidelity.formulaQuestionCount, input.understanding.questionSignals.filter((signal) => signal.formulaRisk).length);
+  const formulaPreserved = draftQuestions.filter((question) => question.recoveredFormula || !input.understanding.questionSignals[question.number - 1]?.formulaRisk).length;
+  const visualTotal = Math.max(input.visualFidelity.visualQuestionCount + input.visualFidelity.tableQuestionCount + input.visualFidelity.graphQuestionCount, input.understanding.questionSignals.filter((signal) => signal.visualRequired || signal.tableRisk || signal.graphRisk).length);
+  const visualLinked = draftQuestions.filter((question) => {
+    const signal = input.understanding.questionSignals[question.number - 1];
+    return !(signal?.visualRequired || signal?.tableRisk || signal?.graphRisk) || question.linkedAssets.some((asset) => /visual|diagram|table|graph|source/i.test(asset));
+  }).length;
+  const questionCompletenessRatio = draftQuestions.length
+    ? Math.max(0, 1 - ((input.readiness.missingOptions + input.readiness.duplicateQuestions.length) / Math.max(1, draftQuestions.length)))
+    : 0;
+  const answerCompletenessRatio = input.answerGuide.trim()
+    ? answerKeysLinked / Math.max(1, draftQuestions.length)
+    : 1;
   const averageConfidence = draftQuestions.length
     ? draftQuestions.reduce((total, question) => total + question.draftConfidence, 0) / draftQuestions.length
     : 0;
-  const questionTypes = Array.from(new Set(draftQuestions.map((question) => questionTypeLabel(question.questionType))));
+  const questionTypes = Array.from(new Set(draftQuestions.map((question) => universalQuestionTypeLabel(question.questionType))));
+  const formulaRatio = formulaTotal ? formulaPreserved / Math.max(1, draftQuestions.length) : 1;
+  const visualRatio = visualTotal ? visualLinked / Math.max(1, draftQuestions.length) : 1;
+  const quality: AiDraftQuality = {
+    formulaPreservation: qualityFromRatio(formulaRatio),
+    visualPreservation: qualityFromRatio(visualRatio),
+    questionCompleteness: qualityFromRatio(questionCompletenessRatio),
+    answerCompleteness: qualityFromRatio(answerCompletenessRatio),
+    overall: aiQualityLabel(Math.min(averageConfidence, formulaRatio, visualRatio, questionCompletenessRatio, answerCompletenessRatio), needsReview),
+  };
 
   return {
-    schema: "NIDUS_AI_EXAM_DRAFT_V1",
+    schema: "NIDUS_AI_UNIVERSAL_EXAM_DRAFT_V1",
     questions: draftQuestions,
     questionCount: draftQuestions.length,
     questionTypes: questionTypes.length ? questionTypes : ["Review Draft"],
     answerKeysLinked,
+    solutionsLinked,
+    formulaReviewCount,
+    visualReviewCount,
     needsReview,
-    overallQuality: aiQualityLabel(averageConfidence, needsReview),
+    quality,
+    overallQuality: quality.overall,
     message: needsReview
-      ? "Some questions require your review before publishing."
-      : "The draft is ready for final teacher approval.",
+      ? "AI built your draft and marked uncertain questions for review."
+      : "AI built a clean draft for final teacher approval.",
     createdAt: new Date().toISOString(),
   } satisfies AiExamDraft;
 }
@@ -851,7 +1037,7 @@ function buildImportQualityScore(input: {
   const blockers: string[] = [];
   const warnings: string[] = [];
   const strengths: string[] = [];
-  if (!input.questionCount) blockers.push("No questions detected.");
+  if (!input.questionCount) blockers.push("Review draft has no structured questions yet.");
   if (input.readiness.missingOptions) blockers.push(`${input.readiness.missingOptions} question(s) need valid options.`);
   if (input.readiness.missingAnswers) blockers.push(`${input.readiness.missingAnswers} question(s) need answer keys.`);
   if (input.readiness.duplicateQuestions.length) blockers.push(`${input.readiness.duplicateQuestions.length} duplicate question(s) found.`);
@@ -1396,7 +1582,7 @@ function understandPaper(source: string, answerGuide: string, questions: Questio
   ].filter(Boolean);
   const blockers = [
     questions.length === 0 ? "Questions need teacher review before publishing." : "",
-    missing.length === questions.length && questions.length > 0 ? "No answer key could be matched to the extracted paper." : "",
+    missing.length === questions.length && questions.length > 0 ? "No answer key uploaded yet." : "",
   ].filter(Boolean);
   const solutionMode = answerNumbers.length && withExplanations === 0
     ? "ANSWER_KEY_ONLY"
@@ -1472,6 +1658,8 @@ function detectTeacherDocumentType(file: File, text: string, sourceKind: Extract
   const normalized = normalizeExtractedText(`${file.name}\n${text}`).toLowerCase();
   if (sourceKind === "ANSWER_KEY") return /solution|explanation|worked|steps?/i.test(normalized) ? "SOLUTION_DOCUMENT" : "ANSWER_KEY";
   if (!text.trim() && (pageCount > 0 || file.type.startsWith("image/"))) return "SCANNED_DOCUMENT";
+  if (/\b(worksheet|practice sheet|exercise sheet|homework)\b/i.test(normalized)) return "WORKSHEET";
+  if (/\b(notes|study material|handout|chapter summary)\b/i.test(normalized)) return "NOTES";
   if (/\b(chemistry|reaction|molecule|organic|inorganic|ionic|acid|base|chemical)\b/i.test(normalized)) return "CHEMISTRY_EXAM";
   if (/\b(physics|force|motion|current|circuit|optics|velocity|acceleration|thermodynamics|magnetic)\b/i.test(normalized)) return "PHYSICS_EXAM";
   if (/\b(biology|botany|zoology|cell|organism|genetics|human body)\b/i.test(normalized)) return "BIOLOGY_EXAM";
@@ -1498,10 +1686,32 @@ function teacherDocumentLabel(type?: TeacherDocumentType) {
     SCANNED_DOCUMENT: "Scanned Document",
     ANSWER_KEY: "Answer Key",
     SOLUTION_DOCUMENT: "Solution Document",
+    WORKSHEET: "Worksheet",
+    NOTES: "Notes",
     MIXED_DOCUMENT: "Mixed Examination",
     UNKNOWN: "Examination Document",
   };
   return labels[type || "UNKNOWN"];
+}
+
+function teacherPaperStyle(input: { text: string; report?: ExtractionReport; understanding: PaperUnderstandingReport; visualFidelity: VisualFidelityReport }) {
+  const haystack = normalizeExtractedText(`${input.text} ${(input.report?.warnings ?? []).join(" ")}`).toLowerCase();
+  if (input.visualFidelity.formulaQuestionCount || /\b(formula|fraction|matrix|integral|calculus|equation)\b|\\frac|√|∫|Σ/i.test(haystack)) return "Formula Heavy";
+  if (input.visualFidelity.graphQuestionCount || /\b(graph|chart|axis|coordinate)\b/i.test(haystack)) return "Graph Heavy";
+  if (input.visualFidelity.tableQuestionCount || /\b(table|tabular|row|column)\b/i.test(haystack)) return "Table Heavy";
+  if (input.visualFidelity.visualQuestionCount || /\b(diagram|figure|circuit|map|structure)\b/i.test(haystack)) return "Diagram Heavy";
+  if (/\b(case study|caselet)\b/i.test(haystack)) return "Case Study";
+  if (/\b(passage|read the following|paragraph)\b/i.test(haystack)) return "Passage";
+  if (input.understanding.answerKey.mode === "NOT_FOUND" && input.understanding.questionSignals.some((signal) => signal.confidence !== "HIGH")) return "Mixed";
+  if (input.understanding.questionSignals.length && input.understanding.questionSignals.every((signal) => signal.confidence === "HIGH")) return "MCQ";
+  return "Mixed";
+}
+
+function teacherDifficultyEstimate(input: { subject: string; style: string; visualFidelity: VisualFidelityReport; questionCount: number }) {
+  if (/formula|graph|diagram|table/i.test(input.style) || isStemOrFormulaHeavySubject(input.subject)) return "Advanced";
+  if (input.questionCount >= 80 || input.visualFidelity.questionsNeedingReview.length >= 5) return "High";
+  if (input.questionCount >= 25) return "Moderate";
+  return "Standard";
 }
 
 function confidenceLabel(value?: number) {
@@ -1657,8 +1867,11 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
   const [manualPaperReview, setManualPaperReview] = useState(false);
   const [questionReviewStatus, setQuestionReviewStatus] = useState<Record<number, "APPROVED" | "NEEDS_REVIEW">>({});
   const [ocrBusy, setOcrBusy] = useState(false);
+  const [uploadState, setUploadState] = useState<TeacherUploadState>("IDLE");
   const [validationBusy, setValidationBusy] = useState(false);
+  const [reconstructionBusy, setReconstructionBusy] = useState(false);
   const [importValidation, setImportValidation] = useState<ImportValidationPayload | null>(null);
+  const [aiReconstruction, setAiReconstruction] = useState<AiReconstructionResult | null>(null);
   const [importAnalytics, setImportAnalytics] = useState<ImportAnalyticsPayload | null>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
@@ -1824,13 +2037,16 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
     publishReady: false,
     generatedAt: importQualityScore.generatedAt,
   }, [formulaReviewCoverage, importQualityScore, importReplayManifest.replayAvailable, importValidation, questionRelationshipPlan.groups.length, questionTypeDistribution, sourceReviewCoverage, validationHeatMap]);
-  const aiExamDraft = useMemo(() => buildAiExamDraft({
+  const aiExamDraft = useMemo(() => buildUniversalExamDraft({
     questions,
     answerGuide,
     understanding,
     visualFidelity,
     importValidation,
     questionTypePlan,
+    sourceReviewMappings,
+    relationshipPlan: questionRelationshipPlan,
+    readiness,
     questionVisuals,
     visualAssets,
     formulaReviews,
@@ -1838,7 +2054,22 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
     questionSource,
     subject,
     stemOrFormulaPaperDetected,
-  }), [answerGuide, formulaReviews, importValidation, questionSource, questionTypePlan, questionVisuals, questions, stemOrFormulaPaperDetected, subject, understanding, uploadedQuestionPaper, visualAssets, visualFidelity]);
+  }), [answerGuide, formulaReviews, importValidation, questionRelationshipPlan, questionSource, questionTypePlan, questionVisuals, questions, readiness, sourceReviewMappings, stemOrFormulaPaperDetected, subject, understanding, uploadedQuestionPaper, visualAssets, visualFidelity]);
+  const effectiveAiDraft = aiReconstruction?.draft ?? aiExamDraft;
+  const reconstructionRecommended = aiExamDraft.overallQuality !== "High" || aiExamDraft.needsReview > 0 || (importValidation ? importValidation.averageConfidence < 82 || !importValidation.publishReady : false);
+  const teacherDetectedStyle = useMemo(() => teacherPaperStyle({
+    text: questionSource,
+    report: questionPaperReport,
+    understanding,
+    visualFidelity,
+  }), [questionPaperReport, questionSource, understanding, visualFidelity]);
+  const teacherDifficulty = useMemo(() => teacherDifficultyEstimate({
+    subject,
+    style: teacherDetectedStyle,
+    visualFidelity,
+    questionCount: effectiveAiDraft.questionCount || questions.length,
+  }), [effectiveAiDraft.questionCount, questions.length, subject, teacherDetectedStyle, visualFidelity]);
+  const teacherReviewConfidence = questionPaperReport?.confidence?.overall ?? (effectiveAiDraft.overallQuality === "High" ? 88 : effectiveAiDraft.overallQuality === "Medium" ? 72 : questions.length ? 58 : undefined);
   const canPublishPaper = questions.length > 0 && readiness.missingOptions === 0 && readiness.missingAnswers === 0 && !visualFidelity.missingSourceForVisuals && visualQuestionsWithoutAttachment.length === 0 && sourceReviewCoverage.publishReady && formulaReviewCoverage.publishReady && unapprovedQuestionNumbers.length === 0 && !validationBlocksPublish && (!extractionNeedsManualReview || manualPaperReview || reviewRequiredQuestionNumbers.length === 0);
   const effectiveTopic = useMemo(() => inferExamTopic(questionSource, form.topic), [form.topic, questionSource]);
   const effectiveTitle = useMemo(() => form.title.trim() || inferExamTitle(questionSource, subject, activeBatch?.name), [activeBatch?.name, form.title, questionSource, subject]);
@@ -2073,6 +2304,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
   async function appendFileText(file: File | null, setter: (value: string) => void, current: string, sourceKind: ExtractionReport["sourceKind"], setUploadedName?: (value: string) => void) {
     if (!file) return;
     setUploadedName?.(file.name);
+    setUploadState("ANALYZING_DOCUMENT");
     try {
       const fileName = file.name.toLowerCase();
       const isTxt = file.type.startsWith("text/") || fileName.endsWith(".txt");
@@ -2080,6 +2312,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
       const isPdf = fileName.endsWith(".pdf") || file.type === "application/pdf";
       const isImage = file.type.startsWith("image/") || /\.(jpe?g|png|webp)$/i.test(fileName);
       if (!isTxt && !isDocx && !isPdf && !isImage) {
+        setUploadState("UNSUPPORTED_DOCUMENT");
         setMessage("Unsupported File. Please upload a PDF, DOCX, TXT, JPG, PNG or WEBP file.");
         return;
       }
@@ -2093,12 +2326,13 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
         const asset = await renderImageAsset(file);
         setVisualAssets((current) => [...current.filter((item) => item.fileName !== file.name), asset]);
       }
+      setUploadState("UNDERSTANDING_PAPER");
       let text = isDocx ? await extractDocxText(file) : isPdf ? await extractPdfText(file) : isTxt ? await file.text().catch(() => "") : "";
       if (!text.trim() && (isPdf || isImage)) {
         const ocrAssets = isImage ? [await renderImageAsset(file)] : await renderPdfPageAssets(file).catch(() => []);
         if (ocrAssets.length) {
           setOcrBusy(true);
-          setMessage(`NIDUS AI is reading ${file.name}. Keep this screen open while the paper is prepared.`);
+          setMessage("Understanding paper...");
           const ocrText = await Promise.all(ocrAssets.slice(0, 8).map(async (asset) => {
             const pageText = await runOcrOnImage(asset.dataUrl).catch(() => "");
             return pageText ? `Page ${asset.pageNumber || 1}\n${pageText}` : "";
@@ -2111,6 +2345,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
       }
       const pageCount = renderedPageCount;
       const report = auditExtractedSource(file, text, sourceKind, isPdf, pageCount);
+      setUploadState("BUILDING_AI_DRAFT");
       setExtractionReports((reports) => [...reports.filter((item) => !(item.sourceKind === sourceKind && item.fileName === file.name)), report]);
       let preserved = false;
       try {
@@ -2126,20 +2361,24 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
         setQuestionTypeOverrides({});
       }
       if (!text.trim()) {
-        setMessage("NIDUS AI could not confidently read every question. Your original paper has been preserved. Please review the draft before publishing.");
+        setUploadState("NEEDS_REVIEW");
+        setMessage("We couldn't confidently detect structured MCQs yet. Your paper has been preserved. NIDUS AI created a review draft. Please review the detected content.");
         return;
       }
       setter([current, text].filter(Boolean).join("\n\n"));
       setImportValidation(null);
+      setAiReconstruction(null);
+      setUploadState(report.status === "READY" ? "DRAFT_READY" : "NEEDS_REVIEW");
       setMessage(report.status === "BLOCKED"
-        ? `${file.name} ${preserved ? "was preserved and" : ""} is ready for teacher review before publishing.`
+        ? `${file.name} ${preserved ? "was preserved and" : ""} is ready for review.`
         : report.status === "REVIEW_REQUIRED"
           ? `${file.name} ${preserved ? "was preserved and" : "was"} prepared for review.`
-          : `${file.name} ${preserved ? "was preserved and" : "was"} uploaded successfully.`);
+          : "Upload completed. Draft Ready.");
     } catch (error) {
       setOcrBusy(false);
       const errorText = error instanceof Error ? `${error.name} ${error.message}` : "";
       const passwordProtected = /password|encrypted/i.test(errorText);
+      setUploadState(passwordProtected ? "PASSWORD_PROTECTED" : "CORRUPTED_FILE");
       const report: ExtractionReport = {
         fileName: file.name,
         sourceKind,
@@ -2190,6 +2429,8 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
     setManualPaperReview(false);
     setQuestionReviewStatus({});
     setImportValidation(null);
+    setAiReconstruction(null);
+    setUploadState("IDLE");
     setTargetBatchIds(activeBatch?.id ? [activeBatch.id] : []);
     setStep(1);
     setPreviewIndex(0);
@@ -2268,6 +2509,8 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
       return acc;
     }, {}));
     setImportValidation(null);
+    setAiReconstruction(null);
+    setUploadState(savedReports.length || savedQuestions.length ? "DRAFT_READY" : "IDLE");
     setStep(1);
     setPreviewIndex(0);
     setMessage("");
@@ -2494,6 +2737,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
 
   function markReviewCompleted() {
     setManualPaperReview(true);
+    setUploadState("READY_FOR_PUBLISH");
     setQuestionReviewStatus((current) => {
       const next = { ...current };
       reviewRequiredQuestionNumbers.forEach((number) => {
@@ -2563,10 +2807,12 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
   async function validateImportWithAi() {
     if (!activeBatch) return;
     if (!questions.length) {
-      setMessage("Add questions before running NIDUS AI validation.");
+      setUploadState("NEEDS_REVIEW");
+      setMessage("We couldn't confidently detect structured MCQs yet. Your paper has been preserved. Continue to Review.");
       return;
     }
     setValidationBusy(true);
+    setUploadState("PREPARING_REVIEW");
     setMessage("");
     try {
       const sourceUpload = examUploads.find((upload) => upload.sourceKind === "QUESTION_PAPER");
@@ -2602,6 +2848,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
         }),
       });
       setImportValidation(result.validation);
+      setUploadState(result.validation.publishReady ? "DRAFT_READY" : "NEEDS_REVIEW");
       setQuestionReviewStatus((current) => {
         const next = { ...current };
         for (const report of result.validation.questionReports) {
@@ -2611,13 +2858,86 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
         }
         return next;
       });
+      if (!result.validation.publishReady || result.validation.averageConfidence < 82) {
+        await requestAiReconstruction(result.validation);
+      }
       setMessage(result.validation.publishReady
         ? "NIDUS AI validation passed. Review the preview once and publish."
-        : "NIDUS AI validation completed. Open flagged questions and correct or approve them before publishing.");
+        : "NIDUS AI rebuilt a cleaner draft for review. Open flagged questions and approve them before publishing.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Unable to validate this import.");
     } finally {
       setValidationBusy(false);
+    }
+  }
+
+  async function requestAiReconstruction(validationOverride: ImportValidationPayload | null = importValidation) {
+    if (!activeBatch) return;
+    if (!questions.length && !uploadedQuestionPaper && !questionSource.trim()) {
+      setMessage("Upload or paste the question paper before rebuilding the draft.");
+      return;
+    }
+    setReconstructionBusy(true);
+    setUploadState("BUILDING_AI_DRAFT");
+    try {
+      const result = await requestJson<{ reconstruction: AiReconstructionResult }>("/api/academy/exams/import/reconstruct", {
+        method: "POST",
+        body: JSON.stringify({
+          batchId: activeBatch.id,
+          subject,
+          topic: effectiveTopic,
+          documentClass: questionPaperReport?.documentType || examUploads.find((upload) => upload.sourceKind === "QUESTION_PAPER")?.documentClass,
+          pipeline: examUploads.find((upload) => upload.sourceKind === "QUESTION_PAPER")?.pipeline,
+          importJobIds: examUploads.map((upload) => upload.importJobId).filter(Boolean),
+          examUploadIds: examUploads.map((upload) => upload.id).filter(Boolean),
+          confidenceThreshold: 0.82,
+          extractionAudit: {
+            extractionReports,
+            paperUnderstanding: understanding,
+            visualFidelity,
+          },
+          ndieOutputs: {
+            ocr: { available: Boolean(questionSource.trim()), extractedQuestionCount: questions.length },
+            layout: { sections: understanding.sections, sourceReviewMappings },
+            formula: { formulaReviews, formulaQuestionCount: visualFidelity.formulaQuestionCount },
+            visual: { visualFidelity, visualAssets, questionVisuals },
+            assessment: { questions: questionsForPublish, questionTypePlan, relationships: questionRelationshipPlan },
+            evaluation: { answerEntries: understanding.answerKey.entries, answerKeyMode: understanding.answerKey.mode },
+            validation: validationOverride,
+            stemIntelligence: { subject, inferredSubject: understanding.inferredSubject, riskSignals: understanding.riskSignals },
+            pageReferences: sourceReviewMappings,
+            boundingBoxes: questionsForPublish.map((question) => question.boundingBoxes).filter(Boolean),
+            originalPageAssets: visualAssets.map((asset) => ({ id: asset.id, label: asset.label, pageNumber: asset.pageNumber })),
+            questionRelationships: questionRelationshipPlan,
+            answerKey: { entries: understanding.answerKey.entries, missing: understanding.answerKey.missing, mode: understanding.answerKey.mode },
+          },
+          draft: aiExamDraft,
+          questions: questionsForPublish.map((question, index) => ({
+            number: index + 1,
+            questionText: question.questionText,
+            optionA: question.optionA,
+            optionB: question.optionB,
+            optionC: question.optionC,
+            optionD: question.optionD,
+            correctAnswer: question.correctAnswer,
+            explanation: question.explanation,
+            visualReviewRequired: question.visualReviewRequired,
+            visualReviewNotes: question.visualReviewNotes,
+            aiConfidence: question.aiConfidence,
+            reviewStatus: question.reviewStatus,
+          })),
+        }),
+      });
+      setAiReconstruction(result.reconstruction);
+      setUploadState(result.reconstruction.draft.needsReview ? "NEEDS_REVIEW" : "DRAFT_READY");
+      setMessage(result.reconstruction.draft.needsReview
+        ? "NIDUS AI rebuilt the draft and marked uncertain content for review."
+        : "NIDUS AI rebuilt a clean draft for teacher approval.");
+    } catch {
+      setAiReconstruction(null);
+      setMessage("NIDUS kept the current draft ready for review. You can continue without waiting for AI reconstruction.");
+    } finally {
+      setReconstructionBusy(false);
     }
   }
 
@@ -2896,6 +3216,8 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                     <textarea value={questionSource} onChange={(event) => {
                       setQuestionSource(event.target.value);
                       setImportValidation(null);
+                      setAiReconstruction(null);
+                      setUploadState(event.target.value.trim() ? "BUILDING_AI_DRAFT" : "IDLE");
                     }} rows={10} className="w-full rounded-2xl border border-[var(--border)] bg-white p-4 text-sm leading-6" placeholder={"1. Question...\nA. Option\nB. Option\nC. Option\nD. Option"} />
                     <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-rose-100 bg-rose-50 p-4 text-rose-950">
                       <div>
@@ -2915,6 +3237,22 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                       NIDUS AI is reading the scanned paper. Your original file is preserved.
                     </div>
                   ) : null}
+                  <TeacherUploadProgressCard state={uploadState} busy={ocrBusy || reconstructionBusy || validationBusy} />
+                  <TeacherDocumentUnderstandingCard
+                    questionReport={questionPaperReport}
+                    answerReport={answerKeyReport}
+                    subject={subject}
+                    paperStyle={teacherDetectedStyle}
+                    difficulty={teacherDifficulty}
+                    questionsDetected={effectiveAiDraft.questionCount || questions.length}
+                    pages={questionPaperReport?.pageCount || visualAssets.length}
+                    formulaCount={visualFidelity.formulaQuestionCount}
+                    diagramCount={visualFidelity.visualQuestionCount}
+                    graphCount={visualFidelity.graphQuestionCount}
+                    tableCount={visualFidelity.tableQuestionCount}
+                    reviewConfidence={teacherReviewConfidence}
+                    answerKeyAdded={Boolean(uploadedAnswerGuide || answerGuide.trim() || answerKeyReport)}
+                  />
                   <ExamStatusCard
                     questionPaperUploaded={Boolean(uploadedQuestionPaper || questionSource.trim() || examUploads.some((upload) => upload.sourceKind === "QUESTION_PAPER"))}
                     answerKeyUploaded={Boolean(uploadedAnswerGuide || answerGuide.trim() || examUploads.some((upload) => upload.sourceKind === "ANSWER_KEY"))}
@@ -2952,6 +3290,8 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                     <textarea value={answerGuide} onChange={(event) => {
                       setAnswerGuide(event.target.value);
                       setImportValidation(null);
+                      setAiReconstruction(null);
+                      if (event.target.value.trim()) setUploadState("BUILDING_AI_DRAFT");
                     }} rows={9} className="w-full rounded-2xl border border-[var(--border)] bg-white p-4 text-sm leading-6" placeholder={"1 - A\nExplanation: Optional\n\n2 - C"} />
                     {!answerGuide.trim() && !uploadedAnswerGuide ? (
                       <p className="mt-4 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4 text-sm font-black text-[var(--muted-blue)]">
@@ -2959,6 +3299,22 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                       </p>
                     ) : null}
                   </ExamInputCard>
+                  <TeacherUploadProgressCard state={uploadState} busy={ocrBusy || reconstructionBusy || validationBusy} />
+                  <TeacherDocumentUnderstandingCard
+                    questionReport={questionPaperReport}
+                    answerReport={answerKeyReport}
+                    subject={subject}
+                    paperStyle={teacherDetectedStyle}
+                    difficulty={teacherDifficulty}
+                    questionsDetected={effectiveAiDraft.questionCount || questions.length}
+                    pages={questionPaperReport?.pageCount || visualAssets.length}
+                    formulaCount={visualFidelity.formulaQuestionCount}
+                    diagramCount={visualFidelity.visualQuestionCount}
+                    graphCount={visualFidelity.graphQuestionCount}
+                    tableCount={visualFidelity.tableQuestionCount}
+                    reviewConfidence={teacherReviewConfidence}
+                    answerKeyAdded={Boolean(uploadedAnswerGuide || answerGuide.trim() || answerKeyReport)}
+                  />
                   <ExamStatusCard
                     questionPaperUploaded={Boolean(uploadedQuestionPaper || questionSource.trim() || examUploads.some((upload) => upload.sourceKind === "QUESTION_PAPER"))}
                     answerKeyUploaded={Boolean(uploadedAnswerGuide || answerGuide.trim() || examUploads.some((upload) => upload.sourceKind === "ANSWER_KEY"))}
@@ -2985,17 +3341,28 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                     <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--gold-dark)]">AI Review Draft</p>
                     <h4 className="mt-3 text-2xl font-black">NIDUS AI has analyzed your document.</h4>
                     <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">
-                      {aiExamDraft.questionCount
-                        ? aiExamDraft.message
-                        : "NIDUS AI could not confidently understand every question. Your original paper has been preserved. Please review the extracted draft before publishing."}
+                      {effectiveAiDraft.questionCount
+                        ? effectiveAiDraft.message
+                        : "We couldn't confidently detect structured MCQs yet. Your paper has been preserved. NIDUS AI created a review draft. Please review the detected content."}
                     </p>
                     <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-                      <Summary label="Questions" value={String(aiExamDraft.questionCount || "Review")} />
-                      <Summary label="Question Types" value={aiExamDraft.questionTypes.slice(0, 2).join(", ")} />
-                      <Summary label="Answer Keys Linked" value={String(aiExamDraft.answerKeysLinked)} />
-                      <Summary label="Needs Review" value={String(aiExamDraft.needsReview)} />
-                      <Summary label="Overall Quality" value={aiExamDraft.overallQuality} />
+                      <Summary label="Questions Reconstructed" value={String(effectiveAiDraft.questionCount || "Review")} />
+                      <Summary label="Question Types" value={effectiveAiDraft.questionTypes.slice(0, 2).join(", ")} />
+                      <Summary label="Formula Review" value={String(effectiveAiDraft.formulaReviewCount ?? visualFidelity.formulaQuestionCount)} />
+                      <Summary label="Diagram Review" value={String(effectiveAiDraft.visualReviewCount ?? visualFidelity.visualQuestionCount)} />
+                      <Summary label="Ready for Publish" value={effectiveAiDraft.needsReview ? "Review" : "Ready"} />
                     </div>
+                    <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                      <Summary label="Questions needing review" value={String(effectiveAiDraft.needsReview)} />
+                      <Summary label="Answer review" value={`${effectiveAiDraft.answerKeysLinked}/${effectiveAiDraft.questionCount || 1}`} />
+                      <Summary label="Solution links" value={String(effectiveAiDraft.solutionsLinked ?? 0)} />
+                    </div>
+                    <DraftQualitySummary quality={effectiveAiDraft.quality} />
+                    {aiReconstruction ? (
+                      <p className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-sm font-black text-emerald-900">
+                        NIDUS AI reconstructed this draft from the preserved document structure.
+                      </p>
+                    ) : null}
                     <div className="mt-6 flex flex-wrap gap-3">
                       {reviewWorkspaceUrl ? (
                         <a href={reviewWorkspaceUrl} target="_blank" rel="noreferrer" className="inline-flex min-h-12 items-center justify-center rounded-xl border border-slate-950 bg-slate-950 px-6 text-sm font-black text-white">
@@ -3009,12 +3376,15 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                       <button type="button" onClick={() => void validateImportWithAi()} disabled={validationBusy || !questions.length} className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[var(--border)] bg-white px-6 text-sm font-black disabled:opacity-50">
                         {validationBusy ? "Analyzing..." : importValidation ? "Analyze Again" : "Analyze"}
                       </button>
+                      <button type="button" onClick={() => void requestAiReconstruction()} disabled={reconstructionBusy || (!questions.length && !uploadedQuestionPaper && !questionSource.trim())} className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[var(--border)] bg-white px-6 text-sm font-black disabled:opacity-50">
+                        {reconstructionBusy ? "Rebuilding..." : reconstructionRecommended ? "Rebuild Draft" : "Recheck Draft"}
+                      </button>
                       <button type="button" onClick={markReviewCompleted} className="inline-flex min-h-12 items-center justify-center rounded-xl border border-emerald-700 bg-emerald-700 px-6 text-sm font-black text-white">
                         Mark Review Completed
                       </button>
                     </div>
                   </div>
-                  <AiDraftPreview draft={aiExamDraft} />
+                  <AiDraftPreview draft={effectiveAiDraft} />
                   <ExamStatusCard
                     questionPaperUploaded={Boolean(uploadedQuestionPaper || questionSource.trim() || examUploads.some((upload) => upload.sourceKind === "QUESTION_PAPER"))}
                     answerKeyUploaded={Boolean(uploadedAnswerGuide || answerGuide.trim() || examUploads.some((upload) => upload.sourceKind === "ANSWER_KEY"))}
@@ -3159,67 +3529,305 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
   );
 }
 
+type ExamPaperReviewStatus = "Ready" | "Needs Review" | "Missing Answer" | "Missing Formula" | "Missing Diagram" | "Incomplete" | "Rejected" | "Approved";
+
+function displayReviewStatus(question: AiDraftQuestion): ExamPaperReviewStatus {
+  if (question.reviewStatus === "APPROVED") return "Approved";
+  if (question.reviewStatus === "REJECTED") return "Rejected";
+  if (question.reviewStatus === "READY") return "Ready";
+  if (question.reviewStatus === "MISSING_ANSWER" || question.missingItems.includes("Answer")) return "Missing Answer";
+  if (question.reviewStatus === "MISSING_FORMULA" || question.missingItems.includes("Formula")) return "Missing Formula";
+  if (question.reviewStatus === "MISSING_DIAGRAM" || question.reviewStatus === "MISSING_ASSET" || question.missingItems.includes("Diagram")) return "Missing Diagram";
+  if (question.reviewStatus === "MISSING_OPTION" || question.missingItems.includes("Option") || question.reviewStatus === "MISSING_SOLUTION" || question.missingItems.includes("Solution") || question.reviewStatus === "INCOMPLETE") return "Incomplete";
+  return "Needs Review";
+}
+
+function reviewStatusTone(status: ExamPaperReviewStatus) {
+  if (status === "Approved" || status === "Ready") return "border-emerald-200 bg-emerald-50 text-emerald-900";
+  if (status === "Rejected") return "border-rose-200 bg-rose-50 text-rose-900";
+  if (status === "Missing Answer" || status === "Missing Formula" || status === "Missing Diagram" || status === "Incomplete") return "border-amber-200 bg-amber-50 text-amber-950";
+  return "border-blue-200 bg-blue-50 text-blue-900";
+}
+
+function normalizeQuestionForPreview(question: AiDraftQuestion, index: number): AiDraftQuestion {
+  const nextNumber = Number.isFinite(question.number) && question.number > 0 ? question.number : index + 1;
+  return {
+    ...question,
+    number: nextNumber,
+    questionText: cleanDraftQuestionText(question.questionText),
+    options: question.options.map((option, optionIndex) => ({
+      label: option.label?.trim() || String.fromCharCode(65 + optionIndex),
+      text: cleanDraftText(option.text) || `Option ${String.fromCharCode(65 + optionIndex)} requires review`,
+    })),
+    linkedAnswer: question.linkedAnswer ? cleanDraftText(question.linkedAnswer) : undefined,
+    linkedSolution: question.linkedSolution ? cleanDraftText(question.linkedSolution) : undefined,
+    recoveredFormula: question.recoveredFormula ? cleanDraftText(question.recoveredFormula) : undefined,
+  };
+}
+
+function reviewGroups(draft: AiExamDraft) {
+  const normalized = draft.questions.map(normalizeQuestionForPreview);
+  const groups = [
+    { title: "High Confidence", questions: normalized.filter((question) => ["Ready", "Approved"].includes(displayReviewStatus(question))) },
+    { title: "Needs Review", questions: normalized.filter((question) => displayReviewStatus(question) === "Needs Review") },
+    { title: "Incomplete Questions", questions: normalized.filter((question) => ["Missing Answer", "Missing Formula", "Missing Diagram", "Incomplete"].includes(displayReviewStatus(question))) },
+    { title: "Rejected", questions: normalized.filter((question) => displayReviewStatus(question) === "Rejected") },
+  ];
+  return groups.filter((group) => group.questions.length);
+}
+
+function ReviewSummaryStrip({ draft }: { draft: AiExamDraft }) {
+  const statuses = draft.questions.map(displayReviewStatus);
+  const ready = statuses.filter((status) => status === "Ready" || status === "Approved").length;
+  const needsReview = statuses.filter((status) => status === "Needs Review").length;
+  const formulaIssues = statuses.filter((status) => status === "Missing Formula").length;
+  const diagramIssues = statuses.filter((status) => status === "Missing Diagram").length;
+  const answerIssues = statuses.filter((status) => status === "Missing Answer").length;
+  const readiness = draft.questionCount ? Math.round((ready / draft.questionCount) * 100) : 0;
+  return (
+    <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-6">
+      <MiniFact label="Ready" value={ready} />
+      <MiniFact label="Needs Review" value={needsReview} />
+      <MiniFact label="Formula Issues" value={formulaIssues} />
+      <MiniFact label="Diagram Issues" value={diagramIssues} />
+      <MiniFact label="Answer Issues" value={answerIssues} />
+      <MiniFact label="Publish Readiness" value={`${readiness}%`} />
+    </div>
+  );
+}
+
+function VisualPreview({ question }: { question: AiDraftQuestion }) {
+  const hasVisual = question.originalCrop || question.linkedAssets.some((asset) => /diagram|graph|table|visual|page|source/i.test(asset));
+  if (!hasVisual) return null;
+  return (
+    <div className="mt-4 rounded-2xl border border-blue-100 bg-blue-50 p-3 text-blue-950">
+      <p className="text-[11px] font-black uppercase tracking-[0.18em] text-blue-800">Diagram / Table / Graph Preview</p>
+      {question.originalCrop ? (
+        <Image src={question.originalCrop} alt={`Question ${question.number} visual preview`} width={960} height={540} unoptimized className="mt-3 max-h-72 w-full rounded-xl border border-blue-100 object-contain" />
+      ) : (
+        <p className="mt-2 rounded-xl border border-blue-100 bg-white p-3 text-sm font-bold">
+          Visual preserved from {question.sourceReference || "the original paper"}. Open Review Questions to inspect the exact crop.
+        </p>
+      )}
+    </div>
+  );
+}
+
+function ExamPaperQuestionCard({ question }: { question: AiDraftQuestion }) {
+  const status = displayReviewStatus(question);
+  return (
+    <article className="rounded-3xl border border-[var(--border)] bg-white p-5 shadow-sm">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-[var(--gold-dark)]">Question {question.number}</p>
+          <h5 className="mt-1 text-lg font-black">{universalQuestionTypeLabel(question.questionType)}</h5>
+        </div>
+        <span className={`rounded-full border px-4 py-2 text-xs font-black ${reviewStatusTone(status)}`}>
+          {status}
+        </span>
+      </div>
+      <div className="mt-4 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4 text-base font-black leading-7 text-slate-950">
+        <NidusMathText text={question.questionText} />
+      </div>
+      {question.options.length ? (
+        <div className="mt-4 grid gap-2 sm:grid-cols-2">
+          {question.options.map((option) => (
+            <p key={`${question.number}-${option.label}`} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-2 text-sm font-bold text-[var(--ink)]">
+              <b>{option.label}.</b> <NidusMathText text={option.text} />
+            </p>
+          ))}
+        </div>
+      ) : null}
+      {question.recoveredFormula ? (
+        <div className="mt-4 rounded-2xl border border-blue-100 bg-blue-50 p-3 text-sm font-bold text-blue-950">
+          <span className="mb-2 block text-[11px] font-black uppercase tracking-[0.18em] text-blue-800">Formula Preview</span>
+          <NidusMathText text={question.recoveredFormula} />
+        </div>
+      ) : null}
+      <VisualPreview question={question} />
+      <div className="mt-4 grid gap-3 md:grid-cols-2">
+        <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-3 text-emerald-950">
+          <p className="text-[11px] font-black uppercase tracking-[0.18em] text-emerald-800">Answer Preview</p>
+          <p className="mt-1 text-sm font-black">{question.linkedAnswer || "No answer linked."}</p>
+          <p className="mt-1 text-xs font-bold opacity-75">Confidence: {confidenceLabel(Math.round(question.draftConfidence * 100))}</p>
+        </div>
+        <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-3">
+          <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[var(--muted-blue)]">Solution Preview</p>
+          <p className="mt-1 text-sm font-bold leading-5 text-slate-950">{question.linkedSolution || "No solution linked."}</p>
+        </div>
+      </div>
+      <div className="mt-4 flex flex-wrap gap-2 text-xs font-black">
+        <span className="rounded-full bg-[var(--page-bg)] px-3 py-1 text-[var(--muted-blue)]">Confidence: {confidenceLabel(Math.round(question.draftConfidence * 100))}</span>
+        {question.sourcePage ? <span className="rounded-full bg-[var(--page-bg)] px-3 py-1 text-[var(--muted-blue)]">Source Page {question.sourcePage}</span> : null}
+        {question.sourceReference ? <span className="rounded-full bg-[var(--page-bg)] px-3 py-1 text-[var(--muted-blue)]">{question.sourceReference}</span> : null}
+        {question.missingItems.map((item) => (
+          <span key={item} className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-amber-950">Missing {item}</span>
+        ))}
+      </div>
+      {question.notes.length ? (
+        <p className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-3 text-xs font-bold leading-5 text-amber-950">
+          {question.notes.join(" ")}
+        </p>
+      ) : null}
+    </article>
+  );
+}
+
 function AiDraftPreview({ draft }: { draft: AiExamDraft }) {
-  const visibleQuestions = draft.questions.slice(0, 5);
+  const groups = reviewGroups(draft);
   return (
     <section className="rounded-3xl border border-[var(--border)] bg-white p-5 shadow-sm">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--gold-dark)]">Professional exam draft</p>
-          <h4 className="mt-1 text-xl font-black">Reconstructed questions</h4>
+          <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--gold-dark)]">Exam paper preview</p>
+          <h4 className="mt-1 text-xl font-black">Review the paper students will see</h4>
+          <p className="mt-1 text-sm font-bold leading-6 text-[var(--muted-blue)]">Auto-fixed numbering, option labels and spacing are shown here without changing teacher meaning.</p>
         </div>
         <span className={`rounded-full px-4 py-2 text-xs font-black ${draft.needsReview ? "bg-amber-50 text-amber-900" : "bg-emerald-50 text-emerald-800"}`}>
           {draft.needsReview ? "Teacher Review Needed" : "Draft Ready"}
         </span>
       </div>
-      <div className="mt-4 grid gap-3">
-        {visibleQuestions.map((question) => (
-          <article key={question.number} className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="text-xs font-black uppercase tracking-[0.18em] text-[var(--muted-blue)]">Question {question.number}</p>
-                <p className="mt-2 text-base font-black leading-6 text-slate-950">
-                  <NidusMathText text={question.questionText} />
-                </p>
-              </div>
-              <span className={`shrink-0 rounded-full px-3 py-2 text-[11px] font-black ${question.reviewStatus === "READY" ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-900"}`}>
-                {question.reviewStatus === "READY" ? "Ready" : "Needs Review"}
-              </span>
+      <ReviewSummaryStrip draft={draft} />
+      <div className="mt-5 grid gap-5">
+        {groups.map((group) => (
+          <section key={group.title} className="grid gap-3">
+            <div className="flex items-center justify-between gap-3">
+              <h5 className="text-sm font-black uppercase tracking-[0.2em] text-[var(--muted-blue)]">{group.title}</h5>
+              <span className="rounded-full bg-[var(--page-bg)] px-3 py-1 text-xs font-black text-[var(--muted-blue)]">{group.questions.length}</span>
             </div>
-            {question.options.length ? (
-              <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                {question.options.map((option) => (
-                  <p key={option.label} className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm font-bold text-[var(--ink)]">
-                    <b>{option.label}.</b> <NidusMathText text={option.text} />
-                  </p>
-                ))}
-              </div>
-            ) : null}
-            <div className="mt-3 flex flex-wrap gap-2 text-xs font-black">
-              <span className="rounded-full bg-white px-3 py-1 text-[var(--muted-blue)]">{questionTypeLabel(question.questionType)}</span>
-              <span className="rounded-full bg-white px-3 py-1 text-[var(--muted-blue)]">{Math.round(question.draftConfidence * 100)}% draft confidence</span>
-              {question.linkedAnswer ? <span className="rounded-full bg-emerald-50 px-3 py-1 text-emerald-800">Answer {question.linkedAnswer}</span> : null}
-              {question.linkedAssets.length ? <span className="rounded-full bg-blue-50 px-3 py-1 text-blue-800">{question.linkedAssets.join(", ")}</span> : null}
-            </div>
-            {question.notes.length ? (
-              <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs font-bold leading-5 text-amber-950">
-                {question.notes.join(" ")}
-              </p>
-            ) : null}
-          </article>
+            {group.questions.map((question) => <ExamPaperQuestionCard key={`${group.title}-${question.number}`} question={question} />)}
+          </section>
         ))}
-        {!visibleQuestions.length ? (
+        {!groups.length ? (
           <p className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--page-bg)] p-5 text-sm font-black text-[var(--muted-blue)]">
-            Upload a question paper to generate the AI draft.
+            Upload a question paper to generate the exam paper preview.
           </p>
         ) : null}
       </div>
-      {draft.questionCount > visibleQuestions.length ? (
-        <p className="mt-3 text-sm font-bold text-[var(--muted-blue)]">
-          Showing {visibleQuestions.length} of {draft.questionCount} questions. Open Review Questions to check the complete draft.
-        </p>
+    </section>
+  );
+}
+
+function DraftQualitySummary({ quality }: { quality: AiDraftQuality }) {
+  const items = [
+    { label: "Formula Preservation", value: quality.formulaPreservation },
+    { label: "Visual Preservation", value: quality.visualPreservation },
+    { label: "Question Completeness", value: quality.questionCompleteness },
+    { label: "Answer Completeness", value: quality.answerCompleteness },
+    { label: "Overall Draft Quality", value: quality.overall },
+  ];
+  return (
+    <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+      {items.map((item) => (
+        <div key={item.label} className={`rounded-xl border px-3 py-3 ${item.value === "High" ? "border-emerald-200 bg-emerald-50 text-emerald-900" : item.value === "Medium" ? "border-blue-200 bg-blue-50 text-blue-900" : "border-amber-200 bg-amber-50 text-amber-950"}`}>
+          <p className="text-[10px] font-black uppercase tracking-[0.16em] opacity-75">{item.label}</p>
+          <p className="mt-1 text-sm font-black">{item.value}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function TeacherUploadProgressCard({ state, busy }: { state: TeacherUploadState; busy: boolean }) {
+  const copy: Record<TeacherUploadState, { title: string; detail: string; tone: string }> = {
+    IDLE: { title: "Waiting for upload", detail: "Upload a question paper to begin.", tone: "border-[var(--border)] bg-white text-[var(--muted-blue)]" },
+    ANALYZING_DOCUMENT: { title: "Analyzing document...", detail: "NIDUS AI is checking the file.", tone: "border-blue-200 bg-blue-50 text-blue-950" },
+    UNDERSTANDING_PAPER: { title: "Understanding paper...", detail: "The original paper is preserved while the draft is prepared.", tone: "border-blue-200 bg-blue-50 text-blue-950" },
+    BUILDING_AI_DRAFT: { title: "Building AI draft...", detail: "Questions, formulas and visuals are being organized for review.", tone: "border-blue-200 bg-blue-50 text-blue-950" },
+    PREPARING_REVIEW: { title: "Preparing review...", detail: "The draft is being prepared for teacher review.", tone: "border-blue-200 bg-blue-50 text-blue-950" },
+    DRAFT_READY: { title: "Draft Ready", detail: "The paper is ready for review.", tone: "border-emerald-200 bg-emerald-50 text-emerald-950" },
+    NEEDS_REVIEW: { title: "Needs Review", detail: "Some parts need teacher confirmation before publishing.", tone: "border-amber-200 bg-amber-50 text-amber-950" },
+    READY_FOR_PUBLISH: { title: "Ready for Publish", detail: "The draft has passed the teacher checklist.", tone: "border-emerald-200 bg-emerald-50 text-emerald-950" },
+    PASSWORD_PROTECTED: { title: "Password protected PDF", detail: "Please upload an unlocked copy of this paper.", tone: "border-rose-200 bg-rose-50 text-rose-950" },
+    CORRUPTED_FILE: { title: "Corrupted file", detail: "NIDUS could not open this file. Please upload a fresh copy.", tone: "border-rose-200 bg-rose-50 text-rose-950" },
+    UNSUPPORTED_DOCUMENT: { title: "Unsupported document", detail: "Please upload PDF, DOCX, TXT, JPG, PNG or WEBP.", tone: "border-rose-200 bg-rose-50 text-rose-950" },
+  };
+  const item = copy[state];
+  const active = busy || state === "ANALYZING_DOCUMENT" || state === "UNDERSTANDING_PAPER" || state === "BUILDING_AI_DRAFT" || state === "PREPARING_REVIEW";
+  return (
+    <section className={`rounded-2xl border p-4 shadow-sm ${item.tone}`}>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.22em] opacity-70">Upload status</p>
+          <h4 className="mt-1 text-lg font-black">{item.title}</h4>
+          <p className="mt-1 text-sm font-bold opacity-75">{item.detail}</p>
+        </div>
+        <span className="rounded-full bg-white/80 px-3 py-2 text-xs font-black">{active ? "Working" : "Updated"}</span>
+      </div>
+      {active ? (
+        <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/75">
+          <div className="h-full w-1/2 animate-pulse rounded-full bg-current opacity-35" />
+        </div>
       ) : null}
     </section>
+  );
+}
+
+function TeacherDocumentUnderstandingCard({
+  questionReport,
+  answerReport,
+  subject,
+  paperStyle,
+  difficulty,
+  questionsDetected,
+  pages,
+  formulaCount,
+  diagramCount,
+  graphCount,
+  tableCount,
+  reviewConfidence,
+  answerKeyAdded,
+}: {
+  questionReport?: ExtractionReport;
+  answerReport?: ExtractionReport;
+  subject: string;
+  paperStyle: string;
+  difficulty: string;
+  questionsDetected: number;
+  pages?: number;
+  formulaCount: number;
+  diagramCount: number;
+  graphCount: number;
+  tableCount: number;
+  reviewConfidence?: number;
+  answerKeyAdded: boolean;
+}) {
+  const hasPaper = Boolean(questionReport);
+  return (
+    <section className="rounded-3xl border border-[var(--border)] bg-white p-5 shadow-sm">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--gold-dark)]">Document understanding</p>
+          <h4 className="mt-1 text-xl font-black">{hasPaper ? "NIDUS AI understood the paper" : "Upload a paper to see the summary"}</h4>
+        </div>
+        <span className={`rounded-full px-4 py-2 text-xs font-black ${hasPaper ? "bg-emerald-50 text-emerald-800" : "bg-[var(--page-bg)] text-[var(--muted-blue)]"}`}>
+          {hasPaper ? "Draft Created" : "Pending"}
+        </span>
+      </div>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <TeacherMetric label="Document Type" value={teacherDocumentLabel(questionReport?.documentType)} />
+        <TeacherMetric label="Subject" value={subject || "General"} />
+        <TeacherMetric label="Paper Style" value={paperStyle} />
+        <TeacherMetric label="Difficulty" value={difficulty} />
+        <TeacherMetric label="Questions detected" value={String(questionsDetected || questionReport?.detectedQuestions || "Review draft")} />
+        <TeacherMetric label="Pages" value={String(pages || questionReport?.pageCount || "Pending")} />
+        <TeacherMetric label="Formula count" value={String(formulaCount)} />
+        <TeacherMetric label="Diagram count" value={String(diagramCount)} />
+        <TeacherMetric label="Graph count" value={String(graphCount)} />
+        <TeacherMetric label="Table count" value={String(tableCount)} />
+        <TeacherMetric label="Review confidence" value={confidenceLabel(reviewConfidence)} />
+        <TeacherMetric label="Answer Key" value={answerKeyAdded || answerReport ? "Uploaded" : "No answer key uploaded yet"} />
+      </div>
+    </section>
+  );
+}
+
+function TeacherMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-3">
+      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[var(--muted-blue)]">{label}</p>
+      <p className="mt-1 text-sm font-black text-slate-950">{value}</p>
+    </div>
   );
 }
 
@@ -3312,12 +3920,12 @@ function DraftImportSummary({
           <div className="mt-3 grid gap-2 text-sm font-bold text-[var(--muted-blue)]">
             <p>Detected: <span className="text-slate-950">{teacherDocumentLabel(questionReport?.documentType)}</span></p>
             <p>Pages: <span className="text-slate-950">{questionReport?.pageCount || "Pending"}</span></p>
-            <p>Questions Found: <span className="text-slate-950">{questionsDetected || questionReport?.detectedQuestions || "Review"}</span></p>
+            <p>Questions detected: <span className="text-slate-950">{questionsDetected || questionReport?.detectedQuestions || "Review draft"}</span></p>
           </div>
         </div>
         <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
           <p className="text-xs font-black uppercase tracking-[0.18em] text-[var(--muted-blue)]">Answer Key</p>
-          <p className="mt-2 text-lg font-black">{answerKeyAdded || answerReport ? "Detected" : "Optional"}</p>
+          <p className="mt-2 text-lg font-black">{answerKeyAdded || answerReport ? "Detected" : "No answer key uploaded yet"}</p>
           <div className="mt-3 grid gap-2 text-sm font-bold text-[var(--muted-blue)]">
             <p>Answer Confidence: <span className="text-slate-950">{confidenceLabel(answerReport?.confidence?.answer)}</span></p>
             <p>Document Confidence: <span className="text-slate-950">{confidenceLabel(questionReport?.confidence?.document)}</span></p>

@@ -60,6 +60,8 @@
     "test:ndie-certification": "tsx src/scripts/ndie-certification-verification.ts",
     "test:ndie-golden-corpus": "tsx src/scripts/ndie-golden-corpus-verification.ts",
     "test:ndie-provider-orchestrator": "tsx src/scripts/ndie-provider-orchestrator-verification.ts",
+    "test:ndie-reconstruction": "tsx src/scripts/ndie-ai-reconstruction-verification.ts",
+    "test:ndie-universal-builder": "tsx src/scripts/ndie-universal-exam-builder-verification.ts",
     "test:ndie-stem": "tsx src/scripts/ndie-stem-verification.ts",
     "test:automation": "tsx src/scripts/automation-engine-verification.ts",
     "test:whatsapp": "tsx src/scripts/whatsapp-flow-verification.ts",

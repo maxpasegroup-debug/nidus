@@ -7,6 +7,7 @@ import { deleteCloudinaryAsset, signedMediaUrl, uploadBufferToCloudinary } from 
 import { enqueuePDF } from "../../queues/pdf.queue.js";
 import { testsService, validatePublishedQuestions, type TestPayload } from "../tests/tests.service.js";
 import { callOpenAIJson } from "../ai-engine/openai.service.js";
+import { ndieAiReconstructionService, type NdieAiReconstructionInput } from "../ndie/ai-reconstruction/ai-reconstruction.service.js";
 import { DEFAULT_ACCOUNT_PIN } from "../auth/auth.v2.service.js";
 
 const db = prisma as any;
@@ -273,6 +274,8 @@ type ExamImportValidationInput = {
   examUploadIds?: string[];
   questions?: ExamImportValidationQuestion[];
 };
+
+type ExamImportReconstructionInput = ExamImportValidationInput & NdieAiReconstructionInput;
 
 type TodayActionInput = {
   action?: string;
@@ -4982,6 +4985,56 @@ export const academyService = {
       averageConfidence: aiResult.averageConfidence,
     });
     return { validation: aiResult };
+  },
+
+  async reconstructExamImport(user: Requester, input: ExamImportReconstructionInput) {
+    if (input.batchId) await assertBatchAccess(user, input.batchId);
+    if (input.batchId && input.subject) await assertBatchSubjectAccess(user, input.batchId, input.subject);
+    const explicitImportJobIds = normalizedIdList(input.importJobIds);
+    const uploadIds = normalizedIdList(input.examUploadIds);
+    const linkedUploadRows = uploadIds.length
+      ? await prisma.$queryRaw<Array<{ id: string; importJobId: string | null }>>`
+          SELECT "id", "importJobId"
+          FROM "ExamUpload"
+          WHERE "id" IN (${Prisma.join(uploadIds)})
+            AND ("uploadedBy" = ${user.id} OR ${user.role} IN ('ADMIN', 'DIRECTOR', 'ACADEMIC_HEAD'))
+        `
+      : [];
+    const importJobIds = Array.from(new Set([
+      ...explicitImportJobIds,
+      ...linkedUploadRows.map((row) => row.importJobId).filter((id): id is string => Boolean(id)),
+    ])).slice(0, 25);
+    const result = await ndieAiReconstructionService.reconstruct({
+      ...input,
+      importJobIds,
+      examUploadIds: uploadIds,
+    });
+    if (importJobIds.length) {
+      await prisma.$executeRaw`
+        UPDATE "ExamImportJob"
+        SET
+          "aiResult" = COALESCE("aiResult", '{}'::jsonb) || ${JSON.stringify({ aiReconstruction: { ...result, draft: undefined } })}::jsonb,
+          "confidence" = GREATEST(COALESCE("confidence", 0), ${result.confidence}),
+          "reviewStatus" = ${result.draft.needsReview > 0 ? "PENDING_REVIEW" : "AUTO_APPROVED"},
+          "manualReviewRequired" = ${result.draft.needsReview > 0},
+          "updatedAt" = ${new Date()}
+        WHERE "id" IN (${Prisma.join(importJobIds)})
+          AND ("uploadedBy" = ${user.id} OR ${user.role} IN ('ADMIN', 'DIRECTOR', 'ACADEMIC_HEAD'))
+      `;
+    }
+    await auditAcademicAction(user, "EXAM_IMPORT_RECONSTRUCTED", "ExamImportJob", null, {
+      batchId: input.batchId,
+      subject: input.subject,
+      topic: input.topic,
+      importJobIds,
+      mode: result.mode,
+      provider: result.provider,
+      confidence: result.confidence,
+      promptVersion: result.promptVersion,
+      promptChecksum: result.promptChecksum,
+      responseChecksum: result.responseChecksum,
+    });
+    return { reconstruction: result };
   },
 
   async examImportAnalytics(user: Requester, query: Record<string, unknown>) {

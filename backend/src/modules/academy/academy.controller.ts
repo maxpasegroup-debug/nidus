@@ -368,6 +368,13 @@ export const academyController = {
       next(error);
     }
   },
+  reconstructExamImport: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.reconstructExamImport(requester(req), req.body));
+    } catch (error) {
+      next(error);
+    }
+  },
   examImportAnalytics: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       res.json(await academyService.examImportAnalytics(requester(req), req.query));

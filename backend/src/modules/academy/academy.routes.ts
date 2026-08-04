@@ -112,6 +112,7 @@ router.patch("/study-materials/:id/review", requireAcademyRoles(academicRoles), 
 router.post("/exams/ai-draft", requireAcademyRoles(academicRoles), academyController.createExamDraft);
 router.post("/exams/uploads", requireAcademyRoles(academicRoles), upload.single("file"), academyController.uploadExamSource);
 router.post("/exams/import/validate", requireAcademyRoles(academicRoles), academyController.validateExamImport);
+router.post("/exams/import/reconstruct", requireAcademyRoles(academicRoles), academyController.reconstructExamImport);
 router.get("/exams/import/analytics", requireAcademyRoles(academicRoles), academyController.examImportAnalytics);
 router.post("/exams", requireAcademyRoles(academicRoles), academyController.publishExam);
 router.patch("/exams/:id", requireAcademyRoles(academicRoles), academyController.updateExam);
