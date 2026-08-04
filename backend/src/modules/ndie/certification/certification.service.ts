@@ -2,6 +2,7 @@ import { prisma } from "../../../config/prisma.js";
 import { env } from "../../../config/env.js";
 import { NDIE_GOLDEN_CORPUS_VERSION, NDIE_GOLDEN_FIXTURES, type NdieGoldenFixture } from "./golden-corpus.js";
 import { realGoldenCorpusBenchmarkRunner, realGoldenCorpusRegressionRunner, realGoldenCorpusRepository } from "./golden-corpus/repository.js";
+import { realExamCertificationService } from "./real-exam-certification.service.js";
 
 export type NdieCertificationMetric =
   | "ocrAccuracy"
@@ -264,6 +265,7 @@ export const certificationService = {
   realCorpus: realGoldenCorpusRepository,
   realCorpusBenchmark: realGoldenCorpusBenchmarkRunner,
   realCorpusRegression: realGoldenCorpusRegressionRunner,
+  realExamCertification: realExamCertificationService,
   reports: certificationReportGenerator,
 
   certify(input: CertificationRunInput = {}) {
@@ -302,6 +304,7 @@ export const certificationService = {
     const report = this.certify();
     const realCorpus = realGoldenCorpusRepository.summary();
     const lastBenchmark = realGoldenCorpusBenchmarkRunner.run({ fullCorpus: true });
+    const realExamCertification = realExamCertificationService.run();
     return {
       status: report.status === "PASS" ? "ready" : "warning",
       certificationVersion,
@@ -323,6 +326,14 @@ export const certificationService = {
           provider: lastBenchmark.provider
         },
         integrity: realCorpus.integrity
+      },
+      realExamCertification: {
+        version: realExamCertification.certificationVersion,
+        totalPapersTested: realExamCertification.dashboard.totalPapersTested,
+        passRate: realExamCertification.dashboard.passRate,
+        averageAccuracy: realExamCertification.dashboard.averageAccuracy,
+        productionCertificationStatus: realExamCertification.productionCertificationStatus,
+        stopRuleThreshold: realExamCertification.dashboard.stopRuleThreshold
       },
       overallAccuracy: lastQuality?.overall ?? report.scores.overallNdieAccuracy,
       benchmarkSummary: report.benchmarkSummary,
