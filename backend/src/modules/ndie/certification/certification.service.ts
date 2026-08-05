@@ -3,6 +3,7 @@ import { env } from "../../../config/env.js";
 import { NDIE_GOLDEN_CORPUS_VERSION, NDIE_GOLDEN_FIXTURES, type NdieGoldenFixture } from "./golden-corpus.js";
 import { realGoldenCorpusBenchmarkRunner, realGoldenCorpusRegressionRunner, realGoldenCorpusRepository } from "./golden-corpus/repository.js";
 import { realExamCertificationService } from "./real-exam-certification.service.js";
+import { realFileBaselineService } from "./real-file-baseline.service.js";
 
 export type NdieCertificationMetric =
   | "ocrAccuracy"
@@ -266,6 +267,7 @@ export const certificationService = {
   realCorpusBenchmark: realGoldenCorpusBenchmarkRunner,
   realCorpusRegression: realGoldenCorpusRegressionRunner,
   realExamCertification: realExamCertificationService,
+  realFileBaseline: realFileBaselineService,
   reports: certificationReportGenerator,
 
   certify(input: CertificationRunInput = {}) {
@@ -305,6 +307,7 @@ export const certificationService = {
     const realCorpus = realGoldenCorpusRepository.summary();
     const lastBenchmark = realGoldenCorpusBenchmarkRunner.run({ fullCorpus: true });
     const realExamCertification = realExamCertificationService.run();
+    const realFileBaseline = realFileBaselineService.run();
     return {
       status: report.status === "PASS" ? "ready" : "warning",
       certificationVersion,
@@ -334,6 +337,17 @@ export const certificationService = {
         averageAccuracy: realExamCertification.dashboard.averageAccuracy,
         productionCertificationStatus: realExamCertification.productionCertificationStatus,
         stopRuleThreshold: realExamCertification.dashboard.stopRuleThreshold
+      },
+      realFileBaseline: {
+        version: realFileBaseline.certificationVersion,
+        executionMode: realFileBaseline.executionMode,
+        requiredDocuments: realFileBaseline.requiredDocuments,
+        filesPresent: realFileBaseline.filesPresent,
+        fullPipelinesExecuted: realFileBaseline.fullPipelinesExecuted,
+        overallScore: realFileBaseline.overallScore,
+        productionCertificationStatus: realFileBaseline.productionCertificationStatus,
+        stopRule: realFileBaseline.stopRule,
+        evidenceExportCommand: "npm run ndie:evidence:export --workspace backend -- --slot <slot-id> --import <ndie-import-job-id> --write"
       },
       overallAccuracy: lastQuality?.overall ?? report.scores.overallNdieAccuracy,
       benchmarkSummary: report.benchmarkSummary,
