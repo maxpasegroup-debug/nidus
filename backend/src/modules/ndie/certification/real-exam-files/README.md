@@ -134,3 +134,21 @@ The launch gate requires:
 - every STEM subject is certified
 - every mandatory STEM proof area is certified
 - no P0/P1 blockers remain
+
+## Phase 8 Evidence Readiness Planner
+
+Run the evidence readiness planner:
+
+```bash
+npm run test:ndie-real-evidence-readiness --workspace backend
+```
+
+The planner gives an ordered, slot-by-slot action list:
+
+- which required real paper is missing
+- which evidence file must be generated
+- which upload-to-CBT stages are incomplete
+- which Mathematics, Chemistry, Physics or STEM proof area is still unproven
+- the exact evidence export command to run after a real NDIE import
+
+Use this before rerunning the launch gate. It is the practical checklist for moving from `PRODUCTION_BLOCKED` to `INTERNATIONAL_CERTIFIED`.

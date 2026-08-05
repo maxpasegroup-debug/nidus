@@ -6,6 +6,7 @@ import { realExamCertificationService } from "./real-exam-certification.service.
 import { realFileBaselineService } from "./real-file-baseline.service.js";
 import { realCertificationReportService } from "./real-certification-report.service.js";
 import { realLaunchGateService } from "./real-launch-gate.service.js";
+import { realEvidenceReadinessService } from "./real-evidence-readiness.service.js";
 
 export type NdieCertificationMetric =
   | "ocrAccuracy"
@@ -272,6 +273,7 @@ export const certificationService = {
   realFileBaseline: realFileBaselineService,
   realCertificationReport: realCertificationReportService,
   realLaunchGate: realLaunchGateService,
+  realEvidenceReadiness: realEvidenceReadinessService,
   reports: certificationReportGenerator,
 
   certify(input: CertificationRunInput = {}) {
@@ -314,6 +316,7 @@ export const certificationService = {
     const realFileBaseline = realFileBaselineService.run();
     const realCertificationReport = realCertificationReportService.run();
     const realLaunchGate = realLaunchGateService.run();
+    const realEvidenceReadiness = realEvidenceReadinessService.run();
     return {
       status: report.status === "PASS" ? "ready" : "warning",
       certificationVersion,
@@ -373,6 +376,15 @@ export const certificationService = {
         failedChecks: realLaunchGate.checks.filter((check) => check.status === "FAIL").length,
         minimumCertificationScore: realLaunchGateService.minimumCertificationScore,
         recommendation: realLaunchGate.recommendation
+      },
+      realEvidenceReadiness: {
+        version: realEvidenceReadiness.reportVersion,
+        requiredSlots: realEvidenceReadiness.summary.requiredSlots,
+        certifiedSlots: realEvidenceReadiness.summary.certifiedSlots,
+        waitingForSourceFiles: realEvidenceReadiness.summary.waitingForSourceFiles,
+        waitingForPipelineRuns: realEvidenceReadiness.summary.waitingForPipelineRuns,
+        failedEvidenceSlots: realEvidenceReadiness.summary.failedEvidenceSlots,
+        nextBestAction: realEvidenceReadiness.nextBestAction
       },
       overallAccuracy: lastQuality?.overall ?? report.scores.overallNdieAccuracy,
       benchmarkSummary: report.benchmarkSummary,

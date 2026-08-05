@@ -69,6 +69,7 @@
     "test:ndie-real-intake": "tsx src/scripts/ndie-real-file-intake-verification.ts",
     "test:ndie-real-certification-report": "tsx src/scripts/ndie-real-certification-report-verification.ts",
     "test:ndie-real-launch-gate": "tsx src/scripts/ndie-real-launch-gate-verification.ts",
+    "test:ndie-real-evidence-readiness": "tsx src/scripts/ndie-real-evidence-readiness-verification.ts",
     "test:ndie-stem": "tsx src/scripts/ndie-stem-verification.ts",
     "test:automation": "tsx src/scripts/automation-engine-verification.ts",
     "test:whatsapp": "tsx src/scripts/whatsapp-flow-verification.ts",
