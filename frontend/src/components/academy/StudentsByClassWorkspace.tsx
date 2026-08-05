@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowRightLeft, BookOpen, KeyRound, Mail, Phone, Plus, Save, Search, UserRound, Users } from "lucide-react";
+import { ArrowRightLeft, BookOpen, KeyRound, Mail, Phone, Plus, Save, Search, UserRound, Users, X } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import {
   addStudentToBatch,
@@ -96,6 +96,7 @@ export default function StudentsByClassWorkspace({ audience, embedded = false }:
   const [activeBatchId, setActiveBatchId] = useState("");
   const [search, setSearch] = useState("");
   const [selectedStudentId, setSelectedStudentId] = useState("");
+  const [showAddStudent, setShowAddStudent] = useState(false);
   const [studentForm, setStudentForm] = useState<StudentForm>(emptyForm);
   const [addForm, setAddForm] = useState<StudentForm>(emptyForm);
   const [targetBatchId, setTargetBatchId] = useState("");
@@ -109,6 +110,7 @@ export default function StudentsByClassWorkspace({ audience, embedded = false }:
   const activeBatchStudents = useMemo(() => activeBatch?.students ?? [], [activeBatch?.students]);
   const selectedEntry = activeBatchStudents.find((entry) => entry.student.id === selectedStudentId) ?? null;
   const selectedStudent = selectedEntry?.student ?? null;
+  const allStudentRows = useMemo(() => batches.flatMap((batch) => (batch.students ?? []).map((entry) => ({ batch, entry }))), [batches]);
 
   const membershipMap = useMemo(() => {
     const map = new Map<string, Array<{ batchId: string; batchName: string; rollNumber?: string | null }>>();
@@ -124,10 +126,19 @@ export default function StudentsByClassWorkspace({ audience, embedded = false }:
 
   const visibleStudents = useMemo(() => {
     const query = search.trim().toLowerCase();
-    const students = activeBatchStudents;
-    if (!query) return students;
-    return students.filter((entry) => studentSearchText(entry).includes(query));
-  }, [activeBatchStudents, search]);
+    const rows = query
+      ? allStudentRows.filter(({ batch, entry }) => `${studentSearchText(entry)} ${batch.name} ${batch.course?.title ?? ""} ${batch.programSlug ?? ""}`.toLowerCase().includes(query))
+      : activeBatch
+        ? activeBatchStudents.map((entry) => ({ batch: activeBatch, entry }))
+        : [];
+    const seen = new Set<string>();
+    return rows.filter(({ entry }) => {
+      if (!query) return true;
+      if (seen.has(entry.student.id)) return false;
+      seen.add(entry.student.id);
+      return true;
+    });
+  }, [activeBatch, activeBatchStudents, allStudentRows, search]);
 
   const totalStudents = useMemo(() => new Set(batches.flatMap((batch) => (batch.students ?? []).map((entry) => entry.student.id))).size, [batches]);
   const multiBatchStudents = useMemo(() => Array.from(membershipMap.values()).filter((items) => items.length > 1).length, [membershipMap]);
@@ -142,6 +153,7 @@ export default function StudentsByClassWorkspace({ audience, embedded = false }:
     onSuccess: () => {
       setNotice("Student added to batch.");
       setAddForm(emptyForm);
+      setShowAddStudent(false);
       refreshStudents();
     },
     onError: (error) => setNotice(getApiErrorMessage(error)),
@@ -247,8 +259,8 @@ export default function StudentsByClassWorkspace({ audience, embedded = false }:
     <>
       <AcademicHero
         eyebrow="Students"
-        title="Batch Students"
-        description="Select a batch, manage its students, add new learners, and move or copy students between batches."
+        title="Students"
+        description="Search any student by name, open a batch, and manage profile or batch allocation only when needed."
       />
 
       <section className="grid gap-3 md:grid-cols-4">
@@ -260,54 +272,78 @@ export default function StudentsByClassWorkspace({ audience, embedded = false }:
 
       {notice ? <div className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] px-4 py-3 text-sm font-black">{notice}</div> : null}
 
-      <section className="grid min-h-0 gap-4 xl:grid-cols-[320px_minmax(0,1fr)_420px]">
-        <Panel title="Batches" eyebrow="Choose one">
-          {batchesQuery.isLoading ? <EmptyState text="Loading batches..." /> : null}
-          {!batchesQuery.isLoading && !batches.length ? <EmptyState text="No batches are available yet." /> : null}
-          <div className="grid max-h-[68vh] gap-2 overflow-auto pr-1">
-            {batches.map((batch) => (
-              <button
-                key={batch.id}
-                type="button"
-                onClick={() => {
-                  setActiveBatchId(batch.id);
-                  setSelectedStudentId("");
-                  setSearch("");
-                }}
-                className={`rounded-xl border p-3 text-left transition hover:border-[var(--gold-border)] ${activeBatchId === batch.id ? "border-[var(--gold-border)] bg-[var(--gold-soft)]" : "border-[var(--border)] bg-white"}`}
-              >
-                <p className="text-sm font-black">{batch.name}</p>
-                <p className="mt-1 text-xs font-bold text-[var(--muted-blue)]">{batch.course?.title || batch.programSlug || "Course"} / {batch.batchType || "Batch"}</p>
-                <p className="mt-2 text-xs font-black text-[var(--gold-dark)]">{batchStudentCount(batch)} student{batchStudentCount(batch) === 1 ? "" : "s"}</p>
-              </button>
-            ))}
-          </div>
-        </Panel>
-
-        <Panel title={activeBatch?.name ?? "Students"} eyebrow="Student list">
-          <div className="mb-3 flex min-h-11 items-center gap-2 rounded-xl border border-[var(--border)] bg-white px-3 text-sm">
+      <Panel title="Find Students" eyebrow="Master search">
+        <div className="grid gap-3 lg:grid-cols-[1fr_auto]">
+          <label className="flex min-h-12 items-center gap-2 rounded-xl border border-[var(--border)] bg-white px-3 text-sm">
             <Search className="h-4 w-4 text-[var(--muted-blue)]" />
-            <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search name, mobile, email or roll number" className="min-w-0 flex-1 bg-transparent outline-none" />
-          </div>
-          {!visibleStudents.length ? <EmptyState text="No students found in this batch." /> : null}
+            <input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search student name, mobile, email, roll number or batch"
+              className="min-w-0 flex-1 bg-transparent font-bold outline-none"
+            />
+          </label>
+          <button
+            type="button"
+            onClick={() => setShowAddStudent(true)}
+            disabled={!activeBatch}
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--navy)] px-4 text-sm font-black text-white disabled:opacity-60"
+          >
+            <Plus className="h-4 w-4" />
+            Add Student
+          </button>
+        </div>
+
+        <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+          {batchesQuery.isLoading ? <span className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm font-black">Loading batches...</span> : null}
+          {batches.map((batch) => (
+            <button
+              key={batch.id}
+              type="button"
+              onClick={() => {
+                setActiveBatchId(batch.id);
+                setSelectedStudentId("");
+                setSearch("");
+              }}
+              className={`shrink-0 rounded-xl border px-3 py-2 text-left transition hover:border-[var(--gold-border)] ${activeBatchId === batch.id ? "border-[var(--gold-border)] bg-[var(--gold-soft)]" : "border-[var(--border)] bg-white"}`}
+            >
+              <span className="block max-w-56 truncate text-sm font-black">{batch.name}</span>
+              <span className="mt-1 block text-[11px] font-bold text-[var(--muted-blue)]">{batchStudentCount(batch)} students</span>
+            </button>
+          ))}
+        </div>
+      </Panel>
+
+      <section className="grid min-h-0 gap-4 xl:grid-cols-[minmax(0,1fr)_420px]">
+        <Panel title={search.trim() ? "Search Results" : activeBatch?.name ?? "Students"} eyebrow={search.trim() ? "All batches" : "Selected batch"}>
+          {!visibleStudents.length ? <EmptyState text={search.trim() ? "No student matches this search." : "No students found in this batch."} /> : null}
           <div className="grid max-h-[64vh] gap-2 overflow-auto pr-1">
-            {visibleStudents.map((entry) => {
+            {visibleStudents.map(({ batch, entry }) => {
               const memberships = membershipMap.get(entry.student.id) ?? [];
-              const selected = selectedStudentId === entry.student.id;
+              const selected = selectedStudentId === entry.student.id && activeBatchId === batch.id;
               return (
                 <button
-                  key={entry.id}
+                  key={`${batch.id}-${entry.id}`}
                   type="button"
-                  onClick={() => setSelectedStudentId(entry.student.id)}
+                  onClick={() => {
+                    setActiveBatchId(batch.id);
+                    setSelectedStudentId(entry.student.id);
+                  }}
                   className={`grid gap-3 rounded-xl border p-3 text-left transition hover:border-[var(--gold-border)] md:grid-cols-[1fr_auto] md:items-center ${selected ? "border-[var(--gold-border)] bg-[var(--gold-soft)]" : "border-[var(--border)] bg-white"}`}
                 >
                   <span className="min-w-0">
                     <span className="block truncate font-black">{entry.student.name || "Student"}</span>
-                    <span className="mt-1 block truncate text-xs font-bold text-[var(--muted-blue)]">{loginMobile(entry.student) || "Mobile missing"} / {entry.student.rollNumber || entry.remarks || "Roll not set"}</span>
+                    <span className="mt-1 block truncate text-xs font-bold text-[var(--muted-blue)]">
+                      {loginMobile(entry.student) || "Mobile missing"} / {entry.student.rollNumber || entry.remarks || "Roll not set"}
+                    </span>
+                    <span className="mt-2 inline-flex max-w-full truncate rounded-full border border-[var(--border)] bg-white px-2.5 py-1 text-[11px] font-black text-[var(--muted-blue)]">
+                      {batch.name}
+                    </span>
                   </span>
                   <span className="flex flex-wrap gap-2 text-[11px] font-black">
                     <span className="rounded-full bg-[var(--page-bg)] px-2.5 py-1">{pinStatus(entry.student.roleMetadata)}</span>
                     {memberships.length > 1 ? <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700">{memberships.length} batches</span> : null}
+                    <span className="rounded-full bg-[var(--navy)] px-2.5 py-1 text-white">Manage</span>
                   </span>
                 </button>
               );
@@ -316,26 +352,6 @@ export default function StudentsByClassWorkspace({ audience, embedded = false }:
         </Panel>
 
         <div className="grid content-start gap-4">
-          <Panel title="Add Student" eyebrow="Selected batch">
-            <form onSubmit={submitAdd} className="grid gap-3">
-              <Field label="Name" value={addForm.name} onChange={(value) => setAddForm((current) => ({ ...current, name: value }))} icon={UserRound} required />
-              <Field label="Mobile" value={addForm.phone} onChange={(value) => setAddForm((current) => ({ ...current, phone: value.replace(/[^\d+]/g, "") }))} icon={Phone} required />
-              <Field label="Email" value={addForm.email} onChange={(value) => setAddForm((current) => ({ ...current, email: value }))} icon={Mail} />
-              <Field
-                label="Roll number override"
-                value={addForm.rollNumber}
-                onChange={(value) => setAddForm((current) => ({ ...current, rollNumber: value.toUpperCase() }))}
-                icon={BookOpen}
-                placeholder={nextRollNumber ? `Auto: ${nextRollNumber}` : "Auto-generated if blank"}
-                helpText={nextRollNumber ? `Leave blank to assign ${nextRollNumber}.` : "Leave blank to auto-generate after selecting a batch."}
-              />
-              <button disabled={addMutation.isPending} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[var(--navy)] px-4 text-sm font-black text-white disabled:opacity-60">
-                <Plus className="h-4 w-4" />
-                {addMutation.isPending ? "Adding..." : "Add to Batch"}
-              </button>
-            </form>
-          </Panel>
-
           <Panel title="Manage Student" eyebrow={selectedStudent ? selectedStudent.name : "Select a student"}>
             {!selectedStudent ? <EmptyState text="Select a student from the list to edit profile, PIN or batch." /> : null}
             {selectedStudent ? (
@@ -362,13 +378,13 @@ export default function StudentsByClassWorkspace({ audience, embedded = false }:
             ) : null}
           </Panel>
 
-          <Panel title="Batch Movement" eyebrow="Transfer or multi-batch">
+          <Panel title="Batch Allocation" eyebrow="Move or keep in both">
             {!selectedStudent ? <EmptyState text="Select a student to move or copy to another batch." /> : null}
             {selectedStudent ? (
               <form onSubmit={submitTransfer} className="grid gap-3">
                 <select value={moveMode} onChange={(event) => setMoveMode(event.target.value as MoveMode)} className="min-h-11 rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-bold">
-                  <option value="TRANSFER">Transfer from current batch</option>
-                  <option value="COPY">Keep current and add to another batch</option>
+                  <option value="TRANSFER">Move to another batch</option>
+                  <option value="COPY">Keep in both batches</option>
                 </select>
                 <select value={targetBatchId} onChange={(event) => setTargetBatchId(event.target.value)} className="min-h-11 rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-bold">
                   {batches.filter((batch) => batch.id !== activeBatchId).map((batch) => <option key={batch.id} value={batch.id}>{batch.name}</option>)}
@@ -378,13 +394,47 @@ export default function StudentsByClassWorkspace({ audience, embedded = false }:
                 </div>
                 <button disabled={transferMutation.isPending || !targetBatchId} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[var(--navy)] px-4 text-sm font-black text-white disabled:opacity-60">
                   <ArrowRightLeft className="h-4 w-4" />
-                  {transferMutation.isPending ? "Updating..." : moveMode === "COPY" ? "Add to Another Batch" : "Transfer Student"}
+                  {transferMutation.isPending ? "Updating..." : moveMode === "COPY" ? "Add to Another Batch" : "Move Student"}
                 </button>
               </form>
             ) : null}
           </Panel>
         </div>
       </section>
+
+      {showAddStudent ? (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/45 px-4 py-6 backdrop-blur-sm">
+          <section className="w-full max-w-xl rounded-2xl border border-[var(--border)] bg-white p-5 shadow-2xl">
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <div>
+                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[var(--gold)]">Add Student</p>
+                <h2 className="mt-1 text-xl font-black text-[var(--navy)]">{activeBatch?.name ?? "Select batch first"}</h2>
+                <p className="mt-1 text-sm font-bold text-[var(--muted-blue)]">Use admission record details if available. Roll number is auto-generated when left blank.</p>
+              </div>
+              <button type="button" onClick={() => setShowAddStudent(false)} className="icon-button h-10 w-10 rounded-xl border border-[var(--border)] bg-white" aria-label="Close add student">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <form onSubmit={submitAdd} className="grid gap-3">
+              <Field label="Name" value={addForm.name} onChange={(value) => setAddForm((current) => ({ ...current, name: value }))} icon={UserRound} required />
+              <Field label="Mobile" value={addForm.phone} onChange={(value) => setAddForm((current) => ({ ...current, phone: value.replace(/[^\d+]/g, "") }))} icon={Phone} required />
+              <Field label="Email" value={addForm.email} onChange={(value) => setAddForm((current) => ({ ...current, email: value }))} icon={Mail} />
+              <Field
+                label="Roll number override"
+                value={addForm.rollNumber}
+                onChange={(value) => setAddForm((current) => ({ ...current, rollNumber: value.toUpperCase() }))}
+                icon={BookOpen}
+                placeholder={nextRollNumber ? `Auto: ${nextRollNumber}` : "Auto-generated if blank"}
+                helpText={nextRollNumber ? `Leave blank to assign ${nextRollNumber}.` : "Leave blank to auto-generate after selecting a batch."}
+              />
+              <button disabled={addMutation.isPending || !activeBatchId} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[var(--navy)] px-4 text-sm font-black text-white disabled:opacity-60">
+                <Plus className="h-4 w-4" />
+                {addMutation.isPending ? "Adding..." : "Add to Batch"}
+              </button>
+            </form>
+          </section>
+        </div>
+      ) : null}
     </>
   );
 
