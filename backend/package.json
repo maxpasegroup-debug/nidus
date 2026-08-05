@@ -73,6 +73,7 @@
     "test:ndie-real-certification-dossier": "tsx src/scripts/ndie-real-certification-dossier-verification.ts",
     "test:ndie-real-release-pack": "tsx src/scripts/ndie-real-release-pack-verification.ts",
     "test:ndie-real-release-archive": "tsx src/scripts/ndie-real-release-archive-verification.ts",
+    "test:ndie-real-certification-suite": "tsx src/scripts/ndie-real-certification-suite-verification.ts",
     "test:ndie-stem": "tsx src/scripts/ndie-stem-verification.ts",
     "test:automation": "tsx src/scripts/automation-engine-verification.ts",
     "test:whatsapp": "tsx src/scripts/whatsapp-flow-verification.ts",

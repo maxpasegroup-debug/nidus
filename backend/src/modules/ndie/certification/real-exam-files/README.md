@@ -228,3 +228,32 @@ The archive includes:
 - package and manifest hashes
 
 If the launch gate is failing, the archive is verified only as a failed pre-launch dossier. It must not be used as production certification evidence.
+
+## Phase 12 Certification Suite
+
+Run the full real certification suite:
+
+```bash
+npm run test:ndie-real-certification-suite --workspace backend
+```
+
+The suite checks the full release chain:
+
+1. real file intake
+2. real file baseline
+3. executive certification report
+4. real launch gate
+5. evidence readiness planner
+6. certification dossier
+7. release pack
+8. release archive dry run
+
+The suite returns:
+
+- suite status
+- release scope
+- failed steps
+- next required command
+- production launch safety decision
+
+If the suite reports `safeToBeginProductionLaunch: false`, do not launch as production certified.

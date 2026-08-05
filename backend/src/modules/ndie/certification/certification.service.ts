@@ -10,6 +10,7 @@ import { realEvidenceReadinessService } from "./real-evidence-readiness.service.
 import { realCertificationDossierService } from "./real-certification-dossier.service.js";
 import { realReleasePackService } from "./real-release-pack.service.js";
 import { realReleaseArchiveService } from "./real-release-archive.service.js";
+import { realCertificationSuiteService } from "./real-certification-suite.service.js";
 
 export type NdieCertificationMetric =
   | "ocrAccuracy"
@@ -280,6 +281,7 @@ export const certificationService = {
   realCertificationDossier: realCertificationDossierService,
   realReleasePack: realReleasePackService,
   realReleaseArchive: realReleaseArchiveService,
+  realCertificationSuite: realCertificationSuiteService,
   reports: certificationReportGenerator,
 
   certify(input: CertificationRunInput = {}) {
@@ -326,6 +328,7 @@ export const certificationService = {
     const realCertificationDossier = realCertificationDossierService.run();
     const realReleasePack = realReleasePackService.run();
     const realReleaseArchive = realReleaseArchiveService.plan();
+    const realCertificationSuite = realCertificationSuiteService.run();
     return {
       status: report.status === "PASS" ? "ready" : "warning",
       certificationVersion,
@@ -422,6 +425,15 @@ export const certificationService = {
         verified: realReleaseArchive.verified,
         archiveUsableForProductionCertification: realReleaseArchive.archiveUsableForProductionCertification,
         recommendation: realReleaseArchive.recommendation
+      },
+      realCertificationSuite: {
+        version: realCertificationSuite.suiteVersion,
+        status: realCertificationSuite.status,
+        releaseScope: realCertificationSuite.releaseScope,
+        steps: realCertificationSuite.steps.length,
+        failedSteps: realCertificationSuite.failedSteps.length,
+        nextRequiredCommand: realCertificationSuite.nextRequiredCommand,
+        safeToBeginProductionLaunch: realCertificationSuite.safeToBeginProductionLaunch
       },
       overallAccuracy: lastQuality?.overall ?? report.scores.overallNdieAccuracy,
       benchmarkSummary: report.benchmarkSummary,
