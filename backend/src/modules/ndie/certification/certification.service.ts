@@ -7,6 +7,9 @@ import { realFileBaselineService } from "./real-file-baseline.service.js";
 import { realCertificationReportService } from "./real-certification-report.service.js";
 import { realLaunchGateService } from "./real-launch-gate.service.js";
 import { realEvidenceReadinessService } from "./real-evidence-readiness.service.js";
+import { realCertificationDossierService } from "./real-certification-dossier.service.js";
+import { realReleasePackService } from "./real-release-pack.service.js";
+import { realReleaseArchiveService } from "./real-release-archive.service.js";
 
 export type NdieCertificationMetric =
   | "ocrAccuracy"
@@ -274,6 +277,9 @@ export const certificationService = {
   realCertificationReport: realCertificationReportService,
   realLaunchGate: realLaunchGateService,
   realEvidenceReadiness: realEvidenceReadinessService,
+  realCertificationDossier: realCertificationDossierService,
+  realReleasePack: realReleasePackService,
+  realReleaseArchive: realReleaseArchiveService,
   reports: certificationReportGenerator,
 
   certify(input: CertificationRunInput = {}) {
@@ -317,6 +323,9 @@ export const certificationService = {
     const realCertificationReport = realCertificationReportService.run();
     const realLaunchGate = realLaunchGateService.run();
     const realEvidenceReadiness = realEvidenceReadinessService.run();
+    const realCertificationDossier = realCertificationDossierService.run();
+    const realReleasePack = realReleasePackService.run();
+    const realReleaseArchive = realReleaseArchiveService.plan();
     return {
       status: report.status === "PASS" ? "ready" : "warning",
       certificationVersion,
@@ -385,6 +394,34 @@ export const certificationService = {
         waitingForPipelineRuns: realEvidenceReadiness.summary.waitingForPipelineRuns,
         failedEvidenceSlots: realEvidenceReadiness.summary.failedEvidenceSlots,
         nextBestAction: realEvidenceReadiness.nextBestAction
+      },
+      realCertificationDossier: {
+        version: realCertificationDossier.dossierVersion,
+        title: realCertificationDossier.title,
+        executiveDecision: realCertificationDossier.executiveDecision,
+        releaseScope: realCertificationDossier.releaseScope,
+        sections: realCertificationDossier.sections.length,
+        blockers: realCertificationDossier.blockers.length,
+        orderedActions: realCertificationDossier.orderedActions.length
+      },
+      realReleasePack: {
+        version: realReleasePack.packVersion,
+        releaseScope: realReleasePack.releaseScope,
+        launchGateStatus: realReleasePack.launchGateStatus,
+        artifactCount: realReleasePack.artifactCount,
+        manifestSha256: realReleasePack.manifestSha256,
+        packageSha256: realReleasePack.packageSha256,
+        immutableArchiveRequired: realReleasePack.immutableArchiveRequired,
+        verificationCommand: realReleasePack.verificationCommand
+      },
+      realReleaseArchive: {
+        version: realReleaseArchive.archiveVersion,
+        mode: realReleaseArchive.mode,
+        archiveDirectory: realReleaseArchive.archiveDirectory,
+        files: realReleaseArchive.files.length,
+        verified: realReleaseArchive.verified,
+        archiveUsableForProductionCertification: realReleaseArchive.archiveUsableForProductionCertification,
+        recommendation: realReleaseArchive.recommendation
       },
       overallAccuracy: lastQuality?.overall ?? report.scores.overallNdieAccuracy,
       benchmarkSummary: report.benchmarkSummary,

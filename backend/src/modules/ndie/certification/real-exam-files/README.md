@@ -152,3 +152,79 @@ The planner gives an ordered, slot-by-slot action list:
 - the exact evidence export command to run after a real NDIE import
 
 Use this before rerunning the launch gate. It is the practical checklist for moving from `PRODUCTION_BLOCKED` to `INTERNATIONAL_CERTIFIED`.
+
+## Phase 9 Certification Dossier
+
+Run the audit-ready certification dossier:
+
+```bash
+npm run test:ndie-real-certification-dossier --workspace backend
+```
+
+The dossier packages the launch status into one management/QA report:
+
+- executive GO/NO-GO decision
+- production, Mathematics, Chemistry and international readiness scores
+- blocker register
+- upload-to-CBT stage evidence status
+- subject readiness
+- STEM feature proof
+- real-file slot checklist
+- ordered next actions
+- markdown preview suitable for release reviews
+
+The dossier is intentionally honest. If the real corpus is empty or incomplete, it will report `PRODUCTION_BLOCKED` and preserve the P0 blocker list.
+
+## Phase 10 Release Pack
+
+Run the tamper-evident release pack:
+
+```bash
+npm run test:ndie-real-release-pack --workspace backend
+```
+
+The release pack bundles and checksums:
+
+- `real-file-baseline.json`
+- `real-certification-report.json`
+- `real-launch-gate.json`
+- `real-evidence-readiness.json`
+- `real-certification-dossier.json`
+- `real-certification-dossier.md`
+
+Each artifact receives a SHA-256 hash, and the package receives both a manifest hash and a package hash.
+
+If the launch gate is still failing, the pack is only a failed pre-launch dossier. It must not be archived as production certification evidence.
+
+When the launch gate passes, archive the release pack before production launch so the exact certified state can be audited later.
+
+## Phase 11 Release Archive
+
+Run the archive verifier in dry-run mode:
+
+```bash
+npm run test:ndie-real-release-archive --workspace backend
+```
+
+Dry-run mode verifies the archive plan and hashes but does not write files.
+
+Write an archive only when you intentionally want a launch-review artifact:
+
+```bash
+npm run test:ndie-real-release-archive --workspace backend -- --write
+```
+
+Write mode creates a timestamped directory under:
+
+```text
+backend/src/modules/ndie/certification/real-release-archives/
+```
+
+The archive includes:
+
+- every release-pack artifact
+- `release-pack-manifest.json`
+- SHA-256 hashes for every file
+- package and manifest hashes
+
+If the launch gate is failing, the archive is verified only as a failed pre-launch dossier. It must not be used as production certification evidence.
