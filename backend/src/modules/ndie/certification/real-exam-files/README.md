@@ -86,3 +86,51 @@ npm run ndie:evidence:export --workspace backend -- --slot nda-maths-pdf --impor
 ```
 
 The exporter reads NDIE database records and generates `evidence.json` for the selected slot. It does not run OCR, rendering, publishing, or CBT itself. It only certifies what the system actually stored.
+
+## Real Certification Report
+
+Run the executive GO/NO-GO report:
+
+```bash
+npm run test:ndie-real-certification-report --workspace backend
+```
+
+The report summarizes:
+
+- production readiness
+- Mathematics readiness
+- Chemistry readiness
+- international competitiveness
+- stage readiness
+- subject blockers
+- STEM proof gaps
+- launch recommendation
+
+## Phase 7 Real Launch Gate
+
+Run the advisory launch gate:
+
+```bash
+npm run test:ndie-real-launch-gate --workspace backend
+```
+
+The advisory gate always exits successfully when the gate logic itself is healthy, but the payload can still show `gateStatus: "FAIL"` while real certification evidence is incomplete.
+
+Run the enforced production gate:
+
+```bash
+npm run test:ndie-real-launch-gate --workspace backend -- --enforce
+```
+
+The enforced gate exits with code `1` when launch certification is blocked.
+
+The launch gate requires:
+
+- executive real certification decision is `GO`
+- production readiness is at least `95%`
+- Mathematics readiness is at least `95%`
+- Chemistry readiness is at least `95%`
+- every upload-to-CBT stage is certified
+- every STEM subject is certified
+- every mandatory STEM proof area is certified
+- no P0/P1 blockers remain

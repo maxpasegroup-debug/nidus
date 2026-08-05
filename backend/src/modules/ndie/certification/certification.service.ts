@@ -4,6 +4,8 @@ import { NDIE_GOLDEN_CORPUS_VERSION, NDIE_GOLDEN_FIXTURES, type NdieGoldenFixtur
 import { realGoldenCorpusBenchmarkRunner, realGoldenCorpusRegressionRunner, realGoldenCorpusRepository } from "./golden-corpus/repository.js";
 import { realExamCertificationService } from "./real-exam-certification.service.js";
 import { realFileBaselineService } from "./real-file-baseline.service.js";
+import { realCertificationReportService } from "./real-certification-report.service.js";
+import { realLaunchGateService } from "./real-launch-gate.service.js";
 
 export type NdieCertificationMetric =
   | "ocrAccuracy"
@@ -268,6 +270,8 @@ export const certificationService = {
   realCorpusRegression: realGoldenCorpusRegressionRunner,
   realExamCertification: realExamCertificationService,
   realFileBaseline: realFileBaselineService,
+  realCertificationReport: realCertificationReportService,
+  realLaunchGate: realLaunchGateService,
   reports: certificationReportGenerator,
 
   certify(input: CertificationRunInput = {}) {
@@ -308,6 +312,8 @@ export const certificationService = {
     const lastBenchmark = realGoldenCorpusBenchmarkRunner.run({ fullCorpus: true });
     const realExamCertification = realExamCertificationService.run();
     const realFileBaseline = realFileBaselineService.run();
+    const realCertificationReport = realCertificationReportService.run();
+    const realLaunchGate = realLaunchGateService.run();
     return {
       status: report.status === "PASS" ? "ready" : "warning",
       certificationVersion,
@@ -348,6 +354,25 @@ export const certificationService = {
         productionCertificationStatus: realFileBaseline.productionCertificationStatus,
         stopRule: realFileBaseline.stopRule,
         evidenceExportCommand: "npm run ndie:evidence:export --workspace backend -- --slot <slot-id> --import <ndie-import-job-id> --write"
+      },
+      realCertificationReport: {
+        version: realCertificationReport.reportVersion,
+        decision: realCertificationReport.decision,
+        productionReadinessScore: realCertificationReport.productionReadinessScore,
+        mathematicsReadinessScore: realCertificationReport.mathematicsReadinessScore,
+        chemistryReadinessScore: realCertificationReport.chemistryReadinessScore,
+        internationalCompetitivenessScore: realCertificationReport.internationalCompetitivenessScore,
+        blockerCount: realCertificationReport.blockers.length,
+        launchRecommendation: realCertificationReport.launchRecommendation
+      },
+      realLaunchGate: {
+        version: realLaunchGate.gateVersion,
+        mode: realLaunchGate.mode,
+        status: realLaunchGate.status,
+        releaseScope: realLaunchGate.releaseScope,
+        failedChecks: realLaunchGate.checks.filter((check) => check.status === "FAIL").length,
+        minimumCertificationScore: realLaunchGateService.minimumCertificationScore,
+        recommendation: realLaunchGate.recommendation
       },
       overallAccuracy: lastQuality?.overall ?? report.scores.overallNdieAccuracy,
       benchmarkSummary: report.benchmarkSummary,
