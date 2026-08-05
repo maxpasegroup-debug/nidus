@@ -4,14 +4,12 @@ import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { usePathname } from "next/navigation";
 import {
-  ArrowLeft,
   BookOpen,
   CalendarDays,
   ChevronDown,
   ChevronUp,
   Dumbbell,
   Laptop,
-  MapPin,
   Medal,
   Pencil,
   Plus,
@@ -43,7 +41,6 @@ import {
 
 type DeliveryMode = "OFFLINE" | "ONLINE";
 type ProgramCategoryKey = "aissee-rimc" | "nda" | "cds-afcat" | "agniveer" | "ssb" | "medical" | "technical" | "other";
-type ViewStep = "categories" | "modes" | "programs";
 
 type ProgramCategory = {
   key: ProgramCategoryKey;
@@ -231,8 +228,7 @@ export default function DirectorProgramsPage() {
   const pathname = usePathname();
   const isAcademicHeadPath = (pathname ?? "").includes("/dashboard/academic-head/");
   const hiddenTemplateStorageKey = isAcademicHeadPath ? "academicHeadHiddenProgramTemplates" : "academyHiddenProgramTemplates";
-  const [step, setStep] = useState<ViewStep>("categories");
-  const [selectedCategoryKey, setSelectedCategoryKey] = useState<ProgramCategoryKey | null>(null);
+  const [selectedCategoryKey, setSelectedCategoryKey] = useState<ProgramCategoryKey>("nda");
   const [selectedMode, setSelectedMode] = useState<DeliveryMode | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(defaultCourseForm);
@@ -264,15 +260,15 @@ export default function DirectorProgramsPage() {
     return orderedCourses([...databaseCourses, ...missingFinalPrograms]);
   }, [coursesQuery.data, hiddenTemplateSlugs]);
 
-  const selectedCategory = programCategories.find((category) => category.key === selectedCategoryKey) ?? null;
-  const categoryCourses = selectedCategory ? courses.filter((course) => categoryForCourse(course).key === selectedCategory.key) : [];
+  const selectedCategory = programCategories.find((category) => category.key === selectedCategoryKey) ?? programCategories[0];
+  const categoryCourses = courses.filter((course) => categoryForCourse(course).key === selectedCategory.key);
   const visibleCategories = programCategories
     .map((category) => {
       const items = courses.filter((course) => categoryForCourse(course).key === category.key);
       return { ...category, courses: items };
     })
     .filter((category) => category.courses.length || category.key !== "other");
-  const selectedPrograms = selectedMode ? categoryCourses.filter((course) => visibleForMode(course, selectedMode)) : [];
+  const selectedPrograms = selectedMode ? categoryCourses.filter((course) => visibleForMode(course, selectedMode)) : categoryCourses;
   const totalPrograms = courses.length;
   const offlineCount = courses.filter((course) => visibleForMode(course, "OFFLINE")).length;
   const onlineCount = courses.filter((course) => visibleForMode(course, "ONLINE")).length;
@@ -284,53 +280,26 @@ export default function DirectorProgramsPage() {
     setShowForm(false);
   };
 
-  const openCategory = (categoryKey: ProgramCategoryKey) => {
-    setSelectedCategoryKey(categoryKey);
-    setSelectedMode(null);
-    resetForm();
-    setStep("modes");
-  };
-
-  const openMode = (mode: DeliveryMode) => {
-    setSelectedMode(mode);
-    resetForm();
-    setStep("programs");
-  };
-
-  const backToCategories = () => {
-    setSelectedCategoryKey(null);
-    setSelectedMode(null);
-    resetForm();
-    setStep("categories");
-  };
-
-  const backToModes = () => {
-    setSelectedMode(null);
-    resetForm();
-    setStep("modes");
-  };
-
   const startCreate = () => {
-    const categoryTitle = selectedCategory?.title ?? "NIDUS Academy";
     setEditingCourse(null);
     setForm({
       ...defaultCourseForm,
-      category: categoryTitle,
-      examType: selectedCategory?.shortTitle ?? "Academy Program",
+      category: selectedCategory.title,
+      examType: selectedCategory.shortTitle,
     });
     setShowForm(true);
   };
 
   const startQuickCreate = () => {
-    const fallbackCategory = selectedCategoryKey ?? "other";
-    setSelectedCategoryKey(fallbackCategory);
     setSelectedMode(selectedMode ?? "OFFLINE");
-    setStep("programs");
-    setTimeout(startCreate, 0);
+    startCreate();
   };
 
   const startModify = (course: Course) => {
     const meta = parseCourseDescription(course);
+    if (meta.deliveryMode === "OFFLINE" || meta.deliveryMode === "ONLINE") {
+      setSelectedMode(meta.deliveryMode);
+    }
     setEditingCourse(course);
     setShowForm(true);
     setForm({
@@ -433,7 +402,7 @@ export default function DirectorProgramsPage() {
         title="Programs"
         description="Add, edit, remove and organize academy programs from one simple page."
         action={
-          <AcademicActionButton onClick={step === "programs" ? startCreate : startQuickCreate}>
+          <AcademicActionButton onClick={startQuickCreate}>
             <Plus className="h-4 w-4" />
             Add Program
           </AcademicActionButton>
@@ -447,131 +416,63 @@ export default function DirectorProgramsPage() {
         <StatCard label="Planners" value={plannerCount} />
       </section>
 
-      <Panel title="Manage Programs" eyebrow="Start Here">
-        <div className="grid gap-3 md:grid-cols-3">
-          <button
-            type="button"
-            onClick={startQuickCreate}
-            className="group rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-          >
-            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--navy)] text-white">
-              <Plus className="h-5 w-5" />
-            </span>
-            <h3 className="mt-5 text-xl font-black">Add Program</h3>
-            <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">Create a new course or program and choose online or offline delivery.</p>
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setStep("categories");
-              resetForm();
-            }}
-            className="group rounded-2xl border border-[var(--border)] bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:shadow-md"
-          >
-            <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--border)] bg-white">
-              <Pencil className="h-5 w-5 text-[var(--navy)]" />
-            </span>
-            <h3 className="mt-5 text-xl font-black">Edit Existing</h3>
-            <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">Open a category below, then use Modify or Delete on the program card.</p>
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setStep("categories");
-              resetForm();
-            }}
-            className="group rounded-2xl border border-[var(--border)] bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:shadow-md"
-          >
-            <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--border)] bg-white">
-              <CalendarDays className="h-5 w-5 text-[var(--navy)]" />
-            </span>
-            <h3 className="mt-5 text-xl font-black">Planner</h3>
-            <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">Planner is optional syllabus setup inside each program. It is not the first step.</p>
-          </button>
-        </div>
-      </Panel>
-
-      {step === "categories" ? (
-        <Panel title="Program Categories" eyebrow="Step 1">
-          {coursesQuery.isLoading ? <EmptyState text="Loading program categories..." /> : null}
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <Panel title={`${selectedCategory.title} Programs`} eyebrow="Live Programs">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap gap-2">
             {visibleCategories.map((category) => {
               const Icon = category.icon;
-              const offline = category.courses.filter((course) => visibleForMode(course, "OFFLINE")).length;
-              const online = category.courses.filter((course) => visibleForMode(course, "ONLINE")).length;
+              const selected = selectedCategory.key === category.key;
               return (
                 <button
                   key={category.key}
                   type="button"
-                  onClick={() => openCategory(category.key)}
-                  className="group min-h-44 rounded-2xl border border-[var(--border)] bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:bg-[var(--gold-soft)] hover:shadow-md"
+                  onClick={() => {
+                    setSelectedCategoryKey(category.key);
+                    resetForm();
+                  }}
+                  className={`inline-flex min-h-10 items-center gap-2 rounded-xl border px-3 py-2 text-sm font-black transition ${
+                    selected
+                      ? "border-[var(--gold-border)] bg-[var(--gold-soft)] text-[var(--navy)] shadow-sm"
+                      : "border-[var(--border)] bg-white text-[var(--muted-blue)] hover:border-[var(--gold-border)]"
+                  }`}
                 >
-                  <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)]">
-                    <Icon className="h-5 w-5 text-[var(--navy)]" />
-                  </span>
-                  <h3 className="mt-7 text-xl font-black leading-tight">{category.title}</h3>
-                  <p className="mt-2 min-h-10 text-sm leading-5 text-[var(--muted-blue)]">{category.description}</p>
-                  <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-black">
-                    <span className="rounded-full border border-[var(--border)] bg-white px-2.5 py-1">{category.courses.length} total</span>
-                    <span className="rounded-full border border-[var(--border)] bg-white px-2.5 py-1">{offline} offline</span>
-                    <span className="rounded-full border border-[var(--border)] bg-white px-2.5 py-1">{online} online</span>
-                  </div>
+                  <Icon className="h-4 w-4" />
+                  {category.shortTitle}
+                  <span className="rounded-full bg-white px-2 py-0.5 text-[10px]">{category.courses.length}</span>
                 </button>
               );
             })}
           </div>
-        </Panel>
-      ) : null}
-
-      {step === "modes" && selectedCategory ? (
-        <Panel title={selectedCategory.title} eyebrow="Step 2">
-          <div className="mb-3">
-            <button type="button" onClick={backToCategories} className="inline-flex items-center gap-2 text-sm font-black text-[var(--navy)]">
-              <ArrowLeft className="h-4 w-4" />
-              Program Categories
-            </button>
-          </div>
-          <div className="grid gap-3 md:grid-cols-2">
-            {(["OFFLINE", "ONLINE"] as DeliveryMode[]).map((mode) => {
-              const Icon = mode === "OFFLINE" ? MapPin : Laptop;
-              const count = categoryCourses.filter((course) => visibleForMode(course, mode)).length;
+          <div className="flex flex-wrap gap-2">
+            {[
+              { label: "All", value: null },
+              { label: "Offline", value: "OFFLINE" as DeliveryMode },
+              { label: "Online", value: "ONLINE" as DeliveryMode },
+            ].map((mode) => {
+              const selected = selectedMode === mode.value;
               return (
                 <button
-                  key={mode}
+                  key={mode.label}
                   type="button"
-                  onClick={() => openMode(mode)}
-                  className="group min-h-48 rounded-2xl border border-[var(--border)] bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:bg-[var(--gold-soft)] hover:shadow-md"
+                  onClick={() => setSelectedMode(mode.value)}
+                  className={`min-h-10 rounded-xl border px-3 py-2 text-sm font-black transition ${
+                    selected ? "border-[var(--navy)] bg-[var(--navy)] text-white" : "border-[var(--border)] bg-white hover:border-[var(--gold-border)]"
+                  }`}
                 >
-                  <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)]">
-                    <Icon className="h-5 w-5 text-[var(--navy)]" />
-                  </span>
-                  <h3 className="mt-8 text-2xl font-black">{selectedCategory.shortTitle} {modeLabel(mode)}</h3>
-                  <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">Open, add, modify or remove {modeLabel(mode).toLowerCase()} programs in this category.</p>
-                  <span className="mt-5 inline-flex rounded-full border border-[var(--border)] bg-white px-3 py-1 text-xs font-black">{count} program(s)</span>
+                  {mode.label}
                 </button>
               );
             })}
+            <AcademicActionButton onClick={startCreate}>
+              <Plus className="h-4 w-4" />
+              Add
+            </AcademicActionButton>
           </div>
-        </Panel>
-      ) : null}
-
-      {step === "programs" && selectedCategory && selectedMode ? (
-        <>
-          <Panel title={`${selectedCategory.shortTitle} ${modeLabel(selectedMode)} Programs`} eyebrow="Step 3">
-            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-              <button type="button" onClick={backToModes} className="inline-flex items-center gap-2 text-sm font-black text-[var(--navy)]">
-                <ArrowLeft className="h-4 w-4" />
-                {selectedCategory.title}
-              </button>
-              <AcademicActionButton onClick={startCreate}>
-                <Plus className="h-4 w-4" />
-                Add Program
-              </AcademicActionButton>
-            </div>
+        </div>
 
             {!selectedPrograms.length ? (
               <EmptyState
-                text={`No ${modeLabel(selectedMode).toLowerCase()} programs are available in ${selectedCategory.title} yet.`}
+                text={`No ${selectedMode ? modeLabel(selectedMode).toLowerCase() : "live"} programs are available in ${selectedCategory.title} yet.`}
                 action={
                   <AcademicActionButton onClick={startCreate}>
                     <Plus className="h-4 w-4" />
@@ -581,31 +482,33 @@ export default function DirectorProgramsPage() {
               />
             ) : null}
 
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {coursesQuery.isLoading ? <EmptyState text="Loading live programs..." /> : null}
+
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               {selectedPrograms.map((course) => {
                 const meta = parseCourseDescription(course);
                 const isTemplate = course.id.startsWith("template-");
                 const totals = plannerTotals(meta.academicPlanner);
                 return (
-                  <article key={course.id} className="rounded-2xl border border-[var(--border)] bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:shadow-md">
+                  <article key={course.id} className="rounded-xl border border-[var(--border)] bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:shadow-md">
                     <div className="flex items-start gap-3">
-                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[var(--gold-soft)]">
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--gold-soft)]">
                         <BookOpen className="h-5 w-5 text-[var(--navy)]" />
                       </span>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-start justify-between gap-2">
                           <h3 className="line-clamp-2 text-base font-black leading-5">{course.title}</h3>
-                          <span className="shrink-0 rounded-full border border-[var(--border)] px-2 py-0.5 text-[9px] font-black">
-                            {isTemplate ? "Template" : "Active"}
+                          <span className="shrink-0 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[9px] font-black text-emerald-700">
+                            Live
                           </span>
                         </div>
-                        <p className="mt-1 line-clamp-2 text-xs leading-5 text-[var(--muted-blue)]">{meta.summary}</p>
+                        <p className="mt-1 line-clamp-1 text-xs leading-5 text-[var(--muted-blue)]">{meta.summary}</p>
                       </div>
                     </div>
                     <div className="mt-3 flex flex-wrap gap-1.5">
                       <span className="rounded-full border border-[var(--border)] bg-white px-2 py-0.5 text-[10px] font-black">{course.duration}</span>
                       <span className="rounded-full border border-[var(--border)] bg-white px-2 py-0.5 text-[10px] font-black">Rs {course.price}</span>
-                      <span className="rounded-full border border-[var(--border)] bg-white px-2 py-0.5 text-[10px] font-black">{course.examType}</span>
+                      <span className="rounded-full border border-[var(--border)] bg-white px-2 py-0.5 text-[10px] font-black">{meta.deliveryMode ?? "Both"}</span>
                       <span className="rounded-full border border-[var(--border)] bg-white px-2 py-0.5 text-[10px] font-black">
                         {meta.academicPlanner ? `${totals.sessions} sessions` : "Planner pending"}
                       </span>
@@ -642,7 +545,7 @@ export default function DirectorProgramsPage() {
                 );
               })}
             </div>
-          </Panel>
+      </Panel>
 
           {showForm ? (
             <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/45 px-4 py-6 backdrop-blur-sm">
@@ -650,7 +553,9 @@ export default function DirectorProgramsPage() {
                 <div className="mb-4 flex items-start justify-between gap-3">
                   <div>
                     <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[var(--gold)]">{editingCourse ? "Edit Program" : "New Program"}</p>
-                    <h2 className="mt-1 text-xl font-black text-[var(--navy)]">{editingCourse ? `Modify ${editingCourse.title}` : `Add ${selectedCategory.shortTitle} ${modeLabel(selectedMode)} Program`}</h2>
+                    <h2 className="mt-1 text-xl font-black text-[var(--navy)]">
+                      {editingCourse ? `Modify ${editingCourse.title}` : `Add ${selectedCategory.shortTitle} ${modeLabel(selectedMode ?? "OFFLINE")} Program`}
+                    </h2>
                   </div>
                   <button type="button" onClick={resetForm} className="icon-button h-10 w-10 rounded-xl border border-[var(--border)] bg-white" aria-label="Close program editor">
                     <X className="h-4 w-4" />
@@ -667,7 +572,7 @@ export default function DirectorProgramsPage() {
                     <option value="false">No</option>
                     <option value="true">Yes</option>
                   </Select>
-                  <Select label="Delivery" value={selectedMode} onChange={(value) => setSelectedMode(value as DeliveryMode)} disabled={Boolean(editingCourse)}>
+                  <Select label="Delivery" value={selectedMode ?? "OFFLINE"} onChange={(value) => setSelectedMode(value as DeliveryMode)} disabled={Boolean(editingCourse)}>
                     <option value="OFFLINE">Offline</option>
                     <option value="ONLINE">Online</option>
                   </Select>
@@ -733,8 +638,6 @@ export default function DirectorProgramsPage() {
               </section>
             </div>
           ) : null}
-        </>
-      ) : null}
     </AcademicShell>
   );
 }
