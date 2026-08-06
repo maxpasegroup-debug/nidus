@@ -4,9 +4,8 @@ import { FormEvent, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { BadgeIndianRupee, BarChart3, CalendarDays, FileText, PhoneCall, Printer, ReceiptText, Search, UserRound, WalletCards } from "lucide-react";
+import { BadgeIndianRupee, BarChart3, BrainCircuit, CalendarDays, FileText, PhoneCall, Printer, ReceiptText, Search, UserRound, WalletCards } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { WorkspaceDashboard } from "@/components/dashboard/workspace-dashboard";
 import { generateInvoice, getFees, getInvoices, getPaymentAnalytics } from "@/services/payments";
 import type { FeeInstallment, Invoice } from "@/types/payments";
 
@@ -67,8 +66,8 @@ export default function DirectorAccountsPage() {
   const invoicesQuery = useQuery({ queryKey: ["finance", "invoices", "director-accounts"], queryFn: getInvoices });
 
   const analytics = analyticsQuery.data;
-  const fees = feesQuery.data ?? [];
-  const invoices = invoicesQuery.data ?? [];
+  const fees = useMemo(() => feesQuery.data ?? [], [feesQuery.data]);
+  const invoices = useMemo(() => invoicesQuery.data ?? [], [invoicesQuery.data]);
   const pendingFees = fees.filter((fee) => fee.paidStatus !== "PAID");
   const overdueFees = pendingFees.filter((fee) => new Date(fee.dueDate) < new Date());
   const openReceipts = invoices.filter((invoice) => invoice.status !== "PAID");
@@ -138,49 +137,40 @@ export default function DirectorAccountsPage() {
     window.setTimeout(() => window.print(), 50);
   }
 
-  return (
-    <WorkspaceDashboard
-      roleTitle="Accounts Workspace"
-      greeting="Today's Collections"
-      notificationHref="/dashboard/director/notifications"
-      subtitle="Simple finance desk for collection, pending dues, receipts and reports."
-      focus={[
-        { label: "Collected", title: money(monthlyRevenue), detail: "Current monthly revenue from payment analytics.", href: "/dashboard/director/accounts?tab=overview", icon: BadgeIndianRupee, tone: "success" },
-        { label: "Pending Dues", title: money(pendingDues), detail: `${pendingFees.length} open fee record(s).`, href: "/dashboard/director/accounts?tab=dues", icon: CalendarDays, tone: pendingFees.length ? "warning" : "success" },
-        { label: "Receipts", title: `${openReceipts.length} open`, detail: "Generated invoices and receipt records.", href: "/dashboard/director/accounts?tab=receipts", icon: ReceiptText, tone: openReceipts.length ? "info" : "success" },
-      ]}
-      actions={[
-        { label: "Collect Fee", href: "/dashboard/director/accounts?tab=collect", icon: WalletCards },
-        { label: "Pending Dues", href: "/dashboard/director/accounts?tab=dues", icon: CalendarDays },
-        { label: "Receipts", href: "/dashboard/director/accounts?tab=receipts", icon: ReceiptText },
-        { label: "Reports", href: "/dashboard/director/accounts?tab=reports", icon: BarChart3 },
-      ]}
-      metrics={[
-        { label: "Monthly Revenue", value: money(monthlyRevenue) },
-        { label: "Pending Dues", value: money(pendingDues), tone: pendingDues ? "warning" : "success" },
-        { label: "Overdue Students", value: overdueFees.length, tone: overdueFees.length ? "warning" : "success" },
-        { label: "Receipts Generated", value: invoices.length },
-      ]}
-      activity={invoices.slice(0, 5).map((invoice) => ({ title: invoice.invoiceNumber, detail: studentLabel(invoice.student, invoice.studentId), meta: invoice.status, href: "/dashboard/director/accounts?tab=receipts" }))}
-      upcoming={pendingFees.slice(0, 5).map((fee) => ({ title: fee.title, detail: `${studentLabel(fee.student, fee.studentId)} / due ${new Date(fee.dueDate).toLocaleDateString()}`, meta: money(fee.dueAmount ?? fee.amount), href: "/dashboard/director/accounts?tab=dues" }))}
-    >
-      <section className="mx-auto flex w-full max-w-[1500px] flex-col gap-4">
-        <section className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
-          <div className="grid gap-3 md:grid-cols-4">
-            <AccountMetric label="Today collected" value={money(analytics?.dailyRevenue ?? 0)} />
-            <AccountMetric label="Pending dues" value={money(pendingDues)} />
-            <AccountMetric label="Overdue students" value={overdueFees.length} tone={overdueFees.length ? "warning" : "success"} />
-            <AccountMetric label="Receipts generated" value={invoices.length} />
-          </div>
-        </section>
+  const aiInsight = pendingDues
+    ? overdueFees.length
+      ? `${overdueFees.length} overdue student(s) need first attention.`
+      : `${pendingFees.length} pending due record(s) are open.`
+    : openReceipts.length
+      ? `${openReceipts.length} receipt(s) are open for confirmation.`
+      : "Accounts look clear for today.";
 
-        <section className="grid gap-2 md:grid-cols-5">
+  return (
+    <main className="h-[calc(100vh-96px)] overflow-hidden bg-[var(--page-bg)] px-4 py-4 text-[var(--navy)] md:px-5">
+      <section className="mx-auto flex h-full max-w-[1500px] flex-col gap-3">
+        <header className="shrink-0 rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
+          <div className="grid gap-3 xl:grid-cols-[1fr_680px] xl:items-center">
+            <div>
+              <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[var(--gold)]">Director Accounts</p>
+              <h1 className="mt-1 text-2xl font-black md:text-3xl">Accounts Control</h1>
+              <p className="mt-1 text-sm text-[var(--muted-blue)]">Collections, dues, receipts, reports and AI support in one simple desk.</p>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-4">
+              <AccountMetric label="Today" value={money(analytics?.dailyRevenue ?? 0)} />
+              <AccountMetric label="Pending" value={money(pendingDues)} tone={pendingDues ? "warning" : "success"} />
+              <AccountMetric label="Overdue" value={overdueFees.length} tone={overdueFees.length ? "warning" : "success"} />
+              <AccountMetric label="Receipts" value={invoices.length} />
+            </div>
+          </div>
+        </header>
+
+        <section className="grid shrink-0 gap-2 md:grid-cols-5">
           {tabs.map((item) => (
             <button
               key={item.id}
               type="button"
               onClick={() => setTab(item.id)}
-              className={`inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border px-3 text-sm font-black transition hover:border-[var(--gold-border)] ${tab === item.id ? "border-[var(--gold-border)] bg-[var(--gold-soft)] text-[var(--navy)]" : "border-[var(--border)] bg-white text-[var(--muted-blue)]"}`}
+              className={`inline-flex min-h-14 items-center justify-center gap-2 rounded-xl border px-3 text-sm font-black transition hover:border-[var(--gold-border)] ${tab === item.id ? "border-[var(--gold-border)] bg-[var(--gold-soft)] text-[var(--navy)] shadow-sm" : "border-[var(--border)] bg-white text-[var(--muted-blue)]"}`}
             >
               <item.icon className="h-4 w-4" />
               {item.label}
@@ -188,124 +178,141 @@ export default function DirectorAccountsPage() {
           ))}
         </section>
 
-        {notice ? <div className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] px-3 py-2 text-sm font-bold text-[var(--navy)]">{notice}</div> : null}
+        {notice ? <div className="shrink-0 rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)] px-3 py-2 text-sm font-bold text-[var(--navy)]">{notice}</div> : null}
 
-        {tab === "overview" ? (
-          <section className="grid gap-3 lg:grid-cols-[0.9fr_1.1fr]">
-            <Panel id="overview-actions" title="Quick Actions" eyebrow="Accounts desk">
-              <div className="grid gap-2 sm:grid-cols-2">
-                <QuickAction icon={WalletCards} title="Collect Fee" detail="Search student and generate receipt." onClick={() => setTab("collect")} />
-                <QuickAction icon={CalendarDays} title="Pending Dues" detail={`${pendingFees.length} open fee record(s).`} onClick={() => setTab("dues")} />
-                <QuickAction icon={ReceiptText} title="Receipts" detail={`${invoices.length} receipt record(s).`} onClick={() => setTab("receipts")} />
-                <QuickAction icon={BarChart3} title="Reports" detail="Daily, due and monthly summaries." onClick={() => setTab("reports")} />
-              </div>
-            </Panel>
-            <Panel id="overview-pressure" title="Collection Pressure" eyebrow="Today">
-              <div className="grid max-h-[48vh] gap-2 overflow-y-auto pr-1">
-                {pendingFees.slice(0, 8).map((fee) => <FinanceRow key={fee.id} title={fee.title} meta={`${studentLabel(fee.student, fee.studentId)} / due ${new Date(fee.dueDate).toLocaleDateString()}`} amount={fee.dueAmount ?? fee.amount} status={fee.paidStatus} />)}
-                {!pendingFees.length ? <Empty text="No pending dues are visible." icon={BadgeIndianRupee} /> : null}
-              </div>
-            </Panel>
-          </section>
-        ) : null}
-
-        {tab === "collect" ? (
-          <section className="grid gap-3 lg:grid-cols-[0.9fr_1.1fr]">
-            <Panel id="collect-fee" title="Collect Fee" eyebrow="Student search">
-              <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-3">
-                <label className="grid gap-2 text-sm font-black">
-                  Search student by name, mobile, email or ID
-                  <div className="flex min-h-12 items-center gap-2 rounded-xl border border-[var(--border)] bg-white px-3">
-                    <Search className="h-4 w-4 text-[var(--gold)]" />
-                    <input value={studentSearch} onChange={(event) => setStudentSearch(event.target.value)} className="min-h-10 flex-1 bg-transparent text-sm font-semibold outline-none" placeholder="Type student name or mobile" />
+        <section className="grid min-h-0 flex-1 gap-3 xl:grid-cols-[1fr_340px]">
+          <section className="min-h-0 rounded-2xl border border-[var(--border)] bg-white p-3 shadow-sm md:p-4">
+            {tab === "overview" ? (
+              <div className="grid h-full min-h-0 gap-3 lg:grid-cols-[0.9fr_1.1fr]">
+                <Panel id="overview-actions" title="Quick Actions" eyebrow="Start here">
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    <QuickAction icon={WalletCards} title="Collect Fee" detail="Search student and save receipt." onClick={() => setTab("collect")} />
+                    <QuickAction icon={CalendarDays} title="Pending Dues" detail={`${pendingFees.length} open due record(s).`} onClick={() => setTab("dues")} />
+                    <QuickAction icon={ReceiptText} title="Receipts" detail={`${invoices.length} receipt record(s).`} onClick={() => setTab("receipts")} />
+                    <QuickAction icon={BarChart3} title="Reports" detail="Daily and monthly summaries." onClick={() => setTab("reports")} />
                   </div>
-                </label>
-                <div className="mt-3 grid max-h-64 gap-2 overflow-y-auto">
-                  {filteredStudents.map((student) => (
-                    <button key={student.id} type="button" onClick={() => { setSelectedStudentId(student.id); setStudentSearch(studentLabel(student)); }} className={`rounded-xl border p-3 text-left text-sm transition hover:border-[var(--gold-border)] ${selectedStudentId === student.id ? "border-[var(--gold-border)] bg-[var(--gold-soft)]" : "border-[var(--border)] bg-white"}`}>
-                      <span className="font-black">{student.name}</span>
-                      <span className="mt-1 block text-xs text-[var(--muted-blue)]">{[student.mobile, student.email, student.id].filter(Boolean).join(" / ")}</span>
+                </Panel>
+                <Panel id="overview-pressure" title="Fee Attention" eyebrow="AI priority">
+                  <div className="grid max-h-full gap-2 overflow-y-auto pr-1">
+                    {pendingFees.slice(0, 7).map((fee) => <FinanceRow key={fee.id} title={fee.title} meta={`${studentLabel(fee.student, fee.studentId)} / due ${new Date(fee.dueDate).toLocaleDateString()}`} amount={fee.dueAmount ?? fee.amount} status={fee.paidStatus} />)}
+                    {!pendingFees.length ? <Empty text="No pending dues are visible." icon={BadgeIndianRupee} /> : null}
+                  </div>
+                </Panel>
+              </div>
+            ) : null}
+
+            {tab === "collect" ? (
+              <div className="grid h-full min-h-0 gap-3 lg:grid-cols-[0.9fr_1.1fr]">
+                <Panel id="collect-fee" title="Collect Fee" eyebrow="Student search">
+                  <label className="grid gap-2 text-sm font-black">
+                    Search student
+                    <div className="flex min-h-11 items-center gap-2 rounded-xl border border-[var(--border)] bg-white px-3">
+                      <Search className="h-4 w-4 text-[var(--gold)]" />
+                      <input value={studentSearch} onChange={(event) => setStudentSearch(event.target.value)} className="min-h-9 flex-1 bg-transparent text-sm font-semibold outline-none" placeholder="Name, mobile, email or ID" />
+                    </div>
+                  </label>
+                  <div className="mt-3 grid max-h-[calc(100vh-430px)] gap-2 overflow-y-auto pr-1">
+                    {filteredStudents.map((student) => (
+                      <button key={student.id} type="button" onClick={() => { setSelectedStudentId(student.id); setStudentSearch(studentLabel(student)); }} className={`rounded-xl border p-3 text-left text-sm transition hover:border-[var(--gold-border)] ${selectedStudentId === student.id ? "border-[var(--gold-border)] bg-[var(--gold-soft)]" : "border-[var(--border)] bg-white"}`}>
+                        <span className="font-black">{student.name}</span>
+                        <span className="mt-1 block truncate text-xs text-[var(--muted-blue)]">{[student.mobile, student.email, student.id].filter(Boolean).join(" / ")}</span>
+                      </button>
+                    ))}
+                    {!filteredStudents.length ? <Empty text="No matching finance student record found." icon={UserRound} /> : null}
+                  </div>
+                </Panel>
+
+                <Panel id="receipt-form" title="Receipt Details" eyebrow="Generate">
+                  <form onSubmit={submitCollection} className="grid gap-3">
+                    <div className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3">
+                      <p className="text-xs font-black uppercase tracking-[0.18em] text-[var(--gold)]">Selected student</p>
+                      <p className="mt-1 font-black">{selectedStudent ? studentLabel(selectedStudent) : "Select a student first"}</p>
+                      {selectedStudentFees.length ? <p className="mt-1 text-sm text-[var(--muted-blue)]">Suggested amount {money(suggestedAmount)}</p> : null}
+                    </div>
+                    <div className="grid gap-3 md:grid-cols-3">
+                      <Field label="Amount" value={collectForm.amount || (suggestedAmount ? String(suggestedAmount) : "")} onChange={(value) => setCollectForm((item) => ({ ...item, amount: value }))} required />
+                      <SelectField label="Mode" value={collectForm.paymentMode} options={["Cash", "UPI", "Bank", "Cheque"]} onChange={(value) => setCollectForm((item) => ({ ...item, paymentMode: value }))} />
+                      <SelectField label="Status" value={collectForm.status} options={["GENERATED", "PAID"]} onChange={(value) => setCollectForm((item) => ({ ...item, status: value }))} />
+                    </div>
+                    <button className="min-h-11 rounded-xl bg-[var(--gold-gradient)] px-4 py-2 text-sm font-black text-[var(--navy)] shadow-sm disabled:opacity-60" disabled={invoiceMutation.isPending}>
+                      {invoiceMutation.isPending ? "Saving..." : "Save Receipt"}
                     </button>
-                  ))}
-                  {!filteredStudents.length ? <Empty text="No matching finance student record found." icon={UserRound} /> : null}
-                </div>
+                  </form>
+                </Panel>
               </div>
-            </Panel>
+            ) : null}
 
-            <Panel id="receipt-form" title="Receipt Details" eyebrow="Generate">
-              <form onSubmit={submitCollection} className="grid gap-3">
-                <div className="rounded-2xl border border-[var(--border)] bg-white p-3">
-                  <p className="text-xs font-black uppercase tracking-[0.18em] text-[var(--gold)]">Selected student</p>
-                  <p className="mt-1 font-black">{selectedStudent ? studentLabel(selectedStudent) : "Select a student from the left"}</p>
-                  {selectedStudentFees.length ? <p className="mt-1 text-sm text-[var(--muted-blue)]">{selectedStudentFees.length} pending fee row(s), suggested amount {money(suggestedAmount)}</p> : null}
+            {tab === "dues" ? (
+              <Panel id="pending-dues" title="Pending Dues" eyebrow="Collection list">
+                <div className="grid max-h-[calc(100vh-360px)] gap-2 overflow-y-auto pr-1">
+                  {pendingFees.map((fee) => <DueRow key={fee.id} fee={fee} onCollect={() => { setSelectedStudentId(fee.studentId); setStudentSearch(studentLabel(fee.student, fee.studentId)); setCollectForm((item) => ({ ...item, amount: String(fee.dueAmount ?? fee.amount) })); setTab("collect"); }} />)}
+                  {!pendingFees.length ? <Empty text="No pending fees recorded." icon={BadgeIndianRupee} /> : null}
                 </div>
-                <div className="grid gap-3 md:grid-cols-3">
-                  <Field label="Amount" value={collectForm.amount || (suggestedAmount ? String(suggestedAmount) : "")} onChange={(value) => setCollectForm((item) => ({ ...item, amount: value }))} required />
-                  <SelectField label="Payment mode" value={collectForm.paymentMode} options={["Cash", "UPI", "Bank", "Cheque"]} onChange={(value) => setCollectForm((item) => ({ ...item, paymentMode: value }))} />
-                  <SelectField label="Receipt status" value={collectForm.status} options={["GENERATED", "PAID"]} onChange={(value) => setCollectForm((item) => ({ ...item, status: value }))} />
+              </Panel>
+            ) : null}
+
+            {tab === "receipts" ? (
+              <Panel id="receipts" title="Receipts" eyebrow="Search and print">
+                <div className="mb-3 flex min-h-11 items-center gap-2 rounded-xl border border-[var(--border)] bg-white px-3">
+                  <Search className="h-4 w-4 text-[var(--gold)]" />
+                  <input value={receiptSearch} onChange={(event) => setReceiptSearch(event.target.value)} className="min-h-9 flex-1 bg-transparent text-sm font-semibold outline-none" placeholder="Search receipt, student, mobile or status" />
                 </div>
-                <button className="min-h-12 rounded-xl bg-[var(--gold-gradient)] px-4 py-2 text-sm font-black text-[var(--navy)] shadow-lg disabled:opacity-60" disabled={invoiceMutation.isPending}>
-                  {invoiceMutation.isPending ? "Saving..." : "Save Receipt"}
-                </button>
-              </form>
-            </Panel>
+                <div className="grid max-h-[calc(100vh-420px)] gap-2 overflow-y-auto pr-1">
+                  {filteredReceipts.map((invoice) => <ReceiptRow key={invoice.id} invoice={invoice} />)}
+                  {!filteredReceipts.length ? <Empty text="No receipts match this search." icon={ReceiptText} /> : null}
+                </div>
+              </Panel>
+            ) : null}
+
+            {tab === "reports" ? (
+              <div className="grid h-full min-h-0 gap-3 lg:grid-cols-[0.75fr_1.25fr]">
+                <Panel id="finance-reports" title="Reports" eyebrow="Simple reports">
+                  <div className="grid gap-2">
+                    {reports.map((report) => (
+                      <button key={report.id} type="button" onClick={() => printReport(report.id)} className={`rounded-xl border p-3 text-left text-sm transition hover:border-[var(--gold-border)] ${activeReport === report.id ? "border-[var(--gold-border)] bg-[var(--gold-soft)]" : "border-[var(--border)] bg-white"}`}>
+                        <FileText className="mb-2 h-4 w-4 text-[var(--gold)]" />
+                        <span className="block font-black">{report.label}</span>
+                        <span className="mt-1 block text-xs leading-5 text-[var(--muted-blue)]">{report.detail}</span>
+                      </button>
+                    ))}
+                  </div>
+                </Panel>
+                <Panel id="finance-report-data" title={reports.find((report) => report.id === activeReport)?.label ?? "Report Data"} eyebrow="Current data">
+                  <div className="mb-3 grid gap-2 md:grid-cols-4">
+                    <AccountMetric label="Rows" value={reportRows.length} />
+                    <AccountMetric label="Amount" value={money(reportRows.reduce((sum, row) => sum + row.amount, 0))} />
+                    <AccountMetric label="Date" value={todayKey()} />
+                    <button type="button" onClick={() => window.print()} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)] px-3 text-sm font-black">
+                      <Printer className="h-4 w-4" />
+                      Print
+                    </button>
+                  </div>
+                  <div className="grid max-h-[calc(100vh-460px)] gap-2 overflow-y-auto pr-1">
+                    {reportRows.map((row) => <FinanceRow key={row.id} title={row.title} meta={row.meta} amount={row.amount} status={row.status} />)}
+                    {!reportRows.length ? <Empty text="No records available for this report." icon={FileText} /> : null}
+                  </div>
+                </Panel>
+              </div>
+            ) : null}
           </section>
-        ) : null}
 
-        {tab === "dues" ? (
-          <Panel id="pending-dues" title="Pending Dues" eyebrow="Collection list">
-            <div className="grid gap-2">
-              {pendingFees.map((fee) => <DueRow key={fee.id} fee={fee} onCollect={() => { setSelectedStudentId(fee.studentId); setStudentSearch(studentLabel(fee.student, fee.studentId)); setCollectForm((item) => ({ ...item, amount: String(fee.dueAmount ?? fee.amount) })); setTab("collect"); }} />)}
-              {!pendingFees.length ? <Empty text="No pending fees recorded." icon={BadgeIndianRupee} /> : null}
-            </div>
-          </Panel>
-        ) : null}
-
-        {tab === "receipts" ? (
-          <Panel id="receipts" title="Receipts" eyebrow="Search and print">
-            <div className="mb-3 flex min-h-12 items-center gap-2 rounded-xl border border-[var(--border)] bg-white px-3">
-              <Search className="h-4 w-4 text-[var(--gold)]" />
-              <input value={receiptSearch} onChange={(event) => setReceiptSearch(event.target.value)} className="min-h-10 flex-1 bg-transparent text-sm font-semibold outline-none" placeholder="Search receipt, student, mobile or status" />
-            </div>
-            <div className="grid gap-2">
-              {filteredReceipts.map((invoice) => <ReceiptRow key={invoice.id} invoice={invoice} />)}
-              {!filteredReceipts.length ? <Empty text="No receipts match this search." icon={ReceiptText} /> : null}
-            </div>
-          </Panel>
-        ) : null}
-
-        {tab === "reports" ? (
-          <section className="grid gap-3 lg:grid-cols-[0.75fr_1.25fr]">
-            <Panel id="finance-reports" title="Reports" eyebrow="Filtered reports">
-              <div className="grid gap-2">
-                {reports.map((report) => (
-                  <button key={report.id} type="button" onClick={() => printReport(report.id)} className={`rounded-2xl border p-3 text-left text-sm transition hover:border-[var(--gold-border)] ${activeReport === report.id ? "border-[var(--gold-border)] bg-[var(--gold-soft)]" : "border-[var(--border)] bg-white"}`}>
-                    <FileText className="mb-2 h-4 w-4 text-[var(--gold)]" />
-                    <span className="block font-black">{report.label}</span>
-                    <span className="mt-1 block text-xs leading-5 text-[var(--muted-blue)]">{report.detail}</span>
-                  </button>
-                ))}
+          <aside className="hidden min-h-0 xl:block">
+            <Panel id="ai-support" title="AI Support" eyebrow="Director help">
+              <div className="rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-3">
+                <BrainCircuit className="h-5 w-5 text-[var(--gold)]" />
+                <p className="mt-3 text-sm font-black">{aiInsight}</p>
+                <p className="mt-2 text-xs leading-5 text-[var(--muted-blue)]">Use this panel for simple finance direction. Technical analytics stay outside the director accounts screen.</p>
+              </div>
+              <div className="mt-3 grid gap-2">
+                <AiHint label="Next action" value={overdueFees.length ? "Open Pending Dues and contact overdue students." : pendingFees.length ? "Collect nearest due payments first." : "No urgent fee action."} />
+                <AiHint label="Receipts" value={openReceipts.length ? "Check open receipts before closing the day." : "Receipt queue is calm."} />
+                <AiHint label="Report" value="Use Reports for print-ready daily or monthly summaries." />
               </div>
             </Panel>
-            <Panel id="finance-report-data" title={reports.find((report) => report.id === activeReport)?.label ?? "Report Data"} eyebrow="Current filtered data">
-              <div className="mb-3 grid gap-2 md:grid-cols-4">
-                <AccountMetric label="Rows" value={reportRows.length} />
-                <AccountMetric label="Amount" value={money(reportRows.reduce((sum, row) => sum + row.amount, 0))} />
-                <AccountMetric label="Date" value={todayKey()} />
-                <button type="button" onClick={() => window.print()} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)] px-3 text-sm font-black">
-                  <Printer className="h-4 w-4" />
-                  Print
-                </button>
-              </div>
-              <div className="grid max-h-[58vh] gap-2 overflow-y-auto pr-1">
-                {reportRows.map((row) => <FinanceRow key={row.id} title={row.title} meta={row.meta} amount={row.amount} status={row.status} />)}
-                {!reportRows.length ? <Empty text="No records available for this report." icon={FileText} /> : null}
-              </div>
-            </Panel>
-          </section>
-        ) : null}
+          </aside>
+        </section>
       </section>
-    </WorkspaceDashboard>
+    </main>
   );
 }
 
@@ -361,6 +368,15 @@ function QuickAction({ icon: Icon, title, detail, onClick }: { icon: LucideIcon;
       <p className="mt-3 font-black">{title}</p>
       <p className="mt-1 text-sm leading-6 text-[var(--muted-blue)]">{detail}</p>
     </button>
+  );
+}
+
+function AiHint({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl border border-[var(--border)] bg-white px-3 py-2">
+      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[var(--gold)]">{label}</p>
+      <p className="mt-1 text-xs font-bold leading-5 text-[var(--muted-blue)]">{value}</p>
+    </div>
   );
 }
 
