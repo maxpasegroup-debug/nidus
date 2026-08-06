@@ -127,23 +127,6 @@ export default function DirectorDashboardPage() {
           </Panel>
         </section>
 
-        <section className="grid gap-4 lg:grid-cols-3">
-          <MiniPanel title="Academic Snapshot" icon={GraduationCap}>
-            <MiniLine label="Active batches" value={activeBatches} />
-            <MiniLine label="Faculty" value={facultyCount} />
-            <MiniLink href="/dashboard/director/academic" label="Open academics" />
-          </MiniPanel>
-          <MiniPanel title="Finance Snapshot" icon={BadgeIndianRupee}>
-            <MiniLine label="Fee alerts" value={pendingFees} />
-            <MiniLine label="Pending review" value={pendingFees ? "Yes" : "No"} />
-            <MiniLink href="/dashboard/director/accounts" label="Open accounts" />
-          </MiniPanel>
-          <MiniPanel title="Communication" icon={Bell}>
-            <MiniLine label="Notifications" value="Ready" />
-            <MiniLine label="Audience" value="Staff / students / parents" />
-            <MiniLink href="/dashboard/director/notifications" label="Send message" />
-          </MiniPanel>
-        </section>
       </section>
     </main>
   );
@@ -229,37 +212,6 @@ function ModuleTile({ module }: { module: { title: string; detail: string; href:
         <span className="block text-sm font-black">{module.title}</span>
         <span className="mt-1 block text-xs leading-5 text-[var(--muted-blue)]">{module.detail}</span>
       </span>
-    </Link>
-  );
-}
-
-function MiniPanel({ children, icon: Icon, title }: { children: ReactNode; icon: LucideIcon; title: string }) {
-  return (
-    <section className="rounded-2xl border border-[var(--border)] bg-white/95 p-4 shadow-sm">
-      <div className="flex items-center gap-3">
-        <span className="grid h-10 w-10 place-items-center rounded-xl bg-[var(--gold-soft)]">
-          <Icon className="h-5 w-5" />
-        </span>
-        <h2 className="font-black">{title}</h2>
-      </div>
-      <div className="mt-4 grid gap-2">{children}</div>
-    </section>
-  );
-}
-
-function MiniLine({ label, value }: { label: string; value: string | number }) {
-  return (
-    <div className="flex items-center justify-between gap-3 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-2">
-      <span className="text-sm font-bold text-[var(--muted-blue)]">{label}</span>
-      <span className="text-sm font-black">{value}</span>
-    </div>
-  );
-}
-
-function MiniLink({ href, label }: { href: string; label: string }) {
-  return (
-    <Link href={href} className="mt-1 inline-flex min-h-10 items-center justify-center rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm font-black hover:border-[var(--gold-border)]">
-      {label}
     </Link>
   );
 }

@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Archive, CalendarDays, GraduationCap, Pencil, Plus, Search, UserCheck, Users, X } from "lucide-react";
-import { createAcademyBatch, getAcademyBatches, getStudentProgressSummary, updateAcademyBatch } from "@/services/academy";
+import { CalendarDays, GraduationCap, Plus, Search, UserCheck, Users, X } from "lucide-react";
+import { createAcademyBatch, getAcademyBatches, getStudentProgressSummary } from "@/services/academy";
 import { getApiErrorMessage } from "@/services/api";
 import { allAcademyPrograms } from "@/data/academy-programs";
 import { useCourses } from "@/hooks/use-courses";
@@ -40,7 +40,6 @@ export default function DirectorBatchesPage() {
   const queryClient = useQueryClient();
   const [notice, setNotice] = useState("");
   const [showCreate, setShowCreate] = useState(false);
-  const [selectedBatchId, setSelectedBatchId] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [programFilter, setProgramFilter] = useState("ALL");
   const [form, setForm] = useState({
@@ -90,7 +89,6 @@ export default function DirectorBatchesPage() {
     const matchesProgram = programFilter === "ALL" || (batch.programSlug || inferProgram(batch)).toLowerCase().includes(programFilter.toLowerCase());
     return matchesSearch && matchesProgram;
   });
-  const selectedBatch = activeBatches.find((batch) => batch.id === selectedBatchId) ?? visibleBatches[0] ?? activeBatches[0] ?? null;
   const totalStudents = batches.reduce((count, batch) => count + (batch._count?.students ?? batch.students?.length ?? 0), 0);
   const totalTeachers = batches.reduce((count, batch) => count + (batch._count?.teachers ?? batch.teachers?.length ?? 0), 0);
   const selectedCourse = courseForProgram(courses, form.programSlug, form.programType);
@@ -129,15 +127,6 @@ export default function DirectorBatchesPage() {
     },
     onError: (error) => setNotice(error instanceof Error ? error.message : "Could not create batch."),
   });
-  const archiveBatch = useMutation({
-    mutationFn: (batchId: string) => updateAcademyBatch(batchId, { status: "ARCHIVED" }),
-    onSuccess: () => {
-      void refresh();
-      setNotice("Batch archived. It will auto-delete after 30 days. Students, courses, admissions and payments remain safe.");
-    },
-    onError: (error) => setNotice(error instanceof Error ? error.message : "Could not archive batch."),
-  });
-
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const program = programOptions.find((item) => item.slug === form.programSlug);
@@ -241,113 +230,38 @@ export default function DirectorBatchesPage() {
           </AcademicActionButton>
         </div>
 
-        <section className="grid gap-3 xl:grid-cols-[1.15fr_0.85fr]">
-          <div>
-            {batchesQuery.isLoading ? <EmptyState text="Loading live batches." /> : null}
-            {!batchesQuery.isLoading && !activeBatches.length ? <EmptyState text="No live batches found. Create a new batch." /> : null}
-            {!batchesQuery.isLoading && activeBatches.length && !visibleBatches.length ? <EmptyState text="No batches match this search." /> : null}
-            <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
-              {visibleBatches.map((batch) => {
-                const progress = progressCards.find((item) => item.batchId === batch.id);
-                const readiness = batchReadiness(batch, progress);
-                const selected = selectedBatch?.id === batch.id;
-                return (
-                  <button
-                    key={batch.id}
-                    type="button"
-                    onClick={() => setSelectedBatchId(batch.id)}
-                    className={`rounded-xl border bg-white p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:shadow-md ${
-                      selected ? "border-[var(--gold-border)] bg-[var(--gold-soft)]" : "border-[var(--border)]"
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-white">
-                        <GraduationCap className="h-5 w-5 text-[var(--navy)]" />
-                      </span>
-                      <span className="rounded-full border border-[var(--border)] bg-white px-2 py-0.5 text-[10px] font-black">{batch.status}</span>
-                    </div>
-                    <h3 className="mt-3 line-clamp-2 text-base font-black leading-tight">{batch.name}</h3>
-                    <p className="mt-1 line-clamp-1 text-xs font-bold text-[var(--muted-blue)]">{inferProgram(batch)} / {inferLearningMode(batch)}</p>
-                    <div className="mt-3 grid grid-cols-3 gap-2">
-                      <MiniStat icon={Users} label="Students" value={batch._count?.students ?? batch.students?.length ?? 0} />
-                      <MiniStat icon={UserCheck} label="Teachers" value={batch._count?.teachers ?? batch.teachers?.length ?? 0} />
-                      <MiniStat icon={CalendarDays} label="Start" value={formatDate(batch.startDate)} />
-                    </div>
-                    <ReadinessBar score={readiness.score} label={readiness.label} />
-                  </button>
-                );
-              })}
-            </div>
+        <section>
+          {batchesQuery.isLoading ? <EmptyState text="Loading live batches." /> : null}
+          {!batchesQuery.isLoading && !activeBatches.length ? <EmptyState text="No live batches found. Create a new batch." /> : null}
+          {!batchesQuery.isLoading && activeBatches.length && !visibleBatches.length ? <EmptyState text="No batches match this search." /> : null}
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-5">
+            {visibleBatches.map((batch) => {
+              const progress = progressCards.find((item) => item.batchId === batch.id);
+              const readiness = batchReadiness(batch, progress);
+              return (
+                <Link
+                  key={batch.id}
+                  href={`/dashboard/director/academic/batches/${batch.id}`}
+                  className="group rounded-xl border border-[var(--border)] bg-white p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:bg-[var(--gold-soft)] hover:shadow-md"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-[var(--border)] bg-[var(--page-bg)] transition group-hover:border-[var(--gold-border)] group-hover:bg-white">
+                      <GraduationCap className="h-4 w-4 text-[var(--navy)]" />
+                    </span>
+                    <span className="rounded-full border border-[var(--border)] bg-white px-2 py-0.5 text-[9px] font-black">{batch.status}</span>
+                  </div>
+                  <h3 className="mt-3 line-clamp-2 min-h-10 text-sm font-black leading-tight text-[var(--navy)]">{batch.name}</h3>
+                  <p className="mt-1 line-clamp-1 text-[11px] font-bold text-[var(--muted-blue)]">{inferProgram(batch)} / {inferLearningMode(batch)}</p>
+                  <div className="mt-3 grid grid-cols-3 gap-1.5">
+                    <MiniStat icon={Users} label="Students" value={batch._count?.students ?? batch.students?.length ?? 0} compact />
+                    <MiniStat icon={UserCheck} label="Teachers" value={batch._count?.teachers ?? batch.teachers?.length ?? 0} compact />
+                    <MiniStat icon={CalendarDays} label="Start" value={formatDate(batch.startDate)} compact />
+                  </div>
+                  <ReadinessBar score={readiness.score} label={readiness.label} compact />
+                </Link>
+              );
+            })}
           </div>
-
-          <aside className="rounded-xl border border-[var(--border)] bg-white p-3 shadow-sm">
-            {selectedBatch ? (
-              <div className="grid gap-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[var(--gold)]">Selected Batch</p>
-                    <h2 className="mt-1 text-xl font-black text-[var(--navy)]">{selectedBatch.name}</h2>
-                    <p className="mt-1 text-sm font-bold text-[var(--muted-blue)]">{inferProgram(selectedBatch)} / {inferProgramType(selectedBatch)} / {inferLearningMode(selectedBatch)}</p>
-                  </div>
-                  <span className="rounded-full border border-[var(--border)] px-2.5 py-1 text-[10px] font-black">{selectedBatch.status}</span>
-                </div>
-
-                <div className="grid grid-cols-3 gap-2">
-                  <MiniStat icon={Users} label="Students" value={selectedBatch._count?.students ?? selectedBatch.students?.length ?? 0} />
-                  <MiniStat icon={UserCheck} label="Teachers" value={selectedBatch._count?.teachers ?? selectedBatch.teachers?.length ?? 0} />
-                  <MiniStat icon={CalendarDays} label="Start" value={formatDate(selectedBatch.startDate)} />
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <Link href={`/dashboard/director/academic/batches/${selectedBatch.id}`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-[var(--navy)] px-3 py-2 text-sm font-black text-white">
-                    <Users className="h-4 w-4" />
-                    Students
-                  </Link>
-                  <Link href={`/dashboard/director/academic/batches/${selectedBatch.id}/planner`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm font-black">
-                    <CalendarDays className="h-4 w-4" />
-                    Planner
-                  </Link>
-                  <Link href={`/dashboard/director/academic/batches/${selectedBatch.id}`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm font-black">
-                    <Pencil className="h-4 w-4" />
-                    Modify
-                  </Link>
-                  <button
-                    type="button"
-                    disabled={archiveBatch.isPending}
-                    onClick={() => {
-                      if (window.confirm("Archive this batch? It will auto-delete after 30 days. Students and courses remain safe.")) {
-                        archiveBatch.mutate(selectedBatch.id);
-                      }
-                    }}
-                    className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-black text-red-700 disabled:opacity-60"
-                  >
-                    <Archive className="h-4 w-4" />
-                    Archive
-                  </button>
-                </div>
-
-                <div className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3">
-                  <div className="mb-2 flex items-center justify-between gap-2">
-                    <h3 className="text-sm font-black">Students in Batch</h3>
-                    <Link href={`/dashboard/director/academic/batches/${selectedBatch.id}`} className="text-xs font-black text-[var(--navy)]">
-                      Add from Admissions
-                    </Link>
-                  </div>
-                  <div className="grid max-h-64 gap-2 overflow-auto pr-1">
-                    {(selectedBatch.students ?? []).slice(0, 8).map((entry) => (
-                      <div key={entry.id} className="rounded-lg border border-[var(--border)] bg-white px-3 py-2">
-                        <p className="text-sm font-black">{entry.student.name}</p>
-                        <p className="text-xs font-bold text-[var(--muted-blue)]">{entry.student.mobile || "No phone"} / {entry.status}</p>
-                      </div>
-                    ))}
-                    {!(selectedBatch.students ?? []).length ? <EmptyState text="No students assigned yet." /> : null}
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <EmptyState text="Select a batch to see students and actions." />
-            )}
-          </aside>
         </section>
       </Panel>
 
@@ -441,24 +355,24 @@ export default function DirectorBatchesPage() {
   );
 }
 
-function MiniStat({ icon: Icon, label, value }: { icon: typeof Users; label: string; value: string | number }) {
+function MiniStat({ icon: Icon, label, value, compact = false }: { icon: typeof Users; label: string; value: string | number; compact?: boolean }) {
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-2 py-2">
-      <Icon className="h-3.5 w-3.5 text-[var(--gold)]" />
-      <p className="mt-1 truncate text-[10px] font-black uppercase tracking-[0.12em] text-[var(--muted-blue)]">{label}</p>
-      <p className="truncate text-sm font-black">{value}</p>
+    <div className={`rounded-xl border border-[var(--border)] bg-[var(--page-bg)] ${compact ? "px-2 py-1.5" : "px-2 py-2"}`}>
+      <Icon className={`${compact ? "h-3 w-3" : "h-3.5 w-3.5"} text-[var(--gold)]`} />
+      <p className={`${compact ? "mt-0.5 text-[8px]" : "mt-1 text-[10px]"} truncate font-black uppercase tracking-[0.1em] text-[var(--muted-blue)]`}>{label}</p>
+      <p className={`${compact ? "text-xs" : "text-sm"} truncate font-black`}>{value}</p>
     </div>
   );
 }
 
-function ReadinessBar({ score, label }: { score: number; label: string }) {
+function ReadinessBar({ score, label, compact = false }: { score: number; label: string; compact?: boolean }) {
   return (
-    <div className="mt-3 rounded-xl border border-[var(--border)] bg-white px-3 py-2">
-      <div className="flex items-center justify-between gap-2 text-[10px] font-black uppercase tracking-[0.12em] text-[var(--muted-blue)]">
+    <div className={`rounded-xl border border-[var(--border)] bg-white ${compact ? "mt-2 px-2 py-1.5" : "mt-3 px-3 py-2"}`}>
+      <div className={`${compact ? "text-[8px]" : "text-[10px]"} flex items-center justify-between gap-2 font-black uppercase tracking-[0.1em] text-[var(--muted-blue)]`}>
         <span>{label}</span>
         <span>{score}%</span>
       </div>
-      <div className="mt-2 h-2 overflow-hidden rounded-full bg-[var(--page-bg)]">
+      <div className={`${compact ? "mt-1 h-1.5" : "mt-2 h-2"} overflow-hidden rounded-full bg-[var(--page-bg)]`}>
         <div className="h-full rounded-full bg-[var(--gold)]" style={{ width: `${score}%` }} />
       </div>
     </div>
