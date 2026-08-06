@@ -15,6 +15,7 @@ const required = [
   ["document understanding candidates", builder.includes("questionsFromDocumentUnderstanding") && builder.includes("questionCandidates") && builder.includes("detectedQuestions")],
   ["parser no longer filters non-MCQ drafts", teacherWorkspace.includes("parsedQuestions.slice(0, 200)") && !teacherWorkspace.includes("return question.questionText && realOptionCount >= 2")],
   ["preserved scan review draft", teacherWorkspace.includes("NIDUS AI could not confidently read structured text") && teacherWorkspace.includes("NIDUS AI preserved your original paper and created a review draft")],
+  ["stem pdf text layer guarded", teacherWorkspace.includes("shouldPreservePdfAsVisualReview") && teacherWorkspace.includes("will not trust the PDF text layer") && teacherWorkspace.includes("instead of trusting broken PDF text")],
   ["missing review flags", builder.includes("MISSING_FORMULA") && builder.includes("MISSING_DIAGRAM") && builder.includes("MISSING_OPTION") && builder.includes("MISSING_SOLUTION")],
   ["source page support", builder.includes("sourcePage") && builder.includes("boundingRegion") && builder.includes("originalCrop")],
   ["reconstruction uses builder", reconstruction.includes("ndieUniversalExamBuilderService.buildDraft")],

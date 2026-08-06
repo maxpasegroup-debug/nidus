@@ -1780,6 +1780,23 @@ function auditExtractedSource(file: File, text: string, sourceKind: ExtractionRe
   };
 }
 
+function shouldPreservePdfAsVisualReview(report: ExtractionReport, subject: string, text: string) {
+  if (report.sourceKind !== "QUESTION_PAPER") return false;
+  const documentType = report.documentType || "UNKNOWN";
+  const stemDocument = ["MATHEMATICS_EXAM", "PHYSICS_EXAM", "CHEMISTRY_EXAM", "DIAGRAM_HEAVY", "TABLE_HEAVY", "GRAPH_HEAVY", "SCANNED_DOCUMENT"].includes(documentType);
+  const stemSubject = isStemOrFormulaHeavySubject(subject);
+  const formulaOrVisualRisk = report.visualRisk || detectBrokenMathPdfExtraction(text) || /[∫√πθλΩ≈≤≥÷×∞Σµ]|\\(?:frac|sqrt|int|sum|lim|vec|begin)|\b(matrix|determinant|circuit|diagram|graph|reaction|organic|coordinate|vector)\b/i.test(text);
+  return stemDocument || stemSubject || formulaOrVisualRisk;
+}
+
+function preservedPdfReviewDraft(report: ExtractionReport, subject: string) {
+  return [
+    `${teacherDocumentLabel(report.documentType)} preserved for teacher review.`,
+    `${subject || "STEM"} PDF detected. NIDUS will not trust the PDF text layer as the final question draft.`,
+    "Review the original pages beside the AI draft so formulas, diagrams, tables, graphs, units and answer relationships stay correct.",
+  ].join("\n");
+}
+
 function normalizeQuestionText(value?: string) {
   return value?.trim().replace(/\s+/g, " ").toLowerCase() || "";
 }
@@ -2348,7 +2365,20 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
         }
       }
       const pageCount = renderedPageCount;
-      const report = auditExtractedSource(file, text, sourceKind, isPdf, pageCount);
+      let report = auditExtractedSource(file, text, sourceKind, isPdf, pageCount);
+      const preservePdfAsVisualReview = isPdf && shouldPreservePdfAsVisualReview(report, subject, text);
+      if (preservePdfAsVisualReview) {
+        report = {
+          ...report,
+          status: "REVIEW_REQUIRED",
+          draftStatus: "NEEDS_REVIEW",
+          visualRisk: true,
+          warnings: Array.from(new Set([
+            ...report.warnings,
+            "STEM PDF detected. Review against original pages before publishing.",
+          ])),
+        };
+      }
       setUploadState("BUILDING_AI_DRAFT");
       setExtractionReports((reports) => [...reports.filter((item) => !(item.sourceKind === sourceKind && item.fileName === file.name)), report]);
       let preserved = false;
@@ -2364,17 +2394,23 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
         setFormulaReviews({});
         setQuestionTypeOverrides({});
       }
-      if (!text.trim()) {
+      if (!text.trim() || preservePdfAsVisualReview) {
         if (sourceKind === "QUESTION_PAPER") {
-          const preservedDraft = [
-            `${teacherDocumentLabel(report.documentType)} preserved for teacher review.`,
-            "NIDUS AI could not confidently read structured text from this upload.",
-            "Use the preserved original page/image in Review to rebuild questions, formulas, diagrams and answer relationships.",
-          ].join("\n");
+          const preservedDraft = preservePdfAsVisualReview
+            ? preservedPdfReviewDraft(report, subject)
+            : [
+                `${teacherDocumentLabel(report.documentType)} preserved for teacher review.`,
+                "NIDUS AI could not confidently read structured text from this upload.",
+                "Use the preserved original page/image in Review to rebuild questions, formulas, diagrams and answer relationships.",
+              ].join("\n");
           setter([current, preservedDraft].filter(Boolean).join("\n\n"));
         }
+        setImportValidation(null);
+        setAiReconstruction(null);
         setUploadState("NEEDS_REVIEW");
-        setMessage("NIDUS AI preserved your original paper and created a review draft. Please review the detected content before publishing.");
+        setMessage(preservePdfAsVisualReview
+          ? "Maths, Physics or Chemistry PDF detected. NIDUS preserved the original pages and prepared it for review instead of trusting broken PDF text."
+          : "NIDUS AI preserved your original paper and created a review draft. Please review the detected content before publishing.");
         return;
       }
       setter([current, text].filter(Boolean).join("\n\n"));
