@@ -1457,30 +1457,34 @@ function parseAnswerGuideV2(text: string) {
 
 function buildQuestions(source: string, answerGuide: string, topic: string, totalMarks: number): QuestionDraft[] {
   const answerGuideMap = parseAnswerGuide(answerGuide);
-  const blocks = parseNumberedBlocks(source);
+  const normalizedSource = normalizeExtractedText(source);
+  const numberedBlocks = parseNumberedBlocks(normalizedSource);
+  const blocks = numberedBlocks.length
+    ? numberedBlocks
+    : normalizedSource.trim()
+      ? [normalizedSource.trim()]
+      : [];
   const parsedQuestions = blocks.map((block, index) => {
     const parsed = parseQuestionBlock(block, index);
     const answerGuideEntry = answerGuideMap.get(parsed.number);
     return {
-      questionText: parsed.questionText,
-      optionA: parsed.options[0] || "Option A",
-      optionB: parsed.options[1] || "Option B",
-      optionC: parsed.options[2] || "Option C",
-      optionD: parsed.options[3] || "Option D",
-      correctAnswer: answerGuideEntry?.answer || "A",
-      explanation: answerGuideEntry?.explanation || "Explanation will be reviewed by faculty.",
+      questionText: parsed.questionText || block || "Question content preserved for teacher review.",
+      optionA: parsed.options[0] || "",
+      optionB: parsed.options[1] || "",
+      optionC: parsed.options[2] || "",
+      optionD: parsed.options[3] || "",
+      correctAnswer: answerGuideEntry?.answer || "",
+      explanation: answerGuideEntry?.explanation || "",
       marks: 1,
       negativeMarks: 0,
       difficultyLevel: "MEDIUM",
       topic: topic || "General",
+      reviewStatus: parsed.options.filter((option) => !isWeakExtractedOption(option)).length >= 2 ? "APPROVED" : "NEEDS_REVIEW",
+      aiConfidence: parsed.options.filter((option) => !isWeakExtractedOption(option)).length >= 2 ? 0.72 : 0.42,
     };
-  }).filter((question) => {
-    const realOptionCount = [question.optionA, question.optionB, question.optionC, question.optionD]
-      .filter((option) => !isWeakExtractedOption(option)).length;
-    return question.questionText && realOptionCount >= 2;
   });
   const perQuestionMarks = Math.max(1, Number(((Number.isFinite(totalMarks) ? totalMarks : 100) / Math.max(1, parsedQuestions.length)).toFixed(2)));
-  return parsedQuestions.map((question) => ({ ...question, marks: perQuestionMarks }));
+  return parsedQuestions.slice(0, 200).map((question) => ({ ...question, marks: perQuestionMarks }));
 }
 
 function inferSubjectFromText(source: string, fallback: string) {
@@ -2361,8 +2365,16 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
         setQuestionTypeOverrides({});
       }
       if (!text.trim()) {
+        if (sourceKind === "QUESTION_PAPER") {
+          const preservedDraft = [
+            `${teacherDocumentLabel(report.documentType)} preserved for teacher review.`,
+            "NIDUS AI could not confidently read structured text from this upload.",
+            "Use the preserved original page/image in Review to rebuild questions, formulas, diagrams and answer relationships.",
+          ].join("\n");
+          setter([current, preservedDraft].filter(Boolean).join("\n\n"));
+        }
         setUploadState("NEEDS_REVIEW");
-        setMessage("We couldn't confidently detect structured MCQs yet. Your paper has been preserved. NIDUS AI created a review draft. Please review the detected content.");
+        setMessage("NIDUS AI preserved your original paper and created a review draft. Please review the detected content before publishing.");
         return;
       }
       setter([current, text].filter(Boolean).join("\n\n"));
@@ -2808,7 +2820,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
     if (!activeBatch) return;
     if (!questions.length) {
       setUploadState("NEEDS_REVIEW");
-      setMessage("We couldn't confidently detect structured MCQs yet. Your paper has been preserved. Continue to Review.");
+      setMessage("NIDUS AI preserved your original paper and prepared it for review.");
       return;
     }
     setValidationBusy(true);
@@ -2873,7 +2885,15 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
 
   async function requestAiReconstruction(validationOverride: ImportValidationPayload | null = importValidation) {
     if (!activeBatch) return;
-    if (!questions.length && !uploadedQuestionPaper && !questionSource.trim()) {
+    const hasPreservedSource = Boolean(
+      questions.length ||
+      uploadedQuestionPaper ||
+      questionSource.trim() ||
+      examUploads.some((upload) => upload.sourceKind === "QUESTION_PAPER") ||
+      visualAssets.length ||
+      extractionReports.some((report) => report.sourceKind === "QUESTION_PAPER")
+    );
+    if (!hasPreservedSource) {
       setMessage("Upload or paste the question paper before rebuilding the draft.");
       return;
     }
@@ -3343,7 +3363,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                     <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">
                       {effectiveAiDraft.questionCount
                         ? effectiveAiDraft.message
-                        : "We couldn't confidently detect structured MCQs yet. Your paper has been preserved. NIDUS AI created a review draft. Please review the detected content."}
+                        : "NIDUS AI preserved your original paper and created a review draft. Please review the detected content."}
                     </p>
                     <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
                       <Summary label="Questions Reconstructed" value={String(effectiveAiDraft.questionCount || "Review")} />

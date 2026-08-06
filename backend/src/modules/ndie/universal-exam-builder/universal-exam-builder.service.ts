@@ -130,7 +130,96 @@ function quality(ratio: number): QualityLabel {
 function normalizedQuestions(input: UniversalExamBuilderInput) {
   const draftQuestions = Array.isArray(input.draft?.questions) ? input.draft.questions : [];
   const questions = draftQuestions.length ? draftQuestions : Array.isArray(input.questions) ? input.questions : [];
-  return questions.slice(0, 200);
+  return (questions.length ? questions : questionsFromDocumentUnderstanding(input)).slice(0, 200);
+}
+
+function objectValue(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null;
+}
+
+function arrayValue(value: unknown): unknown[] {
+  return Array.isArray(value) ? value : [];
+}
+
+function textValue(value: unknown) {
+  return cleanText(value);
+}
+
+function optionTextFromUnknown(value: unknown, label: "A" | "B" | "C" | "D") {
+  const item = objectValue(value);
+  if (!item) return "";
+  const itemLabel = textValue(item.label || item.optionLabel || item.key).toUpperCase();
+  if (itemLabel && itemLabel !== label) return "";
+  return textValue(item.text || item.value || item.content || item.optionText);
+}
+
+function normalizeCandidateQuestion(value: unknown, index: number): UniversalQuestionInput | null {
+  const item = objectValue(value);
+  if (!item) return null;
+  const options = arrayValue(item.options || item.optionBlocks || item.choices);
+  const optionA = textValue(item.optionA) || optionTextFromUnknown(options[0], "A") || options.map((option) => optionTextFromUnknown(option, "A")).find(Boolean) || "";
+  const optionB = textValue(item.optionB) || optionTextFromUnknown(options[1], "B") || options.map((option) => optionTextFromUnknown(option, "B")).find(Boolean) || "";
+  const optionC = textValue(item.optionC) || optionTextFromUnknown(options[2], "C") || options.map((option) => optionTextFromUnknown(option, "C")).find(Boolean) || "";
+  const optionD = textValue(item.optionD) || optionTextFromUnknown(options[3], "D") || options.map((option) => optionTextFromUnknown(option, "D")).find(Boolean) || "";
+  const contentBlocks = arrayValue(item.blocks || item.contentBlocks || item.questionBlocks)
+    .map((block) => textValue(objectValue(block)?.text || objectValue(block)?.content || block))
+    .filter(Boolean)
+    .join(" ");
+  const questionText = textValue(item.questionText || item.text || item.prompt || item.stem || contentBlocks);
+  if (!questionText && !optionA && !optionB && !optionC && !optionD) return null;
+  return {
+    number: Number(item.number || item.questionNumber || item.displayNumber || index + 1),
+    questionText: questionText || "Question content preserved for teacher review.",
+    optionA,
+    optionB,
+    optionC,
+    optionD,
+    correctAnswer: textValue(item.correctAnswer || item.answer || item.linkedAnswer),
+    explanation: textValue(item.explanation || item.solution || item.linkedSolution),
+    visualReviewRequired: Boolean(item.visualReviewRequired || item.requiresVisualReview),
+    visualReviewNotes: item.visualReviewNotes || item.diagnostics || item.notes,
+    aiConfidence: typeof item.confidence === "number" ? item.confidence : typeof item.draftConfidence === "number" ? item.draftConfidence : undefined,
+    reviewStatus: textValue(item.reviewStatus || item.status),
+    boundingBoxes: item.boundingBoxes || item.boundingBox || item.sourceRegion,
+  };
+}
+
+function candidateArrays(input: UniversalExamBuilderInput) {
+  const assessment = objectValue(input.ndieOutputs?.assessment);
+  const evaluation = objectValue(input.ndieOutputs?.evaluation);
+  return [
+    arrayValue(assessment?.questions),
+    arrayValue(assessment?.questionCandidates),
+    arrayValue(assessment?.candidates),
+    arrayValue(assessment?.detectedQuestions),
+    arrayValue(objectValue(assessment?.assessment)?.questions),
+    arrayValue(evaluation?.questions),
+  ].filter((items) => items.length);
+}
+
+function questionsFromDocumentUnderstanding(input: UniversalExamBuilderInput): UniversalQuestionInput[] {
+  const candidates = candidateArrays(input)
+    .flat()
+    .map((candidate, index) => normalizeCandidateQuestion(candidate, index))
+    .filter((candidate): candidate is UniversalQuestionInput => Boolean(candidate));
+  if (candidates.length) return candidates;
+
+  const formula = objectValue(input.ndieOutputs?.formula);
+  const visual = objectValue(input.ndieOutputs?.visual);
+  const formulaCount = Number(formula?.formulaCount || formula?.count || 0);
+  const visualCount = Number(visual?.visualCount || visual?.count || 0);
+  if (formulaCount || visualCount || originalPageAssets(input).length) {
+    return [{
+      number: 1,
+      questionText: `${input.subject || "Exam"} document preserved. NIDUS AI created a review draft from page assets, formulas and visuals.`,
+      visualReviewRequired: true,
+      visualReviewNotes: { formulaCount, visualCount },
+      aiConfidence: 0.32,
+      reviewStatus: "NEEDS_REVIEW",
+    }];
+  }
+
+  return [];
 }
 
 function originalPageAssets(input: UniversalExamBuilderInput) {
