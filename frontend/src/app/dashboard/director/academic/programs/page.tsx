@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { FormEvent } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 import { usePathname } from "next/navigation";
 import {
   BookOpen,
@@ -9,6 +9,7 @@ import {
   ChevronDown,
   ChevronUp,
   Dumbbell,
+  ImageIcon,
   Laptop,
   Medal,
   Pencil,
@@ -16,6 +17,7 @@ import {
   ShieldCheck,
   Target,
   Trash2,
+  Upload,
   Users,
   X,
 } from "lucide-react";
@@ -24,6 +26,7 @@ import type { LucideIcon } from "lucide-react";
 import { AcademicActionButton, AcademicHero, AcademicShell, EmptyState, GoldButton, Input, Panel, Select, StatCard, TextArea } from "../_components";
 import { allAcademyPrograms } from "@/data/academy-programs";
 import { useCreateCourse, useCourses, useDeleteCourse, useUpdateCourse } from "@/hooks/use-courses";
+import { uploadMediaFile } from "@/services/media";
 import type { Course } from "@/types/course";
 import {
   courseDescriptionWithPlanner,
@@ -567,7 +570,7 @@ export default function DirectorProgramsPage() {
                   <Input label="Exam / program type" value={form.examType} onChange={(value) => setForm((state) => ({ ...state, examType: value }))} required />
                   <Input label="Duration" value={form.duration} onChange={(value) => setForm((state) => ({ ...state, duration: value }))} required placeholder="Example: 6 months" />
                   <Input label="Price" type="number" value={form.price} onChange={(value) => setForm((state) => ({ ...state, price: value }))} />
-                  <Input label="Thumbnail URL" value={form.thumbnail} onChange={(value) => setForm((state) => ({ ...state, thumbnail: value }))} placeholder="/images/academy/course.jpg" />
+                  <ProgramImageUpload value={form.thumbnail} onChange={(value) => setForm((state) => ({ ...state, thumbnail: value }))} />
                   <Select label="Premium program" value={form.isPremium} onChange={(value) => setForm((state) => ({ ...state, isPremium: value }))}>
                     <option value="false">No</option>
                     <option value="true">Yes</option>
@@ -1029,6 +1032,71 @@ function PlannerStep({ active, label }: { active: boolean; label: string }) {
   return (
     <div className={`rounded-xl px-3 py-2 text-sm font-black ${active ? "bg-[var(--navy)] text-white" : "text-[var(--muted-blue)]"}`}>
       {label}
+    </div>
+  );
+}
+
+function ProgramImageUpload({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleImageChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      setError("Upload JPG, PNG or WEBP image only.");
+      return;
+    }
+
+    if (file.size > 3 * 1024 * 1024) {
+      setError("Image should be 3 MB or smaller.");
+      return;
+    }
+
+    setUploading(true);
+    setError("");
+    try {
+      const uploaded = await uploadMediaFile({ file, storagePath: "program-thumbnails" });
+      onChange(uploaded.signedUrl || uploaded.cloudinaryUrl);
+    } catch {
+      setError("Image upload failed. Please try again.");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  return (
+    <div className="grid gap-2">
+      <p className="text-sm font-black text-[var(--navy)]">Program image</p>
+      <div className="flex items-center gap-3 rounded-xl border border-[var(--border)] bg-white p-3">
+        <div className="grid h-20 w-24 shrink-0 place-items-center overflow-hidden rounded-xl border border-dashed border-[var(--border)] bg-[var(--page-bg)]">
+          {value ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={value} alt="Program thumbnail preview" className="h-full w-full object-cover" />
+          ) : (
+            <ImageIcon className="h-6 w-6 text-[var(--muted-blue)]" />
+          )}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-black text-[var(--navy)]">{value ? "Image ready" : "Upload thumbnail"}</p>
+          <p className="mt-1 text-xs font-bold text-[var(--muted-blue)]">JPG, PNG or WEBP. Recommended square or landscape image.</p>
+          {error ? <p className="mt-1 text-xs font-black text-red-600">{error}</p> : null}
+          <div className="mt-3 flex flex-wrap gap-2">
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[var(--navy)] px-3 py-2 text-xs font-black text-white">
+              <Upload className="h-3.5 w-3.5" />
+              {uploading ? "Uploading..." : value ? "Change Image" : "Upload Image"}
+              <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={handleImageChange} disabled={uploading} />
+            </label>
+            {value ? (
+              <button type="button" onClick={() => onChange("")} className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-xs font-black text-[var(--navy)]">
+                Remove
+              </button>
+            ) : null}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
