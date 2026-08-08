@@ -3,11 +3,11 @@
 import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { BottomNav } from "@/components/layout/bottom-nav";
+import { DirectorSidebar } from "@/components/layout/director-sidebar";
 import { getNavItems } from "@/components/layout/nav-items";
 import { PublicFooter } from "@/components/marketing/public-footer";
 import { PublicNavbar } from "@/components/marketing/public-navbar";
 import { useAuth } from "@/components/providers/auth-provider-v2";
-import { QuickActionDock } from "@/components/dashboard/quick-action-dock";
 import { Sidebar } from "@/components/layout/sidebar";
 import { TopNavbar } from "@/components/layout/top-navbar";
 
@@ -51,9 +51,12 @@ export function AppShell({ children }: { children: ReactNode }) {
   const isFocusedAdmissionDesk = Boolean(pathname?.startsWith("/dashboard/admission-cell"));
   const isFocusedTimetable = Boolean(pathname?.match(/^\/dashboard\/(?:academic-head\/hod|director\/academic)\/timetable(?:\/|$)/));
   const isFocusedDirectorWorkspace = Boolean(pathname?.startsWith("/dashboard/director"));
+  const isDirectorNavigationPath = Boolean(isFocusedDirectorWorkspace || (user?.role === "DIRECTOR" && (pathname?.startsWith("/crm/leads") || pathname === "/dashboard/settings")));
   const isSettingsSetup = pathname === "/dashboard/settings";
-  const isFocusedWorkspace = isFocusedClassroom || isFocusedAdmissionDesk || isFocusedTimetable || isFocusedDirectorWorkspace || isSettingsSetup;
-  const hasSidebar = !isFocusedWorkspace && !isLoading && !!user && getNavItems(user.role, dashboardTemplate).length > 0;
+  const isFocusedWorkspace = isFocusedClassroom || isFocusedAdmissionDesk || isFocusedTimetable || isDirectorNavigationPath || isSettingsSetup;
+  const hasStandardSidebar = !isFocusedWorkspace && !isLoading && !!user && getNavItems(user.role, dashboardTemplate).length > 0;
+  const hasDirectorSidebar = isDirectorNavigationPath && !isLoading && !!user;
+  const hasSidebar = hasStandardSidebar || hasDirectorSidebar;
 
   if (pathname === "/") {
     return <>{children}</>;
@@ -72,7 +75,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="subtle-grid min-h-screen bg-[#f7f3ea] text-[#101827]">
       <TopNavbar hasSidebar={hasSidebar} />
-      {hasSidebar ? <Sidebar /> : null}
+      {hasStandardSidebar ? <Sidebar /> : null}
+      {hasDirectorSidebar ? <DirectorSidebar /> : null}
       <main
         id="main-content"
         className={`px-4 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-[calc(var(--nav-height)+1rem)] sm:px-6 lg:px-8 ${
@@ -81,8 +85,8 @@ export function AppShell({ children }: { children: ReactNode }) {
       >
         <div className={`mx-auto w-full ${isFocusedWorkspace ? "max-w-none" : "max-w-[1500px]"}`}>{children}</div>
       </main>
-      {isFocusedDirectorWorkspace ? <QuickActionDock role="DIRECTOR" /> : null}
       {!isFocusedWorkspace ? <BottomNav /> : null}
     </div>
   );
 }
+

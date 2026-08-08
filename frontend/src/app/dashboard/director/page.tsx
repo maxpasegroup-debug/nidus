@@ -3,18 +3,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
-import {
-  AlertTriangle,
-  BadgeIndianRupee,
-  BarChart3,
-  Bell,
-  CalendarDays,
-  GraduationCap,
-  Settings,
-  ShieldCheck,
-  UserPlus,
-  Users,
-} from "lucide-react";
+import { AlertTriangle, BadgeIndianRupee, Bell, CalendarDays, Settings, UserPlus, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { getDirectorDashboard } from "@/services/dashboard";
 
@@ -63,20 +52,11 @@ export default function DirectorDashboardPage() {
     {
       title: lowAttendance ? "Check student attendance" : "Attendance looks calm",
       detail: lowAttendance ? `${lowAttendance} attendance alert(s) need academic follow-up.` : "No low-attendance alert is visible.",
-      href: "/dashboard/director/students",
+      href: "/dashboard/director/academic/student-progress",
       value: lowAttendance,
       icon: AlertTriangle,
       tone: lowAttendance ? "warn" : "ok",
     },
-  ] as const;
-
-  const modules = [
-    { title: "Academics", detail: "Programs, batches, timetable and progress", href: "/dashboard/director/academic", icon: GraduationCap },
-    { title: "Admissions", detail: "Applications, approvals and activation", href: "/dashboard/director/admissions", icon: UserPlus },
-    { title: "Students", detail: "Class-wise student profiles and reports", href: "/dashboard/director/students", icon: Users },
-    { title: "Staff & Access", detail: "Staff details, roles and PIN reset", href: "/dashboard/director/management", icon: ShieldCheck },
-    { title: "Accounts", detail: "Collections, receipts and pending fees", href: "/dashboard/director/accounts", icon: BadgeIndianRupee },
-    { title: "Reports", detail: "Simple director review desk", href: "/dashboard/director/reports", icon: BarChart3 },
   ] as const;
 
   return (
@@ -86,9 +66,9 @@ export default function DirectorDashboardPage() {
           <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-center">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">Director Dashboard</p>
-              <h1 className="mt-2 text-2xl font-black tracking-tight md:text-4xl">Today's Academy</h1>
+              <h1 className="mt-2 text-2xl font-black tracking-tight md:text-4xl">Today</h1>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">
-                Start with urgent work, then open the department you want to review.
+                Start with urgent work, then use the left menu when you need a department.
               </p>
               <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--page-bg)] px-3 py-2 text-sm font-bold text-[var(--muted-blue)]">
                 <CalendarDays className="h-4 w-4" />
@@ -109,8 +89,8 @@ export default function DirectorDashboardPage() {
           <MetricCard label="Alerts" value={directorQuery.isLoading ? "..." : alerts} detail="items to review" tone={alerts ? "warn" : "ok"} />
         </section>
 
-        <section className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
-          <Panel title="Today's Action List" eyebrow="Start here">
+        <section className="grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
+          <Panel title="Today's Priorities" eyebrow="Start here">
             <div className="grid gap-3">
               {actionItems.map((item) => (
                 <ActionRow key={item.title} item={item} />
@@ -118,15 +98,15 @@ export default function DirectorDashboardPage() {
             </div>
           </Panel>
 
-          <Panel title="Open a Department" eyebrow="Main menu">
+          <Panel title="Academy Overview" eyebrow="Today">
             <div className="grid gap-3 sm:grid-cols-2">
-              {modules.map((module) => (
-                <ModuleTile key={module.title} module={module} />
-              ))}
+              <OverviewLine label="Admissions" value={pendingAdmissions ? `${pendingAdmissions} need review` : "Clear"} tone={pendingAdmissions ? "warn" : "ok"} />
+              <OverviewLine label="Fee alerts" value={pendingFees ? `${pendingFees} pending` : "Clear"} tone={pendingFees ? "warn" : "ok"} />
+              <OverviewLine label="Attendance" value={lowAttendance ? `${lowAttendance} alerts` : "Calm"} tone={lowAttendance ? "warn" : "ok"} />
+              <OverviewLine label="Academy" value={`${activeBatches} batches / ${activeStudents} students`} />
             </div>
           </Panel>
         </section>
-
       </section>
     </main>
   );
@@ -168,6 +148,20 @@ function Panel({ children, eyebrow, title }: { children: ReactNode; eyebrow: str
   );
 }
 
+function OverviewLine({ label, tone = "ok", value }: { label: string; tone?: "ok" | "warn"; value: string }) {
+  return (
+    <div className="rounded-2xl border border-[var(--border)] bg-white p-4">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-sm font-black text-[var(--navy)]">{label}</p>
+        <span className={`rounded-full px-2.5 py-1 text-[11px] font-black ${tone === "warn" ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800"}`}>
+          {tone === "warn" ? "Check" : "OK"}
+        </span>
+      </div>
+      <p className="mt-3 text-sm font-bold text-[var(--muted-blue)]">{value}</p>
+    </div>
+  );
+}
+
 function ActionRow({
   item,
 }: {
@@ -201,17 +195,4 @@ function ActionRow({
   );
 }
 
-function ModuleTile({ module }: { module: { title: string; detail: string; href: string; icon: LucideIcon } }) {
-  const Icon = module.icon;
-  return (
-    <Link href={module.href} className="flex min-h-20 items-center gap-3 rounded-2xl border border-[var(--border)] bg-white p-3 shadow-sm transition hover:border-[var(--gold-border)] hover:bg-[var(--gold-soft)]">
-      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[var(--gold-soft)]">
-        <Icon className="h-5 w-5" />
-      </span>
-      <span className="min-w-0">
-        <span className="block text-sm font-black">{module.title}</span>
-        <span className="mt-1 block text-xs leading-5 text-[var(--muted-blue)]">{module.detail}</span>
-      </span>
-    </Link>
-  );
-}
+
