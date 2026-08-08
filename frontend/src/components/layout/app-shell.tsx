@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { BottomNav } from "@/components/layout/bottom-nav";
 import { DirectorSidebar } from "@/components/layout/director-sidebar";
@@ -58,6 +59,13 @@ export function AppShell({ children }: { children: ReactNode }) {
   const hasDirectorSidebar = isDirectorNavigationPath && !isLoading && !!user;
   const hasSidebar = hasStandardSidebar || hasDirectorSidebar;
 
+  useEffect(() => {
+    document.documentElement.style.setProperty("--nav-height", hasDirectorSidebar ? "56px" : "72px");
+    return () => {
+      document.documentElement.style.setProperty("--nav-height", "72px");
+    };
+  }, [hasDirectorSidebar]);
+
   if (pathname === "/") {
     return <>{children}</>;
   }
@@ -79,7 +87,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       {hasDirectorSidebar ? <DirectorSidebar /> : null}
       <main
         id="main-content"
-        className={`px-4 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-[calc(var(--nav-height)+1rem)] sm:px-6 lg:px-8 ${
+        className={`px-4 pt-[calc(var(--nav-height)+1rem)] sm:px-6 lg:px-8 ${hasDirectorSidebar ? "pb-4" : "pb-[calc(6rem+env(safe-area-inset-bottom))]"} ${
           hasSidebar ? "lg:ml-[var(--sidebar-width)]" : ""
         }`}
       >
@@ -89,4 +97,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     </div>
   );
 }
+
+
+
 

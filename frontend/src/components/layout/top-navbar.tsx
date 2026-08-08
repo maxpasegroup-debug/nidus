@@ -5,13 +5,16 @@ import { useAuth } from "@/components/providers/auth-provider-v2";
 import { Bell, ChevronDown } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 export function TopNavbar({ hasSidebar = true }: { hasSidebar?: boolean }) {
+  const pathname = usePathname();
   const { isAuthenticated, logout, user } = useAuth();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const designation = typeof user?.roleMetadata?.designation === "string" ? user.roleMetadata.designation : "";
   const roleLabel = designation || (user?.role === "ADMIN" && user?.roleMetadata?.superAdmin === true ? "CEO" : user?.role);
+  const isDirectorShell = Boolean(pathname?.startsWith("/dashboard/director") || (user?.role === "DIRECTOR" && (pathname?.startsWith("/crm/leads") || pathname === "/dashboard/settings")));
 
   return (
     <header
@@ -19,38 +22,54 @@ export function TopNavbar({ hasSidebar = true }: { hasSidebar?: boolean }) {
         hasSidebar ? "lg:left-[var(--sidebar-width)]" : ""
       }`}
     >
-      <div className="flex h-[var(--nav-height)] items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div className="flex h-[var(--nav-height)] items-center justify-between px-4 sm:px-5 lg:px-6">
         <Link href="/" className="flex min-w-0 items-center lg:hidden" aria-label="NIDUS Academy home">
           <Image
             src="/brand/nidus-logo-horizontal.png"
             alt="NIDUS Academy"
             width={150}
             height={42}
-            className="max-h-10 w-auto object-contain"
+            className="max-h-9 w-auto object-contain"
             priority
           />
         </Link>
 
         <div className="hidden lg:block">
-          <p className="text-[0.72rem] font-bold uppercase tracking-[0.24em] text-[#3f4a32]">Defence Training Platform</p>
-          <p className="mt-1.5 text-sm font-medium text-[#64748b]">Command readiness, courses, and personnel development.</p>
+          <p className="text-[0.68rem] font-bold uppercase tracking-[0.22em] text-[#3f4a32]">
+            {isDirectorShell ? "Director Command Center" : "Defence Training Platform"}
+          </p>
+          {!isDirectorShell ? <p className="mt-1.5 text-sm font-medium text-[#64748b]">Command readiness, courses, and personnel development.</p> : null}
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
-          <button
-            type="button"
-            className="relative grid h-11 w-11 place-items-center rounded-2xl border border-[#071d36]/10 bg-white/78 text-[#3f4a32] shadow-sm transition hover:-translate-y-0.5 hover:border-[#b9913f]/35 hover:bg-white hover:shadow-md"
-            aria-label="Notifications"
-          >
-            <Bell className="h-4 w-4" />
-            <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[#b9913f] shadow-[0_0_14px_rgba(185,145,63,0.6)]" />
-          </button>
+          {isDirectorShell ? (
+            <Link
+              href="/dashboard/director/notifications"
+              className="relative grid h-10 w-10 place-items-center rounded-xl border border-[#071d36]/10 bg-white/78 text-[#3f4a32] shadow-sm transition hover:border-[#b9913f]/35 hover:bg-white"
+              aria-label="Notifications"
+            >
+              <Bell className="h-4 w-4" />
+              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[#b9913f]" />
+            </Link>
+          ) : (
+            <button
+              type="button"
+              className="relative grid h-11 w-11 place-items-center rounded-2xl border border-[#071d36]/10 bg-white/78 text-[#3f4a32] shadow-sm transition hover:-translate-y-0.5 hover:border-[#b9913f]/35 hover:bg-white hover:shadow-md"
+              aria-label="Notifications"
+            >
+              <Bell className="h-4 w-4" />
+              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[#b9913f] shadow-[0_0_14px_rgba(185,145,63,0.6)]" />
+            </button>
+          )}
+
           {isAuthenticated ? (
             <div className="relative">
               <button
                 type="button"
                 onClick={() => setIsProfileOpen((current) => !current)}
-                className="flex h-11 items-center gap-3 rounded-2xl border border-[#071d36]/10 bg-white/78 px-3 text-sm font-semibold text-[#071d36] shadow-sm transition hover:-translate-y-0.5 hover:border-[#b9913f]/35 hover:bg-white hover:shadow-md"
+                className={`flex items-center gap-3 border border-[#071d36]/10 bg-white/78 px-3 text-sm font-semibold text-[#071d36] shadow-sm transition hover:border-[#b9913f]/35 hover:bg-white ${
+                  isDirectorShell ? "h-10 rounded-xl" : "h-11 rounded-2xl hover:-translate-y-0.5 hover:shadow-md"
+                }`}
                 aria-expanded={isProfileOpen}
                 aria-haspopup="menu"
               >

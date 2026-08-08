@@ -5,11 +5,8 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import {
-  BadgeIndianRupee,
   BarChart3,
-  Bell,
   BookOpenCheck,
-  CalendarDays,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -25,7 +22,6 @@ import {
   X,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { useAuth } from "@/components/providers/auth-provider-v2";
 
 type DirectorMenuChild = {
   label: string;
@@ -107,7 +103,6 @@ const directorMenu: DirectorMenuItem[] = [
 ];
 
 const bottomMenu = [
-  { label: "Notifications", href: "/dashboard/director/notifications", icon: Bell, match: ["/dashboard/director/notifications"] },
   { label: "Settings", href: "/dashboard/settings", icon: Settings, match: ["/dashboard/settings"] },
 ];
 
@@ -125,7 +120,6 @@ function isPathActive(pathname: string | null, item: DirectorMenuItem | { match?
 export function DirectorSidebar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { user } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const activeGroup = useMemo(() => directorMenu.find((item) => item.children && isPathActive(pathname, item))?.label ?? null, [pathname]);
@@ -138,7 +132,7 @@ export function DirectorSidebar() {
   }, []);
 
   useEffect(() => {
-    document.documentElement.style.setProperty("--sidebar-width", collapsed ? "80px" : "272px");
+    document.documentElement.style.setProperty("--sidebar-width", collapsed ? "72px" : "240px");
     window.localStorage.setItem(storageKey, String(collapsed));
     return () => {
       document.documentElement.style.setProperty("--sidebar-width", "272px");
@@ -154,8 +148,7 @@ export function DirectorSidebar() {
     setOpenGroups((current) => ({ ...current, [activeGroup]: true }));
   }, [activeGroup]);
 
-  const directorName = user?.name || "Director";
-  const shellClass = `fixed inset-y-0 left-0 z-50 border-r border-[var(--border)] bg-[rgba(247,243,234,0.96)] shadow-[8px_0_30px_rgba(7,29,54,0.05)] backdrop-blur-xl transition-all duration-200 lg:translate-x-0 ${collapsed ? "lg:w-20" : "lg:w-72"} ${mobileOpen ? "w-72 translate-x-0" : "w-72 -translate-x-full"}`;
+  const shellClass = `fixed inset-y-0 left-0 z-50 border-r border-[var(--border)] bg-[rgba(247,243,234,0.96)] shadow-[8px_0_30px_rgba(7,29,54,0.05)] backdrop-blur-xl transition-all duration-200 lg:translate-x-0 ${collapsed ? "lg:w-[72px]" : "lg:w-60"} ${mobileOpen ? "w-72 translate-x-0" : "w-72 -translate-x-full"}`;
 
   return (
     <>
@@ -170,18 +163,18 @@ export function DirectorSidebar() {
       {mobileOpen ? <button type="button" aria-label="Close director menu overlay" className="fixed inset-0 z-40 bg-slate-950/25 lg:hidden" onClick={() => setMobileOpen(false)} /> : null}
 
       <aside className={shellClass} aria-label="Director navigation">
-        <div className="flex h-full flex-col px-3 py-5">
+        <div className="flex h-full flex-col px-3 py-4">
           <div className="flex items-center justify-between gap-2 px-1">
-            <Link href="/dashboard/director" className="flex min-w-0 items-center gap-3 rounded-2xl px-1 py-2 transition hover:bg-white/70" title="Today">
+            <Link href="/dashboard/director" className="flex min-w-0 items-center gap-3 rounded-xl px-1 py-1.5 transition hover:bg-white/70" title="Today">
               {collapsed ? (
                 <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-[var(--border)] bg-white text-xs font-black text-[var(--navy)]">N</span>
               ) : (
-                <Image src="/brand/nidus-logo-horizontal.png" alt="NIDUS Academy" width={172} height={48} className="max-h-12 w-auto object-contain" priority />
+                <Image src="/brand/nidus-logo-horizontal.png" alt="NIDUS Academy" width={172} height={48} className="max-h-10 w-auto object-contain" priority />
               )}
             </Link>
             <button
               type="button"
-              className="hidden h-9 w-9 shrink-0 place-items-center rounded-xl border border-[var(--border)] bg-white text-[var(--navy)] shadow-sm lg:grid"
+              className="hidden h-8 w-8 shrink-0 place-items-center rounded-xl border border-[var(--border)] bg-white text-[var(--navy)] shadow-sm lg:grid"
               onClick={() => setCollapsed((value) => !value)}
               aria-label={collapsed ? "Expand director menu" : "Collapse director menu"}
             >
@@ -191,13 +184,13 @@ export function DirectorSidebar() {
 
           {!collapsed ? <p className="mt-1 px-2 text-[0.66rem] font-black uppercase tracking-[0.28em] text-[var(--muted-blue)]">Director OS</p> : null}
 
-          <nav className="mt-5 min-h-0 flex-1 overflow-y-auto pr-1">
-            <div className="space-y-1.5">
+          <nav className="mt-4 min-h-0 flex-1 overflow-y-auto pr-1">
+            <div className="space-y-1">
               {directorMenu.map((item) => {
                 const Icon = item.icon;
                 const active = isPathActive(pathname, item);
                 const expanded = openGroups[item.label] ?? active;
-                const itemClass = `group flex min-h-11 w-full items-center gap-3 rounded-2xl px-3 text-sm font-black transition ${active ? "border border-[var(--gold-border)] bg-white text-[var(--navy)] shadow-sm" : "text-[var(--navy)] hover:bg-white/80"} ${collapsed ? "justify-center" : "justify-between"}`;
+                const itemClass = `group flex min-h-10 w-full items-center gap-3 rounded-xl px-3 text-sm font-black transition ${active ? "border border-[var(--gold-border)] bg-white text-[var(--navy)] shadow-sm" : "text-[var(--navy)] hover:bg-white/80"} ${collapsed ? "justify-center" : "justify-between"}`;
 
                 if (item.children) {
                   return (
@@ -264,7 +257,7 @@ export function DirectorSidebar() {
             </div>
           </nav>
 
-          <div className="mt-4 space-y-1.5 border-t border-[var(--border)] pt-3">
+          <div className="mt-4 space-y-1 border-t border-[var(--border)] pt-3">
             {bottomMenu.map((item) => {
               const Icon = item.icon;
               const active = isPathActive(pathname, item);
@@ -273,29 +266,19 @@ export function DirectorSidebar() {
                   key={item.label}
                   href={item.href}
                   title={item.label}
-                  className={`flex min-h-10 items-center gap-3 rounded-2xl px-3 text-sm font-black transition ${collapsed ? "justify-center" : ""} ${active ? "border border-[var(--gold-border)] bg-white" : "hover:bg-white/80"}`}
+                  className={`flex min-h-10 items-center gap-3 rounded-xl px-3 text-sm font-black transition ${collapsed ? "justify-center" : ""} ${active ? "border border-[var(--gold-border)] bg-white" : "hover:bg-white/80"}`}
                 >
                   <Icon className="h-4 w-4 shrink-0" />
                   {!collapsed ? item.label : null}
                 </Link>
               );
             })}
-            <Link href="/dashboard/settings" title={directorName} className={`flex min-h-12 items-center gap-3 rounded-2xl border border-[var(--border)] bg-white/90 px-3 text-sm font-black shadow-sm ${collapsed ? "justify-center" : ""}`}>
-              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-[var(--navy)] text-xs text-white">{directorName.slice(0, 1).toUpperCase()}</span>
-              {!collapsed ? (
-                <span className="min-w-0">
-                  <span className="block truncate">{directorName}</span>
-                  <span className="block truncate text-[10px] uppercase tracking-[0.14em] text-[var(--muted-blue)]">Director Profile</span>
-                </span>
-              ) : null}
-            </Link>
           </div>
         </div>
       </aside>
     </>
   );
 }
-
 
 
 
