@@ -2771,6 +2771,27 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
     }
   }
 
+  async function uploadAssignmentFile(file: File) {
+    if (!selectedClass) throw new Error("Select a batch before uploading an assignment file.");
+    setAssignmentMessage(`Uploading ${file.name}...`);
+    const storagePath = [
+      "assignments",
+      selectedClass.id,
+      assignmentForm.subject || selectedClass.subject || "General",
+      Date.now().toString(),
+    ].join("/");
+    try {
+      const uploaded = await uploadMediaFile({ file, storagePath });
+      const url = uploaded.signedUrl || uploaded.cloudinaryUrl;
+      if (!url) throw new Error("Upload completed, but no file link was returned.");
+      setAssignmentMessage(`${uploaded.originalName} uploaded. Review and publish when ready.`);
+      return { name: uploaded.originalName, url };
+    } catch (error) {
+      setAssignmentMessage(error instanceof Error ? error.message : "Could not upload assignment file.");
+      throw error;
+    }
+  }
+
   async function uploadLibraryThumbnail(file: File) {
     setLibraryMessage("Uploading thumbnail...");
     try {
@@ -3322,6 +3343,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
           assignmentForm={assignmentForm}
           setAssignmentForm={setAssignmentForm}
           setAssignmentSourceName={setAssignmentSourceName}
+          onUploadAttachment={uploadAssignmentFile}
           assignedBatches={activeClasses}
           selectedClass={selectedClass}
           selectedBatchName={selectedClass?.name ?? "Batch"}
@@ -3468,6 +3490,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
             assignmentForm={assignmentForm}
             setAssignmentForm={setAssignmentForm}
             setAssignmentSourceName={setAssignmentSourceName}
+          onUploadAttachment={uploadAssignmentFile}
             assignedBatches={activeClasses}
             selectedClass={selectedClass}
             selectedBatchName={selectedClass?.name ?? "Batch"}
@@ -5852,6 +5875,7 @@ function AssignmentCreateModal({
   assignmentForm,
   setAssignmentForm,
   setAssignmentSourceName,
+  onUploadAttachment,
   assignedBatches,
   selectedClass,
   selectedBatchName,
@@ -5864,6 +5888,7 @@ function AssignmentCreateModal({
   assignmentForm: AssignmentForm;
   setAssignmentForm: React.Dispatch<React.SetStateAction<AssignmentForm>>;
   setAssignmentSourceName: (value: string) => void;
+  onUploadAttachment: (file: File) => Promise<{ name: string; url: string }>;
   assignedBatches: AssignedClass[];
   selectedClass: AssignedClass | null;
   selectedBatchName: string;
@@ -5871,6 +5896,8 @@ function AssignmentCreateModal({
   assignmentSourceName: string;
 }) {
   const [step, setStep] = useState<"EDIT" | "REVIEW">("EDIT");
+  const [attachmentStatus, setAttachmentStatus] = useState<string | null>(null);
+  const [attachmentUploading, setAttachmentUploading] = useState(false);
   const assignedSubjects = subjectsForBatch(selectedClass);
   const selectedAssignmentBatchIds = assignmentForm.targetBatchIds.length ? assignmentForm.targetBatchIds : selectedClass?.id ? [selectedClass.id] : [];
   const selectedAssignmentBatches = assignedBatches.filter((batch) => selectedAssignmentBatchIds.includes(batch.id));
@@ -5889,6 +5916,22 @@ function AssignmentCreateModal({
   const appendAssignmentSource = (label: string) => (value: string) => {
     if (!value) return;
     setAssignmentSourceName([assignmentSourceName, `${label}: ${value}`].filter(Boolean).join(" | "));
+  };
+  const handleAssignmentAttachment = async (value: string, file?: File) => {
+    if (!file) return;
+    setAttachmentUploading(true);
+    setAttachmentStatus(`Uploading ${value}...`);
+    try {
+      const uploaded = await onUploadAttachment(file);
+      setAssignmentForm((form) => ({ ...form, attachmentName: uploaded.name, link: uploaded.url }));
+      appendAssignmentSource("Attachment")(uploaded.name);
+      setAttachmentStatus(`${uploaded.name} is ready to publish.`);
+    } catch (error) {
+      setAssignmentForm((form) => ({ ...form, attachmentName: "", link: "" }));
+      setAttachmentStatus(error instanceof Error ? error.message : "Could not upload attachment.");
+    } finally {
+      setAttachmentUploading(false);
+    }
   };
 
   return (
@@ -5954,11 +5997,9 @@ function AssignmentCreateModal({
                 <p className="text-sm font-black">Attachment</p>
                 <p className="mt-1 text-xs text-[var(--muted-blue)]">Upload a worksheet, notes file or image for students.</p>
                 <div className="mt-4">
-                  <FileInput label="PDF / DOCX / Image" accept=".pdf,.doc,.docx,image/*" onChange={(value) => {
-                    setAssignmentForm((form) => ({ ...form, attachmentName: value }));
-                    appendAssignmentSource("Attachment")(value);
-                  }} />
+                  <FileInput label="PDF / DOCX / Image" accept=".pdf,.doc,.docx,image/*" onChange={(value, file) => void handleAssignmentAttachment(value, file)} />
                 </div>
+                {attachmentStatus ? <p className={`mt-3 rounded-xl px-3 py-2 text-xs font-black ${assignmentForm.link ? "bg-emerald-50 text-emerald-800" : "bg-white text-[var(--muted-blue)]"}`}>{attachmentStatus}</p> : null}
                 {assignmentSourceName ? <p className="mt-3 truncate rounded-xl bg-white px-3 py-2 text-xs font-black">Attached: {assignmentSourceName}</p> : null}
               </div>
             </div>
@@ -6013,7 +6054,7 @@ function AssignmentCreateModal({
           {step === "REVIEW" ? (
             <button type="button" onClick={onPublish} className="min-h-12 w-full rounded-xl border border-emerald-700 bg-emerald-700 px-5 py-3 text-sm font-black text-white">Publish To Students</button>
           ) : (
-            <button type="button" onClick={() => assignmentReadyForReview && setStep("REVIEW")} disabled={!assignmentReadyForReview} className="min-h-12 w-full rounded-xl border border-slate-950 bg-slate-950 px-5 py-3 text-sm font-black text-white disabled:cursor-not-allowed disabled:opacity-50">Review Assignment</button>
+            <button type="button" onClick={() => assignmentReadyForReview && setStep("REVIEW")} disabled={!assignmentReadyForReview || attachmentUploading} className="min-h-12 w-full rounded-xl border border-slate-950 bg-slate-950 px-5 py-3 text-sm font-black text-white disabled:cursor-not-allowed disabled:opacity-50">{attachmentUploading ? "Uploading..." : "Review Assignment"}</button>
           )}
         </div>
       </div>

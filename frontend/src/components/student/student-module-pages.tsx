@@ -802,7 +802,12 @@ export function StudentAssignmentsPage() {
                 )}
               </div>
               <p className="mt-4 text-sm leading-6">{assignment.instructions}</p>
-              {assignment.attachmentName || assignment.link ? <p className="mt-2 text-sm font-bold text-[var(--muted-blue)]">{assignment.attachmentName || assignment.link}</p> : null}
+              {assignment.attachmentName || assignment.link ? (
+                <div className="mt-2 flex flex-wrap items-center gap-2 text-sm font-bold text-[var(--muted-blue)]">
+                  <span>{assignment.attachmentName || "Attachment available"}</span>
+                  {assignment.link ? <a href={assignment.link} target="_blank" rel="noreferrer" className="rounded-full border border-[var(--border)] bg-white px-3 py-1 text-xs font-black text-[var(--ink)]">Open Attachment</a> : null}
+                </div>
+              ) : null}
               {!submitted ? (
                 <div className="mt-4 grid gap-3">
                   <textarea value={draft.answerText} onChange={(event) => setDrafts((value) => ({ ...value, [assignment.id]: { ...draft, answerText: event.target.value } }))} rows={3} placeholder="Type answer or notes" className="rounded-xl border border-[var(--border)] bg-white px-3 py-3 text-sm" />
