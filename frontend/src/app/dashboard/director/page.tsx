@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { AlertTriangle, BadgeIndianRupee, CalendarDays, CheckCircle2, GraduationCap, UserPlus, Users } from "lucide-react";
+import { AlertTriangle, BadgeIndianRupee, BrainCircuit, CalendarDays, CheckCircle2, GraduationCap, UserPlus, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { getDirectorDashboard } from "@/services/dashboard";
 
@@ -31,6 +31,9 @@ export default function DirectorDashboardPage() {
     (commandCenter?.staff?.administrativeOfficers.active ?? 0) +
     (commandCenter?.staff?.businessDevelopmentExecutives.active ?? 0);
   const alerts = pendingAdmissions + pendingFees + lowAttendance;
+  const nidusInsight = alerts
+    ? `Nidus AI found ${alerts} item(s) needing attention. Start with the highlighted priority list.`
+    : "Nidus AI is monitoring admissions, fees and attendance. The academy looks calm now.";
 
   const actionItems = [
     {
@@ -68,10 +71,10 @@ export default function DirectorDashboardPage() {
         <header className="shrink-0 px-1 pt-1">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[var(--gold)]">Director Command Center</p>
-              <h1 className="mt-1 text-2xl font-black tracking-tight md:text-3xl">Today</h1>
+              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[var(--gold)]">Nidus AI Command</p>
+              <h1 className="mt-1 text-2xl font-black tracking-tight md:text-3xl">Director Command Center</h1>
               <p className="mt-1 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">
-                Start with urgent work, then use the left menu when you need a department.
+                Today&apos;s priorities, academy health and next actions in one AI-managed workspace.
               </p>
             </div>
             <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-white/70 px-3 py-2 text-xs font-bold text-[var(--muted-blue)]">
@@ -81,6 +84,18 @@ export default function DirectorDashboardPage() {
           </div>
         </header>
 
+        <section className="shrink-0 rounded-2xl border border-[var(--gold-border)] bg-white/78 px-4 py-3 shadow-sm">
+          <div className="flex items-center gap-3">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[var(--gold-soft)] text-[var(--navy)]">
+              <BrainCircuit className="h-5 w-5" />
+            </span>
+            <div className="min-w-0">
+              <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[var(--gold)]">Nidus AI</p>
+              <p className="mt-0.5 text-sm font-bold leading-6 text-[var(--muted-blue)]">{nidusInsight}</p>
+            </div>
+          </div>
+        </section>
+
         <section className="grid shrink-0 gap-3 md:grid-cols-4">
           <MetricCard icon={Users} label="Students" value={directorQuery.isLoading ? "..." : activeStudents} detail="active learners" />
           <MetricCard icon={GraduationCap} label="Batches" value={directorQuery.isLoading ? "..." : activeBatches} detail="running classes" />
@@ -89,7 +104,7 @@ export default function DirectorDashboardPage() {
         </section>
 
         <section className="grid min-h-0 flex-1 gap-4 xl:grid-cols-[0.95fr_1.05fr]">
-          <Panel title="Today&apos;s Attention" eyebrow="Start here">
+          <Panel title="Today Attention" eyebrow="AI priority list">
             <div className="divide-y divide-[var(--border)]">
               {actionItems.map((item) => (
                 <ActionRow key={item.label} item={item} />
@@ -97,7 +112,7 @@ export default function DirectorDashboardPage() {
             </div>
           </Panel>
 
-          <Panel title="Academy Overview" eyebrow="Status">
+          <Panel title="Academy Health" eyebrow="AI-managed status">
             <div className="grid gap-3 sm:grid-cols-2">
               <OverviewLine label="Admissions" value={pendingAdmissions ? `${pendingAdmissions} need review` : "Clear"} tone={pendingAdmissions ? "warn" : "ok"} />
               <OverviewLine label="Fee alerts" value={pendingFees ? `${pendingFees} pending` : "Clear"} tone={pendingFees ? "warn" : "ok"} />
@@ -186,3 +201,5 @@ function ActionRow({
     </Link>
   );
 }
+
+

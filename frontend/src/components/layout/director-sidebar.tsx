@@ -182,15 +182,15 @@ export function DirectorSidebar() {
             </button>
           </div>
 
-          {!collapsed ? <p className="mt-1 px-2 text-[0.66rem] font-black uppercase tracking-[0.28em] text-[var(--muted-blue)]">Director OS</p> : null}
+          {!collapsed ? <p className="mt-1 px-2 text-[0.66rem] font-black uppercase tracking-[0.28em] text-[var(--muted-blue)]">AI Command OS</p> : null}
 
-          <nav className="mt-4 min-h-0 flex-1 overflow-y-auto pr-1">
-            <div className="space-y-1">
+          <nav className="mt-5 min-h-0 flex-1 overflow-y-auto pr-1">
+            <div className="space-y-2">
               {directorMenu.map((item) => {
                 const Icon = item.icon;
                 const active = isPathActive(pathname, item);
                 const expanded = openGroups[item.label] ?? active;
-                const itemClass = `group flex min-h-10 w-full items-center gap-3 rounded-xl px-3 text-sm font-black transition ${active ? "border border-[var(--gold-border)] bg-white text-[var(--navy)] shadow-sm" : "text-[var(--navy)] hover:bg-white/80"} ${collapsed ? "justify-center" : "justify-between"}`;
+                const itemClass = `group flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-sm font-black transition ${active ? "border border-[var(--gold-border)] bg-white text-[var(--navy)] shadow-sm" : "text-[var(--navy)] hover:bg-white/80"} ${collapsed ? "justify-center" : "justify-between"}`;
 
                 if (item.children) {
                   return (
@@ -211,13 +211,13 @@ export function DirectorSidebar() {
                         {!collapsed ? <ChevronDown className={`h-4 w-4 shrink-0 transition ${expanded ? "rotate-180" : ""}`} /> : null}
                       </button>
                       {!collapsed && expanded ? (
-                        <div className="ml-7 mt-1 space-y-1 border-l border-[var(--border)] pl-3">
+                        <div className="ml-7 mt-2 space-y-1.5 border-l border-[var(--border)] pl-3">
                           {item.children.map((child) => {
                             const childHref = withTab(child);
                             const childActive = Boolean(child.href && pathname === child.href && (!child.tab || currentTab === child.tab));
                             if (child.disabled) {
                               return (
-                                <span key={child.label} className="flex min-h-9 items-center justify-between rounded-xl px-3 text-xs font-black text-[var(--muted-blue)] opacity-70" title="Coming soon">
+                                <span key={child.label} className="flex min-h-11 items-center justify-between rounded-xl px-3 text-xs font-black text-[var(--muted-blue)] opacity-70" title="Coming soon">
                                   {child.label}
                                   <span className="rounded-full bg-[var(--gold-soft)] px-2 py-0.5 text-[10px] text-[var(--gold-dark)]">Soon</span>
                                 </span>
@@ -227,7 +227,7 @@ export function DirectorSidebar() {
                               <Link
                                 key={`${child.label}-${childHref}`}
                                 href={childHref}
-                                className={`block rounded-xl px-3 py-2 text-xs font-black transition ${childActive ? "bg-[var(--gold-soft)] text-[var(--navy)]" : "text-[var(--muted-blue)] hover:bg-white hover:text-[var(--navy)]"}`}
+                                className={`block rounded-xl px-3 py-2.5 text-xs font-black transition ${childActive ? "bg-[var(--gold-soft)] text-[var(--navy)]" : "text-[var(--muted-blue)] hover:bg-white hover:text-[var(--navy)]"}`}
                               >
                                 {child.label}
                               </Link>
@@ -257,7 +257,7 @@ export function DirectorSidebar() {
             </div>
           </nav>
 
-          <div className="mt-4 space-y-1 border-t border-[var(--border)] pt-3">
+          <div className="mt-5 space-y-2 border-t border-[var(--border)] pt-3">
             {bottomMenu.map((item) => {
               const Icon = item.icon;
               const active = isPathActive(pathname, item);
@@ -266,7 +266,7 @@ export function DirectorSidebar() {
                   key={item.label}
                   href={item.href}
                   title={item.label}
-                  className={`flex min-h-10 items-center gap-3 rounded-xl px-3 text-sm font-black transition ${collapsed ? "justify-center" : ""} ${active ? "border border-[var(--gold-border)] bg-white" : "hover:bg-white/80"}`}
+                  className={`flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-black transition ${collapsed ? "justify-center" : ""} ${active ? "border border-[var(--gold-border)] bg-white" : "hover:bg-white/80"}`}
                 >
                   <Icon className="h-4 w-4 shrink-0" />
                   {!collapsed ? item.label : null}
@@ -279,6 +279,7 @@ export function DirectorSidebar() {
     </>
   );
 }
+
 
 
 
