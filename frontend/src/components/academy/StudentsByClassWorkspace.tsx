@@ -353,7 +353,7 @@ export default function StudentsByClassWorkspace({ audience, embedded = false }:
               <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[var(--gold)]">Batches</p>
               <h2 className="text-lg font-black">Live</h2>
             </div>
-            <button type="button" onClick={() => setShowAddStudent(true)} className="icon-button h-10 w-10 rounded-xl bg-[var(--navy)] text-white" aria-label="Add student">
+            <button type="button" onClick={() => setShowAddStudent(true)} className="icon-button h-10 w-10 rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)] text-[var(--navy)]" aria-label="Add student">
               <Plus className="h-4 w-4" />
             </button>
           </div>
@@ -394,7 +394,7 @@ export default function StudentsByClassWorkspace({ audience, embedded = false }:
               type="button"
               onClick={() => setShowAddStudent(true)}
               disabled={!activeBatch}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--navy)] px-4 text-sm font-black text-white disabled:opacity-60"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)] px-4 text-sm font-black text-[var(--navy)] disabled:opacity-60"
             >
               <Plus className="h-4 w-4" />
               Add Student
@@ -460,7 +460,7 @@ export default function StudentsByClassWorkspace({ audience, embedded = false }:
                 <Field label="Roll number" value={studentForm.rollNumber} onChange={(value) => setStudentForm((current) => ({ ...current, rollNumber: value.toUpperCase() }))} icon={BookOpen} />
                 <Field label="New PIN" value={studentForm.pin} onChange={(value) => setStudentForm((current) => ({ ...current, pin: value.replace(/\D/g, "").slice(0, 4) }))} icon={KeyRound} placeholder="Leave blank unless changing" />
                 <div className="grid gap-2 sm:grid-cols-2">
-                  <button disabled={saveMutation.isPending} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[var(--navy)] px-4 text-sm font-black text-white disabled:opacity-60">
+                  <button disabled={saveMutation.isPending} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)] px-4 text-sm font-black text-[var(--navy)] disabled:opacity-60">
                     <Save className="h-4 w-4" />
                     {saveMutation.isPending ? "Saving..." : "Save"}
                   </button>
@@ -490,7 +490,7 @@ export default function StudentsByClassWorkspace({ audience, embedded = false }:
                 <div className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3 text-xs font-bold leading-5 text-[var(--muted-blue)]">
                   Current batches: {(membershipMap.get(selectedStudent.id) ?? []).map((item) => item.batchName).join(", ") || "Current batch only"}
                 </div>
-                <button disabled={transferMutation.isPending || !targetBatchId} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[var(--navy)] px-4 text-sm font-black text-white disabled:opacity-60">
+                <button disabled={transferMutation.isPending || !targetBatchId} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)] px-4 text-sm font-black text-[var(--navy)] disabled:opacity-60">
                   <ArrowRightLeft className="h-4 w-4" />
                   {transferMutation.isPending ? "Updating..." : moveMode === "COPY" ? "Add to Another Batch" : "Move Student"}
                 </button>
@@ -542,10 +542,10 @@ export default function StudentsByClassWorkspace({ audience, embedded = false }:
               </div>
 
               <div className="flex flex-wrap gap-2">
-                <button type="button" onClick={() => setAddSource("ADMISSION")} className={`rounded-xl border px-4 py-2 text-sm font-black ${addSource === "ADMISSION" ? "border-[var(--navy)] bg-[var(--navy)] text-white" : "border-[var(--border)] bg-white"}`}>
+                <button type="button" onClick={() => setAddSource("ADMISSION")} className={`rounded-xl border px-4 py-2 text-sm font-black ${addSource === "ADMISSION" ? "border-[var(--gold-border)] bg-[var(--gold-soft)] text-[var(--navy)]" : "border-[var(--border)] bg-white"}`}>
                   Admission List
                 </button>
-                <button type="button" onClick={() => setAddSource("MANUAL")} className={`rounded-xl border px-4 py-2 text-sm font-black ${addSource === "MANUAL" ? "border-[var(--navy)] bg-[var(--navy)] text-white" : "border-[var(--border)] bg-white"}`}>
+                <button type="button" onClick={() => setAddSource("MANUAL")} className={`rounded-xl border px-4 py-2 text-sm font-black ${addSource === "MANUAL" ? "border-[var(--gold-border)] bg-[var(--gold-soft)] text-[var(--navy)]" : "border-[var(--border)] bg-white"}`}>
                   Manual Entry
                 </button>
               </div>
@@ -611,7 +611,7 @@ export default function StudentsByClassWorkspace({ audience, embedded = false }:
                 />
               ) : null}
 
-              <button disabled={addMutation.isPending || (addSource === "ADMISSION" && !selectedAdmissionId)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[var(--navy)] px-4 text-sm font-black text-white disabled:opacity-60">
+              <button disabled={addMutation.isPending || (addSource === "ADMISSION" && !selectedAdmissionId)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)] px-4 text-sm font-black text-[var(--navy)] disabled:opacity-60">
                 <Plus className="h-4 w-4" />
                 {addMutation.isPending ? "Adding..." : addBatchMode === "NEW" ? "Create Batch & Add Student" : "Add to Batch"}
               </button>
@@ -654,3 +654,4 @@ function Field({
     </label>
   );
 }
+
