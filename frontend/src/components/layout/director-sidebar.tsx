@@ -13,7 +13,6 @@ import {
   GraduationCap,
   Home,
   Menu,
-  Search,
   Settings,
   UserRound,
   UserRoundCheck,
@@ -42,9 +41,21 @@ type DirectorMenuItem = {
 const storageKey = "nidus-director-sidebar-collapsed";
 
 const directorMenu: DirectorMenuItem[] = [
-  { label: "Today", subtitle: "Command Center", href: "/dashboard/director", icon: Home, match: ["/dashboard/director"] },
-  { label: "Leads", href: "/crm/leads", icon: Search, match: ["/crm/leads"] },
-  { label: "Admissions", href: "/dashboard/director/admissions", icon: UserRoundCheck, match: ["/dashboard/director/admissions"] },
+  { label: "Today", subtitle: "AI Command Center", href: "/dashboard/director", icon: Home, match: ["/dashboard/director"] },
+  {
+    label: "Admissions",
+    subtitle: "Growth Pipeline",
+    icon: UserRoundCheck,
+    match: ["/dashboard/director/admissions", "/crm/leads", "/dashboard/admission-cell", "/crm/admissions"],
+    children: [
+      { label: "Admissions Home", href: "/dashboard/director/admissions" },
+      { label: "Leads", href: "/crm/leads" },
+      { label: "Applications", href: "/dashboard/director/admissions" },
+      { label: "Approvals", href: "/dashboard/director/admissions" },
+      { label: "Fee Handover", href: "/dashboard/director/accounts", tab: "dues" },
+      { label: "Activation", href: "/dashboard/admission-cell", tab: "activation" },
+    ],
+  },
   {
     label: "Academics",
     icon: GraduationCap,
@@ -57,7 +68,20 @@ const directorMenu: DirectorMenuItem[] = [
       { label: "Academic Calendar", href: "/dashboard/director/teaching/academic-calendar" },
     ],
   },
-  { label: "Students", subtitle: "Student Directory", href: "/dashboard/director/students", icon: Users, match: ["/dashboard/director/students"] },
+  { label: "Students", subtitle: "Learner Control", href: "/dashboard/director/students", icon: Users, match: ["/dashboard/director/students", "/dashboard/director/academic/student-progress"] },
+  {
+    label: "Accounts",
+    icon: WalletCards,
+    match: ["/dashboard/director/accounts", "/fees", "/payments", "/invoices"],
+    children: [
+      { label: "Fees", href: "/dashboard/director/accounts", tab: "collect" },
+      { label: "Collections", href: "/dashboard/director/accounts", tab: "overview" },
+      { label: "Pending Dues", href: "/dashboard/director/accounts", tab: "dues" },
+      { label: "Receipts", href: "/dashboard/director/accounts", tab: "receipts" },
+      { label: "Expenses", disabled: true },
+      { label: "Reports", href: "/dashboard/director/accounts", tab: "reports" },
+    ],
+  },
   {
     label: "People",
     icon: UserRound,
@@ -68,20 +92,6 @@ const directorMenu: DirectorMenuItem[] = [
       { label: "Roles & Access", href: "/dashboard/director/management" },
       { label: "Attendance", href: "/dashboard/director/teaching/attendance" },
       { label: "Performance", href: "/dashboard/director/academic/teacher-performance" },
-    ],
-  },
-  {
-    label: "Accounts",
-    icon: WalletCards,
-    match: ["/dashboard/director/accounts", "/fees", "/payments", "/invoices"],
-    children: [
-      { label: "Fees", href: "/dashboard/director/accounts", tab: "collect" },
-      { label: "Collections", href: "/dashboard/director/accounts", tab: "overview" },
-      { label: "Pending Fees", href: "/dashboard/director/accounts", tab: "dues" },
-      { label: "Expenses", disabled: true },
-      { label: "Payments", href: "/payments" },
-      { label: "Receipts", href: "/dashboard/director/accounts", tab: "receipts" },
-      { label: "Financial Reports", href: "/dashboard/director/accounts", tab: "reports" },
     ],
   },
   {
@@ -182,10 +192,10 @@ export function DirectorSidebar() {
             </button>
           </div>
 
-          {!collapsed ? <p className="mt-1 px-2 text-[0.66rem] font-black uppercase tracking-[0.28em] text-[var(--muted-blue)]">AI Command OS</p> : null}
+          {!collapsed ? <p className="mt-1 px-2 text-[0.66rem] font-black uppercase tracking-[0.28em] text-[var(--muted-blue)]">Director OS</p> : null}
 
           <nav className="mt-5 min-h-0 flex-1 overflow-y-auto pr-1">
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               {directorMenu.map((item) => {
                 const Icon = item.icon;
                 const active = isPathActive(pathname, item);
