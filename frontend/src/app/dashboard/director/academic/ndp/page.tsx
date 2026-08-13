@@ -30,7 +30,7 @@ export default function DirectorNdpMonitorPage() {
         title="NIDUS Digital Profile control."
         description="Track batch-wise NDP coverage, Academic Head approval queue, published cards and students still missing a progress review."
         action={
-          <Link href="/dashboard/academic-head/ndp" className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-[var(--navy)] px-4 py-2 text-sm font-black text-white">
+          <Link href="/dashboard/academic-head/ndp" className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)] px-4 py-2 text-sm font-black text-[var(--navy)] shadow-sm">
             <ClipboardCheck className="h-4 w-4" /> Open Review Queue
           </Link>
         }

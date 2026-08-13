@@ -530,7 +530,7 @@ function ProgramImageUpload({ value, onChange }: { value: string; onChange: (val
           <p className="mt-1 text-xs font-bold text-[var(--muted-blue)]">JPG, PNG or WEBP. No URL needed.</p>
           {error ? <p className="mt-1 text-xs font-black text-red-600">{error}</p> : null}
           <div className="mt-3 flex flex-wrap gap-2">
-            <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[var(--navy)] px-3 py-2 text-xs font-black text-white">
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)] px-3 py-2 text-xs font-black text-[var(--navy)] shadow-sm">
               <Upload className="h-3.5 w-3.5" />
               {uploading ? "Uploading..." : value ? "Change Image" : "Upload Image"}
               <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={handleImageChange} disabled={uploading} />

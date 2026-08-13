@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -371,7 +371,7 @@ export default function DirectorBatchesPage() {
                               else current.add(String(day.value));
                               setForm((state) => ({ ...state, classDays: Array.from(current).join(",") }));
                             }}
-                            className={`rounded-xl px-3 py-2 text-xs font-black ${selected ? "bg-[var(--navy)] text-white" : "border border-[var(--border)] bg-white"}`}
+                            className={`rounded-xl px-3 py-2 text-xs font-black ${selected ? "border border-[var(--gold-border)] bg-[var(--gold-soft)] text-[var(--navy)] shadow-sm" : "border border-[var(--border)] bg-white"}`}
                           >
                             {day.label}
                           </button>

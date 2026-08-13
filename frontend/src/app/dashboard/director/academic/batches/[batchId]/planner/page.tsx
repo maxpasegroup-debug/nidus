@@ -269,7 +269,7 @@ export default function BatchPlannerPage({ params }: { params: { batchId: string
               Track actual completion, delays, reschedules, cancellations, revision and extra classes from the generated program plan.
             </p>
             <div className="flex flex-wrap gap-2">
-              <button type="button" onClick={() => publishExactSessions.mutate(generatedSessions.filter((session) => session.status !== "CANCELLED"))} disabled={publishExactSessions.isPending} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--navy)] px-4 py-2 text-sm font-black text-white disabled:opacity-60">
+              <button type="button" onClick={() => publishExactSessions.mutate(generatedSessions.filter((session) => session.status !== "CANCELLED"))} disabled={publishExactSessions.isPending} className="inline-flex items-center justify-center gap-2 rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)] px-4 py-2 text-sm font-black text-[var(--navy)] shadow-sm disabled:opacity-60">
                 <CalendarDays className="h-4 w-4" />
                 Publish Live Plan
               </button>
@@ -342,7 +342,7 @@ export default function BatchPlannerPage({ params }: { params: { batchId: string
             <div className="md:col-span-2">
               <TextArea label="Topic / purpose" value={extraSession.topic} onChange={(value) => setExtraSession((state) => ({ ...state, topic: value }))} placeholder="Revision, backlog, remedial support, mock discussion." />
             </div>
-            <button type="button" onClick={addExtraSession} disabled={!livePlanner || saveLivePlanner.isPending} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--navy)] px-4 py-2 text-sm font-black text-white disabled:opacity-60">
+            <button type="button" onClick={addExtraSession} disabled={!livePlanner || saveLivePlanner.isPending} className="inline-flex items-center justify-center gap-2 rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)] px-4 py-2 text-sm font-black text-[var(--navy)] shadow-sm disabled:opacity-60">
               <Plus className="h-4 w-4" />
               Add To Live Planner
             </button>
@@ -406,7 +406,7 @@ export default function BatchPlannerPage({ params }: { params: { batchId: string
                 <input className="rounded-xl border border-[var(--border)] bg-white px-3 py-2" type="time" value={sessionForm.endTime} onChange={(event) => setSessionForm((state) => ({ ...state, endTime: event.target.value }))} />
               </label>
             </div>
-            <button type="button" onClick={addSession} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--navy)] px-4 py-2 text-sm font-black text-white">
+            <button type="button" onClick={addSession} className="inline-flex items-center justify-center gap-2 rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)] px-4 py-2 text-sm font-black text-[var(--navy)] shadow-sm">
               <Plus className="h-4 w-4" />
               Add Session
             </button>
@@ -429,7 +429,7 @@ export default function BatchPlannerPage({ params }: { params: { batchId: string
             <button type="button" onClick={() => setReviewMode(true)} className="inline-flex items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">
               Review Draft
             </button>
-            <button type="button" disabled={!reviewMode || !sessions.length || publishPlan.isPending} onClick={() => publishPlan.mutate()} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--navy)] px-4 py-2 text-sm font-black text-white disabled:opacity-50">
+            <button type="button" disabled={!reviewMode || !sessions.length || publishPlan.isPending} onClick={() => publishPlan.mutate()} className="inline-flex items-center justify-center gap-2 rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)] px-4 py-2 text-sm font-black text-[var(--navy)] shadow-sm disabled:opacity-50">
               <CheckCircle2 className="h-4 w-4" />
               Publish Planner
             </button>

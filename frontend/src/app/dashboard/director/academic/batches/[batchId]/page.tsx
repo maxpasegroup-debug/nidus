@@ -77,7 +77,7 @@ export default function DirectorBatchDetailPage({ params }: { params: { batchId:
               <ArrowLeft className="h-4 w-4" />
               Batches
             </Link>
-            <Link href={`/dashboard/director/academic/batches/${batch.id}/planner`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-[var(--navy)] px-3 py-2 text-sm font-black text-white">
+            <Link href={`/dashboard/director/academic/batches/${batch.id}/planner`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)] px-3 py-2 text-sm font-black text-[var(--navy)] shadow-sm">
               <CalendarDays className="h-4 w-4" />
               Academic Planner
             </Link>
@@ -141,7 +141,7 @@ export default function DirectorBatchDetailPage({ params }: { params: { batchId:
             <input className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm" value={studentForm.phone} onChange={(event) => setStudentForm((state) => ({ ...state, phone: event.target.value }))} placeholder="Phone" />
             <input className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm" value={studentForm.name} onChange={(event) => setStudentForm((state) => ({ ...state, name: event.target.value }))} placeholder="Name" />
             <input className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm" value={studentForm.notes} onChange={(event) => setStudentForm((state) => ({ ...state, notes: event.target.value }))} placeholder="Notes / roll number" />
-            <button className="rounded-xl bg-[var(--navy)] px-3 py-2 text-sm font-black text-white disabled:opacity-60" disabled={addStudent.isPending} type="submit">Add Student</button>
+            <button className="rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)] px-3 py-2 text-sm font-black text-[var(--navy)] shadow-sm disabled:opacity-60" disabled={addStudent.isPending} type="submit">Add Student</button>
           </form>
           <div className="grid gap-2 sm:grid-cols-2">
             {(batch.students ?? []).map((entry) => (
@@ -172,7 +172,7 @@ export default function DirectorBatchDetailPage({ params }: { params: { batchId:
               <option value="Physical Trainer">Physical Trainer</option>
               <option value="ACADEMIC_HEAD">Academic Head</option>
             </select>
-            <button className="rounded-xl bg-[var(--navy)] px-3 py-2 text-sm font-black text-white disabled:opacity-60" disabled={assignTeacher.isPending || teachersQuery.isLoading} type="submit">Allocate Teacher</button>
+            <button className="rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)] px-3 py-2 text-sm font-black text-[var(--navy)] shadow-sm disabled:opacity-60" disabled={assignTeacher.isPending || teachersQuery.isLoading} type="submit">Allocate Teacher</button>
           </form>
           <div className="grid gap-2 sm:grid-cols-2">
             {(batch.teachers ?? []).map((entry) => (

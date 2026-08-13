@@ -167,7 +167,7 @@ function AcademicTabView({ activeBatches, batchesWithoutPlanner, courses, loadin
         <div className="grid gap-3 sm:grid-cols-2">
           {stats.map((item) => <CompactStat key={item.label} label={item.label} value={loading ? "..." : item.value} detail={item.detail} tone={item.tone} />)}
         </div>
-        <Link href={activeModule.href} className="mt-4 inline-flex min-h-10 items-center justify-center rounded-xl bg-[var(--navy)] px-4 text-sm font-black text-white shadow-sm">Open full {activeModule.label} module</Link>
+        <Link href={activeModule.href} className="mt-4 inline-flex min-h-10 items-center justify-center rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)] px-4 text-sm font-black text-[var(--navy)] shadow-sm">Open full {activeModule.label} module</Link>
       </Panel>
       <Panel title="AI Guidance" eyebrow="Recommended work">
         <div className="grid gap-3">

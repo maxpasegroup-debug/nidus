@@ -106,7 +106,7 @@ function ActionCard({ detail, href, icon: Icon, title, tone }: { detail: string;
 }
 
 function EmptyState({ href, label, text }: { href: string; label: string; text: string }) {
-  return <div className="rounded-2xl border border-dashed border-[var(--border)] bg-white/70 p-4"><p className="text-sm font-bold text-[var(--muted-blue)]">{text}</p><Link href={href} className="mt-3 inline-flex min-h-9 items-center rounded-xl bg-[var(--navy)] px-3 text-sm font-black text-white">{label}</Link></div>;
+  return <div className="rounded-2xl border border-dashed border-[var(--border)] bg-white/70 p-4"><p className="text-sm font-bold text-[var(--muted-blue)]">{text}</p><Link href={href} className="mt-3 inline-flex min-h-9 items-center rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)] px-3 text-sm font-black text-[var(--navy)] shadow-sm">{label}</Link></div>;
 }
 
 function tonePalette(tone: Tone) {

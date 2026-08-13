@@ -111,7 +111,7 @@ export function AcademicActionButton({
 }) {
   return (
     <button
-      className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-black ${active ? "bg-[var(--navy)] text-white" : "border border-[var(--border)] bg-white text-[var(--navy)]"}`}
+      className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-black ${active ? "border border-[var(--gold-border)] bg-[var(--gold-soft)] text-[var(--navy)] shadow-sm" : "border border-[var(--border)] bg-white text-[var(--navy)]"}`}
       onClick={onClick}
       type={type}
     >
