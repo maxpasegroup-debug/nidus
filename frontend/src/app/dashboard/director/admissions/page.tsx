@@ -120,6 +120,32 @@ function leadNextAction(lead: Lead, mode: "leads" | "applications") {
   return "Continue follow-up";
 }
 
+function admissionPayment(admission: Admission) {
+  const status = admission.paymentStatus || "Not set";
+  const paid = status.toLowerCase().includes("paid") || status.toLowerCase().includes("complete") || Number(admission.dueAmount || 0) <= 0 && Number(admission.paidAmount || 0) > 0;
+  return { label: status, tone: paid ? "ok" as const : "warn" as const };
+}
+
+function activationReadiness(admission: Admission) {
+  const payment = admissionPayment(admission);
+  if (!admission.batch) return { label: "Batch needed", tone: "warn" as const, action: "Assign batch before activation." };
+  if (payment.tone === "warn") return { label: "Payment review", tone: "warn" as const, action: "Confirm payment before final activation." };
+  if ((admission.onboardingStatus || "").toLowerCase().includes("complete")) return { label: "Activated", tone: "ok" as const, action: "Student is ready in the academy flow." };
+  return { label: "Ready", tone: "ok" as const, action: "Ready for student activation." };
+}
+
+function formatMoney(value?: number) {
+  return typeof value === "number" && Number.isFinite(value) ? `Rs ${value.toLocaleString("en-IN")}` : "Not set";
+}
+
+function drawerEyebrow(selected: SelectedRecord) {
+  if (selected.type === "lead" && selected.context === "fees") return "Fee Details";
+  if (selected.type === "lead" && selected.context === "applications") return "Application Details";
+  if (selected.type === "lead") return "Lead Details";
+  if (selected.type === "approval") return "Approval Details";
+  return "Activation Details";
+}
+
 export default function DirectorAdmissionsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -162,7 +188,7 @@ export default function DirectorAdmissionsPage() {
   const pendingApprovals = useMemo(() => approvals.filter((approval) => approval.status === "PENDING"), [approvals]);
   const todayFollowups = useMemo(() => followups.filter((item) => isToday(item.followUpDate) && item.status !== "COMPLETED"), [followups]);
   const todayAdmissions = useMemo(() => admissions.filter((admission) => isToday(admission.admissionDate)), [admissions]);
-  const revenueForecast = applications.reduce((sum, lead) => sum + moneyFromLead(lead), 0);
+
   const feeForecast = feesPending.reduce((sum, lead) => sum + moneyFromLead(lead), 0);
   const loading = leadsQuery.isLoading || admissionsQuery.isLoading || approvalsQuery.isLoading || followupsQuery.isLoading;
   const attentionCount = pendingApprovals.length + feesPending.length + pendingDocuments.length;
@@ -200,19 +226,27 @@ export default function DirectorAdmissionsPage() {
       ? `Nidus AI found ${attentionCount} admission item(s) needing attention.`
       : "Nidus AI sees a calm admissions desk. No urgent director action is visible.";
 
+  const submodules = [
+    { key: "leads" as AdmissionView, label: "Leads", count: activeLeads.length },
+    { key: "applications" as AdmissionView, label: "Applications", count: applications.length },
+    { key: "fees" as AdmissionView, label: "Fees", count: feesPending.length },
+    { key: "approvals" as AdmissionView, label: "Approvals", count: pendingApprovals.length },
+    { key: "activation" as AdmissionView, label: "Activation", count: admissions.length },
+  ];
+
   return (
-    <main className="min-h-screen bg-[var(--page-bg)] px-4 py-4 text-[var(--navy)] md:px-6">
-      <section className="mx-auto grid max-w-[1500px] gap-4">
-        <header className="rounded-3xl border border-[var(--border)] bg-white/92 p-5 shadow-sm">
+    <main className="min-h-screen overflow-x-hidden bg-[var(--page-bg)] px-4 py-4 text-[var(--navy)] md:px-6">
+      <section className="mx-auto grid max-w-[1450px] gap-3 md:gap-4">
+        <header className="rounded-3xl border border-[var(--border)] bg-white/95 p-4 shadow-sm md:p-5">
           <div className="grid gap-4 lg:grid-cols-[1fr_380px] lg:items-end">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">Nidus AI Admissions</p>
-              <h1 className="mt-1 text-3xl font-black tracking-tight md:text-4xl">Admissions Workspace</h1>
+              <h1 className="mt-1 text-2xl font-black tracking-tight md:text-3xl">Admissions Workspace</h1>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">Applications, fee handover, approvals and activation in one simple AI-guided desk.</p>
             </div>
             <div className="flex min-h-11 items-center gap-2 rounded-2xl border border-[var(--border)] bg-white px-3 text-sm shadow-sm">
               <Search className="h-4 w-4 shrink-0 text-[var(--muted-blue)]" />
-              <input value={searchText} onChange={(event) => setSearchText(event.target.value)} placeholder="Search name, mobile, course or status" className="min-w-0 flex-1 bg-transparent outline-none" />
+              <input value={searchText} onChange={(event) => setSearchText(event.target.value)} placeholder="Search name, mobile, course or status" className="min-w-0 flex-1 bg-transparent font-bold outline-none" />
             </div>
           </div>
         </header>
@@ -234,6 +268,15 @@ export default function DirectorAdmissionsPage() {
             </div>
           </div>
         </section>
+
+        <nav className="flex shrink-0 gap-2 overflow-x-auto rounded-2xl border border-[var(--border)] bg-white/90 p-2 shadow-sm" aria-label="Admissions submodules">
+          <button type="button" onClick={() => openView("home")} className={`shrink-0 rounded-xl px-3 py-2 text-xs font-black transition ${view === "home" ? "bg-[var(--navy)] text-white" : "text-[var(--muted-blue)] hover:bg-[var(--gold-soft)] hover:text-[var(--navy)]"}`}>Home</button>
+          {submodules.map((module) => (
+            <button key={module.key} type="button" onClick={() => openView(module.key)} className={`shrink-0 rounded-xl px-3 py-2 text-xs font-black transition ${view === module.key ? "bg-[var(--navy)] text-white" : "text-[var(--muted-blue)] hover:bg-[var(--gold-soft)] hover:text-[var(--navy)]"}`}>
+              {module.label} <span className="ml-1 rounded-full bg-white/70 px-1.5 py-0.5 text-[10px] text-[var(--navy)]">{loading ? "..." : module.count}</span>
+            </button>
+          ))}
+        </nav>
 
         {view === "home" ? (
           <section className="grid gap-4">
@@ -257,7 +300,7 @@ export default function DirectorAdmissionsPage() {
             </section>
           </section>
         ) : (
-          <section className="rounded-3xl border border-[var(--border)] bg-white/92 p-4 shadow-sm">
+          <section className="rounded-3xl border border-[var(--border)] bg-white/95 p-4 shadow-sm">
             <div className="flex flex-col gap-2 border-b border-[var(--border)] pb-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[var(--gold)]">{viewLabels[view]}</p>
@@ -266,6 +309,7 @@ export default function DirectorAdmissionsPage() {
                 {view === "applications" ? <p className="mt-1 text-sm font-bold text-[var(--muted-blue)]">Review documents, fee readiness and admission stage without raw CRM notes.</p> : null}
                 {view === "leads" ? <p className="mt-1 text-sm font-bold text-[var(--muted-blue)]">See active enquiries and the next human action for each applicant.</p> : null}
                 {view === "approvals" ? <p className="mt-1 text-sm font-bold text-[var(--muted-blue)]">Approve or reject only the decisions that need Director attention.</p> : null}
+                {view === "activation" ? <p className="mt-1 text-sm font-bold text-[var(--muted-blue)]">Confirm batch, payment and activation readiness for admitted students.</p> : null}
               </div>
               <p className="text-sm font-black text-[var(--muted-blue)]">{loading ? "Loading..." : `${queue.length} shown`}</p>
             </div>
@@ -280,7 +324,7 @@ export default function DirectorAdmissionsPage() {
                 <LeadCard key={(item as Lead).id} lead={item as Lead} mode={view === "applications" ? "applications" : "leads"} onOpen={() => setSelected({ type: "lead", item: item as Lead, context: view })} />
               ))}
             </div>
-            {!queue.length ? <Empty text={loading ? "Loading admission records..." : "No records found in this submodule."} /> : null}
+            {!queue.length ? <Empty text={loading ? "Loading admission records..." : emptyText(view)} /> : null}
           </section>
         )}
       </section>
@@ -296,7 +340,7 @@ function MiniStat({ label, tone = "ok", value }: { label: string; tone?: "ok" | 
 function HomeActionCard({ loading, module, onClick }: { loading: boolean; module: { label: string; count: number; detail: string; icon: LucideIcon; tone: Tone }; onClick: () => void }) {
   const Icon = module.icon;
   const palette = tonePalette(module.tone);
-  return <button type="button" onClick={onClick} className={`rounded-3xl border p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${palette.card}`}><div className="flex items-start justify-between gap-3"><div><p className="text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">{module.label}</p><p className="mt-2 text-4xl font-black">{loading ? "..." : module.count}</p><p className="mt-1 text-sm font-bold text-[var(--muted-blue)]">{module.detail}</p></div><span className={`grid h-11 w-11 place-items-center rounded-xl ${palette.icon}`}><Icon className="h-5 w-5" /></span></div><span className="mt-4 inline-flex min-h-10 items-center justify-center rounded-xl bg-[var(--navy)] px-4 text-sm font-black text-white">Open</span></button>;
+  return <button type="button" onClick={onClick} className={`rounded-3xl border p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[var(--gold)] ${palette.card}`}><div className="flex items-start justify-between gap-3"><div><p className="text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">{module.label}</p><p className="mt-2 text-4xl font-black">{loading ? "..." : module.count}</p><p className="mt-1 text-sm font-bold text-[var(--muted-blue)]">{module.detail}</p></div><span className={`grid h-11 w-11 place-items-center rounded-xl ${palette.icon}`}><Icon className="h-5 w-5" /></span></div><span className="mt-4 inline-flex min-h-10 items-center justify-center rounded-xl bg-[var(--navy)] px-4 text-sm font-black text-white">Open</span></button>;
 }
 
 function Panel({ children, eyebrow, title }: { children: React.ReactNode; eyebrow: string; title: string }) {
@@ -316,12 +360,12 @@ function LeadCard({ lead, mode, onOpen }: { lead: Lead; mode: "leads" | "applica
   const fee = feeStatus(lead);
   const docs = documentStatus(lead);
   const action = leadNextAction(lead, mode);
-  return <article className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm transition hover:border-[var(--gold-border)] hover:shadow-md"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><h3 className="truncate text-base font-black">{lead.fullName}</h3><p className="mt-1 truncate text-sm text-[var(--muted-blue)]">{lead.targetExam}</p></div><span className="rounded-full bg-[var(--gold-soft)] px-3 py-1 text-[10px] font-black">{applicationStage(lead)}</span></div><div className="mt-4 grid gap-2 text-xs font-black"><InfoLine icon={PhoneCall} label="Mobile" value={lead.mobile} /><InfoLine icon={UserPlus} label="Source" value={lead.source || "Not set"} /><InfoLine icon={FileCheck2} label="Documents" value={docs.label} tone={docs.tone} /><InfoLine icon={BadgeIndianRupee} label="Fee" value={fee.label} tone={fee.tone} /><InfoLine icon={ClipboardCheck} label="Next" value={action} tone={action.includes("Check") || action.includes("fee") ? "warn" : "ok"} /></div><div className="mt-4 grid grid-cols-2 gap-2"><a href={`tel:${lead.mobile}`} className="inline-flex min-h-10 items-center justify-center rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-black transition hover:border-[var(--gold-border)] hover:bg-[var(--gold-soft)]">Call</a><button type="button" onClick={onOpen} className="min-h-10 rounded-xl bg-[var(--navy)] px-3 text-sm font-black text-white">{mode === "applications" ? "Review" : "View"}</button></div></article>;
+  return <article className="rounded-2xl border border-[var(--border)] bg-white/95 p-4 shadow-sm transition hover:border-[var(--gold-border)] hover:shadow-md"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><h3 className="truncate text-base font-black">{lead.fullName}</h3><p className="mt-1 truncate text-sm text-[var(--muted-blue)]">{lead.targetExam}</p></div><span className="rounded-full bg-[var(--gold-soft)] px-3 py-1 text-[10px] font-black">{applicationStage(lead)}</span></div><div className="mt-4 grid gap-2 text-xs font-black"><InfoLine icon={PhoneCall} label="Mobile" value={lead.mobile} /><InfoLine icon={UserPlus} label="Source" value={lead.source || "Not set"} /><InfoLine icon={FileCheck2} label="Documents" value={docs.label} tone={docs.tone} /><InfoLine icon={BadgeIndianRupee} label="Fee" value={fee.label} tone={fee.tone} /><InfoLine icon={ClipboardCheck} label="Next" value={action} tone={action.includes("Check") || action.includes("fee") ? "warn" : "ok"} /></div><div className="mt-4 grid grid-cols-2 gap-2"><a href={`tel:${lead.mobile}`} className="inline-flex min-h-10 items-center justify-center rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-black transition hover:border-[var(--gold-border)] hover:bg-[var(--gold-soft)]">Call</a><button type="button" onClick={onOpen} className="min-h-10 rounded-xl bg-[var(--navy)] px-3 text-sm font-black text-white">{mode === "applications" ? "Review" : "View"}</button></div></article>;
 }
 function FeeLeadCard({ lead, onOpen }: { lead: Lead; onOpen: () => void }) {
   const fee = feeStatus(lead);
   const expected = moneyFromLead(lead);
-  return <article className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm transition hover:border-[var(--gold-border)] hover:shadow-md"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><h3 className="truncate text-base font-black">{lead.fullName}</h3><p className="mt-1 truncate text-sm text-[var(--muted-blue)]">{lead.targetExam}</p></div><span className={`rounded-full px-3 py-1 text-[10px] font-black ${fee.tone === "warn" ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800"}`}>{fee.label}</span></div><div className="mt-4 grid gap-2 text-xs font-black"><InfoLine icon={PhoneCall} label="Mobile" value={lead.mobile} /><InfoLine icon={BadgeIndianRupee} label="Expected fee" value={expected ? `Rs ${expected.toLocaleString("en-IN")}` : "Not entered"} tone={expected ? "ok" : "warn"} /><InfoLine icon={ClipboardCheck} label="Action" value={fee.nextAction} tone={fee.tone} /></div><button type="button" onClick={onOpen} className="mt-4 min-h-10 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-black transition hover:border-[var(--gold-border)] hover:bg-[var(--gold-soft)]">Open fee details</button></article>;
+  return <article className="rounded-2xl border border-[var(--border)] bg-white/95 p-4 shadow-sm transition hover:border-[var(--gold-border)] hover:shadow-md"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><h3 className="truncate text-base font-black">{lead.fullName}</h3><p className="mt-1 truncate text-sm text-[var(--muted-blue)]">{lead.targetExam}</p></div><span className={`rounded-full px-3 py-1 text-[10px] font-black ${fee.tone === "warn" ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800"}`}>{fee.label}</span></div><div className="mt-4 grid gap-2 text-xs font-black"><InfoLine icon={PhoneCall} label="Mobile" value={lead.mobile} /><InfoLine icon={BadgeIndianRupee} label="Expected fee" value={expected ? `Rs ${expected.toLocaleString("en-IN")}` : "Not entered"} tone={expected ? "ok" : "warn"} /><InfoLine icon={ClipboardCheck} label="Action" value={fee.nextAction} tone={fee.tone} /></div><button type="button" onClick={onOpen} className="mt-4 min-h-10 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-black transition hover:border-[var(--gold-border)] hover:bg-[var(--gold-soft)]">Open fee details</button></article>;
 }
 
 function ApprovalCard({ approval, onOpen, onReview, pending }: { approval: ApprovalRequest; onOpen: () => void; onReview: (approved: boolean) => void; pending: boolean }) {
@@ -329,31 +373,68 @@ function ApprovalCard({ approval, onOpen, onReview, pending }: { approval: Appro
   return <article className="rounded-2xl border border-amber-200 bg-amber-50 p-4 shadow-sm transition hover:border-[var(--gold-border)] hover:shadow-md"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><h3 className="truncate text-base font-black">{approvalTitle(approval)}</h3><p className="mt-1 truncate text-sm font-bold text-[var(--muted-blue)]">{approvalSubtitle(approval)}</p></div><span className="rounded-full bg-white px-3 py-1 text-[10px] font-black text-amber-800 shadow-sm">Decision</span></div><div className="mt-4 grid gap-2 text-xs font-black"><InfoLine icon={ShieldCheck} label="Reason" value={approvalReason(approval)} tone="warn" /><InfoLine icon={BadgeIndianRupee} label="Amount" value={amount} /><InfoLine icon={ClipboardCheck} label="Requested" value={requestedDate(approval.requestedAt)} /></div><div className="mt-4 grid grid-cols-3 gap-2"><button type="button" onClick={() => onReview(true)} disabled={pending} className="min-h-10 rounded-xl border border-emerald-200 bg-emerald-50 px-3 text-sm font-black text-emerald-800 disabled:opacity-60">Approve</button><button type="button" onClick={() => onReview(false)} disabled={pending} className="min-h-10 rounded-xl border border-rose-200 bg-rose-50 px-3 text-sm font-black text-rose-800 disabled:opacity-60">Reject</button><button type="button" onClick={onOpen} className="min-h-10 rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-black">Details</button></div></article>;
 }
 function AdmissionCard({ admission, onOpen }: { admission: Admission; onOpen: () => void }) {
-  return <article className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm transition hover:border-[var(--gold-border)] hover:shadow-md"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><h3 className="truncate text-base font-black">{admission.student?.name ?? "Student"}</h3><p className="mt-1 truncate text-sm text-[var(--muted-blue)]">{admission.course?.title ?? admission.batch}</p></div><span className="rounded-full bg-emerald-100 px-3 py-1 text-[10px] font-black text-emerald-800">{admission.status ?? "ADMITTED"}</span></div><div className="mt-4 grid gap-2 text-xs font-black"><InfoLine icon={BadgeIndianRupee} label="Payment" value={admission.paymentStatus} /><InfoLine icon={ClipboardCheck} label="Batch" value={admission.batch || "Not set"} /></div><button type="button" onClick={onOpen} className="mt-4 min-h-10 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-black transition hover:border-[var(--gold-border)] hover:bg-[var(--gold-soft)]">Open activation</button></article>;
+  const payment = admissionPayment(admission);
+  const readiness = activationReadiness(admission);
+  return <article className="rounded-2xl border border-[var(--border)] bg-white/95 p-4 shadow-sm transition hover:border-[var(--gold-border)] hover:shadow-md"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><h3 className="truncate text-base font-black">{admission.student?.name ?? "Student"}</h3><p className="mt-1 truncate text-sm text-[var(--muted-blue)]">{admission.course?.title ?? "Course not set"}</p></div><span className={`rounded-full px-3 py-1 text-[10px] font-black ${readiness.tone === "warn" ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800"}`}>{readiness.label}</span></div><div className="mt-4 grid gap-2 text-xs font-black"><InfoLine icon={BadgeIndianRupee} label="Payment" value={payment.label} tone={payment.tone} /><InfoLine icon={ClipboardCheck} label="Batch" value={admission.batch || "Assign batch"} tone={admission.batch ? "ok" : "warn"} /><InfoLine icon={UserCheck} label="Action" value={readiness.action} tone={readiness.tone} /></div><button type="button" onClick={onOpen} className="mt-4 min-h-10 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-black transition hover:border-[var(--gold-border)] hover:bg-[var(--gold-soft)]">Open activation details</button></article>;
 }
-
 function InfoLine({ icon: Icon, label, tone = "ok", value }: { icon: LucideIcon; label: string; tone?: "ok" | "warn"; value: string }) {
   return <div className="flex items-center justify-between gap-2 rounded-xl bg-[var(--page-bg)] px-3 py-2"><span className="flex min-w-0 items-center gap-2 text-[var(--muted-blue)]"><Icon className="h-3.5 w-3.5 shrink-0" /><span className="truncate">{label}</span></span><span className={`truncate text-right ${tone === "warn" ? "text-amber-700" : "text-[var(--navy)]"}`}>{value}</span></div>;
 }
 
 function DetailDrawer({ onClose, selected }: { onClose: () => void; selected: SelectedRecord }) {
-  const title = selected.type === "lead" ? selected.item.fullName : selected.type === "approval" ? friendlyApprovalType(selected.item.type) : selected.item.student?.name ?? "Admission";
-  const rows = selected.type === "lead"
-    ? leadRows(selected.item, selected.context)
+  const title = selected.type === "lead" ? selected.item.fullName : selected.type === "approval" ? approvalTitle(selected.item) : selected.item.student?.name ?? "Admission";
+  const sections = selected.type === "lead"
+    ? leadSections(selected.item, selected.context)
     : selected.type === "approval"
-      ? [["Applicant", approvalTitle(selected.item)], ["Request", approvalSubtitle(selected.item)], ["Reason", approvalReason(selected.item)], ["Amount", selected.item.amount ? `Rs ${selected.item.amount.toLocaleString("en-IN")}` : selected.item.admission?.totalFee ? `Rs ${selected.item.admission.totalFee.toLocaleString("en-IN")}` : "Not applicable"], ["Requested", requestedDate(selected.item.requestedAt)], ["Status", selected.item.status]]
-      : [["Student", selected.item.student?.name ?? "Student"], ["Course", selected.item.course?.title ?? "Not set"], ["Batch", selected.item.batch || "Not set"], ["Payment", selected.item.paymentStatus], ["Admission date", new Date(selected.item.admissionDate).toLocaleDateString()]];
-  return <div className="fixed inset-0 z-50 bg-slate-950/30 p-4 backdrop-blur-sm" role="dialog" aria-modal="true"><aside className="ml-auto flex h-full w-full max-w-md flex-col rounded-2xl border border-[var(--border)] bg-white p-4 text-[var(--navy)] shadow-2xl"><div className="flex items-start justify-between gap-3 border-b border-[var(--border)] pb-3"><div><p className="text-[11px] font-black uppercase tracking-[0.24em] text-[var(--gold)]">{selected.type === "lead" && selected.context === "fees" ? "Fee Details" : "Admission Details"}</p><h2 className="mt-1 text-xl font-black">{title}</h2></div><button type="button" onClick={onClose} className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border)] bg-white"><X className="h-4 w-4" /></button></div><div className="mt-4 grid gap-2 overflow-auto pr-1">{rows.map(([label, value]) => <div key={label} className="rounded-xl bg-[var(--page-bg)] px-3 py-2"><p className="text-[10px] font-black uppercase tracking-[0.18em] text-[var(--muted-blue)]">{label}</p><p className="mt-1 break-words text-sm font-black">{value}</p></div>)}</div></aside></div>;
+      ? approvalSections(selected.item)
+      : admissionSections(selected.item);
+  return <div className="fixed inset-0 z-50 bg-slate-950/30 p-4 backdrop-blur-sm" role="dialog" aria-modal="true"><aside className="ml-auto flex h-full w-full max-w-md flex-col rounded-2xl border border-[var(--border)] bg-white p-4 text-[var(--navy)] shadow-2xl"><div className="flex items-start justify-between gap-3 border-b border-[var(--border)] pb-3"><div><p className="text-[11px] font-black uppercase tracking-[0.24em] text-[var(--gold)]">{drawerEyebrow(selected)}</p><h2 className="mt-1 text-xl font-black">{title}</h2></div><button type="button" onClick={onClose} className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border)] bg-white"><X className="h-4 w-4" /></button></div><div className="mt-4 grid gap-3 overflow-auto pr-1">{sections.map((section) => <DrawerSection key={section.title} title={section.title} rows={section.rows} />)}</div></aside></div>;
 }
 
-function leadRows(lead: Lead, context?: AdmissionView): string[][] {
+function DrawerSection({ rows, title }: { title: string; rows: string[][] }) {
+  return <section className="rounded-2xl border border-[var(--border)] bg-white p-3"><p className="text-[10px] font-black uppercase tracking-[0.18em] text-[var(--gold)]">{title}</p><div className="mt-2 grid gap-2">{rows.map(([label, value]) => <div key={label} className="rounded-xl bg-[var(--page-bg)] px-3 py-2"><p className="text-[10px] font-black uppercase tracking-[0.18em] text-[var(--muted-blue)]">{label}</p><p className="mt-1 break-words text-sm font-black">{value}</p></div>)}</div></section>;
+}
+function leadSections(lead: Lead, context?: AdmissionView): Array<{ title: string; rows: string[][] }> {
   const fee = feeStatus(lead);
   const docs = documentStatus(lead);
+  const expected = moneyFromLead(lead);
   if (context === "fees") {
-    const expected = moneyFromLead(lead);
-    return [["Student", lead.fullName], ["Mobile", lead.mobile], ["Program", lead.targetExam], ["Fee status", fee.label], ["Expected fee", expected ? `Rs ${expected.toLocaleString("en-IN")}` : "Not entered"], ["Next action", fee.nextAction], ["Note", friendlyNote(lead)]];
+    return [
+      { title: "Student", rows: [["Name", lead.fullName], ["Mobile", lead.mobile], ["Program", lead.targetExam]] },
+      { title: "Fee", rows: [["Status", fee.label], ["Expected fee", expected ? `Rs ${expected.toLocaleString("en-IN")}` : "Not entered"], ["Next action", fee.nextAction]] },
+      { title: "Context", rows: [["Documents", docs.label], ["Source", lead.source || "Not set"], ["Note", friendlyNote(lead)]] },
+    ];
   }
-  return [["Student", lead.fullName], ["Mobile", lead.mobile], ["Program", lead.targetExam], ["Stage", applicationStage(lead)], ["Documents", docs.label], ["Fee", fee.label], ["Next action", friendlyNote(lead)]];
+  return [
+    { title: "Student", rows: [["Name", lead.fullName], ["Mobile", lead.mobile], ["Program", lead.targetExam]] },
+    { title: "Application", rows: [["Stage", applicationStage(lead)], ["Documents", docs.label], ["Fee", fee.label]] },
+    { title: "Next Action", rows: [["Action", context === "applications" ? leadNextAction(lead, "applications") : leadNextAction(lead, "leads")], ["Source", lead.source || "Not set"], ["Summary", friendlyNote(lead)]] },
+  ];
+}
+
+function approvalSections(approval: ApprovalRequest): Array<{ title: string; rows: string[][] }> {
+  return [
+    { title: "Applicant", rows: [["Name", approvalTitle(approval)], ["Program", approvalSubtitle(approval)]] },
+    { title: "Decision", rows: [["Reason", approvalReason(approval)], ["Amount", approval.amount ? `Rs ${approval.amount.toLocaleString("en-IN")}` : approval.admission?.totalFee ? `Rs ${approval.admission.totalFee.toLocaleString("en-IN")}` : "Not applicable"], ["Requested", requestedDate(approval.requestedAt)], ["Status", approval.status]] },
+  ];
+}
+
+function admissionSections(admission: Admission): Array<{ title: string; rows: string[][] }> {
+  const payment = admissionPayment(admission);
+  const readiness = activationReadiness(admission);
+  return [
+    { title: "Student", rows: [["Name", admission.student?.name ?? "Student"], ["Mobile", admission.student?.mobile || "Not set"], ["Course", admission.course?.title ?? "Not set"]] },
+    { title: "Admission", rows: [["Batch", admission.batch || "Assign batch"], ["Admission date", new Date(admission.admissionDate).toLocaleDateString()], ["Status", admission.status || "Admitted"], ["Onboarding", admission.onboardingStatus || readiness.label]] },
+    { title: "Payment", rows: [["Payment status", payment.label], ["Total fee", formatMoney(admission.totalFee)], ["Paid", formatMoney(admission.paidAmount)], ["Due", formatMoney(admission.dueAmount)]] },
+    { title: "Next Action", rows: [["Action", readiness.action], ["Readiness", readiness.label]] },
+  ];
+}
+function emptyText(view: AdmissionView) {
+  if (view === "fees") return "No fee handover cases are visible right now.";
+  if (view === "applications") return "No applications need review right now.";
+  if (view === "approvals") return "No director approvals are pending.";
+  if (view === "activation") return "No activated admissions are visible for this selection.";
+  return "No active leads match this search.";
 }
 
 function Empty({ text }: { text: string }) {
@@ -370,4 +451,7 @@ function tonePalette(tone: Tone) {
   };
   return styles[tone];
 }
+
+
+
 
