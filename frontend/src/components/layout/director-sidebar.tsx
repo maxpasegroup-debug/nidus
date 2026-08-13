@@ -58,13 +58,17 @@ const directorMenu: DirectorMenuItem[] = [
   },
   {
     label: "Academics",
+    subtitle: "Learning Control",
     icon: GraduationCap,
-    match: ["/dashboard/director/academic", "/dashboard/director/exams", "/dashboard/director/teaching/academic-calendar"],
+    match: ["/dashboard/director/academic", "/dashboard/director/exams", "/dashboard/director/teaching/classes", "/dashboard/director/teaching/assignments", "/dashboard/director/teaching/academic-calendar"],
     children: [
+      { label: "Academics Home", href: "/dashboard/director/academic" },
+      { label: "Teach", href: "/dashboard/director/teaching/classes" },
       { label: "Programs", href: "/dashboard/director/academic", tab: "programs" },
       { label: "Batches", href: "/dashboard/director/academic", tab: "batches" },
       { label: "Timetable", href: "/dashboard/director/academic", tab: "timetable" },
       { label: "Exams", href: "/dashboard/director/academic", tab: "exams" },
+      { label: "Assignments", href: "/dashboard/director/teaching/assignments" },
       { label: "Academic Calendar", href: "/dashboard/director/academic", tab: "calendar" },
     ],
   },

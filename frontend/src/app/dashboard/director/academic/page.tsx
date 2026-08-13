@@ -5,14 +5,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import type { ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
-  AlertTriangle,
   BookOpenCheck,
   BrainCircuit,
   CalendarDays,
   CheckCircle2,
   ClipboardCheck,
   GraduationCap,
-  LineChart,
   Sparkles,
   Users,
 } from "lucide-react";
@@ -31,12 +29,22 @@ function normalizeView(value: string | null): AcademicView {
   return "home";
 }
 
-const academicModules: Array<{ key: AcademicView; label: string; detail: string; href: string; icon: LucideIcon; tone: Tone }> = [
-  { key: "programs", label: "Programs", detail: "Courses, syllabus and academic planner", href: "/dashboard/director/academic/programs", icon: GraduationCap, tone: "gold" },
-  { key: "batches", label: "Batches", detail: "Live classes, setup and student strength", href: "/dashboard/director/academic/batches", icon: Users, tone: "blue" },
-  { key: "timetable", label: "Timetable", detail: "Class schedule and teacher allocation", href: "/dashboard/director/academic/timetable", icon: CalendarDays, tone: "green" },
-  { key: "exams", label: "Exams", detail: "Question papers, tests and results", href: "/dashboard/director/exams", icon: ClipboardCheck, tone: "rose" },
-  { key: "calendar", label: "Calendar", detail: "Events, milestones and academic dates", href: "/dashboard/director/teaching/academic-calendar", icon: BookOpenCheck, tone: "amber" },
+const academicModules: Array<{ key: Exclude<AcademicView, "home">; label: string; detail: string; href: string; icon: LucideIcon; tone: Tone }> = [
+  { key: "programs", label: "Programs", detail: "Courses, syllabus and planner", href: "/dashboard/director/academic/programs", icon: GraduationCap, tone: "gold" },
+  { key: "batches", label: "Batches", detail: "Live classes and students", href: "/dashboard/director/academic/batches", icon: Users, tone: "blue" },
+  { key: "timetable", label: "Timetable", detail: "Class schedule and teachers", href: "/dashboard/director/academic/timetable", icon: CalendarDays, tone: "green" },
+  { key: "exams", label: "Exams", detail: "Create tests and review results", href: "/dashboard/director/exams", icon: ClipboardCheck, tone: "rose" },
+  { key: "calendar", label: "Calendar", detail: "Events, exams and milestones", href: "/dashboard/director/teaching/academic-calendar", icon: BookOpenCheck, tone: "amber" },
+];
+
+const directorActions: Array<{ title: string; detail: string; href: string; icon: LucideIcon; tone: Tone; primary?: boolean }> = [
+  { title: "Teach Today", detail: "Open live classes and batch rooms", href: "/dashboard/director/teaching/classes", icon: BookOpenCheck, tone: "blue", primary: true },
+  { title: "Create Exam", detail: "Build or publish a test", href: "/dashboard/director/exams", icon: ClipboardCheck, tone: "rose", primary: true },
+  { title: "Create Assignment", detail: "Send work to a batch", href: "/dashboard/director/teaching/assignments", icon: CheckCircle2, tone: "green", primary: true },
+  { title: "Add Program", detail: "Create or modify courses", href: "/dashboard/director/academic/programs", icon: GraduationCap, tone: "gold" },
+  { title: "Create Batch", detail: "Host a new live batch", href: "/dashboard/director/academic/batches", icon: Users, tone: "blue" },
+  { title: "Open Timetable", detail: "Check schedule coverage", href: "/dashboard/director/academic/timetable", icon: CalendarDays, tone: "green" },
+  { title: "Academic Calendar", detail: "Events and milestones", href: "/dashboard/director/teaching/academic-calendar", icon: BookOpenCheck, tone: "amber" },
 ];
 
 export default function DirectorAcademicDepartmentPage() {
@@ -57,22 +65,22 @@ export default function DirectorAcademicDepartmentPage() {
   const loading = coursesQuery.isLoading || batchesQuery.isLoading;
   const currentModule = academicModules.find((module) => module.key === view);
   const aiMessage = loading
-    ? "Nidus AI is checking programs, batches, planners and timetable readiness."
+    ? "Nidus AI is checking classes, exams, assignments, programs and batch readiness."
     : plannerIssues
-      ? `Nidus AI found ${plannerIssues} academic setup item(s) needing attention. Complete planners before reviewing delivery.`
-      : "Nidus AI sees a stable academic system. Programs, batches and planner setup look ready.";
+      ? `Nidus AI found ${plannerIssues} academic setup item(s). Start with the highlighted planner work.`
+      : "Nidus AI sees a calm academic system. Teaching, batches and planner setup look ready.";
 
   const healthCards = [
-    { label: "Programs", value: courses.length, detail: programsWithoutPlanner.length ? `${programsWithoutPlanner.length} planner pending` : "planner ready", href: "/dashboard/director/academic?tab=programs", icon: GraduationCap, tone: programsWithoutPlanner.length ? "amber" : "gold" },
-    { label: "Batches", value: activeBatches.length, detail: batchesWithoutPlanner.length ? `${batchesWithoutPlanner.length} setup pending` : "running classes", href: "/dashboard/director/academic?tab=batches", icon: Users, tone: batchesWithoutPlanner.length ? "amber" : "blue" },
-    { label: "Students", value: students, detail: "active learners", href: "/dashboard/director/students", icon: Users, tone: "green" },
-    { label: "Teachers", value: teachers, detail: "batch allocations", href: "/dashboard/director/academic/teachers", icon: BookOpenCheck, tone: "rose" },
+    { label: "Live Batches", value: activeBatches.length, detail: "running classes", href: "/dashboard/director/academic/batches", icon: Users, tone: "blue" as Tone },
+    { label: "Programs", value: courses.length, detail: programsWithoutPlanner.length ? `${programsWithoutPlanner.length} planner pending` : "planner ready", href: "/dashboard/director/academic/programs", icon: GraduationCap, tone: programsWithoutPlanner.length ? "amber" as Tone : "gold" as Tone },
+    { label: "Students", value: students, detail: "active learners", href: "/dashboard/director/students", icon: Users, tone: "green" as Tone },
+    { label: "Setup Items", value: plannerIssues, detail: plannerIssues ? "needs attention" : "all calm", href: plannerIssues ? "/dashboard/director/academic?tab=programs" : "/dashboard/director/academic?tab=timetable", icon: Sparkles, tone: plannerIssues ? "amber" as Tone : "green" as Tone },
   ] as const;
 
   const actionItems = [
-    { title: programsWithoutPlanner.length ? "Complete program planners" : "Program planners ready", detail: programsWithoutPlanner.length ? `${programsWithoutPlanner.length} program(s) need syllabus planner setup.` : "No program planner issue is visible.", href: "/dashboard/director/academic?tab=programs", value: programsWithoutPlanner.length, icon: GraduationCap, tone: programsWithoutPlanner.length ? "amber" : "green" },
-    { title: batchesWithoutPlanner.length ? "Finish batch setup" : "Batches look ready", detail: batchesWithoutPlanner.length ? `${batchesWithoutPlanner.length} batch(es) need academic planner setup.` : "No batch setup issue is visible.", href: "/dashboard/director/academic?tab=batches", value: batchesWithoutPlanner.length, icon: Users, tone: batchesWithoutPlanner.length ? "amber" : "green" },
-    { title: "Review timetable health", detail: "Open timetable to verify live class schedule and teacher availability.", href: "/dashboard/director/academic?tab=timetable", value: activeBatches.length, icon: CalendarDays, tone: "blue" },
+    { title: programsWithoutPlanner.length ? "Complete program planners" : "Program planners ready", detail: programsWithoutPlanner.length ? `${programsWithoutPlanner.length} program(s) need planner setup.` : "No program planner issue is visible.", href: "/dashboard/director/academic/programs", value: programsWithoutPlanner.length, icon: GraduationCap, tone: programsWithoutPlanner.length ? "amber" as const : "green" as const },
+    { title: batchesWithoutPlanner.length ? "Finish batch setup" : "Batches look ready", detail: batchesWithoutPlanner.length ? `${batchesWithoutPlanner.length} batch(es) need setup.` : "No batch setup issue is visible.", href: "/dashboard/director/academic/batches", value: batchesWithoutPlanner.length, icon: Users, tone: batchesWithoutPlanner.length ? "amber" as const : "green" as const },
+    { title: "Prepare next exam", detail: "Create or review tests from Exam Control.", href: "/dashboard/director/exams", value: activeBatches.length, icon: ClipboardCheck, tone: "blue" as const },
   ] as const;
 
   function openView(nextView: AcademicView) {
@@ -86,51 +94,65 @@ export default function DirectorAcademicDepartmentPage() {
           <div>
             <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[var(--gold)]">Nidus AI Academics</p>
             <h1 className="mt-1 text-2xl font-black tracking-tight md:text-3xl">{view === "home" ? "Academic Command" : currentModule?.label}</h1>
-            <p className="mt-1 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">{view === "home" ? "Programs, batches, timetable, exams and calendar in one simple academic control panel." : currentModule?.detail}</p>
+            <p className="mt-1 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">
+              {view === "home" ? "Teaching, exams, assignments, programs, batches and calendar in one simple academic workspace." : currentModule?.detail}
+            </p>
           </div>
-          <button type="button" onClick={() => openView("home")} className="inline-flex min-h-10 items-center justify-center rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-black shadow-sm">
-            Academics Home
-          </button>
+          {view !== "home" ? (
+            <button type="button" onClick={() => openView("home")} className="inline-flex min-h-10 items-center justify-center rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-black shadow-sm">
+              Academics Home
+            </button>
+          ) : null}
         </div>
       </header>
 
-      <section className="shrink-0 overflow-hidden rounded-3xl border border-[var(--gold-border)] bg-white/90 shadow-sm">
+      <section className="shrink-0 overflow-hidden rounded-3xl border border-[var(--gold-border)] bg-white/92 shadow-sm">
         <div className="grid gap-0 lg:grid-cols-[1fr_280px]">
           <div className="flex min-w-0 items-center gap-4 p-5">
             <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-[#08223f] text-white shadow-sm"><BrainCircuit className="h-6 w-6" /></span>
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[var(--gold)]">Nidus AI Academic Briefing</p>
-                <span className={`rounded-full px-3 py-1 text-[10px] font-black ${plannerIssues ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800"}`}>{plannerIssues ? "Setup Needed" : "Stable"}</span>
+                <span className={`rounded-full px-3 py-1 text-[10px] font-black ${plannerIssues ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800"}`}>{plannerIssues ? "Action Needed" : "Stable"}</span>
               </div>
               <p className="mt-2 text-lg font-black leading-7 text-[var(--navy)]">{view === "home" ? aiMessage : tabBriefing(view, courses.length, activeBatches.length, plannerIssues)}</p>
-              <p className="mt-1 text-sm text-[var(--muted-blue)]">{view === "home" ? "Each academic card opens the exact module needed to act." : "This is a Director summary. Use the full module button only when deeper work is needed."}</p>
+              <p className="mt-1 text-sm text-[var(--muted-blue)]">{view === "home" ? "Use the primary actions below for daily academic work." : "This is a Director summary. Open the full module only when deeper work is needed."}</p>
             </div>
           </div>
           <div className="grid gap-2 border-t border-[var(--border)] bg-[var(--gold-soft)] p-4 lg:border-l lg:border-t-0">
+            <BriefStat label="Teaching" value={loading ? "..." : activeBatches.length} />
             <BriefStat label="Programs" value={loading ? "..." : courses.length} />
-            <BriefStat label="Batches" value={loading ? "..." : activeBatches.length} />
             <BriefStat label="Setup Items" value={loading ? "..." : plannerIssues} tone={plannerIssues ? "warn" : "ok"} />
           </div>
         </div>
       </section>
 
-      <section className="grid shrink-0 gap-3 md:grid-cols-5">
-        {academicModules.map((module) => <ModuleTab key={module.key} active={view === module.key} module={module} onClick={() => openView(module.key)} />)}
-      </section>
-
       {view === "home" ? (
         <>
-          <section className="grid shrink-0 gap-3 md:grid-cols-4">
-            {healthCards.map((item) => <AnalyticsCard key={item.label} {...item} value={loading ? "..." : item.value} tone={item.tone as Tone} />)}
+          <section className="grid shrink-0 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            {healthCards.map((item) => <AnalyticsCard key={item.label} {...item} value={loading ? "..." : item.value} />)}
           </section>
-          <section className="grid min-h-0 flex-1 gap-4 xl:grid-cols-[0.98fr_1.02fr]">
-            <Panel title="Academic Actions" eyebrow="AI priority list"><div className="grid gap-3">{actionItems.map((item) => <ActionCard key={item.title} item={item} />)}</div></Panel>
-            <Panel title="AI Suggestions" eyebrow="Nidus guidance"><SuggestionList plannerIssues={plannerIssues} activeBatches={activeBatches.length} /></Panel>
+
+          <section className="grid min-h-0 flex-1 gap-4 xl:grid-cols-[1.05fr_0.95fr]">
+            <Panel title="Director Actions" eyebrow="Start here">
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                {directorActions.map((item) => <DirectorActionCard key={item.title} action={item} />)}
+              </div>
+            </Panel>
+            <Panel title="Nidus AI Next Steps" eyebrow="Recommended work">
+              <div className="grid gap-3">
+                {actionItems.map((item) => <ActionCard key={item.title} item={item} />)}
+              </div>
+            </Panel>
           </section>
         </>
       ) : (
-        <AcademicTabView view={view} loading={loading} courses={courses.length} activeBatches={activeBatches.length} students={students} teachers={teachers} programsWithoutPlanner={programsWithoutPlanner.length} batchesWithoutPlanner={batchesWithoutPlanner.length} />
+        <>
+          <section className="grid shrink-0 gap-3 md:grid-cols-5">
+            {academicModules.map((module) => <ModuleTab key={module.key} active={view === module.key} module={module} onClick={() => openView(module.key)} />)}
+          </section>
+          <AcademicTabView view={view} loading={loading} courses={courses.length} activeBatches={activeBatches.length} students={students} teachers={teachers} programsWithoutPlanner={programsWithoutPlanner.length} batchesWithoutPlanner={batchesWithoutPlanner.length} />
+        </>
       )}
     </AcademicShell>
   );
@@ -186,7 +208,7 @@ function tabActions(view: Exclude<AcademicView, "home">, data: { activeBatches: 
   const actions = {
     programs: [
       { title: data.programsWithoutPlanner ? "Complete missing planners" : "Programs look ready", detail: data.programsWithoutPlanner ? `${data.programsWithoutPlanner} program planner(s) need attention.` : "No planner issue is visible.", href: "/dashboard/director/academic/programs" },
-      { title: "Keep programs small and clear", detail: "Use the full module only for add, modify or delete work.", href: "/dashboard/director/academic/programs" },
+      { title: "Add or modify programs", detail: "Use the full module only for add, modify or delete work.", href: "/dashboard/director/academic/programs" },
     ],
     batches: [
       { title: data.batchesWithoutPlanner ? "Finish batch setup" : "Batches are ready", detail: data.batchesWithoutPlanner ? `${data.batchesWithoutPlanner} batch setup item(s) remain.` : "No batch setup issue is visible.", href: "/dashboard/director/academic/batches" },
@@ -194,15 +216,15 @@ function tabActions(view: Exclude<AcademicView, "home">, data: { activeBatches: 
     ],
     timetable: [
       { title: "Check schedule coverage", detail: `${data.activeBatches} active batch(es) need clear timetable coverage.`, href: "/dashboard/director/academic/timetable" },
-      { title: "Review teacher load", detail: `${data.teachers} teacher allocation(s) are available for schedule review.`, href: "/dashboard/director/academic/teachers" },
+      { title: "Open teaching desk", detail: `${data.teachers} teacher allocation(s) are available for class review.`, href: "/dashboard/director/teaching/classes" },
     ],
     exams: [
-      { title: "Open exam control", detail: "Create, publish and review exams from the full examination center.", href: "/dashboard/director/exams" },
+      { title: "Create or review exams", detail: "Open the Director exam control room.", href: "/dashboard/director/exams" },
       { title: "Review student readiness", detail: `${data.students} active learner(s) are in the academic system.`, href: "/dashboard/director/students" },
     ],
     calendar: [
       { title: "Open academic calendar", detail: "Review class dates, events, holidays and milestones.", href: "/dashboard/director/teaching/academic-calendar" },
-      { title: "Check calendar monitor", detail: "Use calendar monitor when you need operational date checks.", href: "/dashboard/director/academic/calendar-monitor" },
+      { title: "Review timetable first", detail: "Use timetable when you need schedule coverage before calendar dates.", href: "/dashboard/director/academic/timetable" },
     ],
   };
   return actions[view];
@@ -211,7 +233,7 @@ function tabActions(view: Exclude<AcademicView, "home">, data: { activeBatches: 
 function tabBriefing(view: Exclude<AcademicView, "home">, courses: number, batches: number, plannerIssues: number) {
   const messages = {
     programs: plannerIssues ? `Nidus AI recommends reviewing program planners. ${plannerIssues} setup item(s) are visible.` : `${courses} program(s) are available and planner health looks calm.`,
-    batches: plannerIssues ? `Nidus AI recommends finishing academic setup before adding more batches.` : `${batches} live batch(es) are running without visible setup risk.`,
+    batches: plannerIssues ? "Nidus AI recommends finishing academic setup before adding more batches." : `${batches} live batch(es) are running without visible setup risk.`,
     timetable: `Nidus AI is using ${batches} live batch(es) as the timetable health base.`,
     exams: "Nidus AI recommends checking upcoming exams, drafts and results from the exam control module.",
     calendar: "Nidus AI recommends using the academic calendar to control events, exams, holidays and milestones.",
@@ -229,9 +251,15 @@ function ModuleTab({ active, module, onClick }: { active: boolean; module: { lab
   return <button type="button" onClick={onClick} className={`rounded-2xl border p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${active ? palette.card : "border-[var(--border)] bg-white/90"}`}><div className="flex items-center gap-3"><span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${palette.icon}`}><Icon className="h-4 w-4" /></span><span className="min-w-0"><span className="block truncate text-sm font-black">{module.label}</span><span className="mt-1 block truncate text-xs font-bold text-[var(--muted-blue)]">{module.detail}</span></span></div></button>;
 }
 
+function DirectorActionCard({ action }: { action: { title: string; detail: string; href: string; icon: LucideIcon; tone: Tone; primary?: boolean } }) {
+  const Icon = action.icon;
+  const palette = tonePalette(action.tone);
+  return <Link href={action.href} className={`rounded-2xl border p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${action.primary ? palette.card : "border-[var(--border)] bg-white"}`}><div className="flex items-start gap-3"><span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${palette.icon}`}><Icon className="h-4 w-4" /></span><span className="min-w-0"><span className="block text-sm font-black text-[var(--navy)]">{action.title}</span><span className="mt-1 block text-xs leading-5 text-[var(--muted-blue)]">{action.detail}</span></span></div></Link>;
+}
+
 function AnalyticsCard({ detail, href, icon: Icon, label, tone, value }: { detail: string; href: string; icon: LucideIcon; label: string; tone: Tone; value: string | number }) {
   const palette = tonePalette(tone);
-  return <Link href={href} className={`min-h-28 rounded-2xl border p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${palette.card}`}><div className="flex h-full items-start justify-between gap-3"><div className="min-w-0"><p className="text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">{label}</p><p className="mt-2 text-3xl font-black leading-none">{value}</p><p className="mt-2 truncate text-sm font-bold text-[var(--muted-blue)]">{detail}</p></div><span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${palette.icon}`}><Icon className="h-4 w-4" /></span></div></Link>;
+  return <Link href={href} className={`min-h-24 rounded-2xl border p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${palette.card}`}><div className="flex h-full items-start justify-between gap-3"><div className="min-w-0"><p className="text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">{label}</p><p className="mt-2 text-3xl font-black leading-none">{value}</p><p className="mt-2 truncate text-sm font-bold text-[var(--muted-blue)]">{detail}</p></div><span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${palette.icon}`}><Icon className="h-4 w-4" /></span></div></Link>;
 }
 
 function CompactStat({ detail, label, tone, value }: { detail: string; label: string; tone: Tone; value: string | number }) {
@@ -248,15 +276,6 @@ function ActionCard({ item }: { item: { title: string; detail: string; href: str
   const palette = actionPalette(item.tone);
   const ok = item.tone === "green";
   return <Link href={item.href} className={`rounded-2xl border p-4 transition hover:shadow-md ${palette.card}`}><div className="flex items-center justify-between gap-3"><div className="flex min-w-0 items-center gap-3"><span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${palette.icon}`}>{ok ? <CheckCircle2 className="h-4 w-4" /> : <Icon className="h-4 w-4" />}</span><span className="min-w-0"><span className="block text-sm font-black">{item.title}</span><span className="mt-0.5 block truncate text-sm text-[var(--muted-blue)]">{item.detail}</span></span></div><span className={`rounded-full px-3 py-1 text-xs font-black ${palette.badge}`}>{item.value}</span></div></Link>;
-}
-
-function SuggestionList({ activeBatches, plannerIssues }: { activeBatches: number; plannerIssues: number }) {
-  const suggestions = [
-    { title: plannerIssues ? "Fix setup before expansion" : "Review academic delivery rhythm", detail: plannerIssues ? "Nidus AI recommends completing planner setup before adding new batches." : "Academic setup is calm. Check timetable and exam rhythm next.", href: plannerIssues ? "/dashboard/director/academic?tab=programs" : "/dashboard/director/academic?tab=timetable" },
-    { title: "Open live batches", detail: `${activeBatches} active batch(es) are running. Review strength, teachers and planner readiness.`, href: "/dashboard/director/academic?tab=batches" },
-    { title: "Check academic reports", detail: "Use reports for progress, attendance, exams and syllabus review.", href: "/dashboard/director/academic/reports" },
-  ];
-  return <div className="grid gap-3">{suggestions.map((item) => <SuggestionLink key={item.title} {...item} />)}</div>;
 }
 
 function SuggestionLink({ detail, href, title }: { detail: string; href: string; title: string }) {
