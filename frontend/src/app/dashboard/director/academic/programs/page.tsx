@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
@@ -6,15 +6,15 @@ import { usePathname } from "next/navigation";
 import {
   BookOpen,
   CalendarDays,
-  ChevronDown,
-  ChevronUp,
   Dumbbell,
   ImageIcon,
   Laptop,
   Medal,
   Pencil,
   Plus,
+  Search,
   ShieldCheck,
+  Sparkles,
   Target,
   Trash2,
   Upload,
@@ -28,28 +28,15 @@ import { allAcademyPrograms } from "@/data/academy-programs";
 import { useCreateCourse, useCourses, useDeleteCourse, useUpdateCourse } from "@/hooks/use-courses";
 import { uploadMediaFile } from "@/services/media";
 import type { Course } from "@/types/course";
-import {
-  courseDescriptionWithPlanner,
-  defaultPlannerTemplate,
-  appendPlannerUpdates,
-  parseCourseDescription,
-  parsePastedAcademicPlan,
-  plannerId,
-  plannerTotals,
-  samplePlannerText,
-  topicTypes,
-  type AcademicPlannerModule,
-  type AcademicPlannerTemplate,
-} from "../academic-planner-utils";
+import { defaultPlannerTemplate, parseCourseDescription, plannerTotals, type AcademicPlannerTemplate } from "../academic-planner-utils";
 
 type DeliveryMode = "OFFLINE" | "ONLINE";
-type ProgramCategoryKey = "aissee-rimc" | "nda" | "cds-afcat" | "agniveer" | "ssb" | "medical" | "technical" | "other";
+type ProgramCategoryKey = "all" | "nda" | "aissee-rimc" | "cds-afcat" | "agniveer" | "ssb" | "medical" | "technical" | "other";
 
 type ProgramCategory = {
-  key: ProgramCategoryKey;
+  key: Exclude<ProgramCategoryKey, "all">;
   title: string;
   shortTitle: string;
-  description: string;
   icon: LucideIcon;
   match: (text: string) => boolean;
 };
@@ -96,7 +83,6 @@ const programCategories: ProgramCategory[] = [
     key: "nda",
     title: "NDA",
     shortTitle: "NDA",
-    description: "Foundation, F1, F2 and crash course programs.",
     icon: ShieldCheck,
     match: (text) => text.includes("nda") || text.includes("foundation"),
   },
@@ -104,7 +90,6 @@ const programCategories: ProgramCategory[] = [
     key: "aissee-rimc",
     title: "AISSEE & RIMC",
     shortTitle: "AISSEE",
-    description: "Class 6, Class 9 and RIMC school entry programs.",
     icon: BookOpen,
     match: (text) => text.includes("aissee") || text.includes("rimc") || text.includes("sainik"),
   },
@@ -112,7 +97,6 @@ const programCategories: ProgramCategory[] = [
     key: "cds-afcat",
     title: "CDS & AFCAT",
     shortTitle: "CDS",
-    description: "Graduate officer entry and crash preparation.",
     icon: Target,
     match: (text) => text.includes("cds") || text.includes("cdse") || text.includes("afcat"),
   },
@@ -120,7 +104,6 @@ const programCategories: ProgramCategory[] = [
     key: "agniveer",
     title: "Agniveer",
     shortTitle: "Agniveer",
-    description: "Army, Navy and Air Force entry programs.",
     icon: Dumbbell,
     match: (text) => text.includes("agniveer") || text.includes("army") || text.includes("navy") || text.includes("air force"),
   },
@@ -128,7 +111,6 @@ const programCategories: ProgramCategory[] = [
     key: "ssb",
     title: "SSB & Interview",
     shortTitle: "SSB",
-    description: "Interview guidance and officer personality programs.",
     icon: Users,
     match: (text) => text.includes("ssb") || text.includes("interview"),
   },
@@ -136,7 +118,6 @@ const programCategories: ProgramCategory[] = [
     key: "medical",
     title: "Medical Entry",
     shortTitle: "Medical",
-    description: "AFMC and MNS preparation programs.",
     icon: Medal,
     match: (text) => text.includes("afmc") || text.includes("mns") || text.includes("medical"),
   },
@@ -144,7 +125,6 @@ const programCategories: ProgramCategory[] = [
     key: "technical",
     title: "Technical Entry",
     shortTitle: "Technical",
-    description: "TES, TGC, SSC Technical, Coast Guard and related entries.",
     icon: Laptop,
     match: (text) => text.includes("tes") || text.includes("tgc") || text.includes("technical") || text.includes("territorial") || text.includes("coast"),
   },
@@ -152,7 +132,6 @@ const programCategories: ProgramCategory[] = [
     key: "other",
     title: "Other Programs",
     shortTitle: "Other",
-    description: "Custom academy programs created for this academy.",
     icon: BookOpen,
     match: () => true,
   },
@@ -167,6 +146,7 @@ const defaultCourseForm = {
   thumbnail: "",
   description: "",
   isPremium: "false",
+  deliveryMode: "OFFLINE" as DeliveryMode,
 };
 
 function slugify(value: string) {
@@ -175,12 +155,6 @@ function slugify(value: string) {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
-}
-
-function visibleForMode(course: Course, mode: DeliveryMode) {
-  const meta = parseCourseDescription(course);
-  if (!meta.deliveryMode) return true;
-  return meta.deliveryMode === mode || meta.deliveryMode === "BOTH";
 }
 
 function isFinalOrCustomCourse(course: Course) {
@@ -203,6 +177,13 @@ function categoryForCourse(course: Course) {
   return programCategories.find((category) => category.match(text)) ?? programCategories[programCategories.length - 1];
 }
 
+function visibleForMode(course: Course, mode: DeliveryMode | "ALL") {
+  if (mode === "ALL") return true;
+  const meta = parseCourseDescription(course);
+  if (!meta.deliveryMode) return true;
+  return meta.deliveryMode === mode || meta.deliveryMode === "BOTH";
+}
+
 function programTemplateToCourse(program: (typeof allAcademyPrograms)[number]): Course {
   return {
     id: `template-${program.slug}`,
@@ -223,21 +204,23 @@ function programTemplateToCourse(program: (typeof allAcademyPrograms)[number]): 
   };
 }
 
-function modeLabel(mode: DeliveryMode) {
-  return mode === "OFFLINE" ? "Offline" : "Online";
+function plannerStatus(course: Course) {
+  const meta = parseCourseDescription(course);
+  const planner = meta.academicPlanner ?? defaultPlannerTemplate(course);
+  const totals = plannerTotals(planner);
+  const ready = Boolean(meta.academicPlanner?.modules.length);
+  return { planner, totals, ready };
 }
 
 export default function DirectorProgramsPage() {
   const pathname = usePathname();
-  const isAcademicHeadPath = (pathname ?? "").includes("/dashboard/academic-head/");
-  const hiddenTemplateStorageKey = isAcademicHeadPath ? "academicHeadHiddenProgramTemplates" : "academyHiddenProgramTemplates";
-  const [selectedCategoryKey, setSelectedCategoryKey] = useState<ProgramCategoryKey>("nda");
-  const [selectedMode, setSelectedMode] = useState<DeliveryMode | null>(null);
+  const hiddenTemplateStorageKey = (pathname ?? "").includes("/dashboard/academic-head/") ? "academicHeadHiddenProgramTemplates" : "academyHiddenProgramTemplates";
+  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<ProgramCategoryKey>("all");
+  const [deliveryFilter, setDeliveryFilter] = useState<DeliveryMode | "ALL">("ALL");
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(defaultCourseForm);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
-  const [plannerCourse, setPlannerCourse] = useState<Course | null>(null);
-  const [plannerDraft, setPlannerDraft] = useState<AcademicPlannerTemplate | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Course | null>(null);
   const [hiddenTemplateSlugs, setHiddenTemplateSlugs] = useState<string[]>(() => {
     if (typeof window === "undefined") return [];
@@ -263,19 +246,22 @@ export default function DirectorProgramsPage() {
     return orderedCourses([...databaseCourses, ...missingFinalPrograms]);
   }, [coursesQuery.data, hiddenTemplateSlugs]);
 
-  const selectedCategory = programCategories.find((category) => category.key === selectedCategoryKey) ?? programCategories[0];
-  const categoryCourses = courses.filter((course) => categoryForCourse(course).key === selectedCategory.key);
-  const visibleCategories = programCategories
-    .map((category) => {
-      const items = courses.filter((course) => categoryForCourse(course).key === category.key);
-      return { ...category, courses: items };
-    })
-    .filter((category) => category.courses.length || category.key !== "other");
-  const selectedPrograms = selectedMode ? categoryCourses.filter((course) => visibleForMode(course, selectedMode)) : categoryCourses;
+  const filteredPrograms = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    return courses.filter((course) => {
+      const meta = parseCourseDescription(course);
+      const category = categoryForCourse(course);
+      const matchesSearch = !term || `${course.title} ${course.category} ${course.examType} ${meta.summary}`.toLowerCase().includes(term);
+      const matchesCategory = categoryFilter === "all" || category.key === categoryFilter;
+      return matchesSearch && matchesCategory && visibleForMode(course, deliveryFilter);
+    });
+  }, [categoryFilter, courses, deliveryFilter, search]);
+
   const totalPrograms = courses.length;
   const offlineCount = courses.filter((course) => visibleForMode(course, "OFFLINE")).length;
   const onlineCount = courses.filter((course) => visibleForMode(course, "ONLINE")).length;
-  const plannerCount = courses.filter((course) => parseCourseDescription(course).academicPlanner?.modules.length).length;
+  const plannerReadyCount = courses.filter((course) => plannerStatus(course).ready).length;
+  const missingPlannerCount = Math.max(0, totalPrograms - plannerReadyCount);
 
   const resetForm = () => {
     setForm(defaultCourseForm);
@@ -285,26 +271,14 @@ export default function DirectorProgramsPage() {
 
   const startCreate = () => {
     setEditingCourse(null);
-    setForm({
-      ...defaultCourseForm,
-      category: selectedCategory.title,
-      examType: selectedCategory.shortTitle,
-    });
+    setForm({ ...defaultCourseForm });
     setShowForm(true);
-  };
-
-  const startQuickCreate = () => {
-    setSelectedMode(selectedMode ?? "OFFLINE");
-    startCreate();
   };
 
   const startModify = (course: Course) => {
     const meta = parseCourseDescription(course);
-    if (meta.deliveryMode === "OFFLINE" || meta.deliveryMode === "ONLINE") {
-      setSelectedMode(meta.deliveryMode);
-    }
+    const deliveryMode = meta.deliveryMode === "ONLINE" || meta.deliveryMode === "OFFLINE" ? meta.deliveryMode : "OFFLINE";
     setEditingCourse(course);
-    setShowForm(true);
     setForm({
       title: course.title,
       category: course.category,
@@ -314,45 +288,42 @@ export default function DirectorProgramsPage() {
       thumbnail: course.thumbnail,
       description: meta.summary,
       isPremium: String(course.isPremium),
+      deliveryMode,
     });
+    setShowForm(true);
   };
 
-  const openPlanner = (course: Course) => {
-    setPlannerCourse(course);
-    setPlannerDraft(defaultPlannerTemplate(course));
-  };
-
-  const closePlanner = () => {
-    setPlannerCourse(null);
-    setPlannerDraft(null);
-  };
-
-  const savePlanner = (status: AcademicPlannerTemplate["status"]) => {
-    if (!plannerCourse || !plannerDraft) return;
-    const description = courseDescriptionWithPlanner(plannerCourse, plannerDraft, status);
+  const submitCourse = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const slug = slugify(form.title);
+    const existingPlanner: AcademicPlannerTemplate | undefined = editingCourse ? parseCourseDescription(editingCourse).academicPlanner : undefined;
+    const description = JSON.stringify({
+      summary: form.description,
+      deliveryMode: form.deliveryMode,
+      source: "Director Programs Workspace",
+      academicPlanner: existingPlanner,
+    });
     const payload = {
-      title: plannerCourse.title,
-      slug: plannerCourse.slug,
+      title: form.title,
+      slug,
       description,
-      thumbnail: plannerCourse.thumbnail,
-      category: plannerCourse.category,
-      examType: plannerCourse.examType,
-      duration: plannerCourse.duration,
-      price: plannerCourse.price,
-      isPremium: plannerCourse.isPremium,
+      thumbnail: form.thumbnail || `/images/academy/${slug || "course"}.jpg`,
+      category: form.category,
+      examType: form.examType,
+      duration: form.duration,
+      price: Number(form.price || 0),
+      isPremium: form.isPremium === "true",
     };
 
-    if (plannerCourse.id.startsWith("template-")) {
-      createCourse.mutate(payload, { onSuccess: closePlanner });
+    if (editingCourse && !editingCourse.id.startsWith("template-")) {
+      updateCourse.mutate({ id: editingCourse.id, payload }, { onSuccess: resetForm });
       return;
     }
 
-    updateCourse.mutate({ id: plannerCourse.id, payload }, { onSuccess: closePlanner });
+    createCourse.mutate(payload, { onSuccess: resetForm });
   };
 
-  const requestDelete = (course: Course) => {
-    setDeleteTarget(course);
-  };
+  const requestDelete = (course: Course) => setDeleteTarget(course);
 
   const confirmDelete = () => {
     if (!deleteTarget) return;
@@ -369,43 +340,14 @@ export default function DirectorProgramsPage() {
     deleteCourse.mutate(deleteTarget.id, { onSuccess: () => setDeleteTarget(null) });
   };
 
-  const submitCourse = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const deliveryMode = selectedMode ?? "OFFLINE";
-    const description = JSON.stringify({
-      summary: form.description,
-      deliveryMode,
-      source: "Academy Programs & Courses",
-      academicPlanner: editingCourse ? parseCourseDescription(editingCourse).academicPlanner : undefined,
-    });
-    const payload = {
-      title: form.title,
-      slug: slugify(form.title),
-      description,
-      thumbnail: form.thumbnail || `/images/academy/${slugify(form.title)}.jpg`,
-      category: form.category,
-      examType: form.examType,
-      duration: form.duration,
-      price: Number(form.price || 0),
-      isPremium: form.isPremium === "true",
-    };
-
-    if (editingCourse && !editingCourse.id.startsWith("template-")) {
-      updateCourse.mutate({ id: editingCourse.id, payload }, { onSuccess: resetForm });
-      return;
-    }
-
-    createCourse.mutate(payload, { onSuccess: resetForm });
-  };
-
   return (
     <AcademicShell>
       <AcademicHero
-        eyebrow="Programs & Courses"
+        eyebrow="NIDUS AI Academics"
         title="Programs"
-        description="Add, edit, remove and organize academy programs from one simple page."
+        description="Live programs, new program creation, planner readiness and quick changes from one clean Director workspace."
         action={
-          <AcademicActionButton onClick={startQuickCreate}>
+          <AcademicActionButton onClick={startCreate}>
             <Plus className="h-4 w-4" />
             Add Program
           </AcademicActionButton>
@@ -413,625 +355,241 @@ export default function DirectorProgramsPage() {
       />
 
       <section className="grid shrink-0 gap-3 md:grid-cols-4">
-        <StatCard label="Total Programs" value={totalPrograms} />
+        <StatCard label="Live Programs" value={totalPrograms} />
         <StatCard label="Offline" value={offlineCount} />
         <StatCard label="Online" value={onlineCount} />
-        <StatCard label="Planners" value={plannerCount} />
+        <StatCard label="Planner Ready" value={plannerReadyCount} />
       </section>
 
-      <Panel title={`${selectedCategory.title} Programs`} eyebrow="Live Programs">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap gap-2">
-            {visibleCategories.map((category) => {
-              const Icon = category.icon;
-              const selected = selectedCategory.key === category.key;
-              return (
-                <button
-                  key={category.key}
-                  type="button"
-                  onClick={() => {
-                    setSelectedCategoryKey(category.key);
-                    resetForm();
-                  }}
-                  className={`inline-flex min-h-10 items-center gap-2 rounded-xl border px-3 py-2 text-sm font-black transition ${
-                    selected
-                      ? "border-[var(--gold-border)] bg-[var(--gold-soft)] text-[var(--navy)] shadow-sm"
-                      : "border-[var(--border)] bg-white text-[var(--muted-blue)] hover:border-[var(--gold-border)]"
-                  }`}
-                >
-                  <Icon className="h-4 w-4" />
-                  {category.shortTitle}
-                  <span className="rounded-full bg-white px-2 py-0.5 text-[10px]">{category.courses.length}</span>
-                </button>
-              );
-            })}
+      <section className="shrink-0 rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-4 shadow-sm">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex items-start gap-3">
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-white text-[var(--navy)] shadow-sm">
+              <Sparkles className="h-5 w-5" />
+            </span>
+            <div>
+              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[var(--gold)]">Nidus AI</p>
+              <p className="text-sm font-bold leading-6 text-[var(--muted-blue)]">
+                {missingPlannerCount
+                  ? `${missingPlannerCount} program(s) still need planner setup before batch scheduling feels complete.`
+                  : "All visible programs have planner structure ready for academic operations."}
+              </p>
+            </div>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {[
-              { label: "All", value: null },
-              { label: "Offline", value: "OFFLINE" as DeliveryMode },
-              { label: "Online", value: "ONLINE" as DeliveryMode },
-            ].map((mode) => {
-              const selected = selectedMode === mode.value;
-              return (
-                <button
-                  key={mode.label}
-                  type="button"
-                  onClick={() => setSelectedMode(mode.value)}
-                  className={`min-h-10 rounded-xl border px-3 py-2 text-sm font-black transition ${
-                    selected ? "border-[var(--navy)] bg-[var(--navy)] text-white" : "border-[var(--border)] bg-white hover:border-[var(--gold-border)]"
-                  }`}
-                >
-                  {mode.label}
-                </button>
-              );
-            })}
-            <AcademicActionButton onClick={startCreate}>
-              <Plus className="h-4 w-4" />
-              Add
-            </AcademicActionButton>
+          <div className="grid grid-cols-3 gap-2 text-center sm:min-w-[340px]">
+            <MiniMetric label="Programs" value={totalPrograms} />
+            <MiniMetric label="Planners" value={plannerReadyCount} />
+            <MiniMetric label="Need setup" value={missingPlannerCount} />
           </div>
         </div>
+      </section>
 
-            {!selectedPrograms.length ? (
-              <EmptyState
-                text={`No ${selectedMode ? modeLabel(selectedMode).toLowerCase() : "live"} programs are available in ${selectedCategory.title} yet.`}
-                action={
-                  <AcademicActionButton onClick={startCreate}>
-                    <Plus className="h-4 w-4" />
-                    Add Program
-                  </AcademicActionButton>
-                }
-              />
-            ) : null}
-
-            {coursesQuery.isLoading ? <EmptyState text="Loading live programs..." /> : null}
-
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              {selectedPrograms.map((course) => {
-                const meta = parseCourseDescription(course);
-                const isTemplate = course.id.startsWith("template-");
-                const totals = plannerTotals(meta.academicPlanner);
-                return (
-                  <article key={course.id} className="rounded-xl border border-[var(--border)] bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:shadow-md">
-                    <div className="flex items-start gap-3">
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--gold-soft)]">
-                        <BookOpen className="h-5 w-5 text-[var(--navy)]" />
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-start justify-between gap-2">
-                          <h3 className="line-clamp-2 text-base font-black leading-5">{course.title}</h3>
-                          <span className="shrink-0 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[9px] font-black text-emerald-700">
-                            Live
-                          </span>
-                        </div>
-                        <p className="mt-1 line-clamp-1 text-xs leading-5 text-[var(--muted-blue)]">{meta.summary}</p>
-                      </div>
-                    </div>
-                    <div className="mt-3 flex flex-wrap gap-1.5">
-                      <span className="rounded-full border border-[var(--border)] bg-white px-2 py-0.5 text-[10px] font-black">{course.duration}</span>
-                      <span className="rounded-full border border-[var(--border)] bg-white px-2 py-0.5 text-[10px] font-black">Rs {course.price}</span>
-                      <span className="rounded-full border border-[var(--border)] bg-white px-2 py-0.5 text-[10px] font-black">{meta.deliveryMode ?? "Both"}</span>
-                      <span className="rounded-full border border-[var(--border)] bg-white px-2 py-0.5 text-[10px] font-black">
-                        {meta.academicPlanner ? `${totals.sessions} sessions` : "Planner pending"}
-                      </span>
-                    </div>
-                    <div className="mt-3 grid grid-cols-3 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => openPlanner(course)}
-                        className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[var(--navy)] px-2 py-2 text-xs font-black text-white"
-                      >
-                        <CalendarDays className="h-3.5 w-3.5" />
-                        Planner
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => startModify(course)}
-                        className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--border)] bg-white px-2 py-2 text-xs font-black transition hover:border-[var(--gold-border)] hover:bg-[var(--gold-soft)]"
-                      >
-                        <Pencil className="h-3.5 w-3.5" />
-                        Modify
-                      </button>
-                      <button
-                        type="button"
-                        disabled={deleteCourse.isPending}
-                        onClick={() => requestDelete(course)}
-                        className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-rose-200 bg-rose-50 px-2 py-2 text-xs font-black text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:border-[var(--border)] disabled:bg-[var(--page-bg)] disabled:text-[var(--muted-blue)]"
-                        title={isTemplate ? "Remove this template from this program list." : "Delete program"}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                        Delete
-                      </button>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-      </Panel>
-
-          {showForm ? (
-            <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/45 px-4 py-6 backdrop-blur-sm">
-              <section className="max-h-[calc(100vh-3rem)] w-full max-w-4xl overflow-auto rounded-2xl border border-[var(--border)] bg-white p-4 shadow-2xl md:p-5">
-                <div className="mb-4 flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[var(--gold)]">{editingCourse ? "Edit Program" : "New Program"}</p>
-                    <h2 className="mt-1 text-xl font-black text-[var(--navy)]">
-                      {editingCourse ? `Modify ${editingCourse.title}` : `Add ${selectedCategory.shortTitle} ${modeLabel(selectedMode ?? "OFFLINE")} Program`}
-                    </h2>
-                  </div>
-                  <button type="button" onClick={resetForm} className="icon-button h-10 w-10 rounded-xl border border-[var(--border)] bg-white" aria-label="Close program editor">
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-                <form onSubmit={submitCourse} className="grid gap-4 md:grid-cols-2">
-                  <Input label="Program name" value={form.title} onChange={(value) => setForm((state) => ({ ...state, title: value }))} required />
-                  <Input label="Category" value={form.category} onChange={(value) => setForm((state) => ({ ...state, category: value }))} required />
-                  <Input label="Exam / program type" value={form.examType} onChange={(value) => setForm((state) => ({ ...state, examType: value }))} required />
-                  <Input label="Duration" value={form.duration} onChange={(value) => setForm((state) => ({ ...state, duration: value }))} required placeholder="Example: 6 months" />
-                  <Input label="Price" type="number" value={form.price} onChange={(value) => setForm((state) => ({ ...state, price: value }))} />
-                  <ProgramImageUpload value={form.thumbnail} onChange={(value) => setForm((state) => ({ ...state, thumbnail: value }))} />
-                  <Select label="Premium program" value={form.isPremium} onChange={(value) => setForm((state) => ({ ...state, isPremium: value }))}>
-                    <option value="false">No</option>
-                    <option value="true">Yes</option>
-                  </Select>
-                  <Select label="Delivery" value={selectedMode ?? "OFFLINE"} onChange={(value) => setSelectedMode(value as DeliveryMode)} disabled={Boolean(editingCourse)}>
-                    <option value="OFFLINE">Offline</option>
-                    <option value="ONLINE">Online</option>
-                  </Select>
-                  <div className="md:col-span-2">
-                    <TextArea label="Program description" value={form.description} onChange={(value) => setForm((state) => ({ ...state, description: value }))} required />
-                  </div>
-                  <div className="md:col-span-2">
-                    <div className="flex flex-wrap justify-end gap-2 border-t border-[var(--border)] pt-4">
-                      <button type="button" onClick={resetForm} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">
-                        Cancel
-                      </button>
-                      <GoldButton disabled={createCourse.isPending || updateCourse.isPending}>{editingCourse ? "Save Changes" : "Add Program"}</GoldButton>
-                    </div>
-                  </div>
-                </form>
-              </section>
-            </div>
-          ) : null}
-
-          {plannerCourse && plannerDraft ? (
-            <SimplePlannerEditor
-              course={plannerCourse}
-              draft={plannerDraft}
-              onChange={setPlannerDraft}
-              onClose={closePlanner}
-              onSaveDraft={() => savePlanner("DRAFT")}
-              onPublish={() => savePlanner("PUBLISHED")}
-              saving={createCourse.isPending || updateCourse.isPending}
+      <Panel title="Live Programs" eyebrow="Manage">
+        <div className="mb-4 grid gap-3 lg:grid-cols-[1fr_180px_160px_auto] lg:items-center">
+          <label className="relative block">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted-blue)]" />
+            <input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search program, category or exam type"
+              className="h-11 w-full rounded-xl border border-[var(--border)] bg-white pl-10 pr-3 text-sm font-bold text-[var(--navy)] outline-none focus:border-[var(--gold)]"
             />
-          ) : null}
+          </label>
+          <select
+            value={categoryFilter}
+            onChange={(event) => setCategoryFilter(event.target.value as ProgramCategoryKey)}
+            className="h-11 rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-black text-[var(--navy)] outline-none focus:border-[var(--gold)]"
+          >
+            <option value="all">All Categories</option>
+            {programCategories.map((category) => (
+              <option key={category.key} value={category.key}>
+                {category.title}
+              </option>
+            ))}
+          </select>
+          <select
+            value={deliveryFilter}
+            onChange={(event) => setDeliveryFilter(event.target.value as DeliveryMode | "ALL")}
+            className="h-11 rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-black text-[var(--navy)] outline-none focus:border-[var(--gold)]"
+          >
+            <option value="ALL">All Delivery</option>
+            <option value="OFFLINE">Offline</option>
+            <option value="ONLINE">Online</option>
+          </select>
+          <AcademicActionButton onClick={startCreate}>
+            <Plus className="h-4 w-4" />
+            New Program
+          </AcademicActionButton>
+        </div>
 
-          {deleteTarget ? (
-            <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/45 px-4 py-6 backdrop-blur-sm">
-              <section className="w-full max-w-md rounded-2xl border border-[var(--border)] bg-white p-5 shadow-2xl">
+        {coursesQuery.isLoading ? <EmptyState text="Loading live programs..." /> : null}
+        {!coursesQuery.isLoading && !filteredPrograms.length ? <EmptyState text="No matching programs found. Add a program or adjust the filters." /> : null}
+
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+          {filteredPrograms.map((course) => {
+            const meta = parseCourseDescription(course);
+            const category = categoryForCourse(course);
+            const Icon = category.icon;
+            const status = plannerStatus(course);
+            const isTemplate = course.id.startsWith("template-");
+            return (
+              <article key={course.id} className="group rounded-2xl border border-[var(--border)] bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:shadow-md">
                 <div className="flex items-start gap-3">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-rose-50 text-rose-700">
-                    <Trash2 className="h-5 w-5" />
-                  </span>
-                  <div>
-                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-rose-700">Delete Program</p>
-                    <h2 className="mt-1 text-xl font-black text-[var(--navy)]">{deleteTarget.title}</h2>
-                    <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">
-                      {deleteTarget.id.startsWith("template-")
-                        ? "This is a default template. It will be removed from this program list."
-                        : "This saved program will be deleted from the system."}
-                    </p>
+                  <div className="grid h-14 w-16 shrink-0 place-items-center overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--gold-soft)]">
+                    {course.thumbnail ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={course.thumbnail} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      <Icon className="h-5 w-5 text-[var(--navy)]" />
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="line-clamp-2 text-base font-black leading-5 text-[var(--navy)]">{course.title}</h3>
+                      <span className="shrink-0 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[9px] font-black uppercase text-emerald-700">Live</span>
+                    </div>
+                    <p className="mt-1 line-clamp-1 text-xs font-bold text-[var(--muted-blue)]">{category.title}</p>
                   </div>
                 </div>
-                <div className="mt-5 flex justify-end gap-2">
-                  <button type="button" onClick={() => setDeleteTarget(null)} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">
-                    Cancel
+
+                <p className="mt-3 line-clamp-2 min-h-10 text-sm leading-5 text-[var(--muted-blue)]">{meta.summary || "Program details can be added from Modify."}</p>
+
+                <div className="mt-3 grid grid-cols-3 gap-2">
+                  <ProgramFact label="Duration" value={course.duration || "Not set"} />
+                  <ProgramFact label="Price" value={`Rs ${course.price ?? 0}`} />
+                  <ProgramFact label="Mode" value={meta.deliveryMode || "Both"} />
+                </div>
+
+                <div className="mt-3 rounded-xl bg-[var(--page-bg)] px-3 py-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[10px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Planner</span>
+                    <span className={`rounded-full px-2 py-0.5 text-[9px] font-black uppercase ${status.ready ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>
+                      {status.ready ? "Ready" : "Setup"}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-xs font-black text-[var(--navy)]">
+                    {status.totals.modules} modules / {status.totals.sessions} sessions
+                  </p>
+                </div>
+
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => startModify(course)}
+                    className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-white text-sm font-black transition hover:border-[var(--gold-border)] hover:bg-[var(--gold-soft)]"
+                  >
+                    <Pencil className="h-4 w-4" />
+                    Modify
                   </button>
                   <button
                     type="button"
-                    onClick={confirmDelete}
                     disabled={deleteCourse.isPending}
-                    className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-rose-600 px-4 py-2 text-sm font-black text-white disabled:opacity-60"
+                    onClick={() => requestDelete(course)}
+                    className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-rose-200 bg-rose-50 text-sm font-black text-rose-700 transition hover:bg-rose-100 disabled:opacity-60"
+                    title={isTemplate ? "Remove this template from this list" : "Delete program"}
                   >
                     <Trash2 className="h-4 w-4" />
                     Delete
                   </button>
                 </div>
-              </section>
+              </article>
+            );
+          })}
+        </div>
+      </Panel>
+
+      {showForm ? (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/45 px-4 py-6 backdrop-blur-sm">
+          <section className="max-h-[calc(100vh-3rem)] w-full max-w-4xl overflow-auto rounded-2xl border border-[var(--border)] bg-white p-4 shadow-2xl md:p-5">
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <div>
+                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[var(--gold)]">{editingCourse ? "Modify Program" : "New Program"}</p>
+                <h2 className="mt-1 text-xl font-black text-[var(--navy)]">{editingCourse ? editingCourse.title : "Add Program"}</h2>
+              </div>
+              <button type="button" onClick={resetForm} className="icon-button h-10 w-10 rounded-xl border border-[var(--border)] bg-white" aria-label="Close program editor">
+                <X className="h-4 w-4" />
+              </button>
             </div>
-          ) : null}
+
+            <form onSubmit={submitCourse} className="grid gap-4 md:grid-cols-2">
+              <Input label="Program name" value={form.title} onChange={(value) => setForm((state) => ({ ...state, title: value }))} required />
+              <Input label="Category" value={form.category} onChange={(value) => setForm((state) => ({ ...state, category: value }))} required />
+              <Input label="Exam / program type" value={form.examType} onChange={(value) => setForm((state) => ({ ...state, examType: value }))} required />
+              <Input label="Duration" value={form.duration} onChange={(value) => setForm((state) => ({ ...state, duration: value }))} required placeholder="Example: 6 months" />
+              <Input label="Price" type="number" value={form.price} onChange={(value) => setForm((state) => ({ ...state, price: value }))} />
+              <ProgramImageUpload value={form.thumbnail} onChange={(value) => setForm((state) => ({ ...state, thumbnail: value }))} />
+              <Select label="Premium program" value={form.isPremium} onChange={(value) => setForm((state) => ({ ...state, isPremium: value }))}>
+                <option value="false">No</option>
+                <option value="true">Yes</option>
+              </Select>
+              <Select label="Delivery" value={form.deliveryMode} onChange={(value) => setForm((state) => ({ ...state, deliveryMode: value as DeliveryMode }))}>
+                <option value="OFFLINE">Offline</option>
+                <option value="ONLINE">Online</option>
+              </Select>
+              <div className="md:col-span-2">
+                <TextArea label="Program description" value={form.description} onChange={(value) => setForm((state) => ({ ...state, description: value }))} required />
+              </div>
+              {editingCourse ? (
+                <div className="md:col-span-2 rounded-xl bg-[var(--gold-soft)] px-3 py-2 text-sm font-bold text-[var(--muted-blue)]">
+                  Planner data is preserved when this program is modified.
+                </div>
+              ) : null}
+              <div className="md:col-span-2 flex flex-wrap justify-end gap-2 border-t border-[var(--border)] pt-4">
+                <button type="button" onClick={resetForm} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">
+                  Cancel
+                </button>
+                <GoldButton disabled={createCourse.isPending || updateCourse.isPending}>{editingCourse ? "Save Changes" : "Add Program"}</GoldButton>
+              </div>
+            </form>
+          </section>
+        </div>
+      ) : null}
+
+      {deleteTarget ? (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/45 px-4 py-6 backdrop-blur-sm">
+          <section className="w-full max-w-md rounded-2xl border border-[var(--border)] bg-white p-5 shadow-2xl">
+            <div className="flex items-start gap-3">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-rose-50 text-rose-700">
+                <Trash2 className="h-5 w-5" />
+              </span>
+              <div>
+                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-rose-700">Delete Program</p>
+                <h2 className="mt-1 text-xl font-black text-[var(--navy)]">{deleteTarget.title}</h2>
+                <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">
+                  {deleteTarget.id.startsWith("template-") ? "This default program will be hidden from this list." : "This saved program will be deleted from the system."}
+                </p>
+              </div>
+            </div>
+            <div className="mt-5 flex justify-end gap-2">
+              <button type="button" onClick={() => setDeleteTarget(null)} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">
+                Cancel
+              </button>
+              <button type="button" onClick={confirmDelete} disabled={deleteCourse.isPending} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-rose-600 px-4 py-2 text-sm font-black text-white disabled:opacity-60">
+                <Trash2 className="h-4 w-4" />
+                Delete
+              </button>
+            </div>
+          </section>
+        </div>
+      ) : null}
     </AcademicShell>
   );
 }
 
-function PlannerEditor({
-  course,
-  draft,
-  onChange,
-  onClose,
-  onSaveDraft,
-  onPublish,
-  saving,
-}: {
-  course: Course;
-  draft: AcademicPlannerTemplate;
-  onChange: (planner: AcademicPlannerTemplate) => void;
-  onClose: () => void;
-  onSaveDraft: () => void;
-  onPublish: () => void;
-  saving: boolean;
-}) {
-  const totals = plannerTotals(draft);
-
-  const updateModule = (moduleId: string, patch: Partial<AcademicPlannerModule>) => {
-    onChange({
-      ...draft,
-      modules: draft.modules.map((module) => (module.id === moduleId ? { ...module, ...patch } : module)),
-    });
-  };
-
-  const addModule = () => {
-    onChange({
-      ...draft,
-      modules: [
-        ...draft.modules,
-        {
-          id: plannerId("module"),
-          title: "New Module",
-          subject: course.examType || "General",
-          milestone: "",
-          topics: [],
-        },
-      ],
-    });
-  };
-
-  const deleteModule = (moduleId: string) => {
-    onChange({ ...draft, modules: draft.modules.filter((module) => module.id !== moduleId) });
-  };
-
-  const moveModule = (moduleId: string, direction: -1 | 1) => {
-    const index = draft.modules.findIndex((module) => module.id === moduleId);
-    const nextIndex = index + direction;
-    if (index < 0 || nextIndex < 0 || nextIndex >= draft.modules.length) return;
-    const modules = [...draft.modules];
-    const [item] = modules.splice(index, 1);
-    modules.splice(nextIndex, 0, item);
-    onChange({ ...draft, modules });
-  };
-
-  const addTopic = (moduleId: string) => {
-    onChange({
-      ...draft,
-      modules: draft.modules.map((module) => module.id === moduleId
-        ? {
-            ...module,
-            topics: [
-              ...module.topics,
-              {
-                id: plannerId("topic"),
-                title: "New topic",
-                type: "CLASS",
-                sessions: 1,
-                hours: 1,
-                facultyRole: "Subject Faculty",
-              },
-            ],
-          }
-        : module),
-    });
-  };
-
-  const updateTopic = (moduleId: string, topicId: string, patch: Partial<AcademicPlannerModule["topics"][number]>) => {
-    onChange({
-      ...draft,
-      modules: draft.modules.map((module) => module.id === moduleId
-        ? { ...module, topics: module.topics.map((topic) => (topic.id === topicId ? { ...topic, ...patch } : topic)) }
-        : module),
-    });
-  };
-
-  const deleteTopic = (moduleId: string, topicId: string) => {
-    onChange({
-      ...draft,
-      modules: draft.modules.map((module) => module.id === moduleId ? { ...module, topics: module.topics.filter((topic) => topic.id !== topicId) } : module),
-    });
-  };
-
-  const moveTopic = (moduleId: string, topicId: string, direction: -1 | 1) => {
-    const plannerModule = draft.modules.find((item) => item.id === moduleId);
-    if (!plannerModule) return;
-    const index = plannerModule.topics.findIndex((topic) => topic.id === topicId);
-    const nextIndex = index + direction;
-    if (index < 0 || nextIndex < 0 || nextIndex >= plannerModule.topics.length) return;
-    const topics = [...plannerModule.topics];
-    const [item] = topics.splice(index, 1);
-    topics.splice(nextIndex, 0, item);
-    updateModule(moduleId, { topics });
-  };
-
+function MiniMetric({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/45 px-3 py-4 backdrop-blur-sm">
-      <section className="flex max-h-[calc(100vh-2rem)] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-white shadow-2xl">
-        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[var(--border)] p-4">
-          <div>
-            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[var(--gold)]">Academic Planner</p>
-            <h2 className="mt-1 text-xl font-black text-[var(--navy)]">{course.title}</h2>
-            <div className="mt-2 flex flex-wrap gap-2 text-[11px] font-black">
-              <span className="rounded-full border border-[var(--border)] px-2.5 py-1">{draft.status}</span>
-              <span className="rounded-full border border-[var(--border)] px-2.5 py-1">{totals.modules} modules</span>
-              <span className="rounded-full border border-[var(--border)] px-2.5 py-1">{totals.sessions} sessions</span>
-              <span className="rounded-full border border-[var(--border)] px-2.5 py-1">{totals.assessments} assessments</span>
-            </div>
-          </div>
-          <button type="button" onClick={onClose} className="icon-button h-10 w-10 rounded-xl border border-[var(--border)] bg-white" aria-label="Close planner editor">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-
-        <div className="min-h-0 flex-1 overflow-auto p-4">
-          <div className="mb-4 flex flex-wrap justify-between gap-2">
-            <AcademicActionButton onClick={addModule}>
-              <Plus className="h-4 w-4" />
-              Add Module
-            </AcademicActionButton>
-            <p className="max-w-2xl text-sm font-bold leading-6 text-[var(--muted-blue)]">
-              Build the master syllabus sequence here. Batch schedules will be generated from these modules and topics.
-            </p>
-          </div>
-
-          <div className="grid gap-3">
-            {draft.modules.map((module, moduleIndex) => (
-              <article key={module.id} className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-3">
-                <div className="grid gap-3 lg:grid-cols-[1.2fr_0.8fr_0.8fr_auto] lg:items-end">
-                  <Input label="Module" value={module.title} onChange={(value) => updateModule(module.id, { title: value })} />
-                  <Input label="Subject" value={module.subject} onChange={(value) => updateModule(module.id, { subject: value })} />
-                  <Input label="Milestone" value={module.milestone} onChange={(value) => updateModule(module.id, { milestone: value })} placeholder="Example: 25% completion" />
-                  <div className="flex gap-2">
-                    <button type="button" onClick={() => moveModule(module.id, -1)} disabled={moduleIndex === 0} className="icon-button h-10 w-10 rounded-xl border border-[var(--border)] bg-white disabled:opacity-40" aria-label="Move module up">
-                      <ChevronUp className="h-4 w-4" />
-                    </button>
-                    <button type="button" onClick={() => moveModule(module.id, 1)} disabled={moduleIndex === draft.modules.length - 1} className="icon-button h-10 w-10 rounded-xl border border-[var(--border)] bg-white disabled:opacity-40" aria-label="Move module down">
-                      <ChevronDown className="h-4 w-4" />
-                    </button>
-                    <button type="button" onClick={() => deleteModule(module.id)} className="icon-button h-10 w-10 rounded-xl border border-rose-200 bg-rose-50 text-rose-700" aria-label="Delete module">
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-
-                <div className="mt-3 grid gap-2">
-                  {module.topics.map((topic, topicIndex) => (
-                    <div key={topic.id} className="grid gap-2 rounded-xl border border-[var(--border)] bg-white p-2 md:grid-cols-[1.4fr_0.8fr_0.45fr_0.45fr_0.8fr_auto] md:items-end">
-                      <Input label="Topic / exam / activity" value={topic.title} onChange={(value) => updateTopic(module.id, topic.id, { title: value })} />
-                      <Select label="Type" value={topic.type} onChange={(value) => updateTopic(module.id, topic.id, { type: value as typeof topic.type })}>
-                        {topicTypes.map((type) => <option key={type} value={type}>{type}</option>)}
-                      </Select>
-                      <Input label="Sessions" type="number" value={String(topic.sessions)} onChange={(value) => updateTopic(module.id, topic.id, { sessions: Number(value || 0) })} />
-                      <Input label="Hours" type="number" value={String(topic.hours)} onChange={(value) => updateTopic(module.id, topic.id, { hours: Number(value || 0) })} />
-                      <Input label="Faculty role" value={topic.facultyRole} onChange={(value) => updateTopic(module.id, topic.id, { facultyRole: value })} />
-                      <div className="flex gap-1">
-                        <button type="button" onClick={() => moveTopic(module.id, topic.id, -1)} disabled={topicIndex === 0} className="icon-button h-10 w-10 rounded-xl border border-[var(--border)] bg-white disabled:opacity-40" aria-label="Move topic up">
-                          <ChevronUp className="h-4 w-4" />
-                        </button>
-                        <button type="button" onClick={() => moveTopic(module.id, topic.id, 1)} disabled={topicIndex === module.topics.length - 1} className="icon-button h-10 w-10 rounded-xl border border-[var(--border)] bg-white disabled:opacity-40" aria-label="Move topic down">
-                          <ChevronDown className="h-4 w-4" />
-                        </button>
-                        <button type="button" onClick={() => deleteTopic(module.id, topic.id)} className="icon-button h-10 w-10 rounded-xl border border-rose-200 bg-rose-50 text-rose-700" aria-label="Delete topic">
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                  <button type="button" onClick={() => addTopic(module.id)} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-dashed border-[var(--border)] bg-white px-3 py-2 text-sm font-black">
-                    <Plus className="h-4 w-4" />
-                    Add Topic / Assessment
-                  </button>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex flex-wrap justify-end gap-2 border-t border-[var(--border)] p-4">
-          <button type="button" onClick={onClose} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">
-            Cancel
-          </button>
-          <button type="button" onClick={onSaveDraft} disabled={saving} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black disabled:opacity-60">
-            Save Draft
-          </button>
-          <GoldButton type="button" disabled={saving} onClick={onPublish}>
-            Publish Planner
-          </GoldButton>
-        </div>
-      </section>
+    <div className="rounded-xl bg-white px-3 py-2 shadow-sm">
+      <p className="text-lg font-black text-[var(--navy)]">{value}</p>
+      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">{label}</p>
     </div>
   );
 }
 
-function SimplePlannerEditor({
-  course,
-  draft,
-  onChange,
-  onClose,
-  onSaveDraft,
-  onPublish,
-  saving,
-}: {
-  course: Course;
-  draft: AcademicPlannerTemplate;
-  onChange: (planner: AcademicPlannerTemplate) => void;
-  onClose: () => void;
-  onSaveDraft: () => void;
-  onPublish: () => void;
-  saving: boolean;
-}) {
-  const [step, setStep] = useState<"paste" | "review">("paste");
-  const [pasteMode, setPasteMode] = useState<"REPLACE" | "APPEND">("REPLACE");
-  const [pasteText, setPasteText] = useState(draft.pasteSource || "");
-  const [message, setMessage] = useState("");
-  const totals = plannerTotals(draft);
-  const allTopics = draft.modules.flatMap((module) => module.topics.map((topic) => ({ module, topic })));
-
-  const reviewPaste = () => {
-    if (!pasteText.trim()) {
-      setMessage("Paste the planner first, then click Review Plan.");
-      return;
-    }
-    const parsed = parsePastedAcademicPlan(pasteText, course.examType || course.category || "General");
-    const nextPlanner = pasteMode === "APPEND" ? appendPlannerUpdates(draft, parsed) : parsed;
-    onChange(nextPlanner);
-    setMessage(pasteMode === "APPEND" ? "Updates added for review. Nothing is published yet." : "Planner converted for review. Nothing is published yet.");
-    setStep("review");
-  };
-
-  const loadSample = () => {
-    setPasteText(samplePlannerText(course.title));
-    setMessage("Sample format added. Replace it with your real academic plan.");
-  };
-
+function ProgramFact({ label, value }: { label: string; value: string }) {
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/45 px-3 py-4 backdrop-blur-sm">
-      <section className="flex max-h-[calc(100vh-2rem)] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-white shadow-2xl">
-        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[var(--border)] p-4">
-          <div>
-            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[var(--gold)]">Academic Planner</p>
-            <h2 className="mt-1 text-xl font-black text-[var(--navy)]">{course.title}</h2>
-            <p className="mt-2 max-w-3xl text-sm font-bold leading-6 text-[var(--muted-blue)]">
-              Paste the full academic plan or only the latest updates. Review what the system understood, then save or publish.
-            </p>
-          </div>
-          <button type="button" onClick={onClose} className="icon-button h-10 w-10 rounded-xl border border-[var(--border)] bg-white" aria-label="Close planner editor">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-
-        <div className="grid border-b border-[var(--border)] bg-[var(--page-bg)] px-4 py-3 md:grid-cols-5">
-          <PlannerStep active={step === "paste"} label="1. Paste Plan" />
-          <PlannerStep active={step === "review"} label="2. Review" />
-          <PlannerMetric label="Subjects" value={new Set(draft.modules.map((module) => module.subject)).size} />
-          <PlannerMetric label="Classes" value={totals.sessions} />
-          <PlannerMetric label="Exams" value={totals.assessments} />
-        </div>
-
-        {message ? <div className="border-b border-[var(--border)] bg-[var(--gold-soft)] px-4 py-2 text-sm font-black">{message}</div> : null}
-
-        <div className="min-h-0 flex-1 overflow-auto p-4">
-          {step === "paste" ? (
-            <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
-              <div className="grid gap-3">
-                <label className="grid gap-2 text-sm font-black text-[var(--navy)]">
-                  Paste academic plan here
-                  <textarea
-                    className="min-h-[420px] rounded-2xl border border-[var(--border)] bg-white px-4 py-3 font-mono text-sm leading-6 text-[var(--navy)] outline-none focus:border-[var(--gold)]"
-                    value={pasteText}
-                    onChange={(event) => setPasteText(event.target.value)}
-                    placeholder="Paste subjects, modules, syllabus, classes, hours, exams, revision and notes here."
-                  />
-                </label>
-              </div>
-
-              <aside className="grid content-start gap-3">
-                <div className="rounded-2xl border border-[var(--border)] bg-white p-3">
-                  <p className="text-sm font-black">What can I paste?</p>
-                  <div className="mt-3 grid gap-2 text-sm font-bold leading-6 text-[var(--muted-blue)]">
-                    <p>Total subjects</p>
-                    <p>Modules and syllabus</p>
-                    <p>Total classes or hours</p>
-                    <p>Weekly tests, mock tests, final exams</p>
-                    <p>Revision and practical sessions</p>
-                  </div>
-                </div>
-
-                <Select label="What are you pasting?" value={pasteMode} onChange={(value) => setPasteMode(value as typeof pasteMode)}>
-                  <option value="REPLACE">Full planner</option>
-                  <option value="APPEND">Updates only</option>
-                </Select>
-
-                <button type="button" onClick={loadSample} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">
-                  Use Sample Format
-                </button>
-                <button type="button" onClick={reviewPaste} className="rounded-xl bg-[var(--navy)] px-4 py-2 text-sm font-black text-white">
-                  Review Plan
-                </button>
-              </aside>
-            </div>
-          ) : (
-            <div className="grid gap-4">
-              <section className="grid gap-3 md:grid-cols-5">
-                <StatCard label="Subjects" value={new Set(draft.modules.map((module) => module.subject)).size} />
-                <StatCard label="Syllabus Parts" value={totals.modules} />
-                <StatCard label="Topics" value={totals.topics} />
-                <StatCard label="Classes" value={totals.sessions} />
-                <StatCard label="Hours" value={totals.hours} />
-              </section>
-
-              <div className="rounded-2xl border border-[var(--border)] bg-white p-3">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <h3 className="text-base font-black">Review Detected Planner</h3>
-                    <p className="mt-1 text-sm font-bold text-[var(--muted-blue)]">Check this table. If something is wrong, go back, edit the pasted text, and review again.</p>
-                  </div>
-                  <button type="button" onClick={() => setStep("paste")} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">
-                    Edit Pasted Text
-                  </button>
-                </div>
-              </div>
-
-              <div className="max-h-[48vh] overflow-auto rounded-2xl border border-[var(--border)]">
-                <table className="w-full min-w-[920px] border-collapse text-sm">
-                  <thead className="sticky top-0 bg-[var(--page-bg)] text-left">
-                    <tr className="border-b border-[var(--border)]">
-                      {["Subject", "Syllabus Part", "What will be taught / conducted", "Type", "Classes", "Hours", "Handled by"].map((heading) => (
-                        <th key={heading} className="px-3 py-2 text-[11px] font-black uppercase tracking-[0.14em] text-[var(--muted-blue)]">{heading}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {allTopics.map(({ module, topic }) => (
-                      <tr key={`${module.id}-${topic.id}`} className="border-b border-[var(--border)] last:border-b-0">
-                        <td className="px-3 py-2 font-black">{module.subject}</td>
-                        <td className="px-3 py-2">{module.title}</td>
-                        <td className="px-3 py-2 font-black">{topic.title}</td>
-                        <td className="px-3 py-2">{simpleTopicType(topic.type)}</td>
-                        <td className="px-3 py-2">{topic.sessions}</td>
-                        <td className="px-3 py-2">{topic.hours}</td>
-                        <td className="px-3 py-2">{topic.facultyRole}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="flex flex-wrap justify-between gap-2 border-t border-[var(--border)] p-4">
-          <p className="max-w-2xl text-xs font-bold leading-5 text-[var(--muted-blue)]">
-            Publishing updates this program master planner for future batches. Running batches change only when you manually sync them from the batch planner.
-          </p>
-          <div className="flex flex-wrap justify-end gap-2">
-            <button type="button" onClick={onClose} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">
-              Cancel
-            </button>
-            <button type="button" onClick={onSaveDraft} disabled={saving} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black disabled:opacity-60">
-              Save Draft
-            </button>
-            <GoldButton type="button" disabled={saving || !totals.topics} onClick={onPublish}>
-              Approve & Publish
-            </GoldButton>
-          </div>
-        </div>
-      </section>
-    </div>
-  );
-}
-
-function PlannerStep({ active, label }: { active: boolean; label: string }) {
-  return (
-    <div className={`rounded-xl px-3 py-2 text-sm font-black ${active ? "bg-[var(--navy)] text-white" : "text-[var(--muted-blue)]"}`}>
-      {label}
+    <div className="min-w-0 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-2 py-2">
+      <p className="truncate text-[9px] font-black uppercase tracking-[0.12em] text-[var(--muted-blue)]">{label}</p>
+      <p className="truncate text-xs font-black text-[var(--navy)]">{value}</p>
     </div>
   );
 }
@@ -1081,7 +639,7 @@ function ProgramImageUpload({ value, onChange }: { value: string; onChange: (val
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-black text-[var(--navy)]">{value ? "Image ready" : "Upload thumbnail"}</p>
-          <p className="mt-1 text-xs font-bold text-[var(--muted-blue)]">JPG, PNG or WEBP. Recommended square or landscape image.</p>
+          <p className="mt-1 text-xs font-bold text-[var(--muted-blue)]">JPG, PNG or WEBP. No URL needed.</p>
           {error ? <p className="mt-1 text-xs font-black text-red-600">{error}</p> : null}
           <div className="mt-3 flex flex-wrap gap-2">
             <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[var(--navy)] px-3 py-2 text-xs font-black text-white">
@@ -1099,21 +657,4 @@ function ProgramImageUpload({ value, onChange }: { value: string; onChange: (val
       </div>
     </div>
   );
-}
-
-function PlannerMetric({ label, value }: { label: string; value: string | number }) {
-  return (
-    <div className="rounded-xl border border-[var(--border)] bg-white px-3 py-2">
-      <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[var(--muted-blue)]">{label}</p>
-      <p className="text-sm font-black">{value}</p>
-    </div>
-  );
-}
-
-function simpleTopicType(type: string) {
-  if (type === "ASSESSMENT") return "Exam / Test";
-  if (type === "REVISION") return "Revision";
-  if (type === "PRACTICAL") return "Practical";
-  if (type === "PROJECT") return "Project";
-  return "Class";
 }
