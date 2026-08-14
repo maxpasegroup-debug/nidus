@@ -52,7 +52,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const isFocusedAdmissionDesk = Boolean(pathname?.startsWith("/dashboard/admission-cell"));
   const isFocusedTimetable = Boolean(pathname?.match(/^\/dashboard\/(?:academic-head\/hod|director\/academic)\/timetable(?:\/|$)/));
   const isFocusedDirectorWorkspace = Boolean(pathname?.startsWith("/dashboard/director"));
-  const isDirectorNavigationPath = Boolean(isFocusedDirectorWorkspace || (user?.role === "DIRECTOR" && (pathname?.startsWith("/crm/leads") || pathname === "/dashboard/settings")));
+  const isDirectorExamCenterPath = Boolean(user?.role === "DIRECTOR" && pathname?.startsWith("/examination-center"));
+  const isDirectorNavigationPath = Boolean(isFocusedDirectorWorkspace || isDirectorExamCenterPath || (user?.role === "DIRECTOR" && (pathname?.startsWith("/crm/leads") || pathname === "/dashboard/settings")));
   const isSettingsSetup = pathname === "/dashboard/settings";
   const isFocusedWorkspace = isFocusedClassroom || isFocusedAdmissionDesk || isFocusedTimetable || isDirectorNavigationPath || isSettingsSetup;
   const hasStandardSidebar = !isFocusedWorkspace && !isLoading && !!user && getNavItems(user.role, dashboardTemplate).length > 0;

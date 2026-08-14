@@ -17,9 +17,9 @@ type ToastContextValue = {
 const ToastContext = createContext<ToastContextValue | undefined>(undefined);
 
 const toastStyles: Record<ToastType, string> = {
-  success: "border-emerald-400/30 bg-emerald-400/15 text-emerald-100",
-  error: "border-red-400/30 bg-red-400/15 text-red-100",
-  info: "border-gold/30 bg-gold/15 text-gold-soft"
+  success: "border-emerald-300 bg-emerald-50 text-emerald-950",
+  error: "border-red-300 bg-red-50 text-red-950",
+  info: "border-amber-300 bg-amber-50 text-amber-950"
 };
 
 export function ToastProvider({ children }: { children: ReactNode }) {
@@ -43,7 +43,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           <div
             key={toast.id}
             role={toast.type === "error" ? "alert" : "status"}
-            className={`rounded border px-4 py-3 text-sm shadow-2xl backdrop-blur-xl ${toastStyles[toast.type]}`}
+            className={`rounded-xl border px-4 py-3 text-sm font-bold leading-6 shadow-2xl backdrop-blur-xl ${toastStyles[toast.type]}`}
           >
             {toast.message}
           </div>
