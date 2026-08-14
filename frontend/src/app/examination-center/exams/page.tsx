@@ -3,15 +3,20 @@
 import Link from "next/link";
 import { useState, type FormEvent, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlertCircle, ArrowLeft, CheckCircle2, FileQuestion, Library, Sparkles, UsersRound } from "lucide-react";
+import { AlertCircle, ArrowLeft, CheckCircle2, FileQuestion, Library, PenLine, Send, Sparkles, Upload, UsersRound } from "lucide-react";
 import { useToast } from "@/components/providers/toast-provider";
 import { Button } from "@/components/ui/button";
 import { getAcademyBatches } from "@/services/academy";
 import { getApiErrorMessage } from "@/services/api";
-import { createExamFromBank, getExaminationAnalytics, type ExamFromBankPayload } from "@/services/examination";
+import { createExamFromBank, getExaminationAnalytics, publishExam, type ExamFromBankPayload } from "@/services/examination";
+import type { Test } from "@/types/test";
 
 const examTypes = ["NDA", "CDS", "AFCAT", "AGNIVEER", "AISSEE", "RIMC", "Internal Test", "Weekly Test"];
 const fieldClasses = "h-11 rounded-xl border border-[#d8cdb8] bg-white px-3 text-sm font-bold text-[#071d36] outline-none transition placeholder:text-[#94a3b8] focus:border-[#b9913f] focus:ring-2 focus:ring-[#f4dfaa]";
+const sourceRoutes = {
+  UPLOAD_PAPER: "/dashboard/director/teaching/exams",
+  MANUAL: "/tests"
+} as const;
 
 const initialForm = {
   title: "NDA Foundation Test 01",
@@ -31,6 +36,8 @@ type ExamCreateIssue = {
   message: string;
 };
 
+type QuestionSource = "UPLOAD_PAPER" | "QUESTION_BANK" | "MANUAL";
+
 export default function ExaminationExamsPage() {
   return <SimpleDirectorExamBuilder />;
 }
@@ -42,14 +49,18 @@ function SimpleDirectorExamBuilder() {
   const { data: analytics } = useQuery({ queryKey: ["examination", "analytics"], queryFn: getExaminationAnalytics });
   const [form, setForm] = useState(initialForm);
   const [createIssue, setCreateIssue] = useState<ExamCreateIssue | null>(null);
+  const [questionSource, setQuestionSource] = useState<QuestionSource>("QUESTION_BANK");
+  const [createdExam, setCreatedExam] = useState<Test | null>(null);
 
   const selectedBatches = batches.filter((batch) => form.batchIds.includes(batch.id));
   const readyQuestions = analytics?.totals.questionBank ?? analytics?.totals.questions ?? 0;
+  const isBankSource = questionSource === "QUESTION_BANK";
 
   const createMutation = useMutation({
     mutationFn: (payload: ExamFromBankPayload) => createExamFromBank(payload),
     onMutate: () => setCreateIssue(null),
-    onSuccess: async () => {
+    onSuccess: async (exam) => {
+      setCreatedExam(exam);
       showToast("Exam created successfully", "success");
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["tests"] }),
@@ -63,6 +74,21 @@ function SimpleDirectorExamBuilder() {
     }
   });
 
+  const publishMutation = useMutation({
+    mutationFn: (examId: string) => publishExam(examId),
+    onSuccess: async (exam) => {
+      setCreatedExam(exam);
+      showToast("Exam published successfully", "success");
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["tests"] }),
+        queryClient.invalidateQueries({ queryKey: ["examination"] })
+      ]);
+    },
+    onError: (error) => {
+      showToast(getApiErrorMessage(error) || "Nidus could not publish this exam yet.", "error");
+    }
+  });
+
   function toggleBatch(batchId: string) {
     setForm((current) => ({
       ...current,
@@ -72,6 +98,7 @@ function SimpleDirectorExamBuilder() {
 
   function submitExam(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!isBankSource) return;
     createMutation.mutate({
       title: form.title.trim(),
       description: form.description.trim(),
@@ -104,7 +131,7 @@ function SimpleDirectorExamBuilder() {
             <div className="min-w-0">
               <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#b9913f]">Nidus AI Exams</p>
               <h1 className="mt-1 text-2xl font-black tracking-tight md:text-3xl">Create Exam</h1>
-              <p className="mt-1 text-sm font-medium text-[#526783]">One simple page: details, batches, create.</p>
+              <p className="mt-1 text-sm font-medium text-[#526783]">Choose a question source, select batches and finish in one place.</p>
             </div>
           </div>
         </div>
@@ -165,10 +192,25 @@ function SimpleDirectorExamBuilder() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#b9913f]">Step 2</p>
+                <h2 className="mt-1 text-lg font-black">Add questions</h2>
+              </div>
+              <p className="text-xs font-bold text-[#64748b]">Use the path that fits today exam.</p>
+            </div>
+            <div className="mt-3 grid gap-2 md:grid-cols-3">
+              <QuestionSourceCard active={questionSource === "UPLOAD_PAPER"} icon={<Upload className="h-4 w-4" />} title="Upload paper" detail="AI import and review" onClick={() => setQuestionSource("UPLOAD_PAPER")} />
+              <QuestionSourceCard active={questionSource === "QUESTION_BANK"} icon={<Library className="h-4 w-4" />} title="Question bank" detail={`${readyQuestions} ready questions`} onClick={() => setQuestionSource("QUESTION_BANK")} />
+              <QuestionSourceCard active={questionSource === "MANUAL"} icon={<PenLine className="h-4 w-4" />} title="Create manually" detail="Open CBT builder" onClick={() => setQuestionSource("MANUAL")} />
+            </div>
+          </div>
+
+          <div className="mt-4 rounded-2xl border border-[#e0d6c5] bg-[#fffdf8] p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#b9913f]">Step 3</p>
                 <h2 className="mt-1 text-lg font-black">Select batches</h2>
               </div>
               <label className="inline-flex h-10 items-center gap-2 rounded-xl border border-[#d8cdb8] bg-white px-4 text-sm font-black text-[#071d36]">
-                <input type="checkbox" checked={form.publishNow} onChange={(event) => setForm({ ...form, publishNow: event.target.checked })} />
+                <input type="checkbox" checked={form.publishNow} onChange={(event) => setForm({ ...form, publishNow: event.target.checked })} disabled={!isBankSource} />
                 Publish now
               </label>
             </div>
@@ -192,21 +234,48 @@ function SimpleDirectorExamBuilder() {
         </section>
 
         <aside className="grid content-start gap-4">
-          <section className="rounded-3xl border border-[#d8cdb8] bg-white/92 p-5 shadow-sm">
-            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#b9913f]">Step 3</p>
-            <h2 className="mt-1 text-xl font-black">Create</h2>
-            <div className="mt-4 grid gap-2">
-              <SummaryRow label="Questions" value={`${form.totalQuestions} from active bank`} />
-              <SummaryRow label="Duration" value={`${form.duration} min`} />
-              <SummaryRow label="Marks" value={String(form.totalMarks)} />
-              <SummaryRow label="Batches" value={selectedBatches.length ? `${selectedBatches.length} selected` : "Draft only"} />
-              <SummaryRow label="Publish" value={form.publishNow ? "Immediately" : "Later"} />
-            </div>
-            <Button type="submit" disabled={createMutation.isPending || !form.title.trim()} className="mt-4 w-full">
-              <FileQuestion className="h-4 w-4" /> {createMutation.isPending ? "Creating..." : "Create Exam"}
-            </Button>
-            <p className="mt-3 text-xs font-bold leading-5 text-[#64748b]">If matching questions are not ready, Nidus will show clear next steps instead of a technical error.</p>
-          </section>
+          {createdExam ? (
+            <ExamCreatedPanel
+              exam={createdExam}
+              selectedBatchCount={selectedBatches.length}
+              publishNow={form.publishNow}
+              isPublishing={publishMutation.isPending}
+              onPublish={() => publishMutation.mutate(createdExam.id)}
+              onCreateAnother={() => {
+                setCreatedExam(null);
+                setCreateIssue(null);
+                setQuestionSource("QUESTION_BANK");
+                setForm(initialForm);
+              }}
+            />
+          ) : (
+            <section className="rounded-3xl border border-[#d8cdb8] bg-white/92 p-5 shadow-sm">
+              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#b9913f]">Step 4</p>
+              <h2 className="mt-1 text-xl font-black">Finish</h2>
+              <div className="mt-4 grid gap-2">
+                <SummaryRow label="Source" value={sourceLabel(questionSource)} />
+                <SummaryRow label="Questions" value={isBankSource ? `${form.totalQuestions} from active bank` : "Continue to source"} />
+                <SummaryRow label="Duration" value={`${form.duration} min`} />
+                <SummaryRow label="Marks" value={String(form.totalMarks)} />
+                <SummaryRow label="Batches" value={selectedBatches.length ? `${selectedBatches.length} selected` : "Draft only"} />
+                <SummaryRow label="Publish" value={form.publishNow && isBankSource ? "Immediately" : "Later"} />
+              </div>
+              {questionSource === "UPLOAD_PAPER" ? (
+                <Button href={sourceRoutes.UPLOAD_PAPER} className="mt-4 w-full">
+                  <Upload className="h-4 w-4" /> Continue to Upload
+                </Button>
+              ) : questionSource === "MANUAL" ? (
+                <Button href={sourceRoutes.MANUAL} className="mt-4 w-full">
+                  <PenLine className="h-4 w-4" /> Open Manual Builder
+                </Button>
+              ) : (
+                <Button type="submit" disabled={createMutation.isPending || !form.title.trim()} className="mt-4 w-full">
+                  <FileQuestion className="h-4 w-4" /> {createMutation.isPending ? "Creating..." : "Create Exam"}
+                </Button>
+              )}
+              <p className="mt-3 text-xs font-bold leading-5 text-[#64748b]">If matching questions are not ready, Nidus will show clear next steps instead of a technical error.</p>
+            </section>
+          )}
 
           <section className="rounded-3xl border border-[#d8cdb8] bg-[#fffdf8] p-5 shadow-sm">
             <div className="flex items-start gap-3">
@@ -215,7 +284,7 @@ function SimpleDirectorExamBuilder() {
               </span>
               <div>
                 <p className="text-sm font-black">Simple director flow</p>
-                <p className="mt-1 text-sm font-bold leading-6 text-[#64748b]">Create from active questions now. Upload-paper and manual-source choices come in the next phase.</p>
+                <p className="mt-1 text-sm font-bold leading-6 text-[#64748b]">Upload a paper, use ready questions or open the manual builder. Nidus keeps each path clear.</p>
               </div>
             </div>
           </section>
@@ -223,6 +292,12 @@ function SimpleDirectorExamBuilder() {
       </form>
     </main>
   );
+}
+
+function sourceLabel(source: QuestionSource) {
+  if (source === "UPLOAD_PAPER") return "Upload paper";
+  if (source === "MANUAL") return "Manual builder";
+  return "Question bank";
 }
 
 function friendlyExamCreateIssue(error: unknown): ExamCreateIssue {
@@ -247,6 +322,53 @@ function friendlyExamCreateIssue(error: unknown): ExamCreateIssue {
     title: "Nidus could not create the exam yet.",
     message: rawMessage || "Please review the exam details and try again."
   };
+}
+
+function QuestionSourceCard({ active, icon, title, detail, onClick }: { active: boolean; icon: ReactNode; title: string; detail: string; onClick: () => void }) {
+  return (
+    <button type="button" onClick={onClick} className={`rounded-2xl border p-3 text-left transition ${active ? "border-[#b9913f] bg-[#fff4cf] shadow-sm" : "border-[#e0d6c5] bg-white hover:border-[#c6ad78]"}`}>
+      <span className="flex items-start gap-3">
+        <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-2xl ${active ? "bg-[#071d36] text-white" : "bg-[#f5f0e6] text-[#071d36]"}`}>{icon}</span>
+        <span className="min-w-0">
+          <span className="block text-sm font-black text-[#071d36]">{title}</span>
+          <span className="mt-1 block text-xs font-bold leading-5 text-[#64748b]">{detail}</span>
+        </span>
+      </span>
+    </button>
+  );
+}
+
+function ExamCreatedPanel({ exam, selectedBatchCount, publishNow, isPublishing, onPublish, onCreateAnother }: { exam: Test; selectedBatchCount: number; publishNow: boolean; isPublishing: boolean; onPublish: () => void; onCreateAnother: () => void }) {
+  const isPublished = exam.status === "PUBLISHED" || exam.isLive || publishNow;
+
+  return (
+    <section className="rounded-3xl border border-emerald-200 bg-emerald-50/80 p-5 text-emerald-950 shadow-sm">
+      <div className="flex items-start gap-3">
+        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-white text-emerald-700 shadow-sm">
+          <CheckCircle2 className="h-5 w-5" />
+        </span>
+        <div className="min-w-0">
+          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-emerald-700">Exam ready</p>
+          <h2 className="mt-1 text-xl font-black text-[#071d36]">Exam created</h2>
+          <p className="mt-1 text-sm font-bold leading-6 text-emerald-900/80">{exam.title}</p>
+        </div>
+      </div>
+      <div className="mt-4 grid gap-2">
+        <SummaryRow label="Status" value={isPublished ? "Published" : "Saved as draft"} />
+        <SummaryRow label="Batches" value={selectedBatchCount ? `${selectedBatchCount} selected` : "Draft only"} />
+        <SummaryRow label="Questions" value={`${exam._count?.questions ?? 0} linked`} />
+      </div>
+      <div className="mt-4 grid gap-2">
+        {!isPublished ? (
+          <Button type="button" onClick={onPublish} disabled={isPublishing} className="w-full">
+            <Send className="h-4 w-4" /> {isPublishing ? "Publishing..." : "Publish now"}
+          </Button>
+        ) : null}
+        <Button href="/examination-center/published" variant="secondary" className="w-full">Open Published Exams</Button>
+        <Button type="button" variant="secondary" onClick={onCreateAnother} className="w-full">Create Another Exam</Button>
+      </div>
+    </section>
+  );
 }
 
 function ExamCreateIssueCard({ issue }: { issue: ExamCreateIssue }) {
