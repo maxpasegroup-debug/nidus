@@ -15,7 +15,7 @@ const examTypes = ["NDA", "CDS", "AFCAT", "AGNIVEER", "AISSEE", "RIMC", "Interna
 const fieldClasses = "h-11 rounded-xl border border-[#d8cdb8] bg-white px-3 text-sm font-bold text-[#071d36] outline-none transition placeholder:text-[#94a3b8] focus:border-[#b9913f] focus:ring-2 focus:ring-[#f4dfaa]";
 const sourceRoutes = {
   UPLOAD_PAPER: "/dashboard/director/teaching/exams",
-  MANUAL: "/tests"
+  MANUAL: "/dashboard/director/teaching/exams"
 } as const;
 
 const initialForm = {
@@ -199,7 +199,7 @@ function SimpleDirectorExamBuilder() {
             <div className="mt-3 grid gap-2 md:grid-cols-3">
               <QuestionSourceCard active={questionSource === "UPLOAD_PAPER"} icon={<Upload className="h-4 w-4" />} title="Upload paper" detail="AI import and review" onClick={() => setQuestionSource("UPLOAD_PAPER")} />
               <QuestionSourceCard active={questionSource === "QUESTION_BANK"} icon={<Library className="h-4 w-4" />} title="Question bank" detail={`${readyQuestions} ready questions`} onClick={() => setQuestionSource("QUESTION_BANK")} />
-              <QuestionSourceCard active={questionSource === "MANUAL"} icon={<PenLine className="h-4 w-4" />} title="Create manually" detail="Open CBT builder" onClick={() => setQuestionSource("MANUAL")} />
+              <QuestionSourceCard active={questionSource === "MANUAL"} icon={<PenLine className="h-4 w-4" />} title="Create manually" detail="Guided question entry" onClick={() => setQuestionSource("MANUAL")} />
             </div>
           </div>
 
@@ -266,7 +266,7 @@ function SimpleDirectorExamBuilder() {
                 </Button>
               ) : questionSource === "MANUAL" ? (
                 <Button href={sourceRoutes.MANUAL} className="mt-4 w-full">
-                  <PenLine className="h-4 w-4" /> Open Manual Builder
+                  <PenLine className="h-4 w-4" /> Open Guided Builder
                 </Button>
               ) : (
                 <Button type="submit" disabled={createMutation.isPending || !form.title.trim()} className="mt-4 w-full">
@@ -284,7 +284,7 @@ function SimpleDirectorExamBuilder() {
               </span>
               <div>
                 <p className="text-sm font-black">Simple director flow</p>
-                <p className="mt-1 text-sm font-bold leading-6 text-[#64748b]">Upload a paper, use ready questions or open the manual builder. Nidus keeps each path clear.</p>
+                <p className="mt-1 text-sm font-bold leading-6 text-[#64748b]">Upload a paper, paste questions or use ready questions. Nidus keeps the Director journey in guided workspaces.</p>
               </div>
             </div>
           </section>

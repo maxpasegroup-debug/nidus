@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { BarChart3, BookOpenCheck, ClipboardCheck, FileQuestion, PlayCircle, ShieldCheck, Sparkles, Trophy } from "lucide-react";
+import { BarChart3, ClipboardCheck, FileQuestion, PlayCircle, ShieldCheck, Sparkles, Trophy } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 import { getExaminationAnalytics } from "@/services/examination";
@@ -17,15 +17,14 @@ const primaryExamActions: Array<{ title: string; detail: string; href: string; i
   { title: "Published Exams", detail: "View scheduled, live and completed exams", href: "/examination-center/published", icon: PlayCircle, tone: "green", primary: true },
   { title: "Results", detail: "Review scores and submissions", href: "/examination-center/results", icon: Trophy, tone: "blue" },
   { title: "Analytics", detail: "Check performance and question quality", href: "/examination-center/analytics", icon: BarChart3, tone: "amber" },
-  { title: "Full Exam Center", detail: "Open the complete examination workspace", href: "/examination-center", icon: BookOpenCheck, tone: "blue" },
 ];
 
 const launchFlow = [
-  "Prepare questions or import a paper",
-  "Create exam settings",
-  "Publish to selected batch",
+  "Upload a paper, paste questions or use the bank",
+  "Check exam details and batches",
+  "Publish to selected batches",
   "Students attempt from CBT",
-  "Review results and analytics",
+  "Review results when students finish",
 ];
 
 export default function DirectorExamControlPage() {
@@ -56,7 +55,7 @@ export default function DirectorExamControlPage() {
             <div className="min-w-0">
               <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[var(--gold)]">Nidus AI Exam Briefing</p>
               <p className="mt-2 text-lg font-black leading-7 text-[var(--navy)]">{loading ? "Nidus AI is checking exam health." : `${upcomingExams} upcoming exam(s), ${totals?.attempts ?? 0} attempt(s), and ${totals?.questionBank ?? totals?.questions ?? 0} question bank item(s) are visible.`}</p>
-              <p className="mt-1 text-sm text-[var(--muted-blue)]">This page is the simple Director doorway. The examination engine and CBT flow remain unchanged.</p>
+              <p className="mt-1 text-sm text-[var(--muted-blue)]">This page keeps Directors on the simple guided exam path. Advanced examination tools remain available through their existing routes.</p>
             </div>
           </div>
           <div className="grid min-w-[280px] gap-2 sm:grid-cols-3 lg:w-[480px]">

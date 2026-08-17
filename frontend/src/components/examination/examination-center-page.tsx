@@ -101,7 +101,7 @@ function DashboardView({ tests, published, drafts }: { tests: Test[]; published:
         </div>
       </div>
       <div className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
-        <SectionHeader eyebrow="Workflow" title="Ritwik exam workflow" />
+        <SectionHeader eyebrow="Workflow" title="Nidus exam workflow" />
         <div className="mt-5 grid gap-3">
           {["Basic information", "Select question bank", "Choose questions", "Preview exam", "Publish to batch"].map((step, index) => (
             <div key={step} className="flex items-center gap-3 rounded-lg border border-[#071d36]/10 bg-[#f7f3ea] p-4">
@@ -126,7 +126,7 @@ function QuestionBankView({ tests }: { tests: Test[] }) {
       <div className="grid gap-4 md:grid-cols-3">
         <InfoCard icon={<FileSpreadsheet className="h-6 w-6" />} title="Bulk Import" text="Excel/CSV template support will import question, options, answer, explanation, topic and difficulty." />
         <InfoCard icon={<Layers3 className="h-6 w-6" />} title="Topic Tree" text="Defence -> NDA -> History -> Medieval India, Polity, Geography, Science and Current Affairs." />
-        <InfoCard icon={<Upload className="h-6 w-6" />} title="Ritwik Upload Flow" text="Upload, validate, preview errors, then approve into Active question bank." />
+        <InfoCard icon={<Upload className="h-6 w-6" />} title="Nidus Upload Flow" text="Upload, validate, preview errors, then approve into Active question bank." />
       </div>
       <QuestionTable questions={questionBank.slice(0, 30)} />
     </section>
@@ -143,7 +143,7 @@ function ExamsView({ tests, drafts }: { tests: Test[]; drafts: Test[] }) {
             <div key={item} className="rounded border border-[#071d36]/10 bg-[#fffdf8] px-4 py-3 text-sm font-semibold text-[#071d36]">{item}</div>
           ))}
         </div>
-        <Button href="/tests" className="mt-5">Open Existing Test Studio</Button>
+        <Button href="/examination-center/exams" className="mt-5">Create Exam</Button>
       </div>
       <TestGrid tests={drafts.length ? drafts : tests} emptyTitle="No exam drafts yet" />
     </section>
@@ -206,7 +206,7 @@ function AnalyticsView({ tests }: { tests: Test[] }) {
 }
 
 function TestGrid({ tests, emptyTitle }: { tests: Test[]; emptyTitle: string }) {
-  if (!tests.length) return <EmptyState title={emptyTitle} description="Use Create New Exam or AI Test Studio to create the first exam." />;
+  if (!tests.length) return <EmptyState title={emptyTitle} description="Use Create Exam to create the first exam." />;
   return (
     <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       {tests.map((test) => (

@@ -6,11 +6,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   BarChart3,
   CheckCircle2,
-  ClipboardCheck,
-  Clock3,
   Database,
   FileSpreadsheet,
-  Layers3,
   ListChecks,
   PlayCircle,
   ShieldCheck,
@@ -156,7 +153,7 @@ type ExamActions = {
 
 function TestList({ tests, emptyTitle, actions }: { tests: Test[]; emptyTitle: string; actions?: ExamActions }) {
   if (!tests.length) {
-    return <EmptyState title={emptyTitle} description="Create or publish exams from the existing CBT engine when ready." />;
+    return <EmptyState title={emptyTitle} description="Create or publish an exam from the guided Nidus exam flow." />;
   }
 
   return (
@@ -218,12 +215,12 @@ function DashboardView({ tests, analytics }: { tests: Test[]; analytics?: Examin
 
       <section className="grid gap-4 md:grid-cols-3">
         <QuickActionCard title="Question Bank" description="Organize NDA, CDS, AFCAT, Agniveer, SSB and internal test questions." href="/examination-center/question-bank" />
-        <QuickActionCard title="Create Exam" description="Use the existing CBT builder to create or review timed exams." href="/tests" />
+        <QuickActionCard title="Create Exam" description="Use the guided Nidus exam flow for uploads, manual entry or question bank exams." href="/examination-center/exams" />
         <QuickActionCard title="Published Exams" description="Check exams that are already visible for students and batches." href="/examination-center/published" />
       </section>
 
       <section className="rounded border border-[#d9c79d] bg-white/85 p-6 shadow-sm">
-        <SectionHeader eyebrow="Phase 1 Audit" title="Existing engine readiness" />
+        <SectionHeader eyebrow="Nidus AI Check" title="Exam engine readiness" />
         <div className="mt-5 grid gap-4 md:grid-cols-4">
           {auditCards.map((card) => (
             <div key={card.title} className="rounded border border-[#eadfca] bg-[#fffdf8] p-4">
@@ -245,7 +242,7 @@ function DashboardView({ tests, analytics }: { tests: Test[]; analytics?: Examin
           ))}
         </div>
         <p className="mt-5 text-sm leading-6 text-[#506581]">
-          Phase 2 wires the Examination Center around the existing test engine. Deep question bank CRUD, multi-batch publishing and bulk imports should follow as backend schema phases.
+          Nidus keeps exam creation, publishing and student delivery connected while preserving the existing CBT engine.
         </p>
       </section>
 
@@ -430,7 +427,7 @@ function ExamsView({
   busy: boolean;
 }) {
   const [form, setForm] = useState({
-    title: "NDA Foundation Test 01",
+    title: "Create, publish, review",
     description: "Medieval India foundation test for NDA aspirants.",
     examType: "NDA",
     category: "Defence",
@@ -466,7 +463,7 @@ function ExamsView({
           ))}
         </div>
         <div className="mt-6 flex flex-wrap gap-3">
-          <Button href="/tests">Create From CBT Builder</Button>
+          <Button href="/examination-center/exams">Create Exam</Button>
           <Button href="/examination-center/question-bank" variant="secondary">Review Question Bank</Button>
         </div>
       </section>
@@ -517,45 +514,50 @@ function ExamsView({
 
 function PublishedView({ tests, actions }: { tests: Test[]; actions: ExamActions }) {
   const published = getPublishedTests(tests);
+  const attempts = countAttempts(published);
+
   return (
     <>
       <section className="grid gap-4 md:grid-cols-3">
-        <StatCard label="Published Exams" value={String(published.length)} note="Visible or ready for students" />
-        <StatCard label="Questions Assigned" value={String(countQuestions(published))} note="Across published exams" />
-        <StatCard label="Attempts" value={String(countAttempts(published))} note="Captured submissions" />
+        <StatCard label="Visible Exams" value={String(published.length)} note="Available to students" />
+        <StatCard label="Questions" value={String(countQuestions(published))} note="Assigned in live exams" />
+        <StatCard label="Attempts" value={String(attempts)} note="Student submissions" />
       </section>
-      <TestList tests={published} emptyTitle="No published exams found" actions={{ onClose: actions.onClose, onDelete: actions.onDelete, busy: actions.busy }} />
+      <section className="rounded border border-[#d9c79d] bg-white/85 p-6 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <SectionHeader eyebrow="Student Delivery" title="Published exam list" />
+          <Button href="/examination-center/exams" variant="secondary" size="sm">Create Exam</Button>
+        </div>
+        <div className="mt-5">
+          <TestList tests={published} emptyTitle="No published exams found" actions={{ onClose: actions.onClose, onDelete: actions.onDelete, busy: actions.busy }} />
+        </div>
+      </section>
     </>
   );
 }
 
 function ResultsView({ tests, results }: { tests: Test[]; results: ExaminationResultAttempt[] }) {
+  const attempts = countAttempts(tests);
+  const averageScore = results.length ? Math.round(results.reduce((sum, attempt) => sum + attempt.score, 0) / results.length) : 0;
+
   return (
     <>
       <section className="grid gap-4 md:grid-cols-4">
-        <StatCard label="Total Attempts" value={String(countAttempts(tests))} note="All CBT submissions" />
-        <StatCard label="Result Reports" value="Instant" note="Score and review enabled" />
-        <StatCard label="Rank View" value="Ready" note="Can be expanded by batch" />
-        <StatCard label="AI Report" value="Next" note="Phase 7 enhancement" />
+        <StatCard label="Attempts" value={String(attempts)} note="All student submissions" />
+        <StatCard label="Reports" value={String(results.length)} note="Ready for review" />
+        <StatCard label="Average Score" value={results.length ? String(averageScore) : "-"} note="Current submissions" />
+        <StatCard label="Review" value="Ready" note="Open reports when needed" />
       </section>
       <section className="rounded border border-[#d9c79d] bg-white/85 p-6 shadow-sm">
-        <SectionHeader eyebrow="Result Report" title="What students and Ritwik will see" />
-        <div className="mt-5 grid gap-4 md:grid-cols-3">
-          {["Correct, wrong and skipped answers", "Percentage, pass/fail and rank", "Question analysis with explanations"].map((item) => (
-            <div key={item} className="rounded border border-[#eadfca] bg-[#fffdf8] p-4 font-bold text-[#071d36]">
-              {item}
-            </div>
-          ))}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <SectionHeader eyebrow="Result Desk" title="Latest student submissions" />
+          <Button href="/progress-reports" variant="secondary" size="sm">Open Reports</Button>
         </div>
-        <Button href="/progress-reports" className="mt-6">Open Reports</Button>
-      </section>
-      <section className="rounded border border-[#d9c79d] bg-white/85 p-6 shadow-sm">
-        <SectionHeader eyebrow="Latest Submissions" title="Ritwik result review queue" />
         <div className="mt-5 grid gap-3">
           {results.slice(0, 12).map((attempt) => (
-            <div key={attempt.id} className="grid gap-2 rounded border border-[#eadfca] bg-[#fffdf8] p-4 md:grid-cols-5">
-              <span className="font-bold text-[#071d36]">{attempt.user.name}</span>
-              <span className="text-[#506581] md:col-span-2">{attempt.test.title}</span>
+            <div key={attempt.id} className="grid gap-2 rounded-xl border border-[#eadfca] bg-[#fffdf8] p-4 md:grid-cols-[1fr_1.4fr_0.5fr_0.5fr]">
+              <span className="font-black text-[#071d36]">{attempt.user.name}</span>
+              <span className="text-[#506581]">{attempt.test.title}</span>
               <span className="font-black text-[#b9913f]">{attempt.score}/{attempt.test.totalMarks}</span>
               <span className="text-[#506581]">{attempt.totalCorrect} correct</span>
             </div>
@@ -569,35 +571,36 @@ function ResultsView({ tests, results }: { tests: Test[]; results: ExaminationRe
 
 function AnalyticsView({ tests, analytics }: { tests: Test[]; analytics?: ExaminationAnalytics }) {
   const byTrack = groupByTrack(tests);
+  const trackEntries = Object.entries(byTrack);
   return (
     <>
       <section className="grid gap-4 md:grid-cols-3">
-        <StatCard label="Exam Types" value={String(Object.keys(byTrack).length)} note="Mapped tracks" />
+        <StatCard label="Exam Tracks" value={String(trackEntries.length)} note="Active categories" />
         <StatCard label="Question Bank" value={String(analytics?.totals.questionBank ?? 0)} note="Reusable questions" />
         <StatCard label="Attempts" value={String(analytics?.totals.attempts ?? countAttempts(tests))} note="Student activity" />
       </section>
 
       <section className="grid gap-4 lg:grid-cols-2">
         <div className="rounded border border-[#d9c79d] bg-white/85 p-6 shadow-sm">
-          <SectionHeader eyebrow="Batch Analytics" title="Current exam distribution" />
+          <SectionHeader eyebrow="Nidus AI View" title="Exam distribution" />
           <div className="mt-5 space-y-3">
-            {Object.entries(byTrack).map(([track, count]) => (
-              <div key={track} className="flex items-center justify-between rounded border border-[#eadfca] bg-[#fffdf8] px-4 py-3">
-                <span className="font-bold text-[#071d36]">{track}</span>
-                <span className="text-sm font-black text-[#b9913f]">{count} exams</span>
+            {trackEntries.map(([track, count]) => (
+              <div key={track} className="flex items-center justify-between rounded-xl border border-[#eadfca] bg-[#fffdf8] px-4 py-3">
+                <span className="font-black text-[#071d36]">{track}</span>
+                <span className="rounded-full bg-[#fff6d8] px-3 py-1 text-sm font-black text-[#8a6426]">{count} exams</span>
               </div>
             ))}
-            {!Object.keys(byTrack).length ? <EmptyState title="No exam analytics yet" description="Create tests to start seeing track-wise analytics." /> : null}
+            {!trackEntries.length ? <EmptyState title="No exam analytics yet" description="Create tests to start seeing track-wise analytics." /> : null}
           </div>
         </div>
 
         <div className="rounded border border-[#d9c79d] bg-white/85 p-6 shadow-sm">
-          <SectionHeader eyebrow="Question Analytics" title="Topic and difficulty intelligence" />
+          <SectionHeader eyebrow="Question Intelligence" title="Topic and difficulty coverage" />
           <div className="mt-5 grid gap-3">
             {(analytics?.questionBankBreakdown ?? []).slice(0, 8).map((item) => (
-              <div key={`${item.subCategory}-${item.topic}-${item.difficulty}-${item.status}`} className="rounded border border-[#eadfca] bg-[#fffdf8] px-4 py-3 font-bold text-[#071d36]">
-                {item.subCategory} - {item.topic} - {item.difficulty}
-                <span className="float-right text-[#b9913f]">{item._count._all}</span>
+              <div key={`${item.subCategory}-${item.topic}-${item.difficulty}-${item.status}`} className="flex items-center justify-between rounded-xl border border-[#eadfca] bg-[#fffdf8] px-4 py-3 font-bold text-[#071d36]">
+                <span>{item.subCategory} - {item.topic} - {item.difficulty}</span>
+                <span className="text-[#b9913f]">{item._count._all}</span>
               </div>
             ))}
             {!analytics?.questionBankBreakdown?.length ? <EmptyState title="No question analytics yet" description="Add active question bank items to see topic and difficulty intelligence." /> : null}
@@ -764,7 +767,7 @@ export function ExaminationCenterShell({ view }: ExaminationCenterShellProps) {
               <p className="mt-3 max-w-3xl text-base leading-7 text-[#506581]">{meta.description}</p>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
-              <Button href="/tests">Open CBT Engine</Button>
+              <Button href="/examination-center/exams">Create Exam</Button>
               <Button href="/examination-center/question-bank" variant="secondary">Question Bank</Button>
             </div>
           </div>
@@ -797,16 +800,11 @@ export function ExaminationCenterShell({ view }: ExaminationCenterShellProps) {
         <section className="rounded border border-[#d9c79d] bg-[#071d36] p-6 text-white shadow-sm">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.22em] text-[#f2cf75]">Pilot target</p>
-              <h2 className="mt-2 text-2xl font-black">NDA Foundation Test 01</h2>
-              <p className="mt-2 text-sm leading-6 text-white/75">Medieval India, 60 minutes, 100 questions, instant result and explanations.</p>
+              <p className="text-xs font-black uppercase tracking-[0.22em] text-[#f2cf75]">Nidus AI exam path</p>
+              <h2 className="mt-2 text-2xl font-black">Create, publish, review</h2>
+              <p className="mt-2 text-sm leading-6 text-white/75">Use the guided create page for exam setup, then review published exams, results and analytics from these simple pages.</p>
             </div>
-            <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
-              <span className="rounded border border-white/15 bg-white/10 px-4 py-3"><Clock3 className="mb-2 h-4 w-4 text-[#f2cf75]" />60 min</span>
-              <span className="rounded border border-white/15 bg-white/10 px-4 py-3"><ClipboardCheck className="mb-2 h-4 w-4 text-[#f2cf75]" />100 Q</span>
-              <span className="rounded border border-white/15 bg-white/10 px-4 py-3"><Layers3 className="mb-2 h-4 w-4 text-[#f2cf75]" />Hybrid CBT</span>
-              <span className="rounded border border-white/15 bg-white/10 px-4 py-3"><Trophy className="mb-2 h-4 w-4 text-[#f2cf75]" />Instant</span>
-            </div>
+            <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">{["Create", "Publish", "Attempt", "Review"].map((item) => <span key={item} className="rounded border border-white/15 bg-white/10 px-4 py-3 font-black text-white/90">{item}</span>)}</div>
           </div>
         </section>
       </div>
