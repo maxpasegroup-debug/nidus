@@ -10,7 +10,8 @@ export type NdieOrchestratorProviderType =
   | "QUESTION_DETECTION"
   | "EVALUATION"
   | "VALIDATION"
-  | "STUDENT_EVALUATION";
+  | "STUDENT_EVALUATION"
+  | "DOCUMENT_UNDERSTANDING";
 
 export type NdieProviderMetadata = {
   id: string;
@@ -45,6 +46,23 @@ export type NdieProviderRoutingPolicy = {
 const providerOrchestratorVersion = "ndie-provider-orchestrator-v1";
 
 const staticProviderMetadata: NdieProviderMetadata[] = [
+  {
+    id: "document-understanding.rule-based",
+    name: "Rule Based Page Understanding",
+    version: "2.0-phase2",
+    type: "DOCUMENT_UNDERSTANDING",
+    registryKind: "DOCUMENT_UNDERSTANDING",
+    supportedLanguages: ["en"],
+    supportedDocumentTypes: ["PDF", "SCANNED_PDF", "IMAGE", "DOCX", "TEXT_FIXTURE"],
+    formulaCapability: 0.82,
+    tableCapability: 0.78,
+    diagramCapability: 0.8,
+    questionCapability: 0.72,
+    estimatedLatencyMs: 500,
+    estimatedCostUsd: 0,
+    health: "READY",
+    availability: 0.99
+  },
   {
     id: "ocr.stub",
     name: "Stub OCR",

@@ -3,7 +3,7 @@ import crypto from "node:crypto";
 import path from "node:path";
 
 export type RealFileBaselineSubject = "Mathematics" | "Physics" | "Chemistry";
-export type RealFileBaselineExam = "NDA" | "JEE" | "NEET" | "University" | "School" | "Mixed";
+export type RealFileBaselineExam = "NDA" | "JEE" | "NEET" | "CDS" | "AFCAT" | "University" | "School" | "Olympiad" | "Mixed";
 export type RealFileBaselineFormat = "PDF" | "DOCX" | "JPG" | "PNG" | "WEBP" | "TXT";
 
 export type RealFileBaselineStage =
@@ -61,6 +61,11 @@ export type RealFileBaselineSlot = {
   mustProve: {
     formulas: boolean;
     chemistryStructures: boolean;
+    physicsDiagrams: boolean;
+    numericalAnswers: boolean;
+    handwritten: boolean;
+    multiPageQuestions: boolean;
+    mixedQuestionTypes: boolean;
     diagrams: boolean;
     graphs: boolean;
     tables: boolean;
@@ -127,11 +132,16 @@ export type RealFileBaselineRun = {
   stopRule: string;
   missingFixturePaths: string[];
   missingEvidencePaths: string[];
+  coverage: {
+    subjects: Record<RealFileBaselineSubject, number>;
+    exams: Record<string, number>;
+    proofAreas: Record<string, number>;
+  };
   documentReports: RealFileDocumentBaselineReport[];
   nextAction: string;
 };
 
-export const REAL_FILE_BASELINE_VERSION = "real-file-certification-baseline-v2";
+export const REAL_FILE_BASELINE_VERSION = "real-file-certification-baseline-v3";
 
 export const REAL_FILE_BASELINE_STAGES: RealFileBaselineStage[] = [
   "UPLOAD",
@@ -154,7 +164,7 @@ export const REAL_FILE_BASELINE_SLOTS: RealFileBaselineSlot[] = [
     exam: "NDA",
     requiredInput: "real NDA mathematics question paper PDF",
     acceptedExtensions: ["PDF"],
-    mustProve: { formulas: true, chemistryStructures: false, diagrams: true, graphs: true, tables: true, scanned: false, mobilePhoto: false, docxOfficeMath: false, answerKey: false, solutions: false }
+    mustProve: { formulas: true, chemistryStructures: false, physicsDiagrams: false, numericalAnswers: true, handwritten: false, multiPageQuestions: true, mixedQuestionTypes: true, diagrams: true, graphs: true, tables: true, scanned: false, mobilePhoto: false, docxOfficeMath: false, answerKey: false, solutions: false }
   },
   {
     id: "jee-maths-pdf",
@@ -163,7 +173,25 @@ export const REAL_FILE_BASELINE_SLOTS: RealFileBaselineSlot[] = [
     exam: "JEE",
     requiredInput: "real JEE mathematics question paper PDF",
     acceptedExtensions: ["PDF"],
-    mustProve: { formulas: true, chemistryStructures: false, diagrams: true, graphs: true, tables: true, scanned: false, mobilePhoto: false, docxOfficeMath: false, answerKey: false, solutions: false }
+    mustProve: { formulas: true, chemistryStructures: false, physicsDiagrams: false, numericalAnswers: true, handwritten: false, multiPageQuestions: true, mixedQuestionTypes: true, diagrams: true, graphs: true, tables: true, scanned: false, mobilePhoto: false, docxOfficeMath: false, answerKey: false, solutions: false }
+  },
+  {
+    id: "jee-physics-pdf",
+    title: "JEE Physics PDF",
+    subject: "Physics",
+    exam: "JEE",
+    requiredInput: "real JEE physics question paper PDF with equations, vectors, circuits or graphs",
+    acceptedExtensions: ["PDF"],
+    mustProve: { formulas: true, chemistryStructures: false, physicsDiagrams: true, numericalAnswers: true, handwritten: false, multiPageQuestions: true, mixedQuestionTypes: true, diagrams: true, graphs: true, tables: true, scanned: false, mobilePhoto: false, docxOfficeMath: false, answerKey: false, solutions: false }
+  },
+  {
+    id: "neet-physics-pdf",
+    title: "NEET Physics PDF",
+    subject: "Physics",
+    exam: "NEET",
+    requiredInput: "real NEET physics question paper PDF with formula-heavy objective questions",
+    acceptedExtensions: ["PDF"],
+    mustProve: { formulas: true, chemistryStructures: false, physicsDiagrams: true, numericalAnswers: true, handwritten: false, multiPageQuestions: true, mixedQuestionTypes: true, diagrams: true, graphs: true, tables: false, scanned: false, mobilePhoto: false, docxOfficeMath: false, answerKey: false, solutions: false }
   },
   {
     id: "neet-chemistry-pdf",
@@ -172,7 +200,25 @@ export const REAL_FILE_BASELINE_SLOTS: RealFileBaselineSlot[] = [
     exam: "NEET",
     requiredInput: "real NEET chemistry question paper PDF",
     acceptedExtensions: ["PDF"],
-    mustProve: { formulas: true, chemistryStructures: true, diagrams: true, graphs: false, tables: true, scanned: false, mobilePhoto: false, docxOfficeMath: false, answerKey: false, solutions: false }
+    mustProve: { formulas: true, chemistryStructures: true, physicsDiagrams: false, numericalAnswers: true, handwritten: false, multiPageQuestions: true, mixedQuestionTypes: true, diagrams: true, graphs: false, tables: true, scanned: false, mobilePhoto: false, docxOfficeMath: false, answerKey: false, solutions: false }
+  },
+  {
+    id: "university-maths-paper",
+    title: "University Mathematics Paper",
+    subject: "Mathematics",
+    exam: "University",
+    requiredInput: "real university mathematics paper covering calculus, linear algebra or differential equations",
+    acceptedExtensions: ["PDF", "DOCX"],
+    mustProve: { formulas: true, chemistryStructures: false, physicsDiagrams: false, numericalAnswers: true, handwritten: false, multiPageQuestions: true, mixedQuestionTypes: true, diagrams: true, graphs: true, tables: true, scanned: false, mobilePhoto: false, docxOfficeMath: true, answerKey: false, solutions: false }
+  },
+  {
+    id: "university-chemistry-paper",
+    title: "University Chemistry Paper",
+    subject: "Chemistry",
+    exam: "University",
+    requiredInput: "real university chemistry paper with physical, organic or inorganic chemistry structures",
+    acceptedExtensions: ["PDF", "DOCX"],
+    mustProve: { formulas: true, chemistryStructures: true, physicsDiagrams: false, numericalAnswers: true, handwritten: false, multiPageQuestions: true, mixedQuestionTypes: true, diagrams: true, graphs: true, tables: true, scanned: false, mobilePhoto: false, docxOfficeMath: false, answerKey: false, solutions: false }
   },
   {
     id: "scanned-chemistry-paper",
@@ -181,7 +227,7 @@ export const REAL_FILE_BASELINE_SLOTS: RealFileBaselineSlot[] = [
     exam: "Mixed",
     requiredInput: "real scanned chemistry paper",
     acceptedExtensions: ["PDF", "JPG", "PNG", "WEBP"],
-    mustProve: { formulas: true, chemistryStructures: true, diagrams: true, graphs: false, tables: true, scanned: true, mobilePhoto: false, docxOfficeMath: false, answerKey: false, solutions: false }
+    mustProve: { formulas: true, chemistryStructures: true, physicsDiagrams: false, numericalAnswers: true, handwritten: false, multiPageQuestions: true, mixedQuestionTypes: true, diagrams: true, graphs: false, tables: true, scanned: true, mobilePhoto: false, docxOfficeMath: false, answerKey: false, solutions: false }
   },
   {
     id: "mobile-camera-maths-paper",
@@ -190,7 +236,16 @@ export const REAL_FILE_BASELINE_SLOTS: RealFileBaselineSlot[] = [
     exam: "Mixed",
     requiredInput: "real mobile camera mathematics paper",
     acceptedExtensions: ["JPG", "PNG", "WEBP"],
-    mustProve: { formulas: true, chemistryStructures: false, diagrams: true, graphs: true, tables: false, scanned: true, mobilePhoto: true, docxOfficeMath: false, answerKey: false, solutions: false }
+    mustProve: { formulas: true, chemistryStructures: false, physicsDiagrams: false, numericalAnswers: true, handwritten: false, multiPageQuestions: false, mixedQuestionTypes: true, diagrams: true, graphs: true, tables: false, scanned: true, mobilePhoto: true, docxOfficeMath: false, answerKey: false, solutions: false }
+  },
+  {
+    id: "handwritten-stem-paper",
+    title: "Handwritten STEM Paper",
+    subject: "Mathematics",
+    exam: "Mixed",
+    requiredInput: "real handwritten mathematics, physics or chemistry scan",
+    acceptedExtensions: ["PDF", "JPG", "PNG", "WEBP"],
+    mustProve: { formulas: true, chemistryStructures: true, physicsDiagrams: true, numericalAnswers: true, handwritten: true, multiPageQuestions: false, mixedQuestionTypes: true, diagrams: true, graphs: true, tables: false, scanned: true, mobilePhoto: true, docxOfficeMath: false, answerKey: false, solutions: false }
   },
   {
     id: "docx-office-math",
@@ -199,7 +254,7 @@ export const REAL_FILE_BASELINE_SLOTS: RealFileBaselineSlot[] = [
     exam: "University",
     requiredInput: "real DOCX containing Office Math equations",
     acceptedExtensions: ["DOCX"],
-    mustProve: { formulas: true, chemistryStructures: false, diagrams: false, graphs: true, tables: true, scanned: false, mobilePhoto: false, docxOfficeMath: true, answerKey: false, solutions: false }
+    mustProve: { formulas: true, chemistryStructures: false, physicsDiagrams: false, numericalAnswers: true, handwritten: false, multiPageQuestions: true, mixedQuestionTypes: true, diagrams: false, graphs: true, tables: true, scanned: false, mobilePhoto: false, docxOfficeMath: true, answerKey: false, solutions: false }
   },
   {
     id: "answer-key-pdf",
@@ -208,7 +263,7 @@ export const REAL_FILE_BASELINE_SLOTS: RealFileBaselineSlot[] = [
     exam: "Mixed",
     requiredInput: "real answer key PDF",
     acceptedExtensions: ["PDF"],
-    mustProve: { formulas: false, chemistryStructures: false, diagrams: false, graphs: false, tables: true, scanned: false, mobilePhoto: false, docxOfficeMath: false, answerKey: true, solutions: false }
+    mustProve: { formulas: false, chemistryStructures: false, physicsDiagrams: false, numericalAnswers: true, handwritten: false, multiPageQuestions: false, mixedQuestionTypes: true, diagrams: false, graphs: false, tables: true, scanned: false, mobilePhoto: false, docxOfficeMath: false, answerKey: true, solutions: false }
   },
   {
     id: "solution-book-pdf",
@@ -217,7 +272,7 @@ export const REAL_FILE_BASELINE_SLOTS: RealFileBaselineSlot[] = [
     exam: "NEET",
     requiredInput: "real solution book PDF",
     acceptedExtensions: ["PDF"],
-    mustProve: { formulas: true, chemistryStructures: true, diagrams: true, graphs: false, tables: true, scanned: false, mobilePhoto: false, docxOfficeMath: false, answerKey: true, solutions: true }
+    mustProve: { formulas: true, chemistryStructures: true, physicsDiagrams: true, numericalAnswers: true, handwritten: false, multiPageQuestions: true, mixedQuestionTypes: true, diagrams: true, graphs: false, tables: true, scanned: false, mobilePhoto: false, docxOfficeMath: false, answerKey: true, solutions: true }
   },
   {
     id: "organic-chemistry-structure-paper",
@@ -226,7 +281,7 @@ export const REAL_FILE_BASELINE_SLOTS: RealFileBaselineSlot[] = [
     exam: "NEET",
     requiredInput: "real organic chemistry structure paper",
     acceptedExtensions: ["PDF", "JPG", "PNG", "WEBP"],
-    mustProve: { formulas: true, chemistryStructures: true, diagrams: true, graphs: false, tables: false, scanned: false, mobilePhoto: false, docxOfficeMath: false, answerKey: false, solutions: false }
+    mustProve: { formulas: true, chemistryStructures: true, physicsDiagrams: false, numericalAnswers: false, handwritten: false, multiPageQuestions: false, mixedQuestionTypes: true, diagrams: true, graphs: false, tables: false, scanned: false, mobilePhoto: false, docxOfficeMath: false, answerKey: false, solutions: false }
   },
   {
     id: "graph-heavy-physics-math-paper",
@@ -235,7 +290,25 @@ export const REAL_FILE_BASELINE_SLOTS: RealFileBaselineSlot[] = [
     exam: "JEE",
     requiredInput: "real graph-heavy physics or mathematics paper",
     acceptedExtensions: ["PDF", "JPG", "PNG", "WEBP"],
-    mustProve: { formulas: true, chemistryStructures: false, diagrams: true, graphs: true, tables: true, scanned: false, mobilePhoto: false, docxOfficeMath: false, answerKey: false, solutions: false }
+    mustProve: { formulas: true, chemistryStructures: false, physicsDiagrams: true, numericalAnswers: true, handwritten: false, multiPageQuestions: true, mixedQuestionTypes: true, diagrams: true, graphs: true, tables: true, scanned: false, mobilePhoto: false, docxOfficeMath: false, answerKey: false, solutions: false }
+  },
+  {
+    id: "table-heavy-chemistry-paper",
+    title: "Table-Heavy Chemistry Paper",
+    subject: "Chemistry",
+    exam: "School",
+    requiredInput: "real chemistry paper with periodic table, lab observation or data table questions",
+    acceptedExtensions: ["PDF", "DOCX", "JPG", "PNG", "WEBP"],
+    mustProve: { formulas: true, chemistryStructures: true, physicsDiagrams: false, numericalAnswers: true, handwritten: false, multiPageQuestions: true, mixedQuestionTypes: true, diagrams: true, graphs: false, tables: true, scanned: false, mobilePhoto: false, docxOfficeMath: false, answerKey: false, solutions: false }
+  },
+  {
+    id: "olympiad-maths-paper",
+    title: "Olympiad Mathematics Paper",
+    subject: "Mathematics",
+    exam: "Olympiad",
+    requiredInput: "real olympiad mathematics paper with non-standard reasoning and geometry",
+    acceptedExtensions: ["PDF", "DOCX"],
+    mustProve: { formulas: true, chemistryStructures: false, physicsDiagrams: false, numericalAnswers: true, handwritten: false, multiPageQuestions: true, mixedQuestionTypes: true, diagrams: true, graphs: true, tables: true, scanned: false, mobilePhoto: false, docxOfficeMath: false, answerKey: false, solutions: false }
   }
 ];
 
@@ -248,6 +321,37 @@ function roundPercent(value: number) {
 
 function average(values: number[]) {
   return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
+}
+
+function countBy<T extends string>(values: T[]) {
+  return values.reduce<Record<T, number>>((acc, value) => {
+    acc[value] = (acc[value] ?? 0) + 1;
+    return acc;
+  }, {} as Record<T, number>);
+}
+
+function proofAreaCoverage(slots: RealFileBaselineSlot[]) {
+  const proofAreas = [
+    "formulas",
+    "chemistryStructures",
+    "physicsDiagrams",
+    "numericalAnswers",
+    "handwritten",
+    "multiPageQuestions",
+    "mixedQuestionTypes",
+    "diagrams",
+    "graphs",
+    "tables",
+    "scanned",
+    "mobilePhoto",
+    "docxOfficeMath",
+    "answerKey",
+    "solutions"
+  ] as const;
+  return proofAreas.reduce<Record<string, number>>((acc, proofArea) => {
+    acc[proofArea] = slots.filter((slot) => slot.mustProve[proofArea]).length;
+    return acc;
+  }, {});
 }
 
 function expectedFiles(slot: RealFileBaselineSlot) {
@@ -550,6 +654,11 @@ export const realFileBaselineService = {
       missingEvidencePaths: documentReports
         .filter((report) => report.evidence.exists && !report.fullPipelineExecuted)
         .map((report) => report.evidence.expectedEvidenceFile),
+      coverage: {
+        subjects: countBy(REAL_FILE_BASELINE_SLOTS.map((slot) => slot.subject)),
+        exams: countBy(REAL_FILE_BASELINE_SLOTS.map((slot) => slot.exam)),
+        proofAreas: proofAreaCoverage(REAL_FILE_BASELINE_SLOTS)
+      },
       documentReports,
       nextAction: productionCertified
         ? "Proceed to Phase 3 with real certification evidence preserved."

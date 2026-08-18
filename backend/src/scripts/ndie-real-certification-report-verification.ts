@@ -13,6 +13,7 @@ const p0WhenMissingFiles = report.baseline.filesPresent === report.baseline.requ
 const scoresAreBounded = [
   report.productionReadinessScore,
   report.mathematicsReadinessScore,
+  report.physicsReadinessScore,
   report.chemistryReadinessScore,
   report.internationalCompetitivenessScore
 ].every((score) => score >= 0 && score <= 100);
@@ -46,6 +47,7 @@ console.log(JSON.stringify({
   scores: {
     productionReadiness: report.productionReadinessScore,
     mathematicsReadiness: report.mathematicsReadinessScore,
+    physicsReadiness: report.physicsReadinessScore,
     chemistryReadiness: report.chemistryReadinessScore,
     internationalCompetitiveness: report.internationalCompetitivenessScore
   },

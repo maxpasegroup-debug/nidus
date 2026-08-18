@@ -19,6 +19,7 @@ describe("NDIE Phase 6 - Real Certification Report", () => {
       "Chemistry"
     ]));
     expect(report.mathematicsReadinessScore).toBeGreaterThanOrEqual(0);
+    expect(report.physicsReadinessScore).toBeGreaterThanOrEqual(0);
     expect(report.chemistryReadinessScore).toBeGreaterThanOrEqual(0);
   });
 

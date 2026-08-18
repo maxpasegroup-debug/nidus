@@ -13,6 +13,13 @@ const missingStageCoverage = report.slotPlans.every((plan) => (
 const everyOpenPlanHasCommand = report.slotPlans
   .filter((plan) => plan.status !== "CERTIFIED")
   .every((plan) => typeof plan.command === "string" && plan.command.length > 0);
+const everyOpenPlanHasCommandSequence = report.slotPlans
+  .filter((plan) => plan.status !== "CERTIFIED")
+  .every((plan) => plan.commands.length >= 2 && plan.verificationCommand.includes("test:ndie-real-launch-gate"));
+const subjectCoverage = ["Mathematics", "Physics", "Chemistry"].every((subject) => report.subjectReadiness.some((row) => row.subject === subject));
+const workflowComplete = report.workflow.length === 6 && report.workflow.every((step, index) => step.step === index + 1);
+const engineReadinessCovered = report.summary.requiredEngines === report.engineReadiness.length && report.summary.readyEngines === report.engineReadiness.filter((engine) => engine.status === "READY").length;
+const engineActionsCovered = report.engineActions.length === report.summary.blockedEngines && report.engineActions.every((action) => action.command.startsWith("npm run "));
 const noFalseCompletion = report.summary.certifiedSlots < report.summary.requiredSlots
   ? report.nextBestAction !== "All real evidence is certified. Rerun the launch gate in enforced mode."
   : true;
@@ -23,6 +30,11 @@ const checks = [
   ["every plan has proof areas", everyPlanHasProofAreas],
   ["missing stage coverage", missingStageCoverage],
   ["every open plan has command", everyOpenPlanHasCommand],
+  ["every open plan has command sequence", everyOpenPlanHasCommandSequence],
+  ["subject coverage", subjectCoverage],
+  ["workflow complete", workflowComplete],
+  ["engine readiness covered", engineReadinessCovered],
+  ["engine actions covered", engineActionsCovered],
   ["no false completion", noFalseCompletion]
 ] as const;
 
@@ -34,13 +46,18 @@ const output = {
   launchGateStatus: report.launchGateStatus,
   launchGateReleaseScope: report.launchGateReleaseScope,
   summary: report.summary,
+  engineReadiness: report.engineReadiness,
+  engineActions: report.engineActions,
+  subjectReadiness: report.subjectReadiness,
+  workflow: report.workflow,
   nextBestAction: report.nextBestAction,
   orderedActions: report.orderedActions.map((action) => ({
     priority: action.priority,
     slotId: action.slotId,
     status: action.status,
     action: action.action,
-    command: action.command
+    command: action.command,
+    commands: action.commands
   }))
 };
 

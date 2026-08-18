@@ -28,6 +28,37 @@ describe("NDIE Phase 10 - Real Release Pack", () => {
     }
   });
 
+  it("cryptographically rejects tampered manifest and package metadata", () => {
+    const pack = realReleasePackService.run();
+
+    expect(realReleasePackService.verify({ ...pack, releaseScope: "INTERNATIONAL_CERTIFIED" }).valid).toBe(false);
+    expect(realReleasePackService.verify({
+      ...pack,
+      artifacts: pack.artifacts.map((artifact, index) => index === 0 ? { ...artifact, bytes: artifact.bytes + 1 } : artifact)
+    }).valid).toBe(false);
+  });
+
+  it("verifies every artifact payload in the complete bundle", () => {
+    const bundle = realReleasePackService.bundle();
+
+    expect(realReleasePackService.verifyBundle(bundle).valid).toBe(true);
+    const tampered = {
+      pack: bundle.pack,
+      files: bundle.files.map((file, index) => index === 0 ? { ...file, content: `${file.content}\ntampered` } : file)
+    };
+    expect(realReleasePackService.verifyBundle(tampered).valid).toBe(false);
+  });
+
+  it("records complete provenance and certification state", () => {
+    const pack = realReleasePackService.run();
+
+    expect(pack.snapshotId).toMatch(/^ndie-release-/);
+    expect(pack.hashAlgorithm).toBe("SHA-256");
+    expect(Object.values(pack.inputVersions).every(Boolean)).toBe(true);
+    expect(pack.dossierSha256).toMatch(/^[a-f0-9]{64}$/);
+    expect(pack.certificationState).toBe(pack.launchGateStatus === "PASS" ? "READY_FOR_IMMUTABLE_ARCHIVE" : "PRELAUNCH_FAILED");
+  });
+
   it("does not mark failed launch packs as immutable production archives", () => {
     const pack = realReleasePackService.run();
 
@@ -38,10 +69,11 @@ describe("NDIE Phase 10 - Real Release Pack", () => {
     }
   });
 
-  it("keeps Mathematics and Chemistry readiness visible in the package summary", () => {
+  it("keeps Mathematics, Physics and Chemistry readiness visible in the package summary", () => {
     const pack = realReleasePackService.run();
 
     expect(pack.mathematicsReadinessScore).toBeGreaterThanOrEqual(0);
+    expect(pack.physicsReadinessScore).toBeGreaterThanOrEqual(0);
     expect(pack.chemistryReadinessScore).toBeGreaterThanOrEqual(0);
     expect(pack.internationalCompetitivenessScore).toBeGreaterThanOrEqual(0);
   });

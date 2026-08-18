@@ -1,8 +1,8 @@
 import { createHash } from "node:crypto";
-import { env } from "../../../config/env.js";
 import type { NdieFormulaDiagnostics, NdieFormulaSemanticType, NdieFormulaToken, NdieNormalizedFormula } from "../contracts/formula-result.js";
 import type { NdieLayoutBox } from "../contracts/layout-result.js";
 import type { FormulaProvider } from "../contracts/providers.js";
+import { formulaPerfectionService } from "../formula-perfection/formula-perfection.service.js";
 
 type FormulaInput = Parameters<FormulaProvider["detect"]>[0];
 type FormulaElement = FormulaInput["layoutElements"][number];
@@ -111,7 +111,7 @@ function diagnosticsFor(text: string, confidence: number): NdieFormulaDiagnostic
   const diagnostics: NdieFormulaDiagnostics = {
     brokenFormula: false,
     missingSymbols: unknownSymbols.length > 0,
-    lowConfidence: confidence < env.NDIE_FORMULA_CONFIDENCE_WARNING,
+    lowConfidence: confidence < (Number(process.env.NDIE_FORMULA_CONFIDENCE_WARNING ?? 0.75)),
     unreadableFormula: text.trim().length < 2,
     multipleFormulaRegions: false,
     nestedFormula: /\\frac\{.*\\frac\{/s.test(text),
@@ -205,7 +205,7 @@ export class RuleBasedFormulaProvider implements FormulaProvider {
       return text && (formulaSignal.test(text) || chemistrySignal.test(text) || ["FORMULA_AREA"].includes(element.elementType));
     });
 
-    const formulas: NdieNormalizedFormula[] = candidates.map((element, index) => {
+    const rawFormulas: NdieNormalizedFormula[] = candidates.map((element, index) => {
       const rawText = String(element.text ?? "");
       const normalizedExpression = normalizeExpression(rawText);
       const latex = plainToLatex(rawText);
@@ -228,7 +228,7 @@ export class RuleBasedFormulaProvider implements FormulaProvider {
         confidence,
         providerId: this.id,
         providerVersion: this.version,
-        pipelineVersion: env.NDIE_PIPELINE_VERSION,
+        pipelineVersion: (process.env.NDIE_PIPELINE_VERSION ?? "ndie-pipeline-v1"),
         formulaType: coordinates.width > 0.45 || rawText.length > 36 ? "DISPLAY" : "INLINE",
         semanticType: semantic,
         equationNumber: rawText.match(/\((\d+(?:\.\d+)?)\)\s*$/)?.[1] ?? null,
@@ -279,6 +279,9 @@ export class RuleBasedFormulaProvider implements FormulaProvider {
       };
     });
 
+    const perfection = formulaPerfectionService.perfectDocument(rawFormulas);
+    const formulas = perfection.formulas.map((item) => item.formula);
+
     return {
       formulas,
       elements: formulas.map((formula) => ({
@@ -302,6 +305,7 @@ export class RuleBasedFormulaProvider implements FormulaProvider {
         provider: this.id,
         candidateCount: candidates.length,
         formulaCount: formulas.length,
+        formulaPerfection: perfection.summary,
         semanticTypes: formulas.reduce<Record<string, number>>((acc, formula) => {
           acc[formula.semanticType] = (acc[formula.semanticType] ?? 0) + 1;
           return acc;

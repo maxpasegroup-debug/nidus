@@ -3,6 +3,11 @@ import {
   type RealCertificationReport,
   realCertificationReportService
 } from "./real-certification-report.service.js";
+import { chemistryStructureService } from "../chemistry-structure/chemistry-structure.service.js";
+import { educationalVisualSemanticsService } from "../educational-visual-semantics/educational-visual-semantics.service.js";
+import { formulaPerfectionService } from "../formula-perfection/formula-perfection.service.js";
+import { ndiePageUnderstandingService } from "../page-understanding/page-understanding.service.js";
+import { stemQuestionIntegrityService } from "../stem-question-integrity/stem-question-integrity.service.js";
 
 export type RealLaunchGateStatus = "PASS" | "FAIL";
 export type RealLaunchGateSeverity = "BLOCKER" | "WARNING";
@@ -17,6 +22,13 @@ export type RealLaunchGateCheck = {
   remediation: string;
 };
 
+export type RealLaunchGateEngineReadiness = {
+  id: string;
+  label: string;
+  version: string;
+  status: "READY" | "NOT_READY";
+};
+
 export type RealLaunchGateReport = {
   gateVersion: string;
   generatedAt: string;
@@ -27,15 +39,17 @@ export type RealLaunchGateReport = {
   certificationDecision: RealCertificationReport["decision"];
   productionReadinessScore: number;
   mathematicsReadinessScore: number;
+  physicsReadinessScore: number;
   chemistryReadinessScore: number;
   internationalCompetitivenessScore: number;
+  engineReadiness: RealLaunchGateEngineReadiness[];
   checks: RealLaunchGateCheck[];
   blockers: RealCertificationBlocker[];
   releaseScope: "INTERNATIONAL_CERTIFIED" | "INTERNAL_TESTING_ONLY" | "PRODUCTION_BLOCKED";
   recommendation: string;
 };
 
-export const REAL_LAUNCH_GATE_VERSION = "real-launch-gate-v1";
+export const REAL_LAUNCH_GATE_VERSION = "real-launch-gate-v2";
 
 const MINIMUM_CERTIFICATION_SCORE = 95;
 
@@ -66,6 +80,22 @@ function hasCriticalBlockers(report: RealCertificationReport) {
   return report.blockers.some((blocker) => blocker.priority === "P0" || blocker.priority === "P1");
 }
 
+function engineReadiness(): RealLaunchGateEngineReadiness[] {
+  const engines = [
+    ["page-understanding", "Page Understanding", ndiePageUnderstandingService.health()],
+    ["formula-perfection", "Formula Perfection", formulaPerfectionService.health()],
+    ["chemistry-structure", "Chemistry Structure", chemistryStructureService.health()],
+    ["educational-visual-semantics", "Educational Visual Semantics", educationalVisualSemanticsService.health()],
+    ["stem-question-integrity", "STEM Question Integrity", stemQuestionIntegrityService.health()]
+  ] as const;
+  return engines.map(([id, label, health]) => ({
+    id,
+    label,
+    version: String("version" in health ? health.version : health.providerVersion),
+    status: health.status === "ready" ? "READY" : "NOT_READY"
+  }));
+}
+
 export const realLaunchGateService = {
   version: REAL_LAUNCH_GATE_VERSION,
   minimumCertificationScore: MINIMUM_CERTIFICATION_SCORE,
@@ -77,6 +107,9 @@ export const realLaunchGateService = {
     const subjectCertified = report.subjects.every((subject) => subject.readiness === "CERTIFIED");
     const featureCertified = report.features.every((feature) => feature.readiness === "CERTIFIED");
     const noCriticalBlockers = !hasCriticalBlockers(report);
+    const engines = engineReadiness();
+    const allEnginesReady = engines.every((engine) => engine.status === "READY");
+    const realEvidenceComplete = report.baseline.filesPresent === report.baseline.requiredDocuments && report.baseline.fullPipelinesExecuted === report.baseline.requiredDocuments;
 
     const checks: RealLaunchGateCheck[] = [
       check({
@@ -102,6 +135,14 @@ export const realLaunchGateService = {
         pass: `Mathematics readiness is at least ${MINIMUM_CERTIFICATION_SCORE}%.`,
         fail: `Mathematics readiness is ${report.mathematicsReadinessScore}%, below launch threshold.`,
         remediation: "Certify the NDA/JEE/mobile/DOCX Mathematics slots with real evidence for formulas, graphs and rendered CBT output."
+      }),
+      check({
+        id: "physics-readiness-score",
+        label: "Physics readiness score",
+        condition: report.physicsReadinessScore >= MINIMUM_CERTIFICATION_SCORE,
+        pass: `Physics readiness is at least ${MINIMUM_CERTIFICATION_SCORE}%.`,
+        fail: `Physics readiness is ${report.physicsReadinessScore}%, below launch threshold.`,
+        remediation: "Certify JEE, NEET and graph-heavy Physics slots with real evidence for equations, units, circuits, diagrams and answer mapping."
       }),
       check({
         id: "chemistry-readiness-score",
@@ -136,6 +177,30 @@ export const realLaunchGateService = {
         remediation: "Provide real-file evidence for formulas, chemistry structures, diagrams, graphs, tables, answer keys and solutions."
       }),
       check({
+        id: "phase-intelligence-readiness",
+        label: "Phase 2-6 intelligence readiness",
+        condition: allEnginesReady,
+        pass: "Page, formula, chemistry, visual and question-integrity engines report ready.",
+        fail: "One or more Phase 2-6 intelligence engines are not ready.",
+        remediation: "Restore every required intelligence service to ready status and rerun its focused verification suite."
+      }),
+      check({
+        id: "real-evidence-completeness",
+        label: "Real-document evidence completeness",
+        condition: realEvidenceComplete,
+        pass: "Every required real document has complete upload-to-CBT evidence.",
+        fail: `${report.baseline.filesPresent}/${report.baseline.requiredDocuments} real files are present and ${report.baseline.fullPipelinesExecuted}/${report.baseline.requiredDocuments} full pipelines are evidenced.`,
+        remediation: "Add every required real paper and export complete, checksum-bound pipeline evidence for each slot."
+      }),
+      check({
+        id: "international-competitiveness-score",
+        label: "International competitiveness score",
+        condition: report.internationalCompetitivenessScore >= MINIMUM_CERTIFICATION_SCORE,
+        pass: `International competitiveness is at least ${MINIMUM_CERTIFICATION_SCORE}%.`,
+        fail: `International competitiveness is ${report.internationalCompetitivenessScore}%, below launch threshold.`,
+        remediation: "Close all subject and feature-proof gaps before claiming international certification."
+      }),
+      check({
         id: "critical-blocker-clearance",
         label: "Critical blocker clearance",
         condition: noCriticalBlockers,
@@ -162,8 +227,10 @@ export const realLaunchGateService = {
       certificationDecision: report.decision,
       productionReadinessScore: report.productionReadinessScore,
       mathematicsReadinessScore: report.mathematicsReadinessScore,
+      physicsReadinessScore: report.physicsReadinessScore,
       chemistryReadinessScore: report.chemistryReadinessScore,
       internationalCompetitivenessScore: report.internationalCompetitivenessScore,
+      engineReadiness: engines,
       checks,
       blockers: report.blockers,
       releaseScope,

@@ -33,10 +33,11 @@ describe("NDIE Phase 12 - Real Certification Suite", () => {
     }
   });
 
-  it("keeps Mathematics and Chemistry readiness in the suite summary", () => {
+  it("keeps Mathematics, Physics and Chemistry readiness in the suite summary", () => {
     const suite = realCertificationSuiteService.run();
 
     expect(suite.mathematicsReadinessScore).toBeGreaterThanOrEqual(0);
+    expect(suite.physicsReadinessScore).toBeGreaterThanOrEqual(0);
     expect(suite.chemistryReadinessScore).toBeGreaterThanOrEqual(0);
     expect(suite.internationalCompetitivenessScore).toBeGreaterThanOrEqual(0);
   });

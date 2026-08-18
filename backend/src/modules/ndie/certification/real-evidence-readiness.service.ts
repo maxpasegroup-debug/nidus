@@ -22,7 +22,24 @@ export type RealEvidenceReadinessAction = {
   status: RealEvidenceReadinessStatus;
   action: string;
   command: string | null;
+  commands: string[];
   reason: string;
+};
+
+export type RealEvidenceReadinessSubjectSummary = {
+  subject: RealFileBaselineSlot["subject"];
+  requiredSlots: number;
+  sourceFilesPresent: number;
+  certifiedSlots: number;
+  averageProgress: number;
+  status: "CERTIFIED" | "IN_PROGRESS" | "BLOCKED";
+};
+
+export type RealEvidenceReadinessEngineAction = {
+  engineId: string;
+  label: string;
+  action: string;
+  command: string;
 };
 
 export type RealEvidenceReadinessSlotPlan = {
@@ -37,6 +54,7 @@ export type RealEvidenceReadinessSlotPlan = {
   selectedFile: string | null;
   sourceSha256: string | null;
   expectedSourceFiles: string[];
+  sourceDestination: string;
   expectedEvidenceFile: string;
   proofAreas: string[];
   completedStages: string[];
@@ -48,6 +66,9 @@ export type RealEvidenceReadinessSlotPlan = {
   }>;
   nextAction: string;
   command: string | null;
+  commands: string[];
+  verificationCommand: string;
+  progressPercent: number;
 };
 
 export type RealEvidenceReadinessReport = {
@@ -63,18 +84,31 @@ export type RealEvidenceReadinessReport = {
     failedEvidenceSlots: number;
     missingSourceFiles: number;
     missingStageEvidence: number;
+    readinessPercent: number;
+    readyEngines: number;
+    requiredEngines: number;
+    blockedEngines: number;
   };
+  engineReadiness: ReturnType<typeof realLaunchGateService.run>["engineReadiness"];
+  engineActions: RealEvidenceReadinessEngineAction[];
+  subjectReadiness: RealEvidenceReadinessSubjectSummary[];
+  workflow: Array<{ step: number; label: string; description: string }>;
   slotPlans: RealEvidenceReadinessSlotPlan[];
   orderedActions: RealEvidenceReadinessAction[];
   nextBestAction: string;
 };
 
-export const REAL_EVIDENCE_READINESS_VERSION = "real-evidence-readiness-v1";
+export const REAL_EVIDENCE_READINESS_VERSION = "real-evidence-readiness-v2";
 
 function proofAreas(slot: RealFileBaselineSlot) {
   const labels: Array<[keyof RealFileBaselineSlot["mustProve"], string]> = [
     ["formulas", "Formula preservation"],
     ["chemistryStructures", "Chemistry structures"],
+    ["physicsDiagrams", "Physics diagrams and circuits"],
+    ["numericalAnswers", "Numerical answer integrity"],
+    ["handwritten", "Handwritten STEM handling"],
+    ["multiPageQuestions", "Multi-page question continuity"],
+    ["mixedQuestionTypes", "Mixed question reconstruction"],
     ["diagrams", "Diagram preservation"],
     ["graphs", "Graph preservation"],
     ["tables", "Table preservation"],
@@ -97,16 +131,23 @@ function statusFor(document: RealFileDocumentBaselineReport): RealEvidenceReadin
 function priorityFor(status: RealEvidenceReadinessStatus, document: RealFileDocumentBaselineReport): RealEvidenceReadinessPriority {
   if (status === "WAITING_FOR_SOURCE_FILE") return "P0";
   if (status === "FIX_FAILED_EVIDENCE") return "P0";
-  if (document.subject === "Mathematics" || document.subject === "Chemistry") return "P1";
+  if (["Mathematics", "Physics", "Chemistry"].includes(document.subject)) return "P1";
   return "P2";
 }
 
-function commandFor(status: RealEvidenceReadinessStatus, document: RealFileDocumentBaselineReport) {
-  if (status === "CERTIFIED") return null;
+function commandsFor(status: RealEvidenceReadinessStatus, document: RealFileDocumentBaselineReport) {
+  if (status === "CERTIFIED") return [];
   if (status === "WAITING_FOR_SOURCE_FILE") {
-    return "npm run test:ndie-real-intake --workspace backend";
+    return [
+      "npm run test:ndie-real-intake --workspace backend",
+      "npm run test:ndie-real-file-baseline --workspace backend"
+    ];
   }
-  return `npm run ndie:evidence:export --workspace backend -- --slot ${document.slotId} --import <ndie-import-job-id> --write`;
+  return [
+    `npm run ndie:evidence:export --workspace backend -- --slot ${document.slotId} --import <ndie-import-job-id> --write`,
+    "npm run test:ndie-real-file-baseline --workspace backend",
+    "npm run test:ndie-real-launch-gate --workspace backend"
+  ];
 }
 
 function actionFor(status: RealEvidenceReadinessStatus, document: RealFileDocumentBaselineReport) {
@@ -139,6 +180,8 @@ function slotPlan(slot: RealFileBaselineSlot, document: RealFileDocumentBaseline
   const failedStages = document.stageResults
     .filter((stage) => stage.status === "FAIL" || stage.status === "BLOCKED")
     .map((stage) => ({ stage: stage.stage, status: stage.status, reason: stage.reason }));
+  const commands = commandsFor(status, document);
+  const progressPercent = Math.round((completedStages.length / REAL_FILE_BASELINE_STAGES.length) * 10000) / 100;
   return {
     slotId: document.slotId,
     title: document.title,
@@ -151,13 +194,17 @@ function slotPlan(slot: RealFileBaselineSlot, document: RealFileDocumentBaseline
     selectedFile: document.evidence.selectedFile,
     sourceSha256: document.evidence.sha256,
     expectedSourceFiles: document.evidence.expectedFiles,
+    sourceDestination: document.evidence.expectedFiles.join(" OR "),
     expectedEvidenceFile: document.evidence.expectedEvidenceFile,
     proofAreas: proofAreas(slot),
     completedStages,
     missingStages,
     failedStages,
     nextAction: actionFor(status, document),
-    command: commandFor(status, document)
+    command: commands[0] ?? null,
+    commands,
+    verificationCommand: "npm run test:ndie-real-launch-gate --workspace backend",
+    progressPercent
   };
 }
 
@@ -170,6 +217,7 @@ function actionFromPlan(plan: RealEvidenceReadinessSlotPlan): RealEvidenceReadin
     status: plan.status,
     action: plan.nextAction,
     command: plan.command,
+    commands: plan.commands,
     reason: plan.failedStages[0]?.reason ?? (
       plan.status === "WAITING_FOR_PIPELINE_RUN"
         ? "Source exists but evidence is incomplete."
@@ -186,6 +234,43 @@ function priorityOrder(priority: RealEvidenceReadinessPriority) {
   return priority === "P0" ? 0 : priority === "P1" ? 1 : 2;
 }
 
+function subjectReadiness(plans: RealEvidenceReadinessSlotPlan[]): RealEvidenceReadinessSubjectSummary[] {
+  const subjects = ["Mathematics", "Physics", "Chemistry"] as const;
+  return subjects.map((subject) => {
+    const rows = plans.filter((plan) => plan.subject === subject);
+    const certifiedSlots = rows.filter((plan) => plan.status === "CERTIFIED").length;
+    const sourceFilesPresent = rows.filter((plan) => Boolean(plan.selectedFile)).length;
+    const averageProgress = rows.length
+      ? Math.round((rows.reduce((sum, plan) => sum + plan.progressPercent, 0) / rows.length) * 100) / 100
+      : 0;
+    return {
+      subject,
+      requiredSlots: rows.length,
+      sourceFilesPresent,
+      certifiedSlots,
+      averageProgress,
+      status: certifiedSlots === rows.length ? "CERTIFIED" : sourceFilesPresent ? "IN_PROGRESS" : "BLOCKED"
+    };
+  });
+}
+
+const readinessWorkflow = [
+  { step: 1, label: "Add source", description: "Place the real examination document in its assigned certification slot." },
+  { step: 2, label: "Run intake", description: "Validate signature, format, checksum and duplicate status." },
+  { step: 3, label: "Process document", description: "Run the paper through the complete NDIE upload-to-review pipeline." },
+  { step: 4, label: "Review and deliver", description: "Complete teacher review, publish and verify CBT rendering." },
+  { step: 5, label: "Export evidence", description: "Export checksum-bound stage evidence for the import." },
+  { step: 6, label: "Certify", description: "Rerun the real baseline and launch gate." }
+];
+
+const engineVerificationCommands: Record<string, string> = {
+  "page-understanding": "npm run test:ndie-page-understanding --workspace backend",
+  "formula-perfection": "npm run test:ndie-formula-perfection --workspace backend",
+  "chemistry-structure": "npm run test:ndie-chemistry-structure --workspace backend",
+  "educational-visual-semantics": "npm run test:ndie-visual-semantics --workspace backend",
+  "stem-question-integrity": "npm run test:ndie-stem-question-integrity --workspace backend"
+};
+
 export const realEvidenceReadinessService = {
   version: REAL_EVIDENCE_READINESS_VERSION,
 
@@ -201,6 +286,17 @@ export const realEvidenceReadinessService = {
       .map(actionFromPlan)
       .filter(isReadinessAction)
       .sort((left, right) => priorityOrder(left.priority) - priorityOrder(right.priority));
+    const completedStageCount = slotPlans.reduce((sum, plan) => sum + plan.completedStages.length, 0);
+    const totalStageCount = slotPlans.length * REAL_FILE_BASELINE_STAGES.length;
+    const engines = launchGate.engineReadiness;
+    const engineActions: RealEvidenceReadinessEngineAction[] = engines
+      .filter((engine) => engine.status !== "READY")
+      .map((engine) => ({
+        engineId: engine.id,
+        label: engine.label,
+        action: `Restore ${engine.label} to READY before collecting certification evidence.`,
+        command: engineVerificationCommands[engine.id] ?? "npm run test:ndie-certification --workspace backend"
+      }));
 
     return {
       reportVersion: REAL_EVIDENCE_READINESS_VERSION,
@@ -214,11 +310,19 @@ export const realEvidenceReadinessService = {
         waitingForPipelineRuns: slotPlans.filter((plan) => plan.status === "WAITING_FOR_PIPELINE_RUN").length,
         failedEvidenceSlots: slotPlans.filter((plan) => plan.status === "FIX_FAILED_EVIDENCE").length,
         missingSourceFiles: baseline.missingFixturePaths.length,
-        missingStageEvidence: slotPlans.reduce((sum, plan) => sum + plan.missingStages.length, 0)
+        missingStageEvidence: slotPlans.reduce((sum, plan) => sum + plan.missingStages.length, 0),
+        readinessPercent: totalStageCount ? Math.round((completedStageCount / totalStageCount) * 10000) / 100 : 0,
+        readyEngines: engines.filter((engine) => engine.status === "READY").length,
+        requiredEngines: engines.length,
+        blockedEngines: engineActions.length
       },
+      engineReadiness: engines,
+      engineActions,
+      subjectReadiness: subjectReadiness(slotPlans),
+      workflow: readinessWorkflow,
       slotPlans,
       orderedActions,
-      nextBestAction: orderedActions[0]?.action ?? "All real evidence is certified. Rerun the launch gate in enforced mode."
+      nextBestAction: engineActions[0]?.action ?? orderedActions[0]?.action ?? "All real evidence is certified. Rerun the launch gate in enforced mode."
     };
   }
 };

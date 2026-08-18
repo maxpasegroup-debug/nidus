@@ -26,6 +26,7 @@ export type RealCertificationSuiteReport = {
   executiveDecision: string;
   productionReadinessScore: number;
   mathematicsReadinessScore: number;
+  physicsReadinessScore: number;
   chemistryReadinessScore: number;
   internationalCompetitivenessScore: number;
   steps: RealCertificationSuiteStep[];
@@ -36,7 +37,7 @@ export type RealCertificationSuiteReport = {
   recommendation: string;
 };
 
-export const REAL_CERTIFICATION_SUITE_VERSION = "real-certification-suite-v1";
+export const REAL_CERTIFICATION_SUITE_VERSION = "real-certification-suite-v2";
 
 function step(input: RealCertificationSuiteStep): RealCertificationSuiteStep {
   return input;
@@ -75,7 +76,7 @@ export const realCertificationSuiteService = {
         label: "Executive certification report",
         status: report.decision === "GO" ? "PASS" : "FAIL",
         command: "npm run test:ndie-real-certification-report --workspace backend",
-        summary: `${report.decision}, production ${report.productionReadinessScore}/100, math ${report.mathematicsReadinessScore}/100, chemistry ${report.chemistryReadinessScore}/100.`
+        summary: `${report.decision}, production ${report.productionReadinessScore}/100, math ${report.mathematicsReadinessScore}/100, physics ${report.physicsReadinessScore}/100, chemistry ${report.chemistryReadinessScore}/100.`
       }),
       step({
         id: "real-launch-gate",
@@ -128,6 +129,7 @@ export const realCertificationSuiteService = {
       executiveDecision: report.decision,
       productionReadinessScore: report.productionReadinessScore,
       mathematicsReadinessScore: report.mathematicsReadinessScore,
+      physicsReadinessScore: report.physicsReadinessScore,
       chemistryReadinessScore: report.chemistryReadinessScore,
       internationalCompetitivenessScore: report.internationalCompetitivenessScore,
       steps,

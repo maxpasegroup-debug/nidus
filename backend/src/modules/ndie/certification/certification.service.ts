@@ -375,6 +375,7 @@ export const certificationService = {
         decision: realCertificationReport.decision,
         productionReadinessScore: realCertificationReport.productionReadinessScore,
         mathematicsReadinessScore: realCertificationReport.mathematicsReadinessScore,
+        physicsReadinessScore: realCertificationReport.physicsReadinessScore,
         chemistryReadinessScore: realCertificationReport.chemistryReadinessScore,
         internationalCompetitivenessScore: realCertificationReport.internationalCompetitivenessScore,
         blockerCount: realCertificationReport.blockers.length,
@@ -386,6 +387,7 @@ export const certificationService = {
         status: realLaunchGate.status,
         releaseScope: realLaunchGate.releaseScope,
         failedChecks: realLaunchGate.checks.filter((check) => check.status === "FAIL").length,
+        engineReadiness: realLaunchGate.engineReadiness,
         minimumCertificationScore: realLaunchGateService.minimumCertificationScore,
         recommendation: realLaunchGate.recommendation
       },
@@ -396,6 +398,10 @@ export const certificationService = {
         waitingForSourceFiles: realEvidenceReadiness.summary.waitingForSourceFiles,
         waitingForPipelineRuns: realEvidenceReadiness.summary.waitingForPipelineRuns,
         failedEvidenceSlots: realEvidenceReadiness.summary.failedEvidenceSlots,
+        readinessPercent: realEvidenceReadiness.summary.readinessPercent,
+        engineReadiness: realEvidenceReadiness.engineReadiness,
+        engineActions: realEvidenceReadiness.engineActions,
+        subjectReadiness: realEvidenceReadiness.subjectReadiness,
         nextBestAction: realEvidenceReadiness.nextBestAction
       },
       realCertificationDossier: {
@@ -405,13 +411,23 @@ export const certificationService = {
         releaseScope: realCertificationDossier.releaseScope,
         sections: realCertificationDossier.sections.length,
         blockers: realCertificationDossier.blockers.length,
-        orderedActions: realCertificationDossier.orderedActions.length
+        orderedActions: realCertificationDossier.orderedActions.length,
+        evidenceSummary: realCertificationDossier.evidenceSummary,
+        engineReadiness: realCertificationDossier.engineReadiness,
+        signoff: realCertificationDossier.signoff,
+        dossierSha256: realCertificationDossier.dossierSha256
       },
       realReleasePack: {
         version: realReleasePack.packVersion,
         releaseScope: realReleasePack.releaseScope,
         launchGateStatus: realReleasePack.launchGateStatus,
         artifactCount: realReleasePack.artifactCount,
+        snapshotId: realReleasePack.snapshotId,
+        certificationState: realReleasePack.certificationState,
+        evidenceReadinessPercent: realReleasePack.evidenceReadinessPercent,
+        dossierSha256: realReleasePack.dossierSha256,
+        hashAlgorithm: realReleasePack.hashAlgorithm,
+        inputVersions: realReleasePack.inputVersions,
         manifestSha256: realReleasePack.manifestSha256,
         packageSha256: realReleasePack.packageSha256,
         immutableArchiveRequired: realReleasePack.immutableArchiveRequired,

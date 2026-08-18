@@ -53,6 +53,7 @@ export type RealCertificationReport = {
   decision: RealCertificationDecision;
   productionReadinessScore: number;
   mathematicsReadinessScore: number;
+  physicsReadinessScore: number;
   chemistryReadinessScore: number;
   internationalCompetitivenessScore: number;
   baseline: {
@@ -75,7 +76,7 @@ export type RealCertificationReport = {
   launchRecommendation: string;
 };
 
-export const REAL_CERTIFICATION_REPORT_VERSION = "real-certification-report-v1";
+export const REAL_CERTIFICATION_REPORT_VERSION = "real-certification-report-v2";
 
 function round(value: number) {
   return Math.round(value * 100) / 100;
@@ -201,14 +202,16 @@ export const realCertificationReportService = {
     const foundBlockers = blockers(baseline.documentReports);
     const productionReadinessScore = baseline.overallScore;
     const mathematicsReadinessScore = subjectScore(subjects, "Mathematics");
+    const physicsReadinessScore = subjectScore(subjects, "Physics");
     const chemistryReadinessScore = subjectScore(subjects, "Chemistry");
     const internationalCompetitivenessScore = round(average([
       productionReadinessScore,
       mathematicsReadinessScore,
+      physicsReadinessScore,
       chemistryReadinessScore,
       average(features.map((feature) => feature.readiness === "CERTIFIED" ? 100 : 0))
     ]));
-    const decision: RealCertificationDecision = foundBlockers.some((blocker) => blocker.priority === "P0") || productionReadinessScore < 95 ? "NO_GO" : "GO";
+    const decision: RealCertificationDecision = foundBlockers.some((blocker) => blocker.priority === "P0" || blocker.priority === "P1") || productionReadinessScore < 95 ? "NO_GO" : "GO";
 
     return {
       reportVersion: REAL_CERTIFICATION_REPORT_VERSION,
@@ -216,6 +219,7 @@ export const realCertificationReportService = {
       decision,
       productionReadinessScore,
       mathematicsReadinessScore,
+      physicsReadinessScore,
       chemistryReadinessScore,
       internationalCompetitivenessScore,
       baseline: {

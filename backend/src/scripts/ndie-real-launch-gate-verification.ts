@@ -7,10 +7,14 @@ const hasRequiredChecks = [
   "real-certification-go",
   "production-readiness-score",
   "mathematics-readiness-score",
+  "physics-readiness-score",
   "chemistry-readiness-score",
   "pipeline-stage-certification",
   "subject-certification",
   "feature-proof-certification",
+  "phase-intelligence-readiness",
+  "real-evidence-completeness",
+  "international-competitiveness-score",
   "critical-blocker-clearance"
 ].every((checkId) => gate.checks.some((check) => check.id === checkId));
 
@@ -22,7 +26,10 @@ const noFalsePass = gate.status === "FAIL" || (
   gate.certificationDecision === "GO" &&
   gate.productionReadinessScore >= realLaunchGateService.minimumCertificationScore &&
   gate.mathematicsReadinessScore >= realLaunchGateService.minimumCertificationScore &&
-  gate.chemistryReadinessScore >= realLaunchGateService.minimumCertificationScore
+  gate.physicsReadinessScore >= realLaunchGateService.minimumCertificationScore &&
+  gate.chemistryReadinessScore >= realLaunchGateService.minimumCertificationScore &&
+  gate.internationalCompetitivenessScore >= realLaunchGateService.minimumCertificationScore &&
+  gate.engineReadiness.every((engine) => engine.status === "READY")
 );
 
 const releaseScopeMatchesStatus = gate.status === "PASS"
@@ -48,6 +55,7 @@ const output = {
   scores: {
     productionReadiness: gate.productionReadinessScore,
     mathematicsReadiness: gate.mathematicsReadinessScore,
+    physicsReadiness: gate.physicsReadinessScore,
     chemistryReadiness: gate.chemistryReadinessScore,
     internationalCompetitiveness: gate.internationalCompetitivenessScore
   },
@@ -57,6 +65,7 @@ const output = {
     message: check.message,
     remediation: check.remediation
   })),
+  engineReadiness: gate.engineReadiness,
   blockers: gate.blockers,
   recommendation: gate.recommendation
 };

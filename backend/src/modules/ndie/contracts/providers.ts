@@ -5,8 +5,9 @@ import type { NdieVisualResult } from "./visual-result.js";
 import type { NdieAssessmentResult } from "./assessment-result.js";
 import type { NdieEvaluationResult } from "./evaluation-result.js";
 import type { NdieValidationResult } from "./validation-result.js";
+import type { DocumentUnderstandingProvider } from "./page-understanding-result.js";
 
-export type NdieProviderKind = "OCR" | "LAYOUT" | "FORMULA" | "VISUAL" | "QUESTION" | "OPTION" | "EVALUATION" | "ANSWER_KEY" | "SOLUTION" | "AI" | "RENDERER" | "STORAGE";
+export type NdieProviderKind = "OCR" | "LAYOUT" | "FORMULA" | "VISUAL" | "QUESTION" | "OPTION" | "EVALUATION" | "ANSWER_KEY" | "SOLUTION" | "AI" | "DOCUMENT_UNDERSTANDING" | "RENDERER" | "STORAGE";
 
 export type NdieProviderHealth = {
   id: string;
@@ -281,3 +282,5 @@ export interface RendererProvider extends NdieProvider {
 export interface StorageProvider extends NdieProvider {
   kind: "STORAGE";
 }
+
+export type { DocumentUnderstandingProvider };

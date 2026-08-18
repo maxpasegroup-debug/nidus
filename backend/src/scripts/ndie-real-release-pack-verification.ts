@@ -1,7 +1,9 @@
 import { realReleasePackService } from "../modules/ndie/certification/real-release-pack.service.js";
 
-const pack = realReleasePackService.run();
+const bundle = realReleasePackService.bundle();
+const pack = bundle.pack;
 const verification = realReleasePackService.verify(pack);
+const bundleVerification = realReleasePackService.verifyBundle(bundle);
 
 const noFalseCertification = pack.launchGateStatus === "FAIL"
   ? pack.releaseScope !== "INTERNATIONAL_CERTIFIED" && !pack.immutableArchiveRequired
@@ -9,6 +11,7 @@ const noFalseCertification = pack.launchGateStatus === "FAIL"
 const scoreBounds = [
   pack.productionReadinessScore,
   pack.mathematicsReadinessScore,
+  pack.physicsReadinessScore,
   pack.chemistryReadinessScore,
   pack.internationalCompetitivenessScore
 ].every((score) => score >= 0 && score <= 100);
@@ -17,6 +20,7 @@ const hasMarkdownArtifact = pack.artifacts.some((artifact) => artifact.name.ends
 
 const checks = [
   ["pack integrity", verification.valid],
+  ["artifact payload integrity", bundleVerification.valid],
   ["no false certification", noFalseCertification],
   ["score bounds", scoreBounds],
   ["unique artifact checksums", uniqueArtifactChecksums],
@@ -34,6 +38,7 @@ const output = {
   scores: {
     productionReadiness: pack.productionReadinessScore,
     mathematicsReadiness: pack.mathematicsReadinessScore,
+    physicsReadiness: pack.physicsReadinessScore,
     chemistryReadiness: pack.chemistryReadinessScore,
     internationalCompetitiveness: pack.internationalCompetitivenessScore
   },
@@ -46,6 +51,11 @@ const output = {
   })),
   manifestSha256: pack.manifestSha256,
   packageSha256: pack.packageSha256,
+  dossierSha256: pack.dossierSha256,
+  snapshotId: pack.snapshotId,
+  certificationState: pack.certificationState,
+  evidenceReadinessPercent: pack.evidenceReadinessPercent,
+  inputVersions: pack.inputVersions,
   immutableArchiveRequired: pack.immutableArchiveRequired,
   recommendation: pack.recommendation
 };

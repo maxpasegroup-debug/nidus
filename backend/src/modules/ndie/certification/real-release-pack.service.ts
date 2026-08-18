@@ -21,14 +21,29 @@ export type RealReleasePackArtifactFile = RealReleasePackArtifact & {
 
 export type RealReleasePackReport = {
   packVersion: string;
+  canonicalizationVersion: string;
+  hashAlgorithm: "SHA-256";
   generatedAt: string;
+  snapshotId: string;
   releaseScope: string;
   launchGateStatus: string;
   executiveDecision: string;
   productionReadinessScore: number;
   mathematicsReadinessScore: number;
+  physicsReadinessScore: number;
   chemistryReadinessScore: number;
   internationalCompetitivenessScore: number;
+  evidenceReadinessPercent: number;
+  dossierSha256: string;
+  signoffStatus: "BLOCKED" | "READY_FOR_SIGNATURE";
+  certificationState: "PRELAUNCH_FAILED" | "READY_FOR_IMMUTABLE_ARCHIVE";
+  inputVersions: {
+    baseline: string;
+    certificationReport: string;
+    launchGate: string;
+    evidenceReadiness: string;
+    dossier: string;
+  };
   artifactCount: number;
   artifacts: RealReleasePackArtifact[];
   manifestSha256: string;
@@ -43,7 +58,8 @@ export type RealReleasePackBundle = {
   files: RealReleasePackArtifactFile[];
 };
 
-export const REAL_RELEASE_PACK_VERSION = "real-release-pack-v1";
+export const REAL_RELEASE_PACK_VERSION = "real-release-pack-v3";
+const REAL_RELEASE_PACK_CANONICALIZATION_VERSION = "canonical-json-v1";
 
 function canonicalize(value: unknown): JsonValue {
   if (value === null || typeof value === "boolean" || typeof value === "number" || typeof value === "string") {
@@ -96,6 +112,39 @@ function artifactMetadata(file: RealReleasePackArtifactFile): RealReleasePackArt
   };
 }
 
+function manifestPayload(pack: Pick<RealReleasePackReport, "packVersion" | "generatedAt" | "artifacts">) {
+  return {
+    packVersion: pack.packVersion,
+    generatedAt: pack.generatedAt,
+    artifacts: pack.artifacts
+  };
+}
+
+function packagePayload(pack: Omit<RealReleasePackReport, "manifestSha256" | "packageSha256" | "verificationCommand" | "recommendation">) {
+  return {
+    manifestSha256: sha256(serialize(manifestPayload(pack))),
+    packVersion: pack.packVersion,
+    canonicalizationVersion: pack.canonicalizationVersion,
+    hashAlgorithm: pack.hashAlgorithm,
+    generatedAt: pack.generatedAt,
+    snapshotId: pack.snapshotId,
+    releaseScope: pack.releaseScope,
+    launchGateStatus: pack.launchGateStatus,
+    executiveDecision: pack.executiveDecision,
+    certificationState: pack.certificationState,
+    immutableArchiveRequired: pack.immutableArchiveRequired,
+    evidenceReadinessPercent: pack.evidenceReadinessPercent,
+    dossierSha256: pack.dossierSha256,
+    signoffStatus: pack.signoffStatus,
+    inputVersions: pack.inputVersions,
+    artifacts: pack.artifacts
+  };
+}
+
+function safeArtifactName(name: string) {
+  return /^[a-z0-9][a-z0-9.-]*$/.test(name) && !name.includes("..");
+}
+
 export const realReleasePackService = {
   version: REAL_RELEASE_PACK_VERSION,
 
@@ -139,36 +188,46 @@ export const realReleasePackService = {
       })
     ];
     const artifacts = files.map(artifactMetadata);
-    const manifest = {
+    const generatedAt = new Date().toISOString();
+    const snapshotId = `ndie-release-${generatedAt.replace(/[:.]/g, "-")}`;
+    const immutableArchiveRequired = launchGate.status === "PASS";
+    const packWithoutHashes = {
       packVersion: REAL_RELEASE_PACK_VERSION,
-      generatedAt: new Date().toISOString(),
-      artifacts
-    };
-    const manifestSha256 = sha256(serialize(manifest));
-    const packageSha256 = sha256(serialize({
-      manifestSha256,
+      canonicalizationVersion: REAL_RELEASE_PACK_CANONICALIZATION_VERSION,
+      hashAlgorithm: "SHA-256" as const,
+      generatedAt,
+      snapshotId,
       releaseScope: launchGate.releaseScope,
       launchGateStatus: launchGate.status,
       executiveDecision: certificationReport.decision,
-      artifacts
-    }));
+      productionReadinessScore: certificationReport.productionReadinessScore,
+      mathematicsReadinessScore: certificationReport.mathematicsReadinessScore,
+      physicsReadinessScore: certificationReport.physicsReadinessScore,
+      chemistryReadinessScore: certificationReport.chemistryReadinessScore,
+      internationalCompetitivenessScore: certificationReport.internationalCompetitivenessScore,
+      evidenceReadinessPercent: readiness.summary.readinessPercent,
+      dossierSha256: dossier.dossierSha256,
+      signoffStatus: dossier.signoff.status,
+      certificationState: immutableArchiveRequired ? "READY_FOR_IMMUTABLE_ARCHIVE" as const : "PRELAUNCH_FAILED" as const,
+      inputVersions: {
+        baseline: baseline.certificationVersion,
+        certificationReport: certificationReport.reportVersion,
+        launchGate: launchGate.gateVersion,
+        evidenceReadiness: readiness.reportVersion,
+        dossier: dossier.dossierVersion
+      },
+      artifactCount: artifacts.length,
+      artifacts,
+      immutableArchiveRequired
+    };
+    const manifestSha256 = sha256(serialize(manifestPayload(packWithoutHashes)));
+    const packageSha256 = sha256(serialize(packagePayload(packWithoutHashes)));
 
     return {
       pack: {
-        packVersion: REAL_RELEASE_PACK_VERSION,
-        generatedAt: manifest.generatedAt,
-        releaseScope: launchGate.releaseScope,
-        launchGateStatus: launchGate.status,
-        executiveDecision: certificationReport.decision,
-        productionReadinessScore: certificationReport.productionReadinessScore,
-        mathematicsReadinessScore: certificationReport.mathematicsReadinessScore,
-        chemistryReadinessScore: certificationReport.chemistryReadinessScore,
-        internationalCompetitivenessScore: certificationReport.internationalCompetitivenessScore,
-        artifactCount: artifacts.length,
-        artifacts,
+        ...packWithoutHashes,
         manifestSha256,
         packageSha256,
-        immutableArchiveRequired: launchGate.status === "PASS",
         verificationCommand: "npm run test:ndie-real-release-pack --workspace backend",
         recommendation: launchGate.status === "PASS"
           ? "Archive this release pack before production launch and rerun the enforced launch gate."
@@ -192,15 +251,71 @@ export const realReleasePackService = {
       "real-certification-dossier.json",
       "real-certification-dossier.md"
     ];
+    const duplicateArtifacts = pack.artifacts
+      .map((artifact) => artifact.name)
+      .filter((name, index, names) => names.indexOf(name) !== index);
+    const expectedManifestSha256 = sha256(serialize(manifestPayload(pack)));
+    const {
+      manifestSha256: _manifestSha256,
+      packageSha256: _packageSha256,
+      verificationCommand: _verificationCommand,
+      recommendation: _recommendation,
+      ...packWithoutHashes
+    } = pack;
+    const expectedPackageSha256 = sha256(serialize(packagePayload(packWithoutHashes)));
+    const releaseStateConsistent = pack.launchGateStatus === "PASS"
+      ? pack.executiveDecision === "GO" && pack.releaseScope === "INTERNATIONAL_CERTIFIED" &&
+        pack.immutableArchiveRequired && pack.certificationState === "READY_FOR_IMMUTABLE_ARCHIVE" &&
+        pack.signoffStatus === "READY_FOR_SIGNATURE"
+      : pack.executiveDecision !== "GO" && pack.releaseScope !== "INTERNATIONAL_CERTIFIED" &&
+        !pack.immutableArchiveRequired && pack.certificationState === "PRELAUNCH_FAILED" &&
+        pack.signoffStatus === "BLOCKED";
+    const checks = {
+      version: pack.packVersion === REAL_RELEASE_PACK_VERSION,
+      canonicalization: pack.canonicalizationVersion === REAL_RELEASE_PACK_CANONICALIZATION_VERSION,
+      hashAlgorithm: pack.hashAlgorithm === "SHA-256",
+      artifactCount: pack.artifactCount === pack.artifacts.length,
+      requiredArtifacts: requiredArtifacts.every((name) => artifactNames.has(name)),
+      artifactMetadata: pack.artifacts.every((item) => /^[a-f0-9]{64}$/.test(item.sha256) && item.bytes > 0 && item.certificationRole.length > 0),
+      artifactNames: duplicateArtifacts.length === 0 && pack.artifacts.every((item) => safeArtifactName(item.name)),
+      manifestChecksum: pack.manifestSha256 === expectedManifestSha256,
+      packageChecksum: pack.packageSha256 === expectedPackageSha256,
+      dossierChecksum: /^[a-f0-9]{64}$/.test(pack.dossierSha256),
+      releaseState: releaseStateConsistent
+    };
     return {
-      valid: pack.packVersion === REAL_RELEASE_PACK_VERSION &&
-        pack.artifactCount === pack.artifacts.length &&
-        requiredArtifacts.every((name) => artifactNames.has(name)) &&
-        pack.artifacts.every((item) => item.sha256.length === 64 && item.bytes > 0) &&
-        pack.manifestSha256.length === 64 &&
-        pack.packageSha256.length === 64,
+      valid: Object.values(checks).every(Boolean),
+      checks,
       requiredArtifacts,
-      missingArtifacts: requiredArtifacts.filter((name) => !artifactNames.has(name))
+      missingArtifacts: requiredArtifacts.filter((name) => !artifactNames.has(name)),
+      duplicateArtifacts,
+      expectedManifestSha256,
+      expectedPackageSha256
+    };
+  },
+
+  verifyBundle(bundle: RealReleasePackBundle) {
+    const packVerification = this.verify(bundle.pack);
+    const metadata = new Map(bundle.pack.artifacts.map((artifact) => [artifact.name, artifact]));
+    const duplicateFiles = bundle.files
+      .map((file) => file.name)
+      .filter((name, index, names) => names.indexOf(name) !== index);
+    const fileChecks = bundle.files.map((file) => {
+      const expected = metadata.get(file.name);
+      const actualSha256 = sha256(file.content);
+      const actualBytes = Buffer.byteLength(file.content, "utf8");
+      return {
+        name: file.name,
+        valid: Boolean(expected) && file.sha256 === actualSha256 && expected?.sha256 === actualSha256 &&
+          file.bytes === actualBytes && expected?.bytes === actualBytes && expected?.kind === file.kind
+      };
+    });
+    return {
+      valid: packVerification.valid && duplicateFiles.length === 0 &&
+        bundle.files.length === bundle.pack.artifactCount && fileChecks.every((file) => file.valid),
+      packVerification,
+      duplicateFiles,
+      fileChecks
     };
   }
 };

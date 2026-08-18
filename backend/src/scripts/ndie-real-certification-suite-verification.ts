@@ -25,6 +25,7 @@ const nextCommandMatchesFailure = suite.failedSteps.length
 const scoreBounds = [
   suite.productionReadinessScore,
   suite.mathematicsReadinessScore,
+  suite.physicsReadinessScore,
   suite.chemistryReadinessScore,
   suite.internationalCompetitivenessScore
 ].every((score) => score >= 0 && score <= 100);
@@ -49,6 +50,7 @@ const output = {
   scores: {
     productionReadiness: suite.productionReadinessScore,
     mathematicsReadiness: suite.mathematicsReadinessScore,
+    physicsReadiness: suite.physicsReadinessScore,
     chemistryReadiness: suite.chemistryReadinessScore,
     internationalCompetitiveness: suite.internationalCompetitivenessScore
   },

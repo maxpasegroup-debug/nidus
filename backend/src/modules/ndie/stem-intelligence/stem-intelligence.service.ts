@@ -63,7 +63,13 @@ const chemistryConcepts = {
   Charges: [/\+|-|cation|anion|Na\+|Cl-/i],
   States: [/\(s\)|\(l\)|\(g\)|\(aq\)|solid|liquid|gas|aqueous/i],
   "Periodic Table References": [/periodic table|group|period|atomic number|Na|Cl|O|H/i],
-  "Chemical Symbols": [/\b[A-Z][a-z]?\b|H2O|CO2|Na\+/i]
+  "Chemical Symbols": [/\b[A-Z][a-z]?\b|H2O|CO2|Na\+/i],
+  "Lewis Structures": [/lewis|electron dot|lone pair|octet|valence electron/i],
+  "Reaction Mechanisms": [/mechanism|curved arrow|intermediate|transition state|nucleophile|electrophile|substitution|elimination/i],
+  "Ionic Equations": [/ionic|net ionic|cation|anion|Na\+|Cl-/i],
+  "Redox Reactions": [/redox|oxidation|reduction|electron transfer|oxidizing agent|reducing agent/i],
+  "Coordination Chemistry": [/coordination|complex|ligand|coordination number|\[.*(?:NH3|CN|Cl|H2O).*\]/i],
+  "Laboratory Chemistry": [/titration|indicator|burette|pipette|laboratory|precipitate|filtration/i]
 } as const;
 
 function scanConcepts(text: string, dictionary: Record<string, readonly RegExp[]>) {
@@ -134,7 +140,7 @@ export const chemistryEngine = {
     return {
       subject: "CHEMISTRY" as const,
       concepts,
-      recognizes: ["Organic Structures", "Inorganic Formulae", "Chemical Equations", "Reaction Arrows", "Charges", "States", "Periodic Table References", "Chemical Symbols"],
+      recognizes: ["Organic Structures", "Inorganic Formulae", "Chemical Equations", "Reaction Arrows", "Charges", "States", "Periodic Table References", "Chemical Symbols", "Lewis Structures", "Reaction Mechanisms", "Ionic Equations", "Redox Reactions", "Coordination Chemistry", "Laboratory Chemistry"],
       confidence: clamp01(concepts.length / 5)
     };
   }

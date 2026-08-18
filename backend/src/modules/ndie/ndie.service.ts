@@ -3,8 +3,11 @@ import { ndieAnswerKeyMapperService } from "./answer-key-mapper/answer-key-mappe
 import { ndieAiValidatorService } from "./ai-validator/ai-validator.service.js";
 import { ndieAnalyticsService } from "./analytics/analytics.service.js";
 import { certificationService } from "./certification/certification.service.js";
+import { chemistryStructureService } from "./chemistry-structure/chemistry-structure.service.js";
+import { educationalVisualSemanticsService } from "./educational-visual-semantics/educational-visual-semantics.service.js";
 import { ndieImportReplayService, type NdieReplayInput } from "./import-replay/import-replay.service.js";
 import { ndieFormulaAnalyzerService } from "./formula-analyzer/formula-analyzer.service.js";
+import { formulaPerfectionService } from "./formula-perfection/formula-perfection.service.js";
 import { ndieLayoutAnalyzerService } from "./layout-analyzer/layout-analyzer.service.js";
 import { createNdieContainer } from "./ndie.container.js";
 import { ndieProviderOrchestratorService } from "./provider-orchestrator/provider-orchestrator.service.js";
@@ -14,6 +17,7 @@ import { ndieQuestionDetectorService } from "./question-detector/question-detect
 import { ndieReviewEngineService, type NdieBulkReviewInput, type NdieReviewInput, type NdieReviewSessionInput } from "./review-engine/review-engine.service.js";
 import { ndieQueueConfig, ndieQueueService } from "./queue/queue.service.js";
 import { ndiePdfRendererService } from "./pdf-renderer/pdf-renderer.service.js";
+import { ndiePageUnderstandingService } from "./page-understanding/page-understanding.service.js";
 import { ndiePerformanceService } from "./performance/performance.service.js";
 import { ndieOcrService } from "./ocr/ocr.service.js";
 import { ndieOperationsService } from "./operations/operations.service.js";
@@ -21,6 +25,7 @@ import { ndieComplianceService } from "./security/compliance.service.js";
 import { assertNdieCandidateAccess, assertNdieImportAccess, isNdieManager, type NdieActor } from "./security/ndie-security.js";
 import { ndieSourceStorageService, type NdieCreateImportInput } from "./source-storage/source-storage.service.js";
 import { stemIntelligenceService } from "./stem-intelligence/stem-intelligence.service.js";
+import { stemQuestionIntegrityService } from "./stem-question-integrity/stem-question-integrity.service.js";
 import { ndieStudentDeliveryService } from "./student-delivery/student-delivery.service.js";
 import { ndieVisualDetectorService } from "./visual-detector/visual-detector.service.js";
 import { ndieWorkerService } from "./worker/worker.service.js";
@@ -29,7 +34,7 @@ const container = createNdieContainer();
 
 export const ndieService = {
   async health() {
-    const [queue, worker, metrics, performance, security, operations, certification, providerOrchestrator, stemIntelligence, renderer, ocr, layout, formula, visual, question, evaluation, validation, publisher, studentDelivery] = await Promise.all([
+    const [queue, worker, metrics, performance, security, operations, certification, providerOrchestrator, stemIntelligence, pageUnderstanding, formulaPerfection, chemistryStructure, educationalVisualSemantics, stemQuestionIntegrity, renderer, ocr, layout, formula, visual, question, evaluation, validation, publisher, studentDelivery] = await Promise.all([
       ndieQueueService.health(),
       ndieWorkerService.health(),
       ndieQueueService.metrics(),
@@ -39,6 +44,11 @@ export const ndieService = {
       certificationService.health(),
       Promise.resolve(ndieProviderOrchestratorService.health()),
       Promise.resolve(stemIntelligenceService.health()),
+      Promise.resolve(ndiePageUnderstandingService.health()),
+      Promise.resolve(formulaPerfectionService.health()),
+      Promise.resolve(chemistryStructureService.health()),
+      Promise.resolve(educationalVisualSemanticsService.health()),
+      Promise.resolve(stemQuestionIntegrityService.health()),
       ndiePdfRendererService.health(),
       ndieOcrService.health(),
       ndieLayoutAnalyzerService.health(),
@@ -65,13 +75,23 @@ export const ndieService = {
       certification,
       providerOrchestrator,
       stemIntelligence,
+      pageUnderstanding,
+      formulaPerfection,
+      chemistryStructure,
+      educationalVisualSemantics,
+      stemQuestionIntegrity,
       enterpriseHealth: {
         overallStatus: operations.status,
         categories: {
           ...operations.categories,
           certification: certification.certificationStatus,
           providers: providerOrchestrator.status,
-          stemIntelligence: stemIntelligence.status
+          stemIntelligence: stemIntelligence.status,
+          pageUnderstanding: pageUnderstanding.status,
+          formulaPerfection: formulaPerfection.status,
+          chemistryStructure: chemistryStructure.status,
+          educationalVisualSemantics: educationalVisualSemantics.status,
+          stemQuestionIntegrity: stemQuestionIntegrity.status
         },
         generatedAt: new Date().toISOString()
       },

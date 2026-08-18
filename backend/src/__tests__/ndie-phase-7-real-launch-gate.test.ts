@@ -9,12 +9,39 @@ describe("NDIE Phase 7 - Real Launch Gate", () => {
       "real-certification-go",
       "production-readiness-score",
       "mathematics-readiness-score",
+      "physics-readiness-score",
       "chemistry-readiness-score",
       "pipeline-stage-certification",
       "subject-certification",
       "feature-proof-certification",
+      "phase-intelligence-readiness",
+      "real-evidence-completeness",
+      "international-competitiveness-score",
       "critical-blocker-clearance"
     ]));
+  });
+
+  it("requires every Phase 2-6 intelligence engine to be ready", () => {
+    const gate = realLaunchGateService.run();
+
+    expect(gate.engineReadiness.map((engine) => engine.id)).toEqual(expect.arrayContaining([
+      "page-understanding",
+      "formula-perfection",
+      "chemistry-structure",
+      "educational-visual-semantics",
+      "stem-question-integrity"
+    ]));
+    expect(gate.engineReadiness.every((engine) => engine.status === "READY")).toBe(true);
+  });
+
+  it("includes Physics and international competitiveness in the launch threshold", () => {
+    const gate = realLaunchGateService.run();
+
+    expect(gate.physicsReadinessScore).toBeGreaterThanOrEqual(0);
+    expect(gate.internationalCompetitivenessScore).toBeGreaterThanOrEqual(0);
+    if (gate.physicsReadinessScore < realLaunchGateService.minimumCertificationScore || gate.internationalCompetitivenessScore < realLaunchGateService.minimumCertificationScore) {
+      expect(gate.status).toBe("FAIL");
+    }
   });
 
   it("does not pass while real certification is not GO", () => {

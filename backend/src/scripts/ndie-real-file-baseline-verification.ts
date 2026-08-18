@@ -7,14 +7,21 @@ import {
 const requiredSlots = [
   "nda-maths-pdf",
   "jee-maths-pdf",
+  "jee-physics-pdf",
+  "neet-physics-pdf",
   "neet-chemistry-pdf",
+  "university-maths-paper",
+  "university-chemistry-paper",
   "scanned-chemistry-paper",
   "mobile-camera-maths-paper",
+  "handwritten-stem-paper",
   "docx-office-math",
   "answer-key-pdf",
   "solution-book-pdf",
   "organic-chemistry-structure-paper",
-  "graph-heavy-physics-math-paper"
+  "graph-heavy-physics-math-paper",
+  "table-heavy-chemistry-paper",
+  "olympiad-maths-paper"
 ];
 
 const report = realFileBaselineService.run();
@@ -45,6 +52,15 @@ const evidenceManifestContract = report.documentReports.every((document) => (
   (!document.evidence.pipelineEvidence.exists || document.evidence.pipelineEvidence.valid)
 ));
 
+const stemCoverage = report.coverage.subjects.Mathematics >= 6 && report.coverage.subjects.Physics >= 3 && report.coverage.subjects.Chemistry >= 6;
+const hardFeatureCoverage = report.coverage.proofAreas.formulas >= 12 &&
+  report.coverage.proofAreas.chemistryStructures >= 5 &&
+  report.coverage.proofAreas.physicsDiagrams >= 4 &&
+  report.coverage.proofAreas.handwritten >= 1 &&
+  report.coverage.proofAreas.docxOfficeMath >= 2 &&
+  report.coverage.proofAreas.answerKey >= 2 &&
+  report.coverage.proofAreas.solutions >= 1;
+
 const checks = [
   ["required real-file slots", requiredSlotCoverage],
   ["upload-to-CBT stage coverage", stageCoverage],
@@ -54,7 +70,9 @@ const checks = [
   ["sha256 generated for present files", sha256WhenPresent],
   ["missing files block all stages", blockedStagesWhenMissing],
   ["missing evidence paths tracked", missingEvidenceIsTracked],
-  ["evidence manifest contract", evidenceManifestContract]
+  ["evidence manifest contract", evidenceManifestContract],
+  ["STEM subject coverage", stemCoverage],
+  ["hard STEM feature coverage", hardFeatureCoverage]
 ] as const;
 
 const failures = checks.filter(([, passed]) => !passed).map(([name]) => name);
@@ -84,6 +102,7 @@ console.log(JSON.stringify({
   overallScore: report.overallScore,
   missingFixturePaths: report.missingFixturePaths,
   missingEvidencePaths: report.missingEvidencePaths,
+  coverage: report.coverage,
   documentSummary: report.documentReports.map((document) => ({
     slotId: document.slotId,
     title: document.title,

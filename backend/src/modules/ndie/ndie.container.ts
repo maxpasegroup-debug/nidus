@@ -9,6 +9,7 @@ import { RuleBasedLayoutProvider } from "./layout-analyzer/rule-based-layout.pro
 import { StubOcrProvider } from "./ocr/stub-ocr.provider.js";
 import { TesseractOcrProvider } from "./ocr/tesseract-ocr.provider.js";
 import { RuleBasedOptionProvider } from "./option-detector/rule-based-option.provider.js";
+import { RuleBasedPageUnderstandingProvider } from "./page-understanding/rule-based-page-understanding.provider.js";
 import { MetadataPdfRendererProvider } from "./pdf-renderer/metadata-pdf-renderer.provider.js";
 import { PdfJsRendererProvider } from "./pdf-renderer/pdfjs-pdf-renderer.provider.js";
 import { createDisabledProvider, ProviderRegistry } from "./providers/provider-registry.js";
@@ -25,7 +26,12 @@ const serviceDefinitions = [
   ["DocxSemanticParser", "Parses DOCX semantic structure without exposing raw XML to teachers."],
   ["OCRService", "Runs OCR through replaceable providers."],
   ["LayoutAnalyzer", "Detects pages, regions, columns, reading order, and coordinates."],
+  ["PageUnderstanding", "Fuses rendered page images with OCR, layout, formula, visual and evaluation outputs before reconstruction."],
   ["FormulaAnalyzer", "Detects and preserves formulas as LaTeX, MathML, or formula images."],
+  ["FormulaPerfection", "Repairs, scores and review-flags formulas without discarding original text or source crops."],
+  ["ChemistryStructureEngine", "Understands chemical equations, organic structures, Lewis structures, charges, states and reaction relationships."],
+  ["EducationalVisualSemantics", "Understands tables, graphs, diagrams, axes, labels, visual structures and review risk without changing visual detection."],
+  ["StemQuestionIntegrity", "Audits reconstructed STEM questions for missing formulas, visuals, answers, source maps and unsafe publish readiness."],
   ["DiagramDetector", "Finds diagrams and image-linked question regions."],
   ["TableDetector", "Finds tables and table images."],
   ["GraphDetector", "Finds charts, plotted graphs, and coordinate visuals."],
@@ -54,6 +60,7 @@ function buildRegistry() {
   registry.register(new RuleBasedVisualProvider());
   registry.register(new RuleBasedQuestionProvider());
   registry.register(new RuleBasedOptionProvider());
+  registry.register(new RuleBasedPageUnderstandingProvider());
   registry.register(new RuleBasedEvaluationProvider());
   registry.register(new RuleBasedAnswerKeyProvider());
   registry.register(new RuleBasedSolutionProvider());
@@ -80,6 +87,10 @@ function buildRegistry() {
   registry.register(createDisabledProvider("visual.grounding-dino", "VISUAL", "Grounding DINO"));
   registry.register(createDisabledProvider("visual.florence", "VISUAL", "Florence"));
   registry.register(createDisabledProvider("visual.custom-vision", "VISUAL", "Custom Vision Models"));
+  registry.register(createDisabledProvider("document-understanding.openai", "DOCUMENT_UNDERSTANDING", "OpenAI Document Understanding"));
+  registry.register(createDisabledProvider("document-understanding.gemini", "DOCUMENT_UNDERSTANDING", "Gemini Document Understanding"));
+  registry.register(createDisabledProvider("document-understanding.claude", "DOCUMENT_UNDERSTANDING", "Claude Document Understanding"));
+  registry.register(createDisabledProvider("document-understanding.local-vlm", "DOCUMENT_UNDERSTANDING", "Local Vision-Language Document Understanding"));
   registry.register(createDisabledProvider("ai.openai", "AI", "OpenAI Validator"));
   registry.register(createDisabledProvider("ai.gemini", "AI", "Gemini Validator"));
   registry.register(createDisabledProvider("ai.claude", "AI", "Claude Validator"));

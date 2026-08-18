@@ -1,6 +1,8 @@
-# NDIE Real File Certification Fixtures
+# NDIE Real STEM Certification Fixtures
 
-Phase 1 requires actual examination files before any production score can be trusted.
+Phase 1 is the real-paper baseline for making NIDUS internationally competitive in Mathematics, Physics and Chemistry.
+
+This folder must contain real examination documents only. Do not add synthetic PDFs, mock OCR output, or screenshots made only for tests. A paper is not production certified until the real source file exists and every upload-to-CBT stage has executable evidence.
 
 Place each real source document in its slot folder as `source.<extension>`.
 
@@ -10,18 +12,56 @@ If you are not sure which slot a file belongs to, first place it in `../real-exa
 npm run test:ndie-real-intake --workspace backend
 ```
 
-Required slots:
+## Required Phase 1 Slots
+
+Mathematics:
 
 - `nda-maths-pdf/source.pdf`
 - `jee-maths-pdf/source.pdf`
-- `neet-chemistry-pdf/source.pdf`
-- `scanned-chemistry-paper/source.pdf` or `source.jpg` or `source.png` or `source.webp`
+- `university-maths-paper/source.pdf` or `source.docx`
 - `mobile-camera-maths-paper/source.jpg` or `source.png` or `source.webp`
 - `docx-office-math/source.docx`
+- `handwritten-stem-paper/source.pdf` or `source.jpg` or `source.png` or `source.webp`
+- `olympiad-maths-paper/source.pdf` or `source.docx`
+
+Physics:
+
+- `jee-physics-pdf/source.pdf`
+- `neet-physics-pdf/source.pdf`
+- `graph-heavy-physics-math-paper/source.pdf` or `source.jpg` or `source.png` or `source.webp`
+
+Chemistry:
+
+- `neet-chemistry-pdf/source.pdf`
+- `university-chemistry-paper/source.pdf` or `source.docx`
+- `scanned-chemistry-paper/source.pdf` or `source.jpg` or `source.png` or `source.webp`
+- `organic-chemistry-structure-paper/source.pdf` or `source.jpg` or `source.png` or `source.webp`
+- `table-heavy-chemistry-paper/source.pdf` or `source.docx` or `source.jpg` or `source.png` or `source.webp`
+
+Answer and solution evidence:
+
 - `answer-key-pdf/source.pdf`
 - `solution-book-pdf/source.pdf`
-- `organic-chemistry-structure-paper/source.pdf` or `source.jpg` or `source.png` or `source.webp`
-- `graph-heavy-physics-math-paper/source.pdf` or `source.jpg` or `source.png` or `source.webp`
+
+## What Phase 1 Must Prove
+
+The expanded baseline requires real evidence for:
+
+- formulas
+- chemistry structures
+- physics diagrams
+- numerical answers
+- handwritten scans
+- multi-page questions
+- mixed question types
+- diagrams
+- graphs
+- tables
+- scanned documents
+- mobile camera photos
+- DOCX Office Math
+- answer keys
+- solutions
 
 The baseline runner will not mark a paper production certified unless the real source exists and every upload-to-CBT stage has executable evidence.
 
@@ -87,42 +127,14 @@ npm run ndie:evidence:export --workspace backend -- --slot nda-maths-pdf --impor
 
 The exporter reads NDIE database records and generates `evidence.json` for the selected slot. It does not run OCR, rendering, publishing, or CBT itself. It only certifies what the system actually stored.
 
-## Real Certification Report
-
-Run the executive GO/NO-GO report:
+## Verification Commands
 
 ```bash
+npm run test:ndie-real-file-baseline --workspace backend
+npm run test:ndie-real-evidence-readiness --workspace backend
 npm run test:ndie-real-certification-report --workspace backend
-```
-
-The report summarizes:
-
-- production readiness
-- Mathematics readiness
-- Chemistry readiness
-- international competitiveness
-- stage readiness
-- subject blockers
-- STEM proof gaps
-- launch recommendation
-
-## Phase 7 Real Launch Gate
-
-Run the advisory launch gate:
-
-```bash
 npm run test:ndie-real-launch-gate --workspace backend
 ```
-
-The advisory gate always exits successfully when the gate logic itself is healthy, but the payload can still show `gateStatus: "FAIL"` while real certification evidence is incomplete.
-
-Run the enforced production gate:
-
-```bash
-npm run test:ndie-real-launch-gate --workspace backend -- --enforce
-```
-
-The enforced gate exits with code `1` when launch certification is blocked.
 
 The launch gate requires:
 
@@ -134,7 +146,6 @@ The launch gate requires:
 - every STEM subject is certified
 - every mandatory STEM proof area is certified
 - no P0/P1 blockers remain
-
 ## Phase 8 Evidence Readiness Planner
 
 Run the evidence readiness planner:
@@ -164,16 +175,23 @@ npm run test:ndie-real-certification-dossier --workspace backend
 The dossier packages the launch status into one management/QA report:
 
 - executive GO/NO-GO decision
-- production, Mathematics, Chemistry and international readiness scores
+- production, Mathematics, Physics, Chemistry and international readiness scores
+- version provenance for the certification report, launch gate and evidence planner
+- explicit launch-decision reasons
+- intelligence-engine readiness and focused recovery commands
+- source-file, checksum, slot and pipeline-stage evidence totals
 - blocker register
 - upload-to-CBT stage evidence status
 - subject readiness
 - STEM feature proof
 - real-file slot checklist
 - ordered next actions
-- markdown preview suitable for release reviews
+- certification sign-off eligibility for Academic QA, Engineering QA, Security and Release Authority
+- a SHA-256 dossier fingerprint plus a human-readable Markdown report
 
-The dossier is intentionally honest. If the real corpus is empty or incomplete, it will report `PRODUCTION_BLOCKED` and preserve the P0 blocker list.
+The dossier is intentionally honest. If the real corpus is empty or incomplete, it reports `PRODUCTION_BLOCKED`, preserves the P0 blocker list and keeps sign-off `BLOCKED`. A dossier becomes `READY_FOR_SIGNATURE` only after both the real certification decision and launch gate pass.
+
+The JSON dossier can be checked programmatically with `realCertificationDossierService.verify(report)`. Any change to its decision, evidence, scores, engine state, blockers or slot results invalidates `dossierSha256`.
 
 ## Phase 10 Release Pack
 
@@ -191,6 +209,10 @@ The release pack bundles and checksums:
 - `real-evidence-readiness.json`
 - `real-certification-dossier.json`
 - `real-certification-dossier.md`
+
+Phase 10 uses canonical JSON and SHA-256 to verify both metadata and payloads. The pack records a unique snapshot ID, all component versions, evidence readiness, the Phase 9 dossier checksum and an explicit certification state. `realReleasePackService.verify(pack)` recomputes the manifest and package hashes; `realReleasePackService.verifyBundle(bundle)` also re-hashes every artifact body and rejects missing, duplicate, unsafe or modified files.
+
+A failed launch gate always produces `PRELAUNCH_FAILED`, keeps sign-off blocked and cannot request an immutable production archive. Only an internationally certified `GO` pack may become `READY_FOR_IMMUTABLE_ARCHIVE`.
 
 Each artifact receives a SHA-256 hash, and the package receives both a manifest hash and a package hash.
 
