@@ -1,5 +1,8 @@
 import { v2 as cloudinary, type UploadApiResponse } from "cloudinary";
 import { env } from "./env.js";
+import { hasExpectedMediaSignature, safeMediaFileName } from "../modules/media/media-upload-security.js";
+
+export { safeMediaFileName } from "../modules/media/media-upload-security.js";
 
 export type CloudinaryUploadResult = { secureUrl: string; publicId: string; resourceType: string; format?: string };
 
@@ -53,6 +56,7 @@ function resourceTypeForMime(mimeType: string): "image" | "video" | "raw" {
 export function validateUpload(file: Express.Multer.File) {
   if (!allowedMediaMimeTypes.has(file.mimetype)) throw new Error("Unsupported file type. Upload images, PDFs, Word, PowerPoint, or videos only.");
   if (file.size > env.MAX_UPLOAD_MB * 1024 * 1024) throw new Error(`File exceeds ${env.MAX_UPLOAD_MB}MB upload limit`);
+  if (!hasExpectedMediaSignature(file.buffer, file.mimetype)) throw new Error("Uploaded file content does not match its declared file type");
 }
 
 export async function uploadBufferToCloudinary(file: Express.Multer.File, folder = "nidus/media"): Promise<CloudinaryUploadResult> {
@@ -67,6 +71,7 @@ export async function uploadBufferToCloudinary(file: Express.Multer.File, folder
       {
         folder,
         resource_type: resourceType,
+        filename_override: safeMediaFileName(file.originalname),
         use_filename: true,
         unique_filename: true,
         overwrite: false,
@@ -90,7 +95,7 @@ export async function uploadBufferToCloudinaryResource(
   folder = "nidus/media",
   resourceType: "image" | "video" | "raw" = resourceTypeForMime(input.mimetype)
 ): Promise<CloudinaryUploadResult> {
-  if (!allowedMediaMimeTypes.has(input.mimetype)) throw new Error("Unsupported file type. Upload images, PDFs, Word, PowerPoint, or videos only.");
+  validateUpload({ ...input, fieldname: "file", encoding: "7bit", size: input.buffer.length, stream: undefined as never, destination: "", filename: "", path: "" });
   if (!assertCloudinaryReady()) throw new Error("Cloudinary is not configured");
 
   return new Promise((resolve, reject) => {
@@ -98,6 +103,7 @@ export async function uploadBufferToCloudinaryResource(
       {
         folder,
         resource_type: resourceType,
+        filename_override: safeMediaFileName(input.originalname),
         use_filename: true,
         unique_filename: true,
         overwrite: false,

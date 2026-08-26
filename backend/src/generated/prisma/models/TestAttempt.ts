@@ -331,6 +331,7 @@ export type TestAttemptOrderByWithRelationInput = {
 
 export type TestAttemptWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  userId_testId?: Prisma.TestAttemptUserIdTestIdCompoundUniqueInput
   AND?: Prisma.TestAttemptWhereInput | Prisma.TestAttemptWhereInput[]
   OR?: Prisma.TestAttemptWhereInput[]
   NOT?: Prisma.TestAttemptWhereInput | Prisma.TestAttemptWhereInput[]
@@ -352,7 +353,7 @@ export type TestAttemptWhereUniqueInput = Prisma.AtLeast<{
   answers?: Prisma.AnswerListRelationFilter
   answerStates?: Prisma.CBTAnswerStateListRelationFilter
   integrityEvents?: Prisma.CBTIntegrityEventListRelationFilter
-}, "id">
+}, "id" | "userId_testId">
 
 export type TestAttemptOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -533,6 +534,11 @@ export type TestAttemptListRelationFilter = {
 
 export type TestAttemptOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type TestAttemptUserIdTestIdCompoundUniqueInput = {
+  userId: string
+  testId: string
 }
 
 export type TestAttemptCountOrderByAggregateInput = {

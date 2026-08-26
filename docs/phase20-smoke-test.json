@@ -1,0 +1,15 @@
+{
+  "phase": 20,
+  "status": "BLOCKED — ENVIRONMENT",
+  "evidence": {
+    "executed": false,
+    "reason": "Required dependencies unavailable"
+  },
+  "test_count": 0,
+  "passed": 0,
+  "failed": 0,
+  "blocked": 1,
+  "limitations": [
+    "Full queue/media/notification smoke flow not executable."
+  ]
+}

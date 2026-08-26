@@ -1,0 +1,15 @@
+{
+  "phase": 20,
+  "status": "BLOCKED — ENVIRONMENT",
+  "evidence": {
+    "workerStarted": false,
+    "ndieJob": false
+  },
+  "test_count": 0,
+  "passed": 0,
+  "failed": 0,
+  "blocked": 1,
+  "limitations": [
+    "Redis unavailable; real workers cannot be started."
+  ]
+}

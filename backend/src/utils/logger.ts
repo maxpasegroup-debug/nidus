@@ -6,7 +6,27 @@ export const pinoLogger = pino({
   base: { service: "nidus-backend", environment: env.NODE_ENV },
   timestamp: pino.stdTimeFunctions.isoTime,
   redact: {
-    paths: ["req.headers.authorization", "authorization", "password", "token", "refreshToken", "api_key"],
+    paths: [
+      "req.headers.authorization",
+      "req.headers.cookie",
+      "request.headers.authorization",
+      "request.headers.cookie",
+      "headers.authorization",
+      "headers.cookie",
+      "authorization",
+      "cookie",
+      "password",
+      "pin",
+      "accessPin",
+      "token",
+      "refreshToken",
+      "resetToken",
+      "api_key",
+      "apiKey",
+      "apiSecret",
+      "appKey",
+      "privateKey"
+    ],
     censor: "[REDACTED]"
   },
   transport:

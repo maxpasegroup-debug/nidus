@@ -101,22 +101,24 @@ export async function assertNdieImportAccess(actor: NdieActor, importJobId: stri
       batchId: true,
       subject: true,
       status: true,
-      reviewStatus: true,
-      batch: {
-        select: {
-          instituteId: true,
-          branchId: true
-        }
-      }
+      reviewStatus: true
     }
   });
   if (!importJob) throw statusError("NDIE import not found", 404);
 
-  if (managerCanAccessImport(actor, importJob)) return importJob;
+  const batch = importJob.batchId
+    ? await prisma.batch.findUnique({
+        where: { id: importJob.batchId },
+        select: { instituteId: true, branchId: true }
+      })
+    : null;
+  const scopedImportJob = { ...importJob, batch };
+
+  if (managerCanAccessImport(actor, scopedImportJob)) return scopedImportJob;
   if (teacherRoles.has(actor.role)) {
     const ownsImport = importJob.uploadedBy === actor.id;
     const hasBatchAccess = await teacherCanAccessBatch(actor, importJob.batchId, importJob.subject);
-    if (ownsImport || hasBatchAccess) return importJob;
+    if (ownsImport || (mode === "READ" && hasBatchAccess)) return scopedImportJob;
   }
 
   logger.warn("NDIE import access denied", { actorId: actor.id, role: actor.role, instituteId: actor.instituteId, branchId: actor.branchId, importJobId, mode });
@@ -184,9 +186,13 @@ export async function auditNdie(input: {
 export const ndieAllowedMimeTypes = new Set([
   "application/pdf",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/msword",
   "image/jpeg",
   "image/png",
   "image/webp",
+  "image/tiff",
+  "image/heic",
+  "image/heif",
   "image/gif",
   "text/plain"
 ]);
@@ -197,10 +203,13 @@ function hasMagicSignature(file: Express.Multer.File) {
   const mime = file.mimetype;
   if (mime === "application/pdf") return buffer.subarray(0, 4).toString("utf8") === "%PDF";
   if (mime === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") return buffer[0] === 0x50 && buffer[1] === 0x4b;
+  if (mime === "application/msword") return buffer.subarray(0, 8).equals(Buffer.from([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1]));
   if (mime === "image/png") return buffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
   if (mime === "image/jpeg") return buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff;
   if (mime === "image/gif") return ["GIF87a", "GIF89a"].includes(buffer.subarray(0, 6).toString("ascii"));
   if (mime === "image/webp") return buffer.subarray(0, 4).toString("ascii") === "RIFF" && buffer.subarray(8, 12).toString("ascii") === "WEBP";
+  if (mime === "image/tiff") return buffer.subarray(0, 4).equals(Buffer.from([0x49, 0x49, 0x2a, 0x00])) || buffer.subarray(0, 4).equals(Buffer.from([0x4d, 0x4d, 0x00, 0x2a]));
+  if (mime === "image/heic" || mime === "image/heif") return buffer.subarray(4, 8).toString("ascii") === "ftyp" && /heic|heix|hevc|heif|mif1/.test(buffer.subarray(8, 16).toString("ascii"));
   if (mime === "text/plain") return !buffer.subarray(0, Math.min(buffer.length, 512)).includes(0);
   return false;
 }
@@ -210,9 +219,12 @@ export function safeNdieFileName(originalName: string, mimeType: string) {
   const fallbackExtension =
     mimeType === "application/pdf" ? ".pdf" :
     mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ? ".docx" :
+    mimeType === "application/msword" ? ".doc" :
     mimeType === "image/jpeg" ? ".jpg" :
     mimeType === "image/png" ? ".png" :
     mimeType === "image/webp" ? ".webp" :
+    mimeType === "image/tiff" ? ".tiff" :
+    (mimeType === "image/heic" || mimeType === "image/heif") ? ".heic" :
     mimeType === "image/gif" ? ".gif" :
     mimeType === "text/plain" ? ".txt" :
     "";
@@ -220,9 +232,9 @@ export function safeNdieFileName(originalName: string, mimeType: string) {
 }
 
 export function validateNdieUpload(file?: Express.Multer.File) {
-  if (!file) throw statusError("Upload a PDF, DOCX, image, or TXT source file.", 400);
+  if (!file) throw statusError("Choose an examination paper to continue.", 400);
   if (!ndieAllowedMimeTypes.has(file.mimetype)) {
-    throw statusError("Unsupported NDIE file type. Upload PDF, DOCX, JPG, PNG, WEBP, GIF, or TXT only.", 415);
+    throw statusError("This file type is not supported. Upload PDF, DOC, DOCX, JPG, PNG, WEBP, TIFF, HEIC, or TXT.", 415);
   }
   if (file.size > env.MAX_UPLOAD_MB * 1024 * 1024) {
     throw statusError(`File exceeds ${env.MAX_UPLOAD_MB}MB upload limit.`, 413);
@@ -239,7 +251,7 @@ export const ndieUpload = multer({
   },
   fileFilter: (_req, file, callback) => {
     if (!ndieAllowedMimeTypes.has(file.mimetype)) {
-      callback(statusError("Unsupported NDIE file type. Upload PDF, DOCX, JPG, PNG, WEBP, GIF, or TXT only.", 415));
+      callback(statusError("This file type is not supported. Upload PDF, DOC, DOCX, JPG, PNG, WEBP, TIFF, HEIC, or TXT.", 415));
       return;
     }
     callback(null, true);

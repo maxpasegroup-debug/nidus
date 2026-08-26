@@ -4,13 +4,12 @@ import { prisma } from "../../../config/prisma.js";
 import type { OcrProvider } from "../contracts/providers.js";
 import { createNdieContainer } from "../ndie.container.js";
 import { preprocessOcrImage } from "./image-preprocessing.js";
+import { readNdieStoredUrl } from "../storage/storage-provider.js";
 
 const container = createNdieContainer();
 
 async function bufferFromImageUrl(url: string) {
-  const response = await fetch(url);
-  if (!response.ok) throw Object.assign(new Error("Unable to load rendered page image for OCR."), { statusCode: 502, retryable: true });
-  return Buffer.from(await response.arrayBuffer());
+  return readNdieStoredUrl(url);
 }
 
 function deterministicOcrFailure(error: unknown) {

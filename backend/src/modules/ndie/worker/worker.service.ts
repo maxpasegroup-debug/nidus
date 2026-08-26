@@ -1,5 +1,6 @@
 import { prisma } from "../../../config/prisma.js";
-import { Role } from "../../../generated/prisma/client.js";
+import { env } from "../../../config/env.js";
+import { Prisma, Role } from "../../../generated/prisma/client.js";
 import { logger } from "../../../utils/logger.js";
 import { ndieAnswerKeyMapperService } from "../answer-key-mapper/answer-key-mapper.service.js";
 import { ndieAiValidatorService } from "../ai-validator/ai-validator.service.js";
@@ -40,6 +41,7 @@ async function renderPdfForJob(jobId: string, workerId: string) {
     importJobId: job.importJobId,
     sourceDocumentId: sourceDocument.id,
     fileType: sourceDocument.fileType,
+    storageUrl: sourceDocument.storageUrl,
     storagePublicId: sourceDocument.storagePublicId
   });
   await ndieQueueService.updateProgress(jobId, 90, "PAGES_CREATED");
@@ -52,7 +54,7 @@ async function runOcrForJob(jobId: string, workerId: string) {
   const job = await prisma.ndieQueueJob.findUnique({ where: { id: jobId } });
   if (!job) throw Object.assign(new Error("NDIE queue job not found"), { statusCode: 404 });
 
-  await ndieQueueService.transition(jobId, "OCR_RUNNING", { workerId, provider: "ocr.tesseract" });
+  await ndieQueueService.transition(jobId, "OCR_RUNNING", { workerId, provider: env.NDIE_OCR_PROVIDER });
   await ndieQueueService.updateProgress(jobId, 15, "OCR_RUNNING");
   const result = await ndieOcrService.runOcr(job.importJobId);
   await ndieQueueService.updateProgress(jobId, 90, "OCR_COMPLETED");
@@ -65,7 +67,7 @@ async function runLayoutForJob(jobId: string, workerId: string) {
   const job = await prisma.ndieQueueJob.findUnique({ where: { id: jobId } });
   if (!job) throw Object.assign(new Error("NDIE queue job not found"), { statusCode: 404 });
 
-  await ndieQueueService.transition(jobId, "LAYOUT_RUNNING", { workerId, provider: "layout.rule-based" });
+  await ndieQueueService.transition(jobId, "LAYOUT_RUNNING", { workerId, provider: env.NDIE_LAYOUT_PROVIDER });
   await ndieQueueService.updateProgress(jobId, 15, "LAYOUT_RUNNING");
   const result = await ndieLayoutAnalyzerService.analyzeImport(job.importJobId);
   await ndieQueueService.updateProgress(jobId, 90, "LAYOUT_COMPLETED");
@@ -78,7 +80,7 @@ async function runFormulaForJob(jobId: string, workerId: string) {
   const job = await prisma.ndieQueueJob.findUnique({ where: { id: jobId } });
   if (!job) throw Object.assign(new Error("NDIE queue job not found"), { statusCode: 404 });
 
-  await ndieQueueService.transition(jobId, "FORMULA_RUNNING", { workerId, provider: "formula.rule-based" });
+  await ndieQueueService.transition(jobId, "FORMULA_RUNNING", { workerId, provider: env.NDIE_FORMULA_PROVIDER });
   await ndieQueueService.updateProgress(jobId, 15, "FORMULA_RUNNING");
   const result = await ndieFormulaAnalyzerService.detectImport(job.importJobId);
   await ndieQueueService.updateProgress(jobId, 90, "FORMULA_COMPLETED");
@@ -130,7 +132,7 @@ async function runAiValidationForJob(jobId: string, workerId: string) {
   const job = await prisma.ndieQueueJob.findUnique({ where: { id: jobId } });
   if (!job) throw Object.assign(new Error("NDIE queue job not found"), { statusCode: 404 });
 
-  await ndieQueueService.transition(jobId, "AI_VALIDATION_RUNNING", { workerId, provider: "ai.rule-based" });
+  await ndieQueueService.transition(jobId, "AI_VALIDATION_RUNNING", { workerId, provider: env.NDIE_AI_PROVIDER });
   await ndieQueueService.updateProgress(jobId, 15, "AI_VALIDATION_RUNNING");
   const result = await ndieAiValidatorService.validateImport(job.importJobId);
   await ndieQueueService.updateProgress(jobId, 90, "AI_VALIDATION_COMPLETED");
@@ -196,23 +198,23 @@ export const ndieWorkerService = {
     };
   },
 
-  async runPlaceholderJob(jobId: string) {
+  async runPlaceholderJob(jobId: string, claimedWorkerId?: string) {
     if (!ndieQueueConfig.workersEnabled) {
       throw Object.assign(new Error("NDIE workers are disabled for this environment."), { statusCode: 503 });
     }
 
-    const workerId = ndieWorkerId();
+    const workerId = claimedWorkerId ?? ndieWorkerId();
     const startedAt = Date.now();
     const job = await prisma.ndieQueueJob.update({
       where: { id: jobId },
-      data: { workerId }
+      data: claimedWorkerId ? {} : { workerId }
     });
     const pool = ndiePerformanceService.poolForStage(job.stage).kind;
     ndieWorkerRegistryService.register({ workerId, pool, currentJobId: jobId, currentStage: job.stage });
 
     try {
       ndieWorkerRegistryService.heartbeat(workerId, { currentJobId: jobId, currentStage: job.stage });
-      await ndieQueueService.transition(jobId, "PROCESSING", { workerId });
+      if (!claimedWorkerId) await ndieQueueService.transition(jobId, "PROCESSING", { workerId });
       await ndieQueueService.updateProgress(jobId, 10, job.stage);
 
       const latest = await prisma.ndieQueueJob.findUnique({ where: { id: jobId }, select: { state: true } });
@@ -298,6 +300,30 @@ export const ndieWorkerService = {
           data: { status: "DELIVERY_READY", currentCheckpoint: "DELIVERY_READY" }
         });
       }
+      if (completed.replayRunId) {
+        const payload = job.payload && typeof job.payload === "object" && !Array.isArray(job.payload) ? job.payload as Record<string, unknown> : {};
+        const stages = Array.isArray(payload.stages) ? payload.stages.map(String) : [];
+        const replayIndex = Number(payload.replayIndex ?? 0);
+        const nextStage = stages[replayIndex + 1];
+        if (nextStage) {
+          await ndieQueueService.enqueue({
+            importJobId: completed.importJobId,
+            replayRunId: completed.replayRunId,
+            jobType: "REPLAY_PIPELINE",
+            stage: nextStage,
+            queueClass: "REPLAY",
+            priority: 40,
+            payload: { ...payload, replayIndex: replayIndex + 1 } as Prisma.InputJsonValue
+          });
+        } else {
+          await prisma.ndieReplayRun.update({
+            where: { id: completed.replayRunId },
+            data: { status: "COMPLETED", completedAt: new Date(), checkpoint: job.stage }
+          });
+        }
+      } else {
+        await ndieQueueService.enqueueNextStage({ importJobId: completed.importJobId, completedStage: job.stage });
+      }
       await logNdieQueueEvent({
         jobId,
         importJobId: completed.importJobId,
@@ -311,6 +337,12 @@ export const ndieWorkerService = {
       return completed;
     } catch (error) {
       const failed = await ndieQueueService.failOrRetry(jobId, error instanceof Error ? error : new Error("NDIE worker failed"), workerId);
+      if (failed.replayRunId && failed.state === "DLQ") {
+        await prisma.ndieReplayRun.update({
+          where: { id: failed.replayRunId },
+          data: { status: "FAILED", completedAt: new Date(), checkpoint: failed.stage }
+        });
+      }
       logger.warn("NDIE worker placeholder job failed", {
         jobId,
         importId: failed.importJobId,

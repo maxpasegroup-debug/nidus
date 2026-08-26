@@ -1,7 +1,12 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-const root = process.cwd();
+const workingDirectory = process.cwd();
+const root = existsSync(join(workingDirectory, "backend", "package.json"))
+  ? workingDirectory
+  : existsSync(join(workingDirectory, "package.json")) && workingDirectory.endsWith("backend")
+    ? join(workingDirectory, "..")
+    : workingDirectory;
 
 function readEnvFile(path) {
   const fullPath = join(root, path);
@@ -140,6 +145,18 @@ for (const key of recommendedIntegrations) {
 
 for (const key of requiredIntegrations) {
   if (!backendEnv[key]) errors.push(`backend: ${key} is required for production integrations`);
+}
+
+if (backendEnv.OPENAI_ENABLED !== "true") {
+  errors.push("backend: OPENAI_ENABLED must be true when OpenAI is required for production");
+}
+
+if (backendEnv.MATHPIX_ENABLED === "true") {
+  for (const key of ["MATHPIX_APP_ID", "MATHPIX_APP_KEY"]) requireValue(backendEnv, key, "backend");
+}
+
+if (backendEnv.AZURE_DOCUMENT_INTELLIGENCE_ENABLED === "true") {
+  for (const key of ["AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT", "AZURE_DOCUMENT_INTELLIGENCE_KEY"]) requireValue(backendEnv, key, "backend");
 }
 
 if (errors.length) {

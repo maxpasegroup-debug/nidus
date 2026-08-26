@@ -1,0 +1,14 @@
+{
+  "phase": 18,
+  "status": "BLOCKED — ENVIRONMENT",
+  "redisCli": false,
+  "docker": false,
+  "redisUrlConfigured": false,
+  "queues": 8,
+  "requiredToValidate": [
+    "authenticated staging Redis",
+    "queue producer",
+    "worker process",
+    "restart/recovery test"
+  ]
+}

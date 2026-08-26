@@ -1,0 +1,14 @@
+{
+  "phase": 18,
+  "status": "BLOCKED — ENVIRONMENT",
+  "pgDumpAvailable": false,
+  "pgRestoreAvailable": false,
+  "backupBucketConfigured": false,
+  "productionBackupTouched": false,
+  "requiredEvidence": [
+    "off-host artifact",
+    "restore into separate database",
+    "RPO/RTO measurement",
+    "post-restore smoke test"
+  ]
+}

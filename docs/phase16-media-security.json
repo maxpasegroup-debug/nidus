@@ -1,0 +1,34 @@
+{
+  "phase": 16,
+  "status": "PARTIAL",
+  "applicationAuthorization": [
+    {
+      "name": "media A",
+      "route": "/media/files",
+      "method": "GET",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403/404 fail-closed"
+    },
+    {
+      "name": "documents A",
+      "route": "/documents",
+      "method": "GET",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403/404 fail-closed"
+    },
+    {
+      "name": "cross-tenant media delete",
+      "route": "/media/files/phase5-media-b",
+      "method": "DELETE",
+      "status": "PASS",
+      "actual": 404,
+      "expected": "403/404"
+    }
+  ],
+  "providerValidation": "BLOCKED — ENVIRONMENT",
+  "limitations": [
+    "No Cloudinary credentials; signed URL/provider retrieval not tested."
+  ]
+}

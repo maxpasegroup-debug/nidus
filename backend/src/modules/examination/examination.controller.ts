@@ -22,9 +22,9 @@ function requester(req: AuthenticatedRequest) {
 }
 
 export const examinationController = {
-  async questionBank(req: Request, res: Response, next: NextFunction) {
+  async questionBank(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
-      const questions = await examinationService.questionBank({
+      const questions = await examinationService.questionBank(requester(req), {
         search: typeof req.query.search === "string" ? req.query.search : undefined,
         category: typeof req.query.category === "string" ? req.query.category : undefined,
         subCategory: typeof req.query.subCategory === "string" ? req.query.subCategory : undefined,
@@ -51,16 +51,26 @@ export const examinationController = {
   async updateQuestion(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       assertValid(req);
-      const question = await examinationService.updateQuestion(param(req, "id"), req.body);
+      const question = await examinationService.updateQuestion(requester(req), param(req, "id"), req.body);
       res.json({ question });
     } catch (error) {
       next(error);
     }
   },
 
-  async deleteQuestion(req: Request, res: Response, next: NextFunction) {
+  async approveQuestion(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
-      const result = await examinationService.deleteQuestion(param(req, "id"));
+      assertValid(req);
+      const question = await examinationService.approveQuestion(requester(req), param(req, "id"), req.body?.attestation);
+      res.json({ question });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async deleteQuestion(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const result = await examinationService.deleteQuestion(requester(req), param(req, "id"));
       res.json(result);
     } catch (error) {
       next(error);
@@ -95,36 +105,36 @@ export const examinationController = {
     }
   },
 
-  async closeExam(req: Request, res: Response, next: NextFunction) {
+  async closeExam(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
-      const exam = await examinationService.closeExam(param(req, "id"));
+      const exam = await examinationService.closeExam(requester(req), param(req, "id"));
       res.json({ exam });
     } catch (error) {
       next(error);
     }
   },
 
-  async deleteExam(req: Request, res: Response, next: NextFunction) {
+  async deleteExam(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
-      const result = await examinationService.deleteExam(param(req, "id"));
+      const result = await examinationService.deleteExam(requester(req), param(req, "id"));
       res.json(result);
     } catch (error) {
       next(error);
     }
   },
 
-  async results(_req: Request, res: Response, next: NextFunction) {
+  async results(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
-      const attempts = await examinationService.results();
+      const attempts = await examinationService.results(requester(req));
       res.json({ attempts });
     } catch (error) {
       next(error);
     }
   },
 
-  async analytics(_req: Request, res: Response, next: NextFunction) {
+  async analytics(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
-      const analytics = await examinationService.analytics();
+      const analytics = await examinationService.analytics(requester(req));
       res.json({ analytics });
     } catch (error) {
       next(error);

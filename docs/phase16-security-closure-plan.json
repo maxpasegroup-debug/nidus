@@ -1,0 +1,2468 @@
+{
+  "phase": 16,
+  "status": "PARTIAL",
+  "candidates": [
+    {
+      "method": "GET",
+      "path": "/dashboard",
+      "module": "academic-os",
+      "router": "academicOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/batches/:batchId",
+      "module": "academic-os",
+      "router": "academicOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/user-role",
+      "module": "admin-center",
+      "router": "adminCenterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "PATCH",
+      "path": "/users/:id/disabled",
+      "module": "admin-center",
+      "router": "adminCenterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/users/:id/force-logout",
+      "module": "admin-center",
+      "router": "adminCenterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/users/:id/reset-verification",
+      "module": "admin-center",
+      "router": "adminCenterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/journey",
+      "module": "admissions-os",
+      "router": "admissionsOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/dashboard",
+      "module": "admissions-os",
+      "router": "admissionsOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/leads/:leadId",
+      "module": "admissions-os",
+      "router": "admissionsOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/interview/result/:sessionId",
+      "module": "ai-engine",
+      "router": "aiEngineRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/reports/generate",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/reports/:id/pdf",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/reports/:id/version",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/reports/:id",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/feedback",
+      "module": "class-rating-os",
+      "router": "classRatingOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "module": "communication",
+      "router": "notificationsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "PUT",
+      "path": "/read/:id",
+      "module": "communication",
+      "router": "notificationsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "module": "communication",
+      "router": "messagesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/thread",
+      "module": "communication",
+      "router": "messagesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/send",
+      "module": "communication",
+      "router": "messagesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/thread/:id",
+      "module": "communication",
+      "router": "messagesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "module": "communication",
+      "router": "communicationAnnouncementsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/",
+      "module": "communication",
+      "router": "communicationAnnouncementsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/logs",
+      "module": "communication",
+      "router": "emailsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/send",
+      "module": "communication",
+      "router": "emailsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/send",
+      "module": "communication",
+      "router": "pushRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/webhook",
+      "module": "communication",
+      "router": "whatsappRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/webhook",
+      "module": "communication",
+      "router": "whatsappRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/health",
+      "module": "communication",
+      "router": "whatsappRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/send",
+      "module": "communication",
+      "router": "whatsappRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/director/daily-report",
+      "module": "communication",
+      "router": "whatsappRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/framework",
+      "module": "communication-os",
+      "router": "communicationOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/bundle",
+      "module": "communication-os",
+      "router": "communicationOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/health",
+      "module": "communication-os",
+      "router": "communicationOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/dispatch",
+      "module": "communication-os",
+      "router": "communicationOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/public-leads",
+      "module": "crm",
+      "router": "crmRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/leads",
+      "module": "crm",
+      "router": "crmRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/leads",
+      "module": "crm",
+      "router": "crmRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/leads/bulk",
+      "module": "crm",
+      "router": "crmRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "PUT",
+      "path": "/leads/:id",
+      "module": "crm",
+      "router": "crmRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "DELETE",
+      "path": "/leads/:id",
+      "module": "crm",
+      "router": "crmRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/admission",
+      "module": "crm",
+      "router": "crmRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/admissions",
+      "module": "crm",
+      "router": "crmRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/admissions/:id/approval",
+      "module": "crm",
+      "router": "crmRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/student",
+      "module": "dashboard",
+      "router": "dashboardRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/parent",
+      "module": "dashboard",
+      "router": "dashboardRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/admin",
+      "module": "dashboard",
+      "router": "dashboardRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/guest",
+      "module": "dashboard",
+      "router": "dashboardRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/teacher",
+      "module": "dashboard",
+      "router": "dashboardRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/academic-head",
+      "module": "dashboard",
+      "router": "dashboardRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/director",
+      "module": "dashboard",
+      "router": "dashboardRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/director/ops-readiness",
+      "module": "dashboard",
+      "router": "dashboardRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/director/security-readiness",
+      "module": "dashboard",
+      "router": "dashboardRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/director/launch-certification",
+      "module": "dashboard",
+      "router": "dashboardRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/business-development",
+      "module": "dashboard",
+      "router": "dashboardRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/telecaller",
+      "module": "dashboard",
+      "router": "dashboardRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/marketing",
+      "module": "dashboard",
+      "router": "dashboardRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "FAIL_CLOSED",
+      "reason": "tenant actor receives 403"
+    },
+    {
+      "method": "GET",
+      "path": "/student/:id",
+      "module": "erp",
+      "router": "attendanceRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/question-bank",
+      "module": "examination",
+      "router": "examinationRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/question-bank",
+      "module": "examination",
+      "router": "examinationRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "PUT",
+      "path": "/question-bank/:id",
+      "module": "examination",
+      "router": "examinationRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/question-bank/:id/approve",
+      "module": "examination",
+      "router": "examinationRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "DELETE",
+      "path": "/question-bank/:id",
+      "module": "examination",
+      "router": "examinationRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/question-bank/import",
+      "module": "examination",
+      "router": "examinationRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/exams/from-bank",
+      "module": "examination",
+      "router": "examinationRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/exams/:id/publish",
+      "module": "examination",
+      "router": "examinationRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/exams/:id/close",
+      "module": "examination",
+      "router": "examinationRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "DELETE",
+      "path": "/exams/:id",
+      "module": "examination",
+      "router": "examinationRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/results",
+      "module": "examination",
+      "router": "examinationRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/analytics",
+      "module": "examination",
+      "router": "examinationRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/attendance",
+      "module": "fitness",
+      "router": "fitnessRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/attendance/:studentId",
+      "module": "fitness",
+      "router": "fitnessRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/student/:id",
+      "module": "hostel",
+      "router": "hostelOpsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/student/:id",
+      "module": "hostel",
+      "router": "disciplineRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/student/:id",
+      "module": "hostel",
+      "router": "paradeRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/tutor/sessions/:id/feedback",
+      "module": "learning-stability",
+      "router": "learningStabilityRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/folders",
+      "module": "media",
+      "router": "mediaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/folders",
+      "module": "media",
+      "router": "mediaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/upload",
+      "module": "media",
+      "router": "mediaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/files",
+      "module": "media",
+      "router": "mediaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "DELETE",
+      "path": "/files/:id",
+      "module": "media",
+      "router": "mediaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "module": "media",
+      "router": "documentsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/",
+      "module": "media",
+      "router": "documentsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/imports/:id/quality-report",
+      "module": "ndie",
+      "router": "ndieRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/create-order",
+      "module": "payments",
+      "router": "paymentsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/orders",
+      "module": "payments",
+      "router": "paymentsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/verify",
+      "module": "payments",
+      "router": "paymentsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/webhook",
+      "module": "payments",
+      "router": "paymentsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/manual",
+      "module": "payments",
+      "router": "paymentsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/:id/fail",
+      "module": "payments",
+      "router": "paymentsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/:id/refund",
+      "module": "payments",
+      "router": "paymentsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/history",
+      "module": "payments",
+      "router": "paymentsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/analytics",
+      "module": "payments",
+      "router": "paymentsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "module": "payments",
+      "router": "subscriptionsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/",
+      "module": "payments",
+      "router": "subscriptionsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "module": "payments",
+      "router": "feesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/plans",
+      "module": "payments",
+      "router": "feesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/installment",
+      "module": "payments",
+      "router": "feesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "PUT",
+      "path": "/pay/:id",
+      "module": "payments",
+      "router": "feesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "module": "payments",
+      "router": "invoicesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/generate",
+      "module": "payments",
+      "router": "invoicesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/dashboard",
+      "module": "performance-os",
+      "router": "performanceOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/staff/:userId",
+      "module": "performance-os",
+      "router": "performanceOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/reports",
+      "module": "psychometric",
+      "router": "psychometricRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/results/:attemptId",
+      "module": "psychometric",
+      "router": "psychometricRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/results/:attemptId/pdf",
+      "module": "psychometric",
+      "router": "psychometricRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/olq-report",
+      "module": "psychometric",
+      "router": "psychometricRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/framework",
+      "module": "reports-os",
+      "router": "reportsOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "FAIL_CLOSED",
+      "reason": "tenant actor receives 403"
+    },
+    {
+      "method": "GET",
+      "path": "/current",
+      "module": "reports-os",
+      "router": "reportsOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "FAIL_CLOSED",
+      "reason": "tenant actor receives 403"
+    },
+    {
+      "method": "POST",
+      "path": "/pdf",
+      "module": "reports-os",
+      "router": "reportsOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "FAIL_CLOSED",
+      "reason": "tenant actor receives 403"
+    },
+    {
+      "method": "GET",
+      "path": "/conversion-report",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/conversion-report/export.csv",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/audience/import-leads",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/campaigns/:id/report",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/framework",
+      "module": "student-competition-os",
+      "router": "studentCompetitionOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/leaderboard",
+      "module": "student-competition-os",
+      "router": "studentCompetitionOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/students/:userId",
+      "module": "student-competition-os",
+      "router": "studentCompetitionOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/result/:attemptId",
+      "module": "tests",
+      "router": "testsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/batches",
+      "module": "toprank",
+      "router": "topRankRouter",
+      "authentication": "PUBLIC_OR_ROUTE_SPECIFIC",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/onboarding/batch",
+      "module": "toprank",
+      "router": "topRankRouter",
+      "authentication": "PUBLIC_OR_ROUTE_SPECIFIC",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/students",
+      "module": "toprank",
+      "router": "topRankRouter",
+      "authentication": "PUBLIC_OR_ROUTE_SPECIFIC",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/mentor/batches",
+      "module": "toprank",
+      "router": "topRankRouter",
+      "authentication": "PUBLIC_OR_ROUTE_SPECIFIC",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "module": "users",
+      "router": "usersRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/",
+      "module": "users",
+      "router": "usersRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/:id/reset-password",
+      "module": "users",
+      "router": "usersRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION",
+      "finalClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario"
+    }
+  ],
+  "remainingOpenCandidates": [
+    {
+      "route": "/dashboard",
+      "method": "GET",
+      "module": "academic-os",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/batches/:batchId",
+      "method": "GET",
+      "module": "academic-os",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/user-role",
+      "method": "POST",
+      "module": "admin-center",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/users/:id/disabled",
+      "method": "PATCH",
+      "module": "admin-center",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/users/:id/force-logout",
+      "method": "POST",
+      "module": "admin-center",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/users/:id/reset-verification",
+      "method": "POST",
+      "module": "admin-center",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/journey",
+      "method": "GET",
+      "module": "admissions-os",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/dashboard",
+      "method": "GET",
+      "module": "admissions-os",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/leads/:leadId",
+      "method": "GET",
+      "module": "admissions-os",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/interview/result/:sessionId",
+      "method": "GET",
+      "module": "ai-engine",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/reports/generate",
+      "method": "POST",
+      "module": "assessment-arena",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/reports/:id/pdf",
+      "method": "GET",
+      "module": "assessment-arena",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/reports/:id/version",
+      "method": "GET",
+      "module": "assessment-arena",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/reports/:id",
+      "method": "GET",
+      "module": "assessment-arena",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/feedback",
+      "method": "POST",
+      "module": "class-rating-os",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/",
+      "method": "GET",
+      "module": "communication",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/read/:id",
+      "method": "PUT",
+      "module": "communication",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/",
+      "method": "GET",
+      "module": "communication",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/thread",
+      "method": "POST",
+      "module": "communication",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/send",
+      "method": "POST",
+      "module": "communication",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/thread/:id",
+      "method": "GET",
+      "module": "communication",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/",
+      "method": "GET",
+      "module": "communication",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/",
+      "method": "POST",
+      "module": "communication",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/logs",
+      "method": "GET",
+      "module": "communication",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/send",
+      "method": "POST",
+      "module": "communication",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/send",
+      "method": "POST",
+      "module": "communication",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/webhook",
+      "method": "GET",
+      "module": "communication",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/webhook",
+      "method": "POST",
+      "module": "communication",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/health",
+      "method": "GET",
+      "module": "communication",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/send",
+      "method": "POST",
+      "module": "communication",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/director/daily-report",
+      "method": "POST",
+      "module": "communication",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/framework",
+      "method": "GET",
+      "module": "communication-os",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/bundle",
+      "method": "GET",
+      "module": "communication-os",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/health",
+      "method": "GET",
+      "module": "communication-os",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/dispatch",
+      "method": "POST",
+      "module": "communication-os",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/public-leads",
+      "method": "POST",
+      "module": "crm",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/leads",
+      "method": "GET",
+      "module": "crm",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/leads",
+      "method": "POST",
+      "module": "crm",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/leads/bulk",
+      "method": "POST",
+      "module": "crm",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/leads/:id",
+      "method": "PUT",
+      "module": "crm",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/leads/:id",
+      "method": "DELETE",
+      "module": "crm",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/admission",
+      "method": "POST",
+      "module": "crm",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/admissions",
+      "method": "GET",
+      "module": "crm",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/admissions/:id/approval",
+      "method": "POST",
+      "module": "crm",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/student",
+      "method": "GET",
+      "module": "dashboard",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/parent",
+      "method": "GET",
+      "module": "dashboard",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/admin",
+      "method": "GET",
+      "module": "dashboard",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/guest",
+      "method": "GET",
+      "module": "dashboard",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/teacher",
+      "method": "GET",
+      "module": "dashboard",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/academic-head",
+      "method": "GET",
+      "module": "dashboard",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/director",
+      "method": "GET",
+      "module": "dashboard",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/director/ops-readiness",
+      "method": "GET",
+      "module": "dashboard",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/director/security-readiness",
+      "method": "GET",
+      "module": "dashboard",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/director/launch-certification",
+      "method": "GET",
+      "module": "dashboard",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/business-development",
+      "method": "GET",
+      "module": "dashboard",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/telecaller",
+      "method": "GET",
+      "module": "dashboard",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/student/:id",
+      "method": "GET",
+      "module": "erp",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/question-bank",
+      "method": "GET",
+      "module": "examination",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/question-bank",
+      "method": "POST",
+      "module": "examination",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/question-bank/:id",
+      "method": "PUT",
+      "module": "examination",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/question-bank/:id/approve",
+      "method": "POST",
+      "module": "examination",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/question-bank/:id",
+      "method": "DELETE",
+      "module": "examination",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/question-bank/import",
+      "method": "POST",
+      "module": "examination",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/exams/from-bank",
+      "method": "POST",
+      "module": "examination",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/exams/:id/publish",
+      "method": "POST",
+      "module": "examination",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/exams/:id/close",
+      "method": "POST",
+      "module": "examination",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/exams/:id",
+      "method": "DELETE",
+      "module": "examination",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/results",
+      "method": "GET",
+      "module": "examination",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/analytics",
+      "method": "GET",
+      "module": "examination",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/attendance",
+      "method": "POST",
+      "module": "fitness",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/attendance/:studentId",
+      "method": "GET",
+      "module": "fitness",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/student/:id",
+      "method": "GET",
+      "module": "hostel",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/student/:id",
+      "method": "GET",
+      "module": "hostel",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/student/:id",
+      "method": "GET",
+      "module": "hostel",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/tutor/sessions/:id/feedback",
+      "method": "POST",
+      "module": "learning-stability",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/folders",
+      "method": "GET",
+      "module": "media",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/folders",
+      "method": "POST",
+      "module": "media",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/upload",
+      "method": "POST",
+      "module": "media",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/files",
+      "method": "GET",
+      "module": "media",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/files/:id",
+      "method": "DELETE",
+      "module": "media",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/",
+      "method": "GET",
+      "module": "media",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/",
+      "method": "POST",
+      "module": "media",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/imports/:id/quality-report",
+      "method": "POST",
+      "module": "ndie",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/create-order",
+      "method": "POST",
+      "module": "payments",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/orders",
+      "method": "POST",
+      "module": "payments",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/verify",
+      "method": "POST",
+      "module": "payments",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/webhook",
+      "method": "POST",
+      "module": "payments",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/manual",
+      "method": "POST",
+      "module": "payments",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/:id/fail",
+      "method": "POST",
+      "module": "payments",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/:id/refund",
+      "method": "POST",
+      "module": "payments",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/history",
+      "method": "GET",
+      "module": "payments",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/analytics",
+      "method": "GET",
+      "module": "payments",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/",
+      "method": "GET",
+      "module": "payments",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/",
+      "method": "POST",
+      "module": "payments",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/",
+      "method": "GET",
+      "module": "payments",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/plans",
+      "method": "POST",
+      "module": "payments",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/installment",
+      "method": "POST",
+      "module": "payments",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/pay/:id",
+      "method": "PUT",
+      "module": "payments",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/",
+      "method": "GET",
+      "module": "payments",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/generate",
+      "method": "POST",
+      "module": "payments",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/dashboard",
+      "method": "GET",
+      "module": "performance-os",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/staff/:userId",
+      "method": "GET",
+      "module": "performance-os",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/reports",
+      "method": "GET",
+      "module": "psychometric",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/results/:attemptId",
+      "method": "GET",
+      "module": "psychometric",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/results/:attemptId/pdf",
+      "method": "GET",
+      "module": "psychometric",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/olq-report",
+      "method": "GET",
+      "module": "psychometric",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/conversion-report",
+      "method": "GET",
+      "module": "sales-booster",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/conversion-report/export.csv",
+      "method": "GET",
+      "module": "sales-booster",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/audience/import-leads",
+      "method": "POST",
+      "module": "sales-booster",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/campaigns/:id/report",
+      "method": "GET",
+      "module": "sales-booster",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/framework",
+      "method": "GET",
+      "module": "student-competition-os",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/leaderboard",
+      "method": "GET",
+      "module": "student-competition-os",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/students/:userId",
+      "method": "GET",
+      "module": "student-competition-os",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/result/:attemptId",
+      "method": "GET",
+      "module": "tests",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/batches",
+      "method": "GET",
+      "module": "toprank",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/onboarding/batch",
+      "method": "POST",
+      "module": "toprank",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/admin/students",
+      "method": "GET",
+      "module": "toprank",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/mentor/batches",
+      "method": "GET",
+      "module": "toprank",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/",
+      "method": "GET",
+      "module": "users",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/",
+      "method": "POST",
+      "module": "users",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    },
+    {
+      "route": "/:id/reset-password",
+      "method": "POST",
+      "module": "users",
+      "currentClassification": "PARTIAL_REQUIRES_DIRECT_PROOF",
+      "reason": "not exercised by Phase 16 runtime scenario",
+      "requiredProof": "authenticated same-tenant and cross-tenant HTTP attack",
+      "codeChangeRequired": false,
+      "failClosedAcceptable": true
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "phase": "13",
+  "policy": "No guessed ownership; unresolved legacy rows remain blocked.",
+  "gaps": [
+    {
+      "model": "Dashboard aggregates",
+      "status": "FIXED_PARTIAL",
+      "evidence": "Director dashboard now requires instituteId and scopes student, attendance, admission, payment, fee, faculty, batch and attempt paths."
+    },
+    {
+      "model": "Lead",
+      "status": "INHERITED_PARTIAL",
+      "evidence": "Admissions/CRM tenant actors use assigned user institute; unassigned legacy leads remain excluded."
+    },
+    {
+      "model": "Admission",
+      "status": "DIRECT_OWNERSHIP",
+      "evidence": "Admission.instituteId is required for director approval and tenant dashboards; null legacy rows are denied."
+    },
+    {
+      "model": "Notification",
+      "status": "MIGRATION_REQUIRED",
+      "evidence": "Nullable instituteId added; historical rows are not backfilled and tenant queries exclude unresolved rows."
+    },
+    {
+      "model": "EmailLog",
+      "status": "MIGRATION_REQUIRED",
+      "evidence": "Nullable instituteId added; new writes carry actor scope; historical rows remain unresolved."
+    },
+    {
+      "model": "PushNotification",
+      "status": "MIGRATION_REQUIRED",
+      "evidence": "Nullable instituteId added; new writes carry actor scope; historical rows remain unresolved."
+    },
+    {
+      "model": "Communication aggregates",
+      "status": "FIXED_PARTIAL",
+      "evidence": "Tenant delivery counts are scoped; queue/WhatsApp global logs are withheld from tenant actors."
+    },
+    {
+      "model": "Timetable",
+      "status": "FAIL_CLOSED",
+      "evidence": "No authoritative relation exists; existing endpoint remains 403."
+    },
+    {
+      "model": "Legacy ERP",
+      "status": "PARTIAL",
+      "evidence": "Attendance, faculty, payroll and announcements have relation-based scope; remaining records require route review."
+    }
+  ]
+}

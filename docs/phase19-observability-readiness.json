@@ -1,0 +1,11 @@
+{
+  "phase": 19,
+  "status": "PARTIAL",
+  "phase19Verified": false,
+  "verified": [
+    "request correlation and redaction remain present"
+  ],
+  "blocked": [
+    "staging Sentry/central telemetry credentials"
+  ]
+}

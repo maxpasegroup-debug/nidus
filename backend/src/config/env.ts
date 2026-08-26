@@ -83,17 +83,21 @@ const envSchema = z.object({
   NDIE_RENDER_THUMBNAIL_WIDTH: z.coerce.number().int().positive().default(360),
   NDIE_RENDER_CHUNK_SIZE: z.coerce.number().int().positive().max(10).default(1),
   NDIE_RENDERER_PROVIDER: z.string().default("renderer.pdfjs"),
-  NDIE_OCR_PROVIDER: z.string().default("ocr.tesseract"),
+  NDIE_LOCAL_STORAGE_ENABLED: envBoolean(false),
+  NDIE_LOCAL_STORAGE_ROOT: z.string().default(".staging/ndie-assets"),
+  NDIE_OCR_PROVIDER: z.string().default("ocr.production"),
   NDIE_OCR_LANGUAGES: z.string().default("eng"),
+  NDIE_TESSERACT_LANG_PATH: z.string().default(""),
+  NDIE_TESSERACT_LANG_GZIP: envBoolean(true),
   NDIE_OCR_CONFIDENCE_WARNING: z.coerce.number().min(0).max(1).default(0.75),
   NDIE_OCR_PREPROCESSING_ENABLED: envBoolean(true),
   NDIE_OCR_PREPROCESS_DENOISE: envBoolean(true),
   NDIE_OCR_PREPROCESS_CONTRAST: envBoolean(true),
   NDIE_OCR_PREPROCESS_BINARIZE: envBoolean(false),
   NDIE_OCR_MAX_IMAGE_PIXELS: z.coerce.number().int().positive().default(80_000_000),
-  NDIE_LAYOUT_PROVIDER: z.string().default("layout.rule-based"),
+  NDIE_LAYOUT_PROVIDER: z.string().default("layout.production"),
   NDIE_LAYOUT_CONFIDENCE_WARNING: z.coerce.number().min(0).max(1).default(0.7),
-  NDIE_FORMULA_PROVIDER: z.string().default("formula.rule-based"),
+  NDIE_FORMULA_PROVIDER: z.string().default("formula.production"),
   NDIE_FORMULA_CONFIDENCE_WARNING: z.coerce.number().min(0).max(1).default(0.78),
   NDIE_VISUAL_PROVIDER: z.string().default("visual.rule-based"),
   NDIE_VISUAL_CONFIDENCE_WARNING: z.coerce.number().min(0).max(1).default(0.72),
@@ -102,13 +106,26 @@ const envSchema = z.object({
   NDIE_EVALUATION_PROVIDER: z.string().default("evaluation.rule-based"),
   NDIE_ANSWER_KEY_PROVIDER: z.string().default("answer-key.rule-based"),
   NDIE_SOLUTION_PROVIDER: z.string().default("solution.rule-based"),
-  NDIE_AI_PROVIDER: z.string().default("ai.rule-based"),
+  NDIE_AI_PROVIDER: z.string().default("ai.production"),
+  NDIE_PROVIDER_ROUTING_MODE: z.enum(["AUTOMATIC", "COST_AWARE", "ACCURACY_AWARE", "HEALTH_AWARE"]).default("ACCURACY_AWARE"),
+  NDIE_PROVIDER_MAX_PAGE_COST_USD: z.coerce.number().min(0).default(0.05),
+  MATHPIX_ENABLED: envBoolean(false),
+  MATHPIX_APP_ID: z.string().default(""),
+  MATHPIX_APP_KEY: z.string().default(""),
+  MATHPIX_STEM_OCR_MODE: z.enum(["AUTO", "ALWAYS", "DISABLED"]).default("AUTO"),
+  AZURE_DOCUMENT_INTELLIGENCE_ENABLED: envBoolean(false),
+  AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT: z.string().default(""),
+  AZURE_DOCUMENT_INTELLIGENCE_KEY: z.string().default(""),
+  AZURE_DOCUMENT_INTELLIGENCE_API_VERSION: z.string().default("2024-11-30"),
+  OPENAI_ENABLED: envBoolean(false),
   RAZORPAY_KEY_ID: z.string().default(""),
   RAZORPAY_KEY_SECRET: z.string().default(""),
   RAZORPAY_WEBHOOK_SECRET: z.string().default(""),
   RESEND_API_KEY: z.string().default(""),
   RESEND_FROM_EMAIL: z.string().default("NIDUS <no-reply@nidus.local>"),
   OPENAI_API_KEY: z.string().default(""),
+  OPENAI_NDIE_MODEL: z.string().default("gpt-4.1-mini"),
+  OPENAI_NDIE_MAX_PAGE_IMAGES: z.coerce.number().int().positive().max(12).default(6),
   CLOUDINARY_CLOUD_NAME: z.string().default(""),
   CLOUDINARY_API_KEY: z.string().default(""),
   CLOUDINARY_API_SECRET: z.string().default(""),
@@ -157,6 +174,14 @@ const envSchema = z.object({
       code: z.ZodIssueCode.custom,
       message: "JWT_SECRET must be at least 32 characters",
       path: ["JWT_SECRET"]
+    });
+  }
+
+  if (env.NDIE_LOCAL_STORAGE_ENABLED) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "NDIE_LOCAL_STORAGE_ENABLED is forbidden in production",
+      path: ["NDIE_LOCAL_STORAGE_ENABLED"]
     });
   }
 });

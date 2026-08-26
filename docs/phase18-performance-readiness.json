@@ -1,0 +1,15 @@
+{
+  "phase": 18,
+  "status": "PARTIAL",
+  "validatedSafeConcurrency": 25,
+  "degradedConcurrency": 50,
+  "highLatencyConcurrency": 100,
+  "failureConcurrency": 250,
+  "evidence": {
+    "25": "PASS from prior staging evidence",
+    "50": "PASS from prior staging evidence",
+    "100": "high login latency",
+    "250": "previously failed"
+  },
+  "phase18LoadRerun": "BLOCKED — ENVIRONMENT: production-like load infrastructure unavailable"
+}

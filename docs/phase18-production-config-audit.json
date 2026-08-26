@@ -1,0 +1,161 @@
+{
+  "phase": 18,
+  "status": "PARTIAL",
+  "variables": [
+    {
+      "name": "DATABASE_URL",
+      "purpose": "PostgreSQL connection",
+      "classification": "CONFIGURED",
+      "configured": true,
+      "valueType": "present-not-displayed"
+    },
+    {
+      "name": "JWT_SECRET",
+      "purpose": "Session signing secret",
+      "classification": "CONFIGURED",
+      "configured": true,
+      "valueType": "present-not-displayed"
+    },
+    {
+      "name": "REDIS_URL",
+      "purpose": "Redis/BullMQ connection",
+      "classification": "ENVIRONMENT_BLOCKED",
+      "configured": false,
+      "valueType": "empty-or-default"
+    },
+    {
+      "name": "REDIS_REQUIRED",
+      "purpose": "Redis fail-closed policy",
+      "classification": "INVALID_FOR_PRODUCTION",
+      "configured": false,
+      "valueType": "empty-or-default"
+    },
+    {
+      "name": "CLOUDINARY_CLOUD_NAME",
+      "purpose": "Media provider",
+      "classification": "ENVIRONMENT_BLOCKED",
+      "configured": false,
+      "valueType": "empty-or-default"
+    },
+    {
+      "name": "CLOUDINARY_API_KEY",
+      "purpose": "Media provider credential",
+      "classification": "ENVIRONMENT_BLOCKED",
+      "configured": false,
+      "valueType": "empty-or-default"
+    },
+    {
+      "name": "CLOUDINARY_API_SECRET",
+      "purpose": "Media provider credential",
+      "classification": "ENVIRONMENT_BLOCKED",
+      "configured": false,
+      "valueType": "empty-or-default"
+    },
+    {
+      "name": "RESEND_API_KEY",
+      "purpose": "Transactional email",
+      "classification": "ENVIRONMENT_BLOCKED",
+      "configured": false,
+      "valueType": "empty-or-default"
+    },
+    {
+      "name": "FIREBASE_PROJECT_ID",
+      "purpose": "Push notifications",
+      "classification": "ENVIRONMENT_BLOCKED",
+      "configured": false,
+      "valueType": "empty-or-default"
+    },
+    {
+      "name": "FIREBASE_CLIENT_EMAIL",
+      "purpose": "Push notifications",
+      "classification": "ENVIRONMENT_BLOCKED",
+      "configured": false,
+      "valueType": "empty-or-default"
+    },
+    {
+      "name": "FIREBASE_PRIVATE_KEY",
+      "purpose": "Push notifications",
+      "classification": "ENVIRONMENT_BLOCKED",
+      "configured": false,
+      "valueType": "empty-or-default"
+    },
+    {
+      "name": "BACKUP_BUCKET",
+      "purpose": "Off-host backup target",
+      "classification": "ENVIRONMENT_BLOCKED",
+      "configured": false,
+      "valueType": "empty-or-default"
+    },
+    {
+      "name": "SENTRY_DSN",
+      "purpose": "Central telemetry",
+      "classification": "ENVIRONMENT_BLOCKED",
+      "configured": false,
+      "valueType": "empty-or-default"
+    },
+    {
+      "name": "RAZORPAY_KEY_ID",
+      "purpose": "Payments",
+      "classification": "OPTIONAL_OR_PROVIDER_DEPENDENT",
+      "configured": false,
+      "valueType": "empty-or-default"
+    },
+    {
+      "name": "RAZORPAY_KEY_SECRET",
+      "purpose": "Payments",
+      "classification": "OPTIONAL_OR_PROVIDER_DEPENDENT",
+      "configured": false,
+      "valueType": "empty-or-default"
+    },
+    {
+      "name": "RAZORPAY_WEBHOOK_SECRET",
+      "purpose": "Payment webhooks",
+      "classification": "OPTIONAL_OR_PROVIDER_DEPENDENT",
+      "configured": false,
+      "valueType": "empty-or-default"
+    },
+    {
+      "name": "CORS_ORIGIN",
+      "purpose": "Allowed browser origins",
+      "classification": "CONFIGURED",
+      "configured": true,
+      "valueType": "present-not-displayed"
+    },
+    {
+      "name": "FRONTEND_APP_URL",
+      "purpose": "Frontend origin",
+      "classification": "CONFIGURED",
+      "configured": true,
+      "valueType": "present-not-displayed"
+    },
+    {
+      "name": "BACKEND_PUBLIC_URL",
+      "purpose": "Public backend origin",
+      "classification": "CONFIGURED",
+      "configured": true,
+      "valueType": "present-not-displayed"
+    },
+    {
+      "name": "TRUST_PROXY",
+      "purpose": "Proxy-aware client identity",
+      "classification": "CONFIGURED",
+      "configured": false,
+      "valueType": "empty-or-default"
+    },
+    {
+      "name": "HEALTHCHECK_STRICT",
+      "purpose": "Strict dependency health",
+      "classification": "CONFIGURED",
+      "configured": false,
+      "valueType": "empty-or-default"
+    },
+    {
+      "name": "QUEUE_WORKERS_ENABLED",
+      "purpose": "Worker process policy",
+      "classification": "CONFIGURED",
+      "configured": false,
+      "valueType": "empty-or-default"
+    }
+  ],
+  "secrets": "Values intentionally omitted."
+}

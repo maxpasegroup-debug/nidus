@@ -1,0 +1,177 @@
+{
+  "phase": 14,
+  "policy": "No speculative reassignment or deletion.",
+  "totalInstitutionlessUsers": 17,
+  "users": [
+    {
+      "id": "cmt6weixs0000g0u00asqah66",
+      "name": "CEO",
+      "email": "nidusacademycalicut@gmail.com",
+      "role": "ADMIN",
+      "disabled": false,
+      "createdAt": "2026-08-24T07:12:00.353Z",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW",
+      "action": "BLOCK_TENANT_SENSITIVE_OPERATIONS_UNTIL_MANUALLY_CLASSIFIED"
+    },
+    {
+      "id": "cmt6wej5g0003g0u0ncisiywa",
+      "name": "Sayuj",
+      "email": "sayujdamodharan@gmail.com",
+      "role": "DIRECTOR",
+      "disabled": false,
+      "createdAt": "2026-08-24T07:12:00.628Z",
+      "classification": "TENANT_REQUIRES_MANUAL_REMEDIATION",
+      "action": "BLOCK_TENANT_SENSITIVE_OPERATIONS_UNTIL_MANUALLY_CLASSIFIED"
+    },
+    {
+      "id": "cmt6wej5l0004g0u05kafybvd",
+      "name": "Aswanth",
+      "email": "ltcdraswanth@gmail.com",
+      "role": "DIRECTOR",
+      "disabled": false,
+      "createdAt": "2026-08-24T07:12:00.633Z",
+      "classification": "TENANT_REQUIRES_MANUAL_REMEDIATION",
+      "action": "BLOCK_TENANT_SENSITIVE_OPERATIONS_UNTIL_MANUALLY_CLASSIFIED"
+    },
+    {
+      "id": "cmt6wej5p0005g0u0c37pwrhh",
+      "name": "Priyanka",
+      "email": "priyankaraveendran87@gmail.com",
+      "role": "TEACHER",
+      "disabled": false,
+      "createdAt": "2026-08-24T07:12:00.637Z",
+      "classification": "TENANT_REQUIRES_MANUAL_REMEDIATION",
+      "action": "BLOCK_TENANT_SENSITIVE_OPERATIONS_UNTIL_MANUALLY_CLASSIFIED"
+    },
+    {
+      "id": "cmt6wej600007g0u0vpti2k4i",
+      "name": "Ritwik",
+      "email": "ritwikvyshnav@gmail.com",
+      "role": "TEACHER",
+      "disabled": false,
+      "createdAt": "2026-08-24T07:12:00.648Z",
+      "classification": "TENANT_REQUIRES_MANUAL_REMEDIATION",
+      "action": "BLOCK_TENANT_SENSITIVE_OPERATIONS_UNTIL_MANUALLY_CLASSIFIED"
+    },
+    {
+      "id": "cmt6wej630009g0u0jw6070m7",
+      "name": "Santhosh",
+      "email": "vaniyamkulam68@gmail.com",
+      "role": "TEACHER",
+      "disabled": false,
+      "createdAt": "2026-08-24T07:12:00.651Z",
+      "classification": "TENANT_REQUIRES_MANUAL_REMEDIATION",
+      "action": "BLOCK_TENANT_SENSITIVE_OPERATIONS_UNTIL_MANUALLY_CLASSIFIED"
+    },
+    {
+      "id": "cmt6wej67000bg0u00ull1xzz",
+      "name": "Vinod",
+      "email": "vinuchirakkal01@gmail.com",
+      "role": "TEACHER",
+      "disabled": false,
+      "createdAt": "2026-08-24T07:12:00.655Z",
+      "classification": "TENANT_REQUIRES_MANUAL_REMEDIATION",
+      "action": "BLOCK_TENANT_SENSITIVE_OPERATIONS_UNTIL_MANUALLY_CLASSIFIED"
+    },
+    {
+      "id": "cmt6wej6b000dg0u0rss2imfi",
+      "name": "Suma",
+      "email": "sumasooryakantham@gmail.com",
+      "role": "TEACHER",
+      "disabled": false,
+      "createdAt": "2026-08-24T07:12:00.659Z",
+      "classification": "TENANT_REQUIRES_MANUAL_REMEDIATION",
+      "action": "BLOCK_TENANT_SENSITIVE_OPERATIONS_UNTIL_MANUALLY_CLASSIFIED"
+    },
+    {
+      "id": "cmt6wej6f000fg0u02u14gvzt",
+      "name": "Anjali",
+      "email": "anjaliack2@gmail.com",
+      "role": "TEACHER",
+      "disabled": false,
+      "createdAt": "2026-08-24T07:12:00.663Z",
+      "classification": "TENANT_REQUIRES_MANUAL_REMEDIATION",
+      "action": "BLOCK_TENANT_SENSITIVE_OPERATIONS_UNTIL_MANUALLY_CLASSIFIED"
+    },
+    {
+      "id": "cmt6wej6j000hg0u00o8xjhdl",
+      "name": "Anjusha",
+      "email": "anjushae1997@gmail.com",
+      "role": "TEACHER",
+      "disabled": false,
+      "createdAt": "2026-08-24T07:12:00.667Z",
+      "classification": "TENANT_REQUIRES_MANUAL_REMEDIATION",
+      "action": "BLOCK_TENANT_SENSITIVE_OPERATIONS_UNTIL_MANUALLY_CLASSIFIED"
+    },
+    {
+      "id": "cmt6wej6m000jg0u0aplomuhf",
+      "name": "Surya",
+      "email": "suryasmathew22@gmail.com",
+      "role": "TEACHER",
+      "disabled": false,
+      "createdAt": "2026-08-24T07:12:00.670Z",
+      "classification": "TENANT_REQUIRES_MANUAL_REMEDIATION",
+      "action": "BLOCK_TENANT_SENSITIVE_OPERATIONS_UNTIL_MANUALLY_CLASSIFIED"
+    },
+    {
+      "id": "cmt6wej6q000lg0u0liji53qi",
+      "name": "Sumitha",
+      "email": "sumithavinod40378@gmail.com",
+      "role": "TEACHER",
+      "disabled": false,
+      "createdAt": "2026-08-24T07:12:00.674Z",
+      "classification": "TENANT_REQUIRES_MANUAL_REMEDIATION",
+      "action": "BLOCK_TENANT_SENSITIVE_OPERATIONS_UNTIL_MANUALLY_CLASSIFIED"
+    },
+    {
+      "id": "cmt6wej6v000ng0u08mz3pt5f",
+      "name": "Nimisha",
+      "email": "nimishamanoharan555@gmail.com",
+      "role": "TEACHER",
+      "disabled": false,
+      "createdAt": "2026-08-24T07:12:00.679Z",
+      "classification": "TENANT_REQUIRES_MANUAL_REMEDIATION",
+      "action": "BLOCK_TENANT_SENSITIVE_OPERATIONS_UNTIL_MANUALLY_CLASSIFIED"
+    },
+    {
+      "id": "cmt6wej70000pg0u02jen02fu",
+      "name": "Administrative Officer",
+      "email": "admissioncell@nidusacademy.in",
+      "role": "ADMIN",
+      "disabled": false,
+      "createdAt": "2026-08-24T07:12:00.684Z",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW",
+      "action": "BLOCK_TENANT_SENSITIVE_OPERATIONS_UNTIL_MANUALLY_CLASSIFIED"
+    },
+    {
+      "id": "cmt6wej74000qg0u0sna3hw73",
+      "name": "Chitra",
+      "email": "nairchitrac1992@gmail.com",
+      "role": "TELECALLER",
+      "disabled": false,
+      "createdAt": "2026-08-24T07:12:00.688Z",
+      "classification": "TENANT_REQUIRES_MANUAL_REMEDIATION",
+      "action": "BLOCK_TENANT_SENSITIVE_OPERATIONS_UNTIL_MANUALLY_CLASSIFIED"
+    },
+    {
+      "id": "cmt6wej78000rg0u0geyvvyea",
+      "name": "Sales Booster",
+      "email": "salesbooster@nidusacademy.in",
+      "role": "MARKETING_COORDINATOR",
+      "disabled": false,
+      "createdAt": "2026-08-24T07:12:00.692Z",
+      "classification": "TENANT_REQUIRES_MANUAL_REMEDIATION",
+      "action": "BLOCK_TENANT_SENSITIVE_OPERATIONS_UNTIL_MANUALLY_CLASSIFIED"
+    },
+    {
+      "id": "cmt6wej7a000sg0u0vry31scg",
+      "name": "Jenifer KM",
+      "email": "ilabdtlp@gmail.com",
+      "role": "TEACHER",
+      "disabled": false,
+      "createdAt": "2026-08-24T07:12:00.694Z",
+      "classification": "TENANT_REQUIRES_MANUAL_REMEDIATION",
+      "action": "BLOCK_TENANT_SENSITIVE_OPERATIONS_UNTIL_MANUALLY_CLASSIFIED"
+    }
+  ]
+}

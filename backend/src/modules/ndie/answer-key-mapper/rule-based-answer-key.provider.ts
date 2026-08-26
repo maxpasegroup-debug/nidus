@@ -22,8 +22,15 @@ export class RuleBasedAnswerKeyProvider implements AnswerKeyProvider {
   }
 
   async map(input: { sourceKind: string; elements: Array<{ text?: string | null; pageNumber: number; coordinates: unknown }> }) {
-    const answers = [];
+    const answers: Array<{
+      questionNumber: string;
+      answerJson: { type: string; correctOption: string; source: string };
+      confidence: number;
+    }> = [];
     const sourceLooksLikeKey = /ANSWER|KEY|SOLUTION/i.test(input.sourceKind);
+    if (!sourceLooksLikeKey) {
+      return { answers, confidence: null };
+    }
     for (const element of input.elements) {
       const text = String(element.text || "");
       for (const match of text.matchAll(answerPattern)) {
@@ -32,9 +39,9 @@ export class RuleBasedAnswerKeyProvider implements AnswerKeyProvider {
           answerJson: {
             type: "SINGLE_CHOICE",
             correctOption: String(match[2]).toUpperCase(),
-            source: sourceLooksLikeKey ? "ANSWER_KEY_DOCUMENT" : "QUESTION_DOCUMENT_INLINE"
+            source: "ANSWER_KEY_DOCUMENT"
           },
-          confidence: sourceLooksLikeKey ? 0.78 : 0.48
+          confidence: 0.78
         });
       }
     }

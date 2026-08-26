@@ -28,6 +28,7 @@ export const ndieQueueService = {
     const existingPayload = input.payload && typeof input.payload === "object" && !Array.isArray(input.payload) ? input.payload as Record<string, unknown> : {};
     return provider.enqueue({
       ...input,
+      idempotencyKey: input.idempotencyKey ?? `${input.importJobId}:${input.replayRunId ?? "PRIMARY"}:${input.stage}`,
       queueClass: input.queueClass ?? performance.kind,
       priority: input.priority ?? (input.stage === "PUBLISH" ? 80 : input.stage === "STUDENT_DELIVERY" ? 70 : input.replayRunId ? 40 : 50),
       payload: {
@@ -47,11 +48,26 @@ export const ndieQueueService = {
     });
   },
 
+  async enqueueNextStage(input: { importJobId: string; completedStage: string }) {
+    const next: Record<string, (payload: { importJobId: string; requestedBy?: string }) => Promise<unknown>> = {
+      PDF_RENDERING: this.enqueueOcr.bind(this),
+      OCR: this.enqueueLayout.bind(this),
+      LAYOUT: this.enqueueFormula.bind(this),
+      FORMULA: this.enqueueVisual.bind(this),
+      VISUAL: this.enqueueQuestion.bind(this),
+      QUESTION: this.enqueueAnswer.bind(this),
+      ANSWER: this.enqueueAiValidation.bind(this),
+      PUBLISH: this.enqueueStudentDelivery.bind(this)
+    };
+    const enqueue = next[input.completedStage];
+    return enqueue ? enqueue({ importJobId: input.importJobId, requestedBy: "ndie-stage-chain" }) : null;
+  },
+
   async enqueueImport(input: { importJobId: string; sourceDocumentId?: string; fileType?: string }) {
     return this.enqueue({
       importJobId: input.importJobId,
       jobType: "IMPORT_PIPELINE",
-      stage: input.fileType === "application/pdf" ? "PDF_RENDERING" : "IMPORT_PIPELINE_PLACEHOLDER",
+      stage: input.fileType === "application/pdf" ? "PDF_RENDERING" : input.fileType?.startsWith("image/") ? "OCR" : "IMPORT_PIPELINE_PLACEHOLDER",
       queueClass: "IMPORT",
       priority: 50,
       payload: {
@@ -64,15 +80,19 @@ export const ndieQueueService = {
   },
 
   async enqueueReplay(input: { importJobId: string; replayRunId: string; stages: string[]; requestedBy?: string }) {
+    const aliases: Record<string, string> = { VISUALS: "VISUAL", QUESTIONS: "QUESTION", ANSWERS: "ANSWER" };
+    const stages = input.stages.map((stage) => aliases[stage] ?? stage).filter((stage) => ["PDF_RENDERING", "OCR", "LAYOUT", "FORMULA", "VISUAL", "QUESTION", "ANSWER", "AI_VALIDATION"].includes(stage));
+    if (!stages.length) throw Object.assign(new Error("Replay requires at least one supported NDIE stage."), { statusCode: 400 });
     return this.enqueue({
       importJobId: input.importJobId,
       replayRunId: input.replayRunId,
       jobType: "REPLAY_PIPELINE",
-      stage: "REPLAY_PIPELINE_PLACEHOLDER",
+      stage: stages[0],
       queueClass: "REPLAY",
       priority: 40,
       payload: {
-        stages: input.stages,
+        stages,
+        replayIndex: 0,
         requestedBy: input.requestedBy ?? null,
         pipelineVersion: env.NDIE_PIPELINE_VERSION
       } as Prisma.InputJsonValue
@@ -249,6 +269,8 @@ export const ndieQueueService = {
   updateProgress: provider.updateProgress.bind(provider),
   cancel: provider.cancel.bind(provider),
   failOrRetry: provider.failOrRetry.bind(provider),
+  claimNext: provider.claimNext?.bind(provider),
+  recoverStale: provider.recoverStale?.bind(provider),
   metrics: provider.metrics.bind(provider),
   health: provider.health.bind(provider)
 };

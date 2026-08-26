@@ -17,6 +17,15 @@ import { RuleBasedQuestionProvider } from "./question-detector/rule-based-questi
 import { NdieFoundationService } from "./services/base-service.js";
 import { RuleBasedSolutionProvider } from "./solution-mapper/rule-based-solution.provider.js";
 import { RuleBasedVisualProvider } from "./visual-detector/rule-based-visual.provider.js";
+import {
+  AzureLayoutProvider,
+  MathpixFormulaProvider,
+  MathpixOcrProvider,
+  ProductionAiProvider,
+  ProductionFormulaProvider,
+  ProductionLayoutProvider,
+  ProductionOcrProvider
+} from "./provider-orchestrator/production-providers.js";
 
 const serviceDefinitions = [
   ["DocumentClassifier", "Classifies documents by type, subject risk, scan status, and required pipeline."],
@@ -53,10 +62,16 @@ function buildRegistry() {
   const registry = new ProviderRegistry();
   registry.register(new StubOcrProvider());
   registry.register(new TesseractOcrProvider());
+  registry.register(new MathpixOcrProvider());
+  registry.register(new ProductionOcrProvider());
   registry.register(new PdfJsRendererProvider());
   registry.register(new MetadataPdfRendererProvider());
   registry.register(new RuleBasedLayoutProvider());
+  registry.register(new AzureLayoutProvider());
+  registry.register(new ProductionLayoutProvider());
   registry.register(new RuleBasedFormulaProvider());
+  registry.register(new MathpixFormulaProvider()); // formula.mathpix
+  registry.register(new ProductionFormulaProvider());
   registry.register(new RuleBasedVisualProvider());
   registry.register(new RuleBasedQuestionProvider());
   registry.register(new RuleBasedOptionProvider());
@@ -66,12 +81,10 @@ function buildRegistry() {
   registry.register(new RuleBasedSolutionProvider());
   registry.register(new RuleBasedAiValidatorProvider());
   registry.register(new OpenAiValidatorProvider());
-  registry.register(createDisabledProvider("ocr.tesseract", "OCR", "Tesseract OCR"));
+  registry.register(new ProductionAiProvider());
   registry.register(createDisabledProvider("ocr.google-vision", "OCR", "Google Vision OCR"));
   registry.register(createDisabledProvider("ocr.azure", "OCR", "Azure OCR"));
   registry.register(createDisabledProvider("layout.docling", "LAYOUT", "Docling Layout"));
-  registry.register(createDisabledProvider("layout.azure", "LAYOUT", "Azure Layout"));
-  registry.register(createDisabledProvider("formula.mathpix", "FORMULA", "Mathpix Formula"));
   registry.register(createDisabledProvider("formula.azure", "FORMULA", "Azure AI Formula"));
   registry.register(createDisabledProvider("formula.google-document-ai", "FORMULA", "Google Document AI Formula"));
   registry.register(createDisabledProvider("formula.pix2tex", "FORMULA", "Pix2Tex Formula"));
@@ -91,7 +104,6 @@ function buildRegistry() {
   registry.register(createDisabledProvider("document-understanding.gemini", "DOCUMENT_UNDERSTANDING", "Gemini Document Understanding"));
   registry.register(createDisabledProvider("document-understanding.claude", "DOCUMENT_UNDERSTANDING", "Claude Document Understanding"));
   registry.register(createDisabledProvider("document-understanding.local-vlm", "DOCUMENT_UNDERSTANDING", "Local Vision-Language Document Understanding"));
-  registry.register(createDisabledProvider("ai.openai", "AI", "OpenAI Validator"));
   registry.register(createDisabledProvider("ai.gemini", "AI", "Gemini Validator"));
   registry.register(createDisabledProvider("ai.claude", "AI", "Claude Validator"));
   registry.register(createDisabledProvider("renderer.pdf", "RENDERER", "Server PDF Renderer"));

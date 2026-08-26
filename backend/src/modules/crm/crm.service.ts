@@ -22,9 +22,18 @@ function isLeadOwnerScoped(requester?: Requester) {
 }
 
 async function assertLeadAccess(requester: Requester, leadId: string) {
-  if (!isLeadOwnerScoped(requester)) return;
-  const lead = await prisma.lead.findUnique({ where: { id: leadId }, select: { assignedTo: true } });
-  if (!lead || lead.assignedTo !== requester.id) throw new Error("Lead access denied");
+  const lead = await prisma.lead.findFirst({
+    where: {
+      id: leadId,
+      ...(isLeadOwnerScoped(requester)
+        ? { assignedTo: requester.id }
+        : requester.instituteId
+          ? { OR: [{ assignee: { instituteId: requester.instituteId } }, { admissions: { some: { instituteId: requester.instituteId } } }] }
+          : { id: "__missing_institute__" }),
+    },
+    select: { id: true },
+  });
+  if (!lead) throw Object.assign(new Error("Lead access denied"), { statusCode: 403 });
 }
 
 function normalizeLeadEmail(input: { email?: string; mobile: string }) {
@@ -92,16 +101,21 @@ async function nextRoundRobinAssignee(index: number, manualAssignee: string | un
 
 export const crmService = {
   leads(filters: { status?: LeadStatus; search?: string }, requester?: Requester) {
+    const scope = isLeadOwnerScoped(requester)
+      ? { assignedTo: requester?.id }
+      : requester?.instituteId
+        ? { OR: [{ assignee: { instituteId: requester.instituteId } }, { admissions: { some: { instituteId: requester.instituteId } } }] }
+        : { id: "__missing_institute__" };
     return prisma.lead.findMany({
       where: {
         status: filters.status,
-        assignedTo: isLeadOwnerScoped(requester) ? requester?.id : undefined,
-        OR: filters.search ? [
-          { fullName: { contains: filters.search, mode: "insensitive" } },
-          { mobile: { contains: filters.search, mode: "insensitive" } },
-          { email: { contains: filters.search, mode: "insensitive" } },
-          { targetExam: { contains: filters.search, mode: "insensitive" } }
-        ] : undefined
+        ...scope,
+        ...(filters.search ? { AND: [{ OR: [
+          { fullName: { contains: filters.search, mode: "insensitive" as const } },
+          { mobile: { contains: filters.search, mode: "insensitive" as const } },
+          { email: { contains: filters.search, mode: "insensitive" as const } },
+          { targetExam: { contains: filters.search, mode: "insensitive" as const } }
+        ] }] } : {})
       },
       orderBy: { createdAt: "desc" },
       include: leadInclude
@@ -136,6 +150,11 @@ export const crmService = {
     });
   },
   async createLead(requester: Requester, input: { fullName: string; mobile: string; email?: string; targetExam: string; source: string; status?: LeadStatus; assignedTo?: string; notes?: string }) {
+    if (!requester.instituteId) throw Object.assign(new Error("Institution scope is required"), { statusCode: 403 });
+    if (input.assignedTo) {
+      const assignee = await prisma.user.findFirst({ where: { id: input.assignedTo, instituteId: requester.instituteId }, select: { id: true } });
+      if (!assignee) throw Object.assign(new Error("Lead assignee is outside the institution"), { statusCode: 403 });
+    }
     const lead = await prisma.lead.create({
       data: {
         ...input,
@@ -504,7 +523,11 @@ export const crmService = {
   },
   followUps(requester?: Requester) {
     return prisma.followUp.findMany({
-      where: isLeadOwnerScoped(requester) ? { lead: { assignedTo: requester?.id } } : undefined,
+      where: isLeadOwnerScoped(requester)
+        ? { lead: { assignedTo: requester?.id } }
+        : requester?.instituteId
+          ? { lead: { OR: [{ assignee: { instituteId: requester.instituteId } }, { admissions: { some: { instituteId: requester.instituteId } } }] } }
+          : { id: "__missing_institute__" },
       orderBy: { followUpDate: "asc" },
       include: { lead: true, creator: { select: userSelect } }
     });
@@ -517,6 +540,13 @@ export const crmService = {
     });
   },
   async createAdmission(requester: Requester, input: { leadId?: string; studentId: string; courseId: string; instituteId?: string; branchId?: string; admissionDate: string; paymentStatus?: string; batch: string; admissionMode?: string; totalFee?: number; remarks?: string }) {
+    if (requester.role === Role.DIRECTOR) {
+      if (!requester.instituteId) throw Object.assign(new Error("Director institution assignment is required"), { statusCode: 403 });
+      if (input.instituteId && input.instituteId !== requester.instituteId) throw Object.assign(new Error("Institute access denied"), { statusCode: 403 });
+      if (requester.branchId && input.branchId && input.branchId !== requester.branchId) throw Object.assign(new Error("Branch access denied"), { statusCode: 403 });
+      const student = await prisma.user.findFirst({ where: { id: input.studentId, instituteId: requester.instituteId } });
+      if (!student) throw Object.assign(new Error("Student access denied"), { statusCode: 403 });
+    }
     const totalFee = input.totalFee ?? 0;
     const admission = await prisma.admission.create({
       data: {
@@ -567,8 +597,8 @@ export const crmService = {
     assertCanApprove(requester);
     const admission = await prisma.admission.findUniqueOrThrow({ where: { id } });
     if (requester.role === Role.DIRECTOR) {
-      if (requester.instituteId && admission.instituteId && requester.instituteId !== admission.instituteId) throw new Error("Institute access denied");
-      if (requester.branchId && admission.branchId && requester.branchId !== admission.branchId) throw new Error("Branch access denied");
+      if (!requester.instituteId || !admission.instituteId || requester.instituteId !== admission.instituteId) throw Object.assign(new Error("Institute access denied"), { statusCode: 403 });
+      if (requester.branchId && (!admission.branchId || requester.branchId !== admission.branchId)) throw Object.assign(new Error("Branch access denied"), { statusCode: 403 });
     }
     const status = input.approved ? "APPROVED" : "REJECTED";
     await prisma.approvalRequest.updateMany({
@@ -606,7 +636,9 @@ export const crmService = {
   },
   approvals(requester: Requester) {
     return prisma.approvalRequest.findMany({
-      where: requester.role === Role.DIRECTOR ? { status: "PENDING" } : undefined,
+      where: requester.role === Role.DIRECTOR
+        ? { status: "PENDING", admission: { instituteId: requester.instituteId ?? "__missing_director_institute__", ...(requester.branchId ? { branchId: requester.branchId } : {}) } }
+        : undefined,
       orderBy: { requestedAt: "desc" },
       include: { requester: { select: userSelect }, reviewer: { select: userSelect }, admission: { include: { student: { select: userSelect }, course: true } } }
     });

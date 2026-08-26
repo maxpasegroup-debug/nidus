@@ -1,0 +1,15 @@
+{
+  "phase": 16,
+  "status": "PARTIAL",
+  "checks": [
+    {
+      "name": "admin branches A",
+      "route": "/admin/branches",
+      "method": "GET",
+      "status": "PASS",
+      "actual": 403,
+      "expected": "200 scoped or 403/404 fail-closed"
+    }
+  ],
+  "limitation": "Admin-center permission routes require explicit role-permission fixture coverage beyond the reusable Phase 4 sessions."
+}

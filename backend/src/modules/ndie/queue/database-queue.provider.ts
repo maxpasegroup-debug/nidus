@@ -56,10 +56,17 @@ export class DatabaseNdieQueueProvider implements NdieQueueProvider {
   async enqueue(input: NdieQueueJobInput) {
     const retryPolicy = { ...defaultRetryPolicy, ...input.retryPolicy };
     const state = input.replayRunId ? "REPLAY_PENDING" : "QUEUED";
-    const job = await prisma.ndieQueueJob.create({
-      data: {
+    if (input.idempotencyKey) {
+      const existing = await prisma.ndieQueueJob.findUnique({ where: { idempotencyKey: input.idempotencyKey } });
+      if (existing) return snapshot(existing);
+    }
+    let job;
+    try {
+      job = await prisma.ndieQueueJob.create({
+        data: {
         importJobId: input.importJobId,
         replayRunId: input.replayRunId ?? null,
+        idempotencyKey: input.idempotencyKey ?? null,
         jobType: input.jobType,
         stage: input.stage,
         state,
@@ -70,8 +77,15 @@ export class DatabaseNdieQueueProvider implements NdieQueueProvider {
         retryDelayMs: retryPolicy.retryDelayMs,
         backoffStrategy: retryPolicy.backoffStrategy,
         payload: input.payload ?? Prisma.JsonNull
+        }
+      });
+    } catch (error) {
+      if (input.idempotencyKey && error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+        const existing = await prisma.ndieQueueJob.findUnique({ where: { idempotencyKey: input.idempotencyKey } });
+        if (existing) return snapshot(existing);
       }
-    });
+      throw error;
+    }
     await prisma.ndieImportJob.update({
       where: { id: input.importJobId },
       data: {
@@ -162,7 +176,7 @@ export class DatabaseNdieQueueProvider implements NdieQueueProvider {
       data: {
         state,
         attempts,
-        workerId: workerId ?? current.workerId,
+        workerId: retryLimitExceeded ? workerId ?? current.workerId : null,
         retryHistory: retryHistory(current.retryHistory, entry),
         errorCategory: error.name || "NDIE_JOB_ERROR",
         errorMessage: publicError(error),
@@ -177,6 +191,47 @@ export class DatabaseNdieQueueProvider implements NdieQueueProvider {
     });
     logger.warn("NDIE queue job failed", { jobId, importId: job.importJobId, stage: job.stage, worker: workerId, result: state, retryCount: attempts, errorCategory: job.errorCategory });
     return snapshot(job);
+  }
+
+  async claimNext(workerId: string) {
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      const candidate = await prisma.ndieQueueJob.findFirst({
+        where: {
+          workerId: null,
+          OR: [
+            { state: "QUEUED" },
+            { state: "REPLAY_PENDING" },
+            { state: "RETRY_PENDING", nextRunAt: { lte: new Date() } }
+          ]
+        },
+        orderBy: [{ queuedAt: "asc" }, { createdAt: "asc" }]
+      });
+      if (!candidate) return null;
+      if (candidate.state === "REPLAY_PENDING") {
+        const promoted = await prisma.ndieQueueJob.updateMany({
+          where: { id: candidate.id, state: "REPLAY_PENDING", workerId: null },
+          data: { state: "QUEUED" }
+        });
+        if (promoted.count === 1) continue;
+      }
+      const claimed = await prisma.ndieQueueJob.updateMany({
+        where: { id: candidate.id, state: candidate.state, workerId: null },
+        data: { state: "PROCESSING", workerId, startedAt: candidate.startedAt ?? new Date(), nextRunAt: null }
+      });
+      if (claimed.count === 1) return prisma.ndieQueueJob.findUnique({ where: { id: candidate.id } });
+    }
+    return null;
+  }
+
+  async recoverStale(timeoutMs: number) {
+    const stale = await prisma.ndieQueueJob.findMany({
+      where: { state: "PROCESSING", startedAt: { lt: new Date(Date.now() - timeoutMs) } },
+      select: { id: true, workerId: true }
+    });
+    for (const job of stale) {
+      await this.failOrRetry(job.id, new Error("NDIE worker heartbeat expired while processing this job."), job.workerId ?? undefined);
+    }
+    return stale.length;
   }
 
   async metrics(): Promise<NdieQueueMetrics> {

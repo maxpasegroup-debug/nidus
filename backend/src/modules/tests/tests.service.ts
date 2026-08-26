@@ -1,6 +1,9 @@
 import { Prisma, Role } from "../../generated/prisma/client.js";
 import { prisma } from "../../config/prisma.js";
-import { normalizeQuestionContentJson, parseQuestionContentJson } from "../document-intelligence/question-content.schema.js";
+import { logger } from "../../utils/logger.js";
+import { normalizeQuestionContentJson } from "../document-intelligence/question-content.schema.js";
+import { validateDraftQuestions, validatePublishableExam, validatePublishedQuestions } from "./exam-publishing-gate.js";
+import { calculateObjectiveScore } from "./exam-scoring.js";
 
 export type TestPayload = {
   title: string;
@@ -70,6 +73,8 @@ type SaveStateInput = {
 type Requester = {
   id: string;
   role: Role;
+  instituteId?: string | null;
+  branchId?: string | null;
   roleMetadata?: Record<string, unknown> | null;
 };
 
@@ -85,58 +90,46 @@ type DraftInput = {
 
 type PublishDraftInput = TestPayload & {
   publishAt?: string;
+  approvalAttestation?: "TEACHER_REVIEW_CONFIRMED";
+  approvalReferenceId?: string;
 };
 
-function visualNotesRequireImage(notes: Prisma.InputJsonValue | undefined) {
-  if (!Array.isArray(notes)) return false;
-  return notes
-    .map((note) => String(note || "").toLowerCase())
-    .some((note) => note.includes("visual") || note.includes("table") || note.includes("graph"));
+function persistedQuestionPayload(question: Prisma.QuestionGetPayload<object>): QuestionPayload {
+  return {
+    questionText: question.questionText,
+    questionImage: question.questionImage ?? undefined,
+    visualReviewRequired: question.visualReviewRequired,
+    visualReviewNotes: question.visualReviewNotes == null ? undefined : question.visualReviewNotes as Prisma.InputJsonValue,
+    contentJson: question.contentJson == null ? undefined : question.contentJson as Prisma.InputJsonValue,
+    sourceDocumentId: question.sourceDocumentId ?? undefined,
+    sourcePageNumber: question.sourcePageNumber ?? undefined,
+    boundingBoxes: question.boundingBoxes == null ? undefined : question.boundingBoxes as Prisma.InputJsonValue,
+    latex: question.latex == null ? undefined : question.latex as Prisma.InputJsonValue,
+    assets: question.assets == null ? undefined : question.assets as Prisma.InputJsonValue,
+    layout: question.layout == null ? undefined : question.layout as Prisma.InputJsonValue,
+    renderMode: question.renderMode,
+    aiConfidence: question.aiConfidence ?? undefined,
+    reviewStatus: question.reviewStatus,
+    publishedVersion: question.publishedVersion,
+    optionA: question.optionA,
+    optionB: question.optionB,
+    optionC: question.optionC,
+    optionD: question.optionD,
+    correctAnswer: question.correctAnswer,
+    explanation: question.explanation,
+    marks: question.marks,
+    negativeMarks: question.negativeMarks,
+    difficultyLevel: question.difficultyLevel,
+    topic: question.topic,
+  };
 }
 
-export function validatePublishedQuestions(questions: QuestionPayload[]) {
-  const errors: string[] = [];
-  const seen = new Set<string>();
-
-  questions.forEach((question, index) => {
-    const label = `Question ${index + 1}`;
-    const normalizedText = question.questionText?.trim().replace(/\s+/g, " ").toLowerCase();
-    if (!normalizedText || normalizedText.length < 3) errors.push(`${label} has no readable question text.`);
-    if (normalizedText && seen.has(normalizedText)) errors.push(`${label} duplicates an earlier question.`);
-    if (normalizedText) seen.add(normalizedText);
-
-    const options = [question.optionA, question.optionB, question.optionC, question.optionD].map((value) => value?.trim());
-    if (options.some((value) => !value || /^option\s+[a-d]$/i.test(value))) {
-      errors.push(`${label} must contain four real answer options.`);
-    }
-    if (!/^[A-D]$/i.test(question.correctAnswer?.trim() || "")) {
-      errors.push(`${label} has an invalid answer key.`);
-    }
-    if (!question.explanation?.trim() || /^(explanation (will be reviewed|pending)|teacher reviewed answer)/i.test(question.explanation.trim())) {
-      errors.push(`${label} needs a reviewed answer explanation.`);
-    }
-    if (question.visualReviewRequired && visualNotesRequireImage(question.visualReviewNotes) && !question.questionImage?.trim()) {
-      errors.push(`${label} needs the exact diagram, table or graph image attached before publishing.`);
-    }
-    if (question.reviewStatus && question.reviewStatus !== "APPROVED") {
-      errors.push(`${label} must be approved in teacher review before publishing.`);
-    }
-    if (question.contentJson) {
-      const parsed = parseQuestionContentJson(question.contentJson);
-      if (!parsed.success) {
-        errors.push(`${label} has invalid NIDUS question content schema: ${parsed.error.issues[0]?.message || "unknown schema error"}.`);
-      }
-    }
-    if (!Number.isFinite(Number(question.marks)) || Number(question.marks) <= 0) {
-      errors.push(`${label} must have positive marks.`);
-    }
-  });
-
-  if (errors.length) {
-    const visible = errors.slice(0, 8).join(" ");
-    const remaining = errors.length > 8 ? ` Plus ${errors.length - 8} more issue(s).` : "";
-    throw Object.assign(new Error(`Exam paper is not ready to publish. ${visible}${remaining}`), { statusCode: 400 });
+function normalizeSelectedAnswer(value: unknown) {
+  const answer = typeof value === "string" ? value.trim().toUpperCase() : "";
+  if (!/^[A-D]$/.test(answer)) {
+    throw Object.assign(new Error("Selected answer must be A, B, C or D."), { statusCode: 400 });
   }
+  return answer;
 }
 
 type VersionableQuestion = QuestionPayload & {
@@ -169,7 +162,7 @@ function questionVersionData(question: VersionableQuestion, requester: Requester
     explanation: question.explanation,
     renderMode: question.renderMode || "LEGACY_MCQ",
     aiConfidence: question.aiConfidence ?? null,
-    reviewStatus: question.reviewStatus || "APPROVED",
+    reviewStatus: question.reviewStatus || "DRAFT",
     sourceDocumentId: question.sourceDocumentId || null,
     sourcePageNumber: question.sourcePageNumber ?? null,
     boundingBoxes: question.boundingBoxes ?? undefined,
@@ -270,7 +263,38 @@ async function assignedBatchIdsForTeacher(teacherId: string) {
   return Array.from(new Set(rows.map((row) => row.batchId)));
 }
 
+async function assertBatchTenantAccess(requester: Requester, batchId?: string) {
+  if (!batchId || (!requester.instituteId && !requester.branchId)) return;
+  const batch = await prisma.batch.findUnique({
+    where: { id: batchId },
+    select: { instituteId: true, branchId: true }
+  });
+  if (!batch) throw Object.assign(new Error("Batch not found."), { statusCode: 404 });
+  if (requester.instituteId && batch.instituteId !== requester.instituteId) {
+    throw Object.assign(new Error("This batch belongs to another institution."), { statusCode: 403 });
+  }
+  if (requester.branchId && batch.branchId !== requester.branchId) {
+    throw Object.assign(new Error("This batch belongs to another branch."), { statusCode: 403 });
+  }
+}
+
+async function assertTeacherTenantAccess(requester: Requester, teacherId?: string | null) {
+  if (!teacherId || (!requester.instituteId && !requester.branchId)) return;
+  const teacher = await prisma.user.findUnique({
+    where: { id: teacherId },
+    select: { instituteId: true, branchId: true }
+  });
+  if (!teacher) throw Object.assign(new Error("Exam owner not found."), { statusCode: 404 });
+  if (requester.instituteId && teacher.instituteId !== requester.instituteId) {
+    throw Object.assign(new Error("This exam belongs to another institution."), { statusCode: 403 });
+  }
+  if (requester.branchId && teacher.branchId !== requester.branchId) {
+    throw Object.assign(new Error("This exam belongs to another branch."), { statusCode: 403 });
+  }
+}
+
 async function assertTeacherBatchSubjectAccess(requester: Requester, batchId?: string, subject?: string | null) {
+  await assertBatchTenantAccess(requester, batchId);
   if (isAcademicManager(requester)) return;
   if (requester.role !== Role.TEACHER && requester.role !== Role.PHYSICAL_TRAINER) return;
   if (!batchId) throw Object.assign(new Error("Batch is required for teacher exam actions."), { statusCode: 403 });
@@ -298,16 +322,47 @@ async function assertStudentTestAccess(userId: string, test: { batchId?: string 
 }
 
 async function assertTestAccess(requester: Requester, test: { batchId?: string | null; teacherId?: string | null; subject?: string | null }) {
-  if (isAcademicManager(requester)) return;
+  if (isAcademicManager(requester)) {
+    await assertBatchTenantAccess(requester, test.batchId ?? undefined);
+    await assertTeacherTenantAccess(requester, test.teacherId);
+    return;
+  }
   if (requester.role === Role.STUDENT) {
     await assertStudentTestAccess(requester.id, test);
     return;
   }
   if (requester.role === Role.TEACHER || requester.role === Role.PHYSICAL_TRAINER) {
+    if (test.teacherId && test.teacherId !== requester.id) {
+      throw Object.assign(new Error("Teachers may only manage their own exams."), { statusCode: 403 });
+    }
     await assertTeacherBatchSubjectAccess(requester, test.batchId ?? undefined, test.subject);
     return;
   }
   throw Object.assign(new Error("Exam access denied."), { statusCode: 403 });
+}
+
+function tenantTestWhere(requester: Requester): Prisma.TestWhereInput {
+  const scopes: Prisma.TestWhereInput[] = [];
+  if (requester.instituteId) {
+    scopes.push({ OR: [{ batch: { instituteId: requester.instituteId } }, { teacher: { instituteId: requester.instituteId } }] });
+  }
+  if (requester.branchId) {
+    scopes.push({ OR: [{ batch: { branchId: requester.branchId } }, { teacher: { branchId: requester.branchId } }] });
+  }
+  return scopes.length ? { AND: scopes } : {};
+}
+
+function sanitizeTestForStudent<T extends { status: string; isLive: boolean; questions?: Array<Record<string, unknown>> }>(test: T): T {
+  if (test.status !== "PUBLISHED" || !test.isLive) {
+    throw Object.assign(new Error("This exam is not available to students."), { statusCode: 403 });
+  }
+  return {
+    ...test,
+    questions: test.questions?.map((question) => {
+      const { correctAnswer: _correctAnswer, explanation: _explanation, ...safeQuestion } = question;
+      return safeQuestion;
+    })
+  };
 }
 
 function normalizeCount(count?: number) {
@@ -354,6 +409,133 @@ function getTopicAnalysis(answers: Array<{ isCorrect: boolean; question: { topic
   }));
 }
 
+function currentReviewPeriod(date = new Date()) {
+  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}`;
+}
+
+async function syncStudentExamPerformance(tx: Prisma.TransactionClient, userId: string, attemptId: string) {
+  const attempts = await tx.testAttempt.findMany({
+    where: { userId, status: "SUBMITTED", submittedAt: { not: null } },
+    include: {
+      test: { select: { id: true, title: true, subject: true, batchId: true, teacherId: true, totalMarks: true } },
+      answers: { include: { question: { select: { topic: true } } } },
+    },
+  });
+  const completedAttempt = attempts.find((item) => item.id === attemptId);
+  if (!completedAttempt) return;
+
+  const allAnswers = attempts.flatMap((item) => item.answers);
+  const topicAnalysis = getTopicAnalysis(allAnswers);
+  const testAccuracy = allAnswers.length
+    ? Math.round((allAnswers.filter((answer) => answer.isCorrect).length / allAnswers.length) * 100)
+    : 0;
+  const averageScore = attempts.length
+    ? Math.round(attempts.reduce((sum, item) => sum + (item.test.totalMarks > 0 ? (item.score / item.test.totalMarks) * 100 : 0), 0) / attempts.length)
+    : 0;
+  const weakTopics = topicAnalysis.filter((topic) => topic.accuracy < 60).map((topic) => topic.topic);
+  const strongTopics = topicAnalysis.filter((topic) => topic.accuracy >= 75).map((topic) => topic.topic);
+
+  await tx.performanceAnalytics.upsert({
+    where: { userId },
+    update: {
+      testAccuracy,
+      averageScore,
+      weakTopics,
+      strongTopics,
+      studyConsistency: Math.min(100, attempts.length * 5),
+      aiSuggestions: weakTopics.length
+        ? { priorityTopics: weakTopics.slice(0, 5), action: "Review these topics with your teacher before the next exam." }
+        : { priorityTopics: [], action: "Maintain mixed timed practice." },
+    },
+    create: {
+      userId,
+      testAccuracy,
+      averageScore,
+      weakTopics,
+      strongTopics,
+      studyConsistency: Math.min(100, attempts.length * 5),
+      revisionRate: 0,
+      aiSuggestions: weakTopics.length
+        ? { priorityTopics: weakTopics.slice(0, 5), action: "Review these topics with your teacher before the next exam." }
+        : { priorityTopics: [], action: "Maintain mixed timed practice." },
+    },
+  });
+
+  if (!completedAttempt.test.batchId) return;
+  const batch = await tx.batch.findUnique({
+    where: { id: completedAttempt.test.batchId },
+    select: {
+      id: true,
+      name: true,
+      programSlug: true,
+      students: { where: { studentId: userId, status: "ACTIVE" }, select: { student: { select: { name: true } } }, take: 1 },
+    },
+  });
+  if (!batch?.students[0]) return;
+
+  const reviewPeriod = currentReviewPeriod(completedAttempt.submittedAt ?? new Date());
+  const existingReview = await tx.ndpReview.findUnique({
+    where: { studentId_batchId_reviewPeriod: { studentId: userId, batchId: batch.id, reviewPeriod } },
+  });
+  if (existingReview && !["DRAFT", "RETURNED"].includes(existingReview.status)) return;
+  const nextScores = {
+    ...(existingReview?.scores && typeof existingReview.scores === "object" && !Array.isArray(existingReview.scores) ? existingReview.scores : {}),
+    examAverage: averageScore,
+    testAccuracy,
+  };
+  const review = existingReview ?? await tx.ndpReview.create({
+    data: {
+      studentId: userId,
+      studentName: batch.students[0].student.name,
+      batchId: batch.id,
+      batchName: batch.name,
+      reviewPeriod,
+      reviewType: "MONTHLY",
+      status: "DRAFT",
+      teacherId: completedAttempt.test.teacherId,
+      scores: nextScores,
+      sections: { studentDetails: { studentName: batch.students[0].student.name, batchCourse: batch.programSlug, progressPeriod: reviewPeriod } },
+      finalReview: {},
+    },
+  });
+  if (existingReview) {
+    await tx.ndpReview.update({ where: { id: review.id }, data: { scores: nextScores } });
+  }
+
+  const scorePercent = completedAttempt.test.totalMarks > 0
+    ? Math.round((completedAttempt.score / completedAttempt.test.totalMarks) * 100)
+    : 0;
+  await tx.ndpManualEntry.upsert({
+    where: {
+      reviewId_category_item_subject: {
+        reviewId: review.id,
+        category: "TEST_PERFORMANCE",
+        item: completedAttempt.test.title,
+        subject: completedAttempt.test.subject ?? "General",
+      },
+    },
+    update: {
+      term3: `${completedAttempt.score}/${completedAttempt.test.totalMarks}`,
+      score: scorePercent,
+      remarks: `${completedAttempt.totalCorrect} correct, ${completedAttempt.totalWrong} incorrect.`,
+      status: review.status,
+    },
+    create: {
+      reviewId: review.id,
+      studentId: userId,
+      batchId: batch.id,
+      teacherId: completedAttempt.test.teacherId,
+      category: "TEST_PERFORMANCE",
+      item: completedAttempt.test.title,
+      subject: completedAttempt.test.subject ?? "General",
+      term3: `${completedAttempt.score}/${completedAttempt.test.totalMarks}`,
+      score: scorePercent,
+      remarks: `${completedAttempt.totalCorrect} correct, ${completedAttempt.totalWrong} incorrect.`,
+      status: review.status,
+    },
+  });
+}
+
 async function resultReleaseState(testId: string) {
   const record = await prisma.teacherExamRecord.findFirst({
     where: { testId },
@@ -393,7 +575,7 @@ function sanitizePendingResultAttempt<
 export const testsService = {
   async list(requester: Requester, filters: { search?: string; examType?: string; topic?: string }) {
     const accessWhere = isAcademicManager(requester)
-      ? {}
+      ? tenantTestWhere(requester)
       : requester.role === Role.STUDENT
         ? { batchId: { in: (await prisma.batchStudent.findMany({ where: { studentId: requester.id, status: "ACTIVE" }, select: { batchId: true } })).map((row) => row.batchId) } }
         : requester.role === Role.TEACHER || requester.role === Role.PHYSICAL_TRAINER
@@ -470,15 +652,20 @@ export const testsService = {
     }
 
     await assertTestAccess(requester, test);
-    return test;
+    return requester.role === Role.STUDENT
+      ? sanitizeTestForStudent(test as typeof test & { questions: Array<Record<string, unknown>> })
+      : test;
   },
 
   async create(requester: Requester, payload: TestPayload) {
     await assertTeacherBatchSubjectAccess(requester, payload.batchId, payload.subject);
+    await assertTeacherTenantAccess(requester, payload.teacherId);
     const questionsForCreate = (payload.questions ?? []).map((question) => ({
       ...question,
+      reviewStatus: "DRAFT",
       contentJson: normalizeQuestionContentJson(question),
     }));
+    validateDraftQuestions(questionsForCreate);
     const test = await prisma.test.create({
       data: {
         title: payload.title,
@@ -488,13 +675,15 @@ export const testsService = {
         subject: payload.subject,
         topic: payload.topic,
         batchId: payload.batchId || undefined,
-        teacherId: payload.teacherId || undefined,
+        teacherId: requester.role === Role.TEACHER || requester.role === Role.PHYSICAL_TRAINER
+          ? requester.id
+          : payload.teacherId || requester.id,
         publishAt: payload.publishAt ? new Date(payload.publishAt) : undefined,
-        status: payload.status ?? "PUBLISHED",
+        status: "DRAFT",
         duration: payload.duration,
         totalMarks: payload.totalMarks,
         isMockTest: payload.isMockTest ?? true,
-        isLive: payload.isLive ?? false,
+        isLive: false,
         questions: {
           create: questionsForCreate
         }
@@ -513,6 +702,16 @@ export const testsService = {
     }
     await assertTestAccess(requester, test);
     await assertTeacherBatchSubjectAccess(requester, payload.batchId ?? test.batchId ?? undefined, payload.subject ?? test.subject);
+    await assertTeacherTenantAccess(requester, payload.teacherId ?? test.teacherId);
+    if ((requester.role === Role.TEACHER || requester.role === Role.PHYSICAL_TRAINER) && payload.teacherId && payload.teacherId !== requester.id) {
+      throw Object.assign(new Error("Teachers cannot transfer an exam to another teacher."), { statusCode: 403 });
+    }
+    if (test.status === "PUBLISHED" || test.status === "CLOSED" || test.isLive) {
+      throw Object.assign(new Error("Published or closed exams are immutable."), { statusCode: 409 });
+    }
+    if (payload.status === "PUBLISHED" || payload.isLive === true) {
+      throw Object.assign(new Error("Use the teacher approval and publishing workflow to publish an exam."), { statusCode: 400 });
+    }
 
     return prisma.test.update({
       where: { id },
@@ -524,13 +723,15 @@ export const testsService = {
         subject: payload.subject,
         topic: payload.topic,
         batchId: payload.batchId,
-        teacherId: payload.teacherId,
+        teacherId: requester.role === Role.TEACHER || requester.role === Role.PHYSICAL_TRAINER
+          ? undefined
+          : payload.teacherId,
         publishAt: payload.publishAt ? new Date(payload.publishAt) : undefined,
-        status: payload.status,
+        status: payload.status === undefined ? undefined : "DRAFT",
         duration: payload.duration,
         totalMarks: payload.totalMarks,
         isMockTest: payload.isMockTest,
-        isLive: payload.isLive
+        isLive: payload.isLive === undefined ? undefined : false
       },
       include: testInclude
     });
@@ -563,7 +764,9 @@ export const testsService = {
         marks: 1,
         negativeMarks: 0,
         difficultyLevel,
-        topic
+        topic,
+        aiConfidence: 0,
+        reviewStatus: "DRAFT"
       };
     });
 
@@ -586,7 +789,13 @@ export const testsService = {
 
   async publishDraft(requester: Requester, payload: PublishDraftInput) {
     if (!payload.questions?.length) throw new Error("At least one reviewed question is required before publishing.");
-    validatePublishedQuestions(payload.questions);
+    if (payload.approvalAttestation !== "TEACHER_REVIEW_CONFIRMED") {
+      throw Object.assign(new Error("Explicit teacher review confirmation is required before publishing."), { statusCode: 400 });
+    }
+    if (!payload.approvalReferenceId?.trim()) {
+      throw Object.assign(new Error("A persisted teacher-review reference is required before publishing."), { statusCode: 400 });
+    }
+    validatePublishableExam(payload);
     if (!payload.title?.trim() || !payload.topic?.trim()) {
       throw Object.assign(new Error("Exam title and topic are required before publishing."), { statusCode: 400 });
     }
@@ -594,6 +803,7 @@ export const testsService = {
       throw Object.assign(new Error("Exam duration must be greater than zero."), { statusCode: 400 });
     }
     await assertTeacherBatchSubjectAccess(requester, payload.batchId, payload.subject);
+    await assertTeacherTenantAccess(requester, payload.teacherId);
     const questionsForCreate = payload.questions.map((question) => ({
       ...question,
       contentJson: normalizeQuestionContentJson(question),
@@ -607,7 +817,9 @@ export const testsService = {
         subject: payload.subject,
         topic: payload.topic,
         batchId: payload.batchId || undefined,
-        teacherId: requester.role === Role.TEACHER ? requester.id : payload.teacherId || requester.id,
+        teacherId: requester.role === Role.TEACHER || requester.role === Role.PHYSICAL_TRAINER
+          ? requester.id
+          : payload.teacherId || requester.id,
         publishAt: payload.publishAt ? new Date(payload.publishAt) : undefined,
         status: "PUBLISHED",
         reviewedAt: new Date(),
@@ -627,6 +839,52 @@ export const testsService = {
     return test;
   },
 
+  async approve(requester: Requester, id: string, input: { questionIds?: string[]; attestation?: string }) {
+    if (input.attestation !== "TEACHER_REVIEW_CONFIRMED") {
+      throw Object.assign(new Error("Teacher review confirmation is required."), { statusCode: 400 });
+    }
+    const test = await prisma.test.findUnique({ where: { id }, include: { questions: true } });
+    if (!test) throw Object.assign(new Error("Test not found"), { statusCode: 404 });
+    await assertTestAccess(requester, test);
+    await assertTeacherBatchSubjectAccess(requester, test.batchId ?? undefined, test.subject);
+    if (!test.questions.length) throw Object.assign(new Error("At least one question is required."), { statusCode: 400 });
+    const requested = new Set(input.questionIds ?? []);
+    if (requested.size !== test.questions.length || test.questions.some((question) => !requested.has(question.id))) {
+      throw Object.assign(new Error("Every question must be explicitly included in teacher approval."), { statusCode: 400 });
+    }
+    validatePublishedQuestions(test.questions.map((question) => ({ ...persistedQuestionPayload(question), reviewStatus: "APPROVED" })));
+    await prisma.$transaction([
+      prisma.question.updateMany({ where: { testId: id, id: { in: [...requested] } }, data: { reviewStatus: "APPROVED" } }),
+      prisma.test.update({
+        where: { id },
+        data: { status: "APPROVED", isLive: false, reviewedAt: new Date(), approvedAt: new Date(), approvedById: requester.id }
+      })
+    ]);
+    return this.details(requester, id);
+  },
+
+  async publishApproved(requester: Requester, id: string, input: { publishAt?: string; batchId?: string } = {}) {
+    const test = await prisma.test.findUnique({ where: { id }, include: { questions: true } });
+    if (!test) throw Object.assign(new Error("Test not found"), { statusCode: 404 });
+    await assertTestAccess(requester, test);
+    const batchId = input.batchId || test.batchId || undefined;
+    await assertTeacherBatchSubjectAccess(requester, batchId, test.subject);
+    if (test.status !== "APPROVED" || !test.approvedAt || !test.approvedById) {
+      throw Object.assign(new Error("This exam requires explicit teacher approval before publishing."), { statusCode: 400 });
+    }
+    validatePublishableExam({ ...test, questions: test.questions.map(persistedQuestionPayload) });
+    return prisma.test.update({
+      where: { id },
+      data: {
+        status: "PUBLISHED",
+        isLive: true,
+        batchId,
+        publishAt: input.publishAt ? new Date(input.publishAt) : test.publishAt
+      },
+      include: testInclude
+    });
+  },
+
   async start(userId: string, role: Role | undefined, testId: string) {
     const test = await this.details({ id: userId, role: role ?? Role.STUDENT }, testId);
     if (test.status !== "PUBLISHED") {
@@ -642,30 +900,32 @@ export const testsService = {
       }
     }
 
-    const existingAttempt = await prisma.testAttempt.findFirst({
-      where: { userId, testId },
-      orderBy: { startedAt: "desc" },
-      include: {
-        test: {
-          include: testInclude
+    let attempt;
+    try {
+      attempt = await prisma.testAttempt.upsert({
+        where: { userId_testId: { userId, testId } },
+        update: {},
+        create: { userId, testId },
+        include: {
+          test: {
+            include: testInclude
+          }
         }
-      }
-    });
-    if (existingAttempt?.submittedAt) {
+      });
+    } catch (error) {
+      if ((error as { code?: string }).code !== "P2002") throw error;
+      attempt = await prisma.testAttempt.findUniqueOrThrow({
+        where: { userId_testId: { userId, testId } },
+        include: {
+          test: {
+            include: testInclude
+          }
+        }
+      });
+    }
+    if (attempt.submittedAt) {
       throw new Error("This test has already been submitted.");
     }
-    if (existingAttempt) {
-      return this.resume(userId, existingAttempt.id);
-    }
-
-    const attempt = await prisma.testAttempt.create({
-      data: { userId, testId },
-      include: {
-        test: {
-          include: testInclude
-        }
-      }
-    });
     await prisma.cBTAnswerState.createMany({
       data: test.questions.map((question) => ({ attemptId: attempt.id, questionId: question.id })),
       skipDuplicates: true
@@ -812,7 +1072,7 @@ export const testsService = {
   },
 
   async submitFromSavedState(userId: string, attemptId: string, reason = "MANUAL_SUBMIT") {
-    const attempt = await prisma.testAttempt.findFirst({
+    let attempt = await prisma.testAttempt.findFirst({
       where: { id: attemptId, userId },
       include: { test: { include: { questions: true } }, answerStates: true }
     });
@@ -822,25 +1082,45 @@ export const testsService = {
     }
 
     if (attempt.submittedAt) {
-      throw new Error("Attempt already submitted");
+      return prisma.testAttempt.findUniqueOrThrow({
+        where: { id: attemptId },
+        include: { test: true, answers: { include: { question: true } } }
+      });
     }
+
+    const claim = await prisma.testAttempt.updateMany({
+      where: { id: attemptId, userId, submittedAt: null, status: { not: "SUBMITTING" } },
+      data: { status: "SUBMITTING", lastSavedAt: new Date() }
+    });
+    if (claim.count !== 1) {
+      const current = await prisma.testAttempt.findFirst({
+        where: { id: attemptId, userId },
+        include: { test: true, answers: { include: { question: true } } }
+      });
+      if (current?.submittedAt) return current;
+      throw Object.assign(new Error("Submission is already being finalized. Please wait."), { statusCode: 409 });
+    }
+
+    attempt = await prisma.testAttempt.findFirstOrThrow({
+      where: { id: attemptId, userId },
+      include: { test: { include: { questions: true } }, answerStates: true }
+    });
 
     const questions = new Map(attempt.test.questions.map((question) => [question.id, question]));
     const answers = attempt.answerStates
       .filter((state) => state.selectedAnswer && questions.has(state.questionId))
       .map((state) => ({ questionId: state.questionId, selectedAnswer: state.selectedAnswer! }));
-    let score = 0;
-    let totalCorrect = 0;
-    let totalWrong = 0;
+    const normalizedAnswers = answers.map((answer) => ({
+      questionId: answer.questionId,
+      selectedAnswer: normalizeSelectedAnswer(answer.selectedAnswer),
+    }));
+    const scoreSummary = calculateObjectiveScore(attempt.test.questions, normalizedAnswers);
 
-    const answerData = answers
+    const answerData = normalizedAnswers
       .filter((answer) => questions.has(answer.questionId))
       .map((answer) => {
         const question = questions.get(answer.questionId)!;
         const isCorrect = question.correctAnswer === answer.selectedAnswer;
-        score += isCorrect ? question.marks : -question.negativeMarks;
-        totalCorrect += isCorrect ? 1 : 0;
-        totalWrong += isCorrect ? 0 : 1;
 
         return {
           attemptId,
@@ -850,30 +1130,44 @@ export const testsService = {
         };
       });
 
-    if (answerData.length) {
-      await prisma.answer.createMany({ data: answerData, skipDuplicates: true });
+    try {
+      const timing = attemptTiming(attempt);
+      await prisma.$transaction(async (tx) => {
+        if (answerData.length) await tx.answer.createMany({ data: answerData, skipDuplicates: true });
+        await tx.testAttempt.update({
+          where: { id: attemptId },
+          data: {
+            score: scoreSummary.score,
+            totalCorrect: scoreSummary.totalCorrect,
+            totalWrong: scoreSummary.totalWrong,
+            timeTaken: timing.elapsedSeconds,
+            submittedAt: new Date(),
+            status: "SUBMITTED",
+            sectionState: {
+              ...(attempt.sectionState && typeof attempt.sectionState === "object" ? attempt.sectionState : {}),
+              submitReason: reason
+            }
+          }
+        });
+      });
+      await prisma.$transaction((tx) => syncStudentExamPerformance(tx, userId, attemptId)).catch((error) => {
+        logger.error("Exam result was saved but NDP performance synchronization failed", {
+          attemptId,
+          userId,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      });
+      return prisma.testAttempt.findUniqueOrThrow({
+        where: { id: attemptId },
+        include: { test: true, answers: { include: { question: true } } }
+      });
+    } catch (error) {
+      await prisma.testAttempt.updateMany({
+        where: { id: attemptId, userId, status: "SUBMITTING", submittedAt: null },
+        data: { status: "IN_PROGRESS" }
+      }).catch(() => undefined);
+      throw error;
     }
-    const timing = attemptTiming(attempt);
-
-    return prisma.testAttempt.update({
-      where: { id: attemptId },
-      data: {
-        score,
-        totalCorrect,
-        totalWrong,
-        timeTaken: timing.elapsedSeconds,
-        submittedAt: new Date(),
-        status: "SUBMITTED",
-        sectionState: {
-          ...(attempt.sectionState && typeof attempt.sectionState === "object" ? attempt.sectionState : {}),
-          submitReason: reason
-        }
-      },
-      include: {
-        test: true,
-        answers: { include: { question: true } }
-      }
-    });
   },
 
   async submit(userId: string, attemptId: string, answers: SubmitAnswer[], timeTaken: number) {
@@ -887,12 +1181,16 @@ export const testsService = {
     }
 
     if (attempt.submittedAt) {
-      throw new Error("Attempt already submitted");
+      return this.submitFromSavedState(userId, attemptId, "DUPLICATE_SUBMIT");
     }
 
     const timing = attemptTiming(attempt);
     const questions = new Map(attempt.test.questions.map((question) => [question.id, question]));
-    const cleanAnswers = answers.filter((answer) => answer.selectedAnswer && questions.has(answer.questionId));
+    const cleanAnswers = Array.from(new Map(
+      answers
+        .filter((answer) => answer.selectedAnswer && questions.has(answer.questionId))
+        .map((answer) => [answer.questionId, { questionId: answer.questionId, selectedAnswer: normalizeSelectedAnswer(answer.selectedAnswer) }])
+    ).values());
 
     if (cleanAnswers.length) {
       await prisma.$transaction(

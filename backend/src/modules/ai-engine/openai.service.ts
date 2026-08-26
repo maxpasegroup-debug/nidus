@@ -6,7 +6,7 @@ import type { Prisma } from "../../generated/prisma/client.js";
 
 type JsonValue = Record<string, unknown>;
 
-const MODEL = "gpt-4.1-mini";
+const MODEL = env.OPENAI_NDIE_MODEL;
 const CACHE_TTL_MS = 1000 * 60 * 60 * 6;
 
 function extractOutputText(payload: unknown) {
@@ -73,6 +73,50 @@ export async function callOpenAIJson<T extends JsonValue>(instructions: string, 
       }
     }).catch(() => undefined);
     return fallback;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+export async function callOpenAIMultimodalJson<T extends JsonValue>(input: {
+  instructions: string;
+  text: string;
+  imageUrls: string[];
+  schemaName: string;
+  schema: Record<string, unknown>;
+  fallback: T;
+}): Promise<T> {
+  if (!env.OPENAI_ENABLED || !env.OPENAI_API_KEY) return input.fallback;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), env.AI_REQUEST_TIMEOUT_MS);
+  try {
+    const response = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: { authorization: `Bearer ${env.OPENAI_API_KEY}`, "content-type": "application/json" },
+      body: JSON.stringify({
+        model: MODEL,
+        instructions: input.instructions,
+        input: [{
+          role: "user",
+          content: [
+            { type: "input_text", text: input.text },
+            ...input.imageUrls.slice(0, env.OPENAI_NDIE_MAX_PAGE_IMAGES).map((imageUrl) => ({ type: "input_image", image_url: imageUrl, detail: "high" }))
+          ]
+        }],
+        text: { format: { type: "json_schema", name: input.schemaName, strict: true, schema: input.schema } }
+      }),
+      signal: controller.signal
+    });
+    if (!response.ok) return input.fallback;
+    const payload = await response.json();
+    const text = extractOutputText(payload);
+    const parsed = JSON.parse(text.replace(/^```json\s*/i, "").replace(/```$/i, "").trim()) as T;
+    return parsed;
+  } catch (error) {
+    logger.warn("OpenAI multimodal verification unavailable; retaining review-safe deterministic result", {
+      error: error instanceof Error ? error.message : "Unknown error"
+    });
+    return input.fallback;
   } finally {
     clearTimeout(timeout);
   }

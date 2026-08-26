@@ -1,0 +1,16 @@
+{
+  "phase": 20,
+  "status": "PARTIAL",
+  "evidence": {
+    "requestIdsAndRedaction": "PREVIOUSLY VERIFIED",
+    "sentry": false,
+    "workerTelemetry": false
+  },
+  "test_count": 2,
+  "passed": 1,
+  "failed": 0,
+  "blocked": 1,
+  "limitations": [
+    "Central telemetry was not provisioned."
+  ]
+}

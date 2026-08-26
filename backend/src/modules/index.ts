@@ -52,7 +52,7 @@ export const apiRouter = Router();
 apiRouter.get("/health", (_req, res) => {
   const runtime = getRuntimeState();
   const healthy = !env.HEALTHCHECK_STRICT || runtime.ready;
-  res.json({
+  res.status(healthy ? 200 : 503).json({
     status: healthy ? "ok" : "starting",
     service: "nidus-backend",
     timestamp: new Date().toISOString(),

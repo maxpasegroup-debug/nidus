@@ -46,6 +46,7 @@ export type NdieQueueJobMinAggregateOutputType = {
   id: string | null
   importJobId: string | null
   replayRunId: string | null
+  idempotencyKey: string | null
   jobType: string | null
   stage: string | null
   state: string | null
@@ -74,6 +75,7 @@ export type NdieQueueJobMaxAggregateOutputType = {
   id: string | null
   importJobId: string | null
   replayRunId: string | null
+  idempotencyKey: string | null
   jobType: string | null
   stage: string | null
   state: string | null
@@ -102,6 +104,7 @@ export type NdieQueueJobCountAggregateOutputType = {
   id: number
   importJobId: number
   replayRunId: number
+  idempotencyKey: number
   jobType: number
   stage: number
   state: number
@@ -152,6 +155,7 @@ export type NdieQueueJobMinAggregateInputType = {
   id?: true
   importJobId?: true
   replayRunId?: true
+  idempotencyKey?: true
   jobType?: true
   stage?: true
   state?: true
@@ -180,6 +184,7 @@ export type NdieQueueJobMaxAggregateInputType = {
   id?: true
   importJobId?: true
   replayRunId?: true
+  idempotencyKey?: true
   jobType?: true
   stage?: true
   state?: true
@@ -208,6 +213,7 @@ export type NdieQueueJobCountAggregateInputType = {
   id?: true
   importJobId?: true
   replayRunId?: true
+  idempotencyKey?: true
   jobType?: true
   stage?: true
   state?: true
@@ -327,6 +333,7 @@ export type NdieQueueJobGroupByOutputType = {
   id: string
   importJobId: string
   replayRunId: string | null
+  idempotencyKey: string | null
   jobType: string
   stage: string
   state: string
@@ -382,6 +389,7 @@ export type NdieQueueJobWhereInput = {
   id?: Prisma.StringFilter<"NdieQueueJob"> | string
   importJobId?: Prisma.StringFilter<"NdieQueueJob"> | string
   replayRunId?: Prisma.StringNullableFilter<"NdieQueueJob"> | string | null
+  idempotencyKey?: Prisma.StringNullableFilter<"NdieQueueJob"> | string | null
   jobType?: Prisma.StringFilter<"NdieQueueJob"> | string
   stage?: Prisma.StringFilter<"NdieQueueJob"> | string
   state?: Prisma.StringFilter<"NdieQueueJob"> | string
@@ -415,6 +423,7 @@ export type NdieQueueJobOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   importJobId?: Prisma.SortOrder
   replayRunId?: Prisma.SortOrderInput | Prisma.SortOrder
+  idempotencyKey?: Prisma.SortOrderInput | Prisma.SortOrder
   jobType?: Prisma.SortOrder
   stage?: Prisma.SortOrder
   state?: Prisma.SortOrder
@@ -446,6 +455,7 @@ export type NdieQueueJobOrderByWithRelationInput = {
 
 export type NdieQueueJobWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  idempotencyKey?: string
   AND?: Prisma.NdieQueueJobWhereInput | Prisma.NdieQueueJobWhereInput[]
   OR?: Prisma.NdieQueueJobWhereInput[]
   NOT?: Prisma.NdieQueueJobWhereInput | Prisma.NdieQueueJobWhereInput[]
@@ -478,12 +488,13 @@ export type NdieQueueJobWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"NdieQueueJob"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"NdieQueueJob"> | Date | string
   importJob?: Prisma.XOR<Prisma.NdieImportJobScalarRelationFilter, Prisma.NdieImportJobWhereInput>
-}, "id">
+}, "id" | "idempotencyKey">
 
 export type NdieQueueJobOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   importJobId?: Prisma.SortOrder
   replayRunId?: Prisma.SortOrderInput | Prisma.SortOrder
+  idempotencyKey?: Prisma.SortOrderInput | Prisma.SortOrder
   jobType?: Prisma.SortOrder
   stage?: Prisma.SortOrder
   state?: Prisma.SortOrder
@@ -524,6 +535,7 @@ export type NdieQueueJobScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"NdieQueueJob"> | string
   importJobId?: Prisma.StringWithAggregatesFilter<"NdieQueueJob"> | string
   replayRunId?: Prisma.StringNullableWithAggregatesFilter<"NdieQueueJob"> | string | null
+  idempotencyKey?: Prisma.StringNullableWithAggregatesFilter<"NdieQueueJob"> | string | null
   jobType?: Prisma.StringWithAggregatesFilter<"NdieQueueJob"> | string
   stage?: Prisma.StringWithAggregatesFilter<"NdieQueueJob"> | string
   state?: Prisma.StringWithAggregatesFilter<"NdieQueueJob"> | string
@@ -555,6 +567,7 @@ export type NdieQueueJobScalarWhereWithAggregatesInput = {
 export type NdieQueueJobCreateInput = {
   id?: string
   replayRunId?: string | null
+  idempotencyKey?: string | null
   jobType: string
   stage: string
   state?: string
@@ -588,6 +601,7 @@ export type NdieQueueJobUncheckedCreateInput = {
   id?: string
   importJobId: string
   replayRunId?: string | null
+  idempotencyKey?: string | null
   jobType: string
   stage: string
   state?: string
@@ -619,6 +633,7 @@ export type NdieQueueJobUncheckedCreateInput = {
 export type NdieQueueJobUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   replayRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   jobType?: Prisma.StringFieldUpdateOperationsInput | string
   stage?: Prisma.StringFieldUpdateOperationsInput | string
   state?: Prisma.StringFieldUpdateOperationsInput | string
@@ -652,6 +667,7 @@ export type NdieQueueJobUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   importJobId?: Prisma.StringFieldUpdateOperationsInput | string
   replayRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   jobType?: Prisma.StringFieldUpdateOperationsInput | string
   stage?: Prisma.StringFieldUpdateOperationsInput | string
   state?: Prisma.StringFieldUpdateOperationsInput | string
@@ -684,6 +700,7 @@ export type NdieQueueJobCreateManyInput = {
   id?: string
   importJobId: string
   replayRunId?: string | null
+  idempotencyKey?: string | null
   jobType: string
   stage: string
   state?: string
@@ -715,6 +732,7 @@ export type NdieQueueJobCreateManyInput = {
 export type NdieQueueJobUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   replayRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   jobType?: Prisma.StringFieldUpdateOperationsInput | string
   stage?: Prisma.StringFieldUpdateOperationsInput | string
   state?: Prisma.StringFieldUpdateOperationsInput | string
@@ -747,6 +765,7 @@ export type NdieQueueJobUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   importJobId?: Prisma.StringFieldUpdateOperationsInput | string
   replayRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   jobType?: Prisma.StringFieldUpdateOperationsInput | string
   stage?: Prisma.StringFieldUpdateOperationsInput | string
   state?: Prisma.StringFieldUpdateOperationsInput | string
@@ -789,6 +808,7 @@ export type NdieQueueJobCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   importJobId?: Prisma.SortOrder
   replayRunId?: Prisma.SortOrder
+  idempotencyKey?: Prisma.SortOrder
   jobType?: Prisma.SortOrder
   stage?: Prisma.SortOrder
   state?: Prisma.SortOrder
@@ -829,6 +849,7 @@ export type NdieQueueJobMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   importJobId?: Prisma.SortOrder
   replayRunId?: Prisma.SortOrder
+  idempotencyKey?: Prisma.SortOrder
   jobType?: Prisma.SortOrder
   stage?: Prisma.SortOrder
   state?: Prisma.SortOrder
@@ -857,6 +878,7 @@ export type NdieQueueJobMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   importJobId?: Prisma.SortOrder
   replayRunId?: Prisma.SortOrder
+  idempotencyKey?: Prisma.SortOrder
   jobType?: Prisma.SortOrder
   stage?: Prisma.SortOrder
   state?: Prisma.SortOrder
@@ -934,6 +956,7 @@ export type NdieQueueJobUncheckedUpdateManyWithoutImportJobNestedInput = {
 export type NdieQueueJobCreateWithoutImportJobInput = {
   id?: string
   replayRunId?: string | null
+  idempotencyKey?: string | null
   jobType: string
   stage: string
   state?: string
@@ -965,6 +988,7 @@ export type NdieQueueJobCreateWithoutImportJobInput = {
 export type NdieQueueJobUncheckedCreateWithoutImportJobInput = {
   id?: string
   replayRunId?: string | null
+  idempotencyKey?: string | null
   jobType: string
   stage: string
   state?: string
@@ -1026,6 +1050,7 @@ export type NdieQueueJobScalarWhereInput = {
   id?: Prisma.StringFilter<"NdieQueueJob"> | string
   importJobId?: Prisma.StringFilter<"NdieQueueJob"> | string
   replayRunId?: Prisma.StringNullableFilter<"NdieQueueJob"> | string | null
+  idempotencyKey?: Prisma.StringNullableFilter<"NdieQueueJob"> | string | null
   jobType?: Prisma.StringFilter<"NdieQueueJob"> | string
   stage?: Prisma.StringFilter<"NdieQueueJob"> | string
   state?: Prisma.StringFilter<"NdieQueueJob"> | string
@@ -1057,6 +1082,7 @@ export type NdieQueueJobScalarWhereInput = {
 export type NdieQueueJobCreateManyImportJobInput = {
   id?: string
   replayRunId?: string | null
+  idempotencyKey?: string | null
   jobType: string
   stage: string
   state?: string
@@ -1088,6 +1114,7 @@ export type NdieQueueJobCreateManyImportJobInput = {
 export type NdieQueueJobUpdateWithoutImportJobInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   replayRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   jobType?: Prisma.StringFieldUpdateOperationsInput | string
   stage?: Prisma.StringFieldUpdateOperationsInput | string
   state?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1119,6 +1146,7 @@ export type NdieQueueJobUpdateWithoutImportJobInput = {
 export type NdieQueueJobUncheckedUpdateWithoutImportJobInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   replayRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   jobType?: Prisma.StringFieldUpdateOperationsInput | string
   stage?: Prisma.StringFieldUpdateOperationsInput | string
   state?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1150,6 +1178,7 @@ export type NdieQueueJobUncheckedUpdateWithoutImportJobInput = {
 export type NdieQueueJobUncheckedUpdateManyWithoutImportJobInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   replayRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   jobType?: Prisma.StringFieldUpdateOperationsInput | string
   stage?: Prisma.StringFieldUpdateOperationsInput | string
   state?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1184,6 +1213,7 @@ export type NdieQueueJobSelect<ExtArgs extends runtime.Types.Extensions.Internal
   id?: boolean
   importJobId?: boolean
   replayRunId?: boolean
+  idempotencyKey?: boolean
   jobType?: boolean
   stage?: boolean
   state?: boolean
@@ -1217,6 +1247,7 @@ export type NdieQueueJobSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   id?: boolean
   importJobId?: boolean
   replayRunId?: boolean
+  idempotencyKey?: boolean
   jobType?: boolean
   stage?: boolean
   state?: boolean
@@ -1250,6 +1281,7 @@ export type NdieQueueJobSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   id?: boolean
   importJobId?: boolean
   replayRunId?: boolean
+  idempotencyKey?: boolean
   jobType?: boolean
   stage?: boolean
   state?: boolean
@@ -1283,6 +1315,7 @@ export type NdieQueueJobSelectScalar = {
   id?: boolean
   importJobId?: boolean
   replayRunId?: boolean
+  idempotencyKey?: boolean
   jobType?: boolean
   stage?: boolean
   state?: boolean
@@ -1311,7 +1344,7 @@ export type NdieQueueJobSelectScalar = {
   updatedAt?: boolean
 }
 
-export type NdieQueueJobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "importJobId" | "replayRunId" | "jobType" | "stage" | "state" | "provider" | "workerId" | "progress" | "currentStage" | "attempts" | "maxAttempts" | "retryDelayMs" | "backoffStrategy" | "retryHistory" | "diagnostics" | "payload" | "result" | "errorCategory" | "errorMessage" | "queuedAt" | "startedAt" | "completedAt" | "failedAt" | "cancelledAt" | "nextRunAt" | "durationMs" | "createdAt" | "updatedAt", ExtArgs["result"]["ndieQueueJob"]>
+export type NdieQueueJobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "importJobId" | "replayRunId" | "idempotencyKey" | "jobType" | "stage" | "state" | "provider" | "workerId" | "progress" | "currentStage" | "attempts" | "maxAttempts" | "retryDelayMs" | "backoffStrategy" | "retryHistory" | "diagnostics" | "payload" | "result" | "errorCategory" | "errorMessage" | "queuedAt" | "startedAt" | "completedAt" | "failedAt" | "cancelledAt" | "nextRunAt" | "durationMs" | "createdAt" | "updatedAt", ExtArgs["result"]["ndieQueueJob"]>
 export type NdieQueueJobInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   importJob?: boolean | Prisma.NdieImportJobDefaultArgs<ExtArgs>
 }
@@ -1331,6 +1364,7 @@ export type $NdieQueueJobPayload<ExtArgs extends runtime.Types.Extensions.Intern
     id: string
     importJobId: string
     replayRunId: string | null
+    idempotencyKey: string | null
     jobType: string
     stage: string
     state: string
@@ -1784,6 +1818,7 @@ export interface NdieQueueJobFieldRefs {
   readonly id: Prisma.FieldRef<"NdieQueueJob", 'String'>
   readonly importJobId: Prisma.FieldRef<"NdieQueueJob", 'String'>
   readonly replayRunId: Prisma.FieldRef<"NdieQueueJob", 'String'>
+  readonly idempotencyKey: Prisma.FieldRef<"NdieQueueJob", 'String'>
   readonly jobType: Prisma.FieldRef<"NdieQueueJob", 'String'>
   readonly stage: Prisma.FieldRef<"NdieQueueJob", 'String'>
   readonly state: Prisma.FieldRef<"NdieQueueJob", 'String'>

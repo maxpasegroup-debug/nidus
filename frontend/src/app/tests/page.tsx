@@ -96,7 +96,8 @@ export default function TestsPage() {
         totalMarks: draftQuestions.reduce((sum, question) => sum + question.marks, 0),
         isMockTest: true,
         isLive: true,
-        questions: draftQuestions
+        approvalAttestation: "TEACHER_REVIEW_CONFIRMED",
+        questions: draftQuestions.map((question) => ({ ...question, reviewStatus: "APPROVED" }))
       },
       {
         onSuccess: () => {

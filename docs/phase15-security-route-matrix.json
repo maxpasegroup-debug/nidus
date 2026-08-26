@@ -1,0 +1,88 @@
+{
+  "phase": 15,
+  "sensitiveRouteCount": 125,
+  "certifiedByRuntimeThisRun": [
+    {
+      "name": "admissions A",
+      "route": "/admissions-os/dashboard"
+    },
+    {
+      "name": "admissions B",
+      "route": "/admissions-os/dashboard"
+    },
+    {
+      "name": "attendance A",
+      "route": "/attendance/class"
+    },
+    {
+      "name": "attendance B",
+      "route": "/attendance/class"
+    },
+    {
+      "name": "users A",
+      "route": "/users"
+    },
+    {
+      "name": "users B",
+      "route": "/users"
+    },
+    {
+      "name": "batches A",
+      "route": "/academy/batches"
+    },
+    {
+      "name": "batches B",
+      "route": "/academy/batches"
+    },
+    {
+      "name": "tests A",
+      "route": "/tests"
+    },
+    {
+      "name": "tests B",
+      "route": "/tests"
+    },
+    {
+      "name": "media metadata A",
+      "route": "/media/files"
+    },
+    {
+      "name": "media metadata B",
+      "route": "/media/files"
+    },
+    {
+      "name": "documents A",
+      "route": "/documents"
+    },
+    {
+      "name": "documents B",
+      "route": "/documents"
+    },
+    {
+      "name": "exam results A",
+      "route": "/examination/results"
+    },
+    {
+      "name": "exam results B",
+      "route": "/examination/results"
+    },
+    {
+      "name": "fees A",
+      "route": "/fees"
+    },
+    {
+      "name": "fees B",
+      "route": "/fees"
+    },
+    {
+      "name": "student available exams A",
+      "route": "/tests/available"
+    },
+    {
+      "name": "student available exams B",
+      "route": "/tests/available"
+    }
+  ],
+  "unexercisedSensitiveRouteCount": 105,
+  "policy": "Unexercised routes remain uncertified; provider-dependent routes are not treated as PASS."
+}

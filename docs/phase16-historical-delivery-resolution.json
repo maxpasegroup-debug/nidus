@@ -1,0 +1,30 @@
+{
+  "phase": 16,
+  "policy": "Unresolved tenant-sensitive delivery records remain hidden from tenant actors.",
+  "records": {
+    "Notification": {
+      "total": 0,
+      "global": 0,
+      "provablyTenantOwned": 0,
+      "unresolved": 0
+    },
+    "EmailLog": {
+      "total": 0,
+      "global": 0,
+      "provablyTenantOwned": 0,
+      "unresolved": 0
+    },
+    "PushNotification": {
+      "total": 0,
+      "global": 0,
+      "provablyTenantOwned": 0,
+      "unresolved": 0
+    }
+  },
+  "samples": {
+    "notifications": [],
+    "emailLogs": [],
+    "pushNotifications": []
+  },
+  "tenantPolicy": "Excluded from tenant dashboards, notification lists, delivery logs, reports, exports and tenant APIs."
+}

@@ -1,0 +1,71 @@
+{
+  "phase": 16,
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "payment history A",
+      "route": "/payments/history",
+      "method": "GET",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403/404 fail-closed"
+    },
+    {
+      "name": "payment history B",
+      "route": "/payments/history",
+      "method": "GET",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403/404 fail-closed"
+    },
+    {
+      "name": "payment analytics A",
+      "route": "/payments/analytics",
+      "method": "GET",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403/404 fail-closed"
+    },
+    {
+      "name": "fees A",
+      "route": "/fees",
+      "method": "GET",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403/404 fail-closed"
+    },
+    {
+      "name": "invoices A",
+      "route": "/invoices",
+      "method": "GET",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403/404 fail-closed"
+    },
+    {
+      "name": "cross-tenant fee plan create",
+      "route": "/fees/plans",
+      "method": "POST",
+      "status": "PASS",
+      "actual": 403,
+      "expected": "403/404"
+    },
+    {
+      "name": "cross-tenant invoice create",
+      "route": "/invoices/generate",
+      "method": "POST",
+      "status": "PASS",
+      "actual": 403,
+      "expected": "403/404"
+    },
+    {
+      "name": "cross-tenant manual payment",
+      "route": "/payments/manual",
+      "method": "POST",
+      "status": "PASS",
+      "actual": 403,
+      "expected": "403/404"
+    }
+  ],
+  "codeChange": "payments.service.ts now scopes target users and director listings through User.instituteId; no migration."
+}

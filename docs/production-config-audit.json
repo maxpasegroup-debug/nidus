@@ -1,0 +1,215 @@
+{
+  "matrix": [
+    {
+      "variable": "DATABASE_URL",
+      "purpose": "PostgreSQL connection",
+      "required": "CORE",
+      "exposure": "SERVER_ONLY",
+      "configured": true,
+      "safeDefault": false,
+      "failsSafely": true
+    },
+    {
+      "variable": "JWT_SECRET",
+      "purpose": "Legacy signing and application secret",
+      "required": "CORE",
+      "exposure": "SERVER_ONLY",
+      "configured": true,
+      "safeDefault": false,
+      "failsSafely": true
+    },
+    {
+      "variable": "CORS_ORIGIN",
+      "purpose": "Allowed browser origins",
+      "required": "PRODUCTION",
+      "exposure": "SERVER_ONLY",
+      "configured": true,
+      "safeDefault": true,
+      "failsSafely": true
+    },
+    {
+      "variable": "FRONTEND_APP_URL",
+      "purpose": "Canonical application URL",
+      "required": "PRODUCTION",
+      "exposure": "SERVER_ONLY",
+      "configured": true,
+      "safeDefault": true,
+      "failsSafely": true
+    },
+    {
+      "variable": "BACKEND_PUBLIC_URL",
+      "purpose": "Canonical API URL",
+      "required": "PRODUCTION",
+      "exposure": "SERVER_ONLY",
+      "configured": true,
+      "safeDefault": true,
+      "failsSafely": true
+    },
+    {
+      "variable": "REDIS_URL",
+      "purpose": "Distributed cache, rate limits and BullMQ",
+      "required": "PRODUCTION",
+      "exposure": "SERVER_ONLY",
+      "configured": false,
+      "safeDefault": false,
+      "failsSafely": true
+    },
+    {
+      "variable": "SENTRY_DSN",
+      "purpose": "Server error telemetry",
+      "required": "OPTIONAL",
+      "exposure": "SERVER_ONLY",
+      "configured": false,
+      "safeDefault": true,
+      "failsSafely": true
+    },
+    {
+      "variable": "CLOUDINARY_CLOUD_NAME",
+      "purpose": "Authenticated media storage",
+      "required": "PRODUCTION",
+      "exposure": "SERVER_ONLY",
+      "configured": false,
+      "safeDefault": false,
+      "failsSafely": true
+    },
+    {
+      "variable": "CLOUDINARY_API_KEY",
+      "purpose": "Cloudinary API identity",
+      "required": "PRODUCTION",
+      "exposure": "SERVER_ONLY",
+      "configured": false,
+      "safeDefault": false,
+      "failsSafely": true
+    },
+    {
+      "variable": "CLOUDINARY_API_SECRET",
+      "purpose": "Cloudinary signing secret",
+      "required": "PRODUCTION",
+      "exposure": "SERVER_ONLY",
+      "configured": false,
+      "safeDefault": false,
+      "failsSafely": true
+    },
+    {
+      "variable": "RESEND_API_KEY",
+      "purpose": "Transactional email",
+      "required": "PRODUCTION",
+      "exposure": "SERVER_ONLY",
+      "configured": false,
+      "safeDefault": false,
+      "failsSafely": true
+    },
+    {
+      "variable": "RAZORPAY_KEY_ID",
+      "purpose": "Payment order identity",
+      "required": "CONDITIONAL",
+      "exposure": "SERVER_ONLY",
+      "configured": false,
+      "safeDefault": false,
+      "failsSafely": true
+    },
+    {
+      "variable": "RAZORPAY_KEY_SECRET",
+      "purpose": "Payment signature secret",
+      "required": "CONDITIONAL",
+      "exposure": "SERVER_ONLY",
+      "configured": false,
+      "safeDefault": false,
+      "failsSafely": true
+    },
+    {
+      "variable": "RAZORPAY_WEBHOOK_SECRET",
+      "purpose": "Webhook verification",
+      "required": "CONDITIONAL",
+      "exposure": "SERVER_ONLY",
+      "configured": false,
+      "safeDefault": false,
+      "failsSafely": true
+    },
+    {
+      "variable": "OPENAI_API_KEY",
+      "purpose": "AI reconstruction provider",
+      "required": "CONDITIONAL",
+      "exposure": "SERVER_ONLY",
+      "configured": false,
+      "safeDefault": false,
+      "failsSafely": true
+    },
+    {
+      "variable": "MATHPIX_APP_ID",
+      "purpose": "STEM extraction provider identity",
+      "required": "CONDITIONAL",
+      "exposure": "SERVER_ONLY",
+      "configured": false,
+      "safeDefault": false,
+      "failsSafely": true
+    },
+    {
+      "variable": "MATHPIX_APP_KEY",
+      "purpose": "STEM extraction provider secret",
+      "required": "CONDITIONAL",
+      "exposure": "SERVER_ONLY",
+      "configured": false,
+      "safeDefault": false,
+      "failsSafely": true
+    },
+    {
+      "variable": "AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT",
+      "purpose": "Document intelligence endpoint",
+      "required": "CONDITIONAL",
+      "exposure": "SERVER_ONLY",
+      "configured": false,
+      "safeDefault": false,
+      "failsSafely": true
+    },
+    {
+      "variable": "AZURE_DOCUMENT_INTELLIGENCE_KEY",
+      "purpose": "Document intelligence secret",
+      "required": "CONDITIONAL",
+      "exposure": "SERVER_ONLY",
+      "configured": false,
+      "safeDefault": false,
+      "failsSafely": true
+    },
+    {
+      "variable": "FIREBASE_PROJECT_ID",
+      "purpose": "Push notifications",
+      "required": "CONDITIONAL",
+      "exposure": "SERVER_ONLY",
+      "configured": false,
+      "safeDefault": false,
+      "failsSafely": true
+    },
+    {
+      "variable": "SALESBOOSTER_WHATSAPP_ACCESS_TOKEN",
+      "purpose": "WhatsApp delivery",
+      "required": "CONDITIONAL",
+      "exposure": "SERVER_ONLY",
+      "configured": false,
+      "safeDefault": false,
+      "failsSafely": true
+    },
+    {
+      "variable": "BACKUP_BUCKET",
+      "purpose": "Off-host backup destination",
+      "required": "PRODUCTION",
+      "exposure": "SERVER_ONLY",
+      "configured": false,
+      "safeDefault": false,
+      "failsSafely": true
+    }
+  ],
+  "summary": {
+    "configured": 5,
+    "missingCore": [],
+    "missingProduction": [
+      "REDIS_URL",
+      "CLOUDINARY_CLOUD_NAME",
+      "CLOUDINARY_API_KEY",
+      "CLOUDINARY_API_SECRET",
+      "RESEND_API_KEY",
+      "BACKUP_BUCKET"
+    ],
+    "publicSecrets": 0
+  }
+}

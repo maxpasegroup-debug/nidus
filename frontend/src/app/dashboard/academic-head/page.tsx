@@ -30,8 +30,8 @@ export default function AcademicHeadDashboardPage() {
   const tasks = today?.todayTasks ?? [];
   const upcoming = today?.upcomingTasks ?? [];
   const pendingTasks = tasks.filter((task) => !task.done);
-  const pendingReviews = (today?.diagnostics.pendingAssignmentReviews ?? 0) + (today?.diagnostics.pendingExamReviews ?? 0);
-  const attendancePending = today?.diagnostics.attendancePendingCount ?? 0;
+  const pendingReviews = (today?.diagnostics?.pendingAssignmentReviews ?? 0) + (today?.diagnostics?.pendingExamReviews ?? 0);
+  const attendancePending = today?.diagnostics?.attendancePendingCount ?? 0;
   const nextTask = today?.nextUpcomingTask ?? pendingTasks[0] ?? upcoming[0] ?? null;
 
   return (

@@ -223,6 +223,9 @@ export const whatsappService = {
   },
 
   async handleInbound(payload: unknown) {
+    if (!configured()) {
+      throw Object.assign(new Error("WhatsApp delivery is unavailable"), { statusCode: 503 });
+    }
     const messages = this.extractInbound(payload);
     const processed = [];
     for (const message of messages) {

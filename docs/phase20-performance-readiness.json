@@ -1,0 +1,20 @@
+{
+  "phase": 20,
+  "status": "BLOCKED — ENVIRONMENT",
+  "evidence": {
+    "priorEvidence": {
+      "25": "PASS",
+      "50": "PASS",
+      "100": "HIGH LATENCY",
+      "250": "FAIL"
+    },
+    "phase20Load": false
+  },
+  "test_count": 4,
+  "passed": 0,
+  "failed": 0,
+  "blocked": 1,
+  "limitations": [
+    "No production-like load environment."
+  ]
+}

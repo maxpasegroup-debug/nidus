@@ -47,6 +47,23 @@ const providerOrchestratorVersion = "ndie-provider-orchestrator-v1";
 
 const staticProviderMetadata: NdieProviderMetadata[] = [
   {
+    id: "ocr.production",
+    name: "NIDUS Routed OCR",
+    version: "1.0-production",
+    type: "OCR",
+    registryKind: "OCR",
+    supportedLanguages: ["en", "hi"],
+    supportedDocumentTypes: ["PDF", "SCANNED_PDF", "IMAGE", "DOCX"],
+    formulaCapability: 0.92,
+    tableCapability: 0.82,
+    diagramCapability: 0.45,
+    questionCapability: 0.72,
+    estimatedLatencyMs: 2800,
+    estimatedCostUsd: 0.004,
+    health: "READY",
+    availability: 0.98
+  },
+  {
     id: "document-understanding.rule-based",
     name: "Rule Based Page Understanding",
     version: "2.0-phase2",
@@ -62,6 +79,23 @@ const staticProviderMetadata: NdieProviderMetadata[] = [
     estimatedCostUsd: 0,
     health: "READY",
     availability: 0.99
+  },
+  {
+    id: "layout.production",
+    name: "NIDUS Routed Layout",
+    version: "1.0-production",
+    type: "LAYOUT",
+    registryKind: "LAYOUT",
+    supportedLanguages: ["en", "hi"],
+    supportedDocumentTypes: ["PDF", "SCANNED_PDF", "IMAGE", "DOCX"],
+    formulaCapability: 0.8,
+    tableCapability: 0.94,
+    diagramCapability: 0.9,
+    questionCapability: 0.84,
+    estimatedLatencyMs: 2600,
+    estimatedCostUsd: 0.004,
+    health: "READY",
+    availability: 0.98
   },
   {
     id: "ocr.stub",
@@ -81,6 +115,23 @@ const staticProviderMetadata: NdieProviderMetadata[] = [
     availability: 1
   },
   {
+    id: "formula.production",
+    name: "NIDUS Routed STEM Formula",
+    version: "1.0-production",
+    type: "FORMULA",
+    registryKind: "FORMULA",
+    supportedLanguages: ["en"],
+    supportedDocumentTypes: ["PDF", "SCANNED_PDF", "IMAGE", "DOCX"],
+    formulaCapability: 0.98,
+    tableCapability: 0.78,
+    diagramCapability: 0.6,
+    questionCapability: 0.66,
+    estimatedLatencyMs: 3000,
+    estimatedCostUsd: 0.006,
+    health: "READY",
+    availability: 0.98
+  },
+  {
     id: "ocr.tesseract",
     name: "Tesseract OCR",
     version: "7",
@@ -96,6 +147,23 @@ const staticProviderMetadata: NdieProviderMetadata[] = [
     estimatedCostUsd: 0.0005,
     health: "READY",
     availability: 0.95
+  },
+  {
+    id: "ai.production",
+    name: "NIDUS Evidence-Grounded Verification",
+    version: "1.0-production",
+    type: "VALIDATION",
+    registryKind: "AI",
+    supportedLanguages: ["en", "hi"],
+    supportedDocumentTypes: ["PDF", "DOCX", "SCANNED_PDF", "IMAGE", "TEXT_FIXTURE"],
+    formulaCapability: 0.92,
+    tableCapability: 0.92,
+    diagramCapability: 0.92,
+    questionCapability: 0.95,
+    estimatedLatencyMs: 4000,
+    estimatedCostUsd: 0.012,
+    health: "READY",
+    availability: 0.98
   },
   {
     id: "layout.rule-based",

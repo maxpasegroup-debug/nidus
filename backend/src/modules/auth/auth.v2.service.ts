@@ -61,6 +61,8 @@ function clearDefaultPinFlags(metadata: Record<string, unknown>) {
   const next = { ...metadata };
   delete next.defaultPassword;
   delete next.defaultPin;
+  delete next.accessPin;
+  delete next.access_pin;
   return next;
 }
 
@@ -341,6 +343,7 @@ export const AuthServiceV2 = {
 
     const metadata = metadataObject(user.roleMetadata);
     const metadataAccessPin = typeof metadata.accessPin === "string" && isValidPin(metadata.accessPin) ? metadata.accessPin : "";
+    const shouldStripLegacyPin = "accessPin" in metadata || "access_pin" in metadata;
     const isPasswordValid = await bcrypt.compare(password, user.password);
     const shouldRepairPinHash = !isPasswordValid && metadataAccessPin === password;
     const pinAccepted = isPasswordValid || shouldRepairPinHash;
@@ -364,7 +367,7 @@ export const AuthServiceV2 = {
 
     const shouldClearDefaultPin = isDefaultPinAccount(metadata) && password !== DEFAULT_ACCOUNT_PIN;
     const loginRoleMetadata = {
-      ...(shouldClearDefaultPin ? clearDefaultPinFlags(metadata) : metadata),
+      ...(shouldClearDefaultPin || shouldStripLegacyPin ? clearDefaultPinFlags(metadata) : metadata),
       ...(shouldClearDefaultPin ? { pinDefaultClearedAt: new Date().toISOString() } : {}),
       ...(shouldRepairPinHash ? { pinHashRepairedAt: new Date().toISOString() } : {})
     };
@@ -390,7 +393,7 @@ export const AuthServiceV2 = {
         lockedUntil: null,
         ...(shouldRepairPinHash ? { password: await bcrypt.hash(password, 12) } : {}),
         ...(shouldRepairMobile ? { mobile: metadataLoginMobile, mobileVerified: true } : {}),
-        ...(shouldClearDefaultPin || shouldRepairPinHash ? { roleMetadata: loginRoleMetadata as Prisma.InputJsonObject } : {})
+        ...(shouldClearDefaultPin || shouldRepairPinHash || shouldStripLegacyPin ? { roleMetadata: loginRoleMetadata as Prisma.InputJsonObject } : {})
       }
     });
     await audit({ userId: user.id, action: "LOGIN_SUCCESS", description: "Successful login", ip });
@@ -480,7 +483,7 @@ export const AuthServiceV2 = {
       where: { id: userId },
       data: {
         password: await bcrypt.hash(newPassword, 12),
-        roleMetadata: { ...metadata, accessPin: newPassword, pinChangedAt: new Date().toISOString(), passwordChangedAt: new Date().toISOString() },
+        roleMetadata: { ...metadata, pinChangedAt: new Date().toISOString(), passwordChangedAt: new Date().toISOString() },
         loginFailureCount: 0,
         lockedUntil: null
       }
@@ -537,7 +540,7 @@ export const AuthServiceV2 = {
       where: { id: reset.user.id },
       data: {
         password: await bcrypt.hash(newPassword, 12),
-        roleMetadata: { ...metadata, accessPin: newPassword, pinChangedAt: new Date().toISOString(), passwordChangedAt: new Date().toISOString() },
+        roleMetadata: { ...metadata, pinChangedAt: new Date().toISOString(), passwordChangedAt: new Date().toISOString() },
         loginFailureCount: 0,
         lockedUntil: null
       }

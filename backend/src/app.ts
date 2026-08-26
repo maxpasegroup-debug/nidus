@@ -31,12 +31,12 @@ function apiRouteDebugger(req: Request, res: Response, next: NextFunction) {
   }
 
   const startedAt = Date.now();
-  logger.info("API request started", { requestId: req.requestId, method: req.method, path: req.originalUrl });
+  logger.info("API request started", { requestId: req.requestId, method: req.method, path: req.path });
   res.on("finish", () => {
     logger.info("API request finished", {
       requestId: req.requestId,
       method: req.method,
-      path: req.originalUrl,
+      path: req.path,
       statusCode: res.statusCode,
       durationMs: Date.now() - startedAt
     });
@@ -108,7 +108,17 @@ export function createApp(options: CreateAppOptions = {}) {
   app.use(responseFormatter);
   app.use(requireSafeContentType);
   app.use(suspiciousActivityLogger);
-  app.use("/api/auth", authRateLimiter);
+  app.use(
+    [
+      "/api/auth/signup",
+      "/api/auth/register",
+      "/api/auth/login",
+      "/api/auth/forgot-password",
+      "/api/auth/forgot-password/send-otp",
+      "/api/auth/reset-password"
+    ],
+    authRateLimiter
+  );
   app.use("/api/ai", aiRateLimiter);
   app.use("/api/payments", paymentsRateLimiter);
   app.use("/api/media/upload", uploadRateLimiter);

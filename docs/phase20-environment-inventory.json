@@ -1,0 +1,75 @@
+{
+  "phase": 20,
+  "status": "PARTIAL",
+  "tools": {
+    "docker": false,
+    "podman": false,
+    "redisServer": false,
+    "redisCli": false,
+    "pgDump": false,
+    "pgRestore": false,
+    "psql": false,
+    "wsl": true,
+    "node": true,
+    "npm": true,
+    "cloudCli": false
+  },
+  "stagingDatabase": {
+    "available": false,
+    "migrations": 0,
+    "failedMigrations": 0,
+    "tables": 0
+  },
+  "providerConfiguration": [
+    {
+      "name": "REDIS_URL",
+      "purpose": "Redis/BullMQ",
+      "staging": "NOT CONFIGURED",
+      "production": "NOT READ",
+      "secret": "OMITTED"
+    },
+    {
+      "name": "CLOUDINARY_CLOUD_NAME",
+      "purpose": "Media",
+      "staging": "NOT CONFIGURED",
+      "production": "NOT READ",
+      "secret": "OMITTED"
+    },
+    {
+      "name": "RESEND_API_KEY",
+      "purpose": "Email",
+      "staging": "NOT CONFIGURED",
+      "production": "NOT READ",
+      "secret": "OMITTED"
+    },
+    {
+      "name": "FIREBASE_PROJECT_ID",
+      "purpose": "Push",
+      "staging": "NOT CONFIGURED",
+      "production": "NOT READ",
+      "secret": "OMITTED"
+    },
+    {
+      "name": "BACKUP_BUCKET",
+      "purpose": "Off-host backup",
+      "staging": "NOT CONFIGURED",
+      "production": "NOT READ",
+      "secret": "OMITTED"
+    },
+    {
+      "name": "SENTRY_DSN",
+      "purpose": "Telemetry",
+      "staging": "NOT CONFIGURED",
+      "production": "NOT READ",
+      "secret": "OMITTED"
+    }
+  ],
+  "production": {
+    "inspected": false,
+    "touched": false,
+    "deploymentAttempted": false
+  },
+  "limitations": [
+    "Only local tool presence and disposable staging configuration were inspected."
+  ]
+}

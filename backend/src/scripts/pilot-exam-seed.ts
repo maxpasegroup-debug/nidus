@@ -109,13 +109,11 @@ export async function seedPilotExam() {
       topic,
       batchId: batch.id,
       publishAt: new Date(),
-      status: "PUBLISHED",
-      reviewedAt: new Date(),
-      approvedAt: new Date(),
+      status: "DRAFT",
       duration: 60,
       totalMarks: 100,
       isMockTest: true,
-      isLive: true,
+      isLive: false,
       questions: {
         create: bankQuestions.map((question) => ({
           questionText: question.questionText,
@@ -128,7 +126,8 @@ export async function seedPilotExam() {
           marks: question.marks,
           negativeMarks: question.negativeMarks,
           difficultyLevel: question.difficulty,
-          topic: question.topic
+          topic: question.topic,
+          reviewStatus: "DRAFT"
         }))
       }
     }

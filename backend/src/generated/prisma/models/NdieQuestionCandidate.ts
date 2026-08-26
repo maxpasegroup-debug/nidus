@@ -39,6 +39,7 @@ export type NdieQuestionCandidateMinAggregateOutputType = {
   importJobId: string | null
   questionNumber: string | null
   questionType: string | null
+  sourceFingerprint: string | null
   confidence: number | null
   status: string | null
   reviewStatus: string | null
@@ -52,6 +53,7 @@ export type NdieQuestionCandidateMaxAggregateOutputType = {
   importJobId: string | null
   questionNumber: string | null
   questionType: string | null
+  sourceFingerprint: string | null
   confidence: number | null
   status: string | null
   reviewStatus: string | null
@@ -67,6 +69,7 @@ export type NdieQuestionCandidateCountAggregateOutputType = {
   questionType: number
   candidateJson: number
   sourceMap: number
+  sourceFingerprint: number
   confidence: number
   status: number
   reviewStatus: number
@@ -90,6 +93,7 @@ export type NdieQuestionCandidateMinAggregateInputType = {
   importJobId?: true
   questionNumber?: true
   questionType?: true
+  sourceFingerprint?: true
   confidence?: true
   status?: true
   reviewStatus?: true
@@ -103,6 +107,7 @@ export type NdieQuestionCandidateMaxAggregateInputType = {
   importJobId?: true
   questionNumber?: true
   questionType?: true
+  sourceFingerprint?: true
   confidence?: true
   status?: true
   reviewStatus?: true
@@ -118,6 +123,7 @@ export type NdieQuestionCandidateCountAggregateInputType = {
   questionType?: true
   candidateJson?: true
   sourceMap?: true
+  sourceFingerprint?: true
   confidence?: true
   status?: true
   reviewStatus?: true
@@ -220,6 +226,7 @@ export type NdieQuestionCandidateGroupByOutputType = {
   questionType: string
   candidateJson: runtime.JsonValue
   sourceMap: runtime.JsonValue | null
+  sourceFingerprint: string | null
   confidence: number | null
   status: string
   reviewStatus: string
@@ -258,6 +265,7 @@ export type NdieQuestionCandidateWhereInput = {
   questionType?: Prisma.StringFilter<"NdieQuestionCandidate"> | string
   candidateJson?: Prisma.JsonFilter<"NdieQuestionCandidate">
   sourceMap?: Prisma.JsonNullableFilter<"NdieQuestionCandidate">
+  sourceFingerprint?: Prisma.StringNullableFilter<"NdieQuestionCandidate"> | string | null
   confidence?: Prisma.FloatNullableFilter<"NdieQuestionCandidate"> | number | null
   status?: Prisma.StringFilter<"NdieQuestionCandidate"> | string
   reviewStatus?: Prisma.StringFilter<"NdieQuestionCandidate"> | string
@@ -276,6 +284,7 @@ export type NdieQuestionCandidateOrderByWithRelationInput = {
   questionType?: Prisma.SortOrder
   candidateJson?: Prisma.SortOrder
   sourceMap?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceFingerprint?: Prisma.SortOrderInput | Prisma.SortOrder
   confidence?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   reviewStatus?: Prisma.SortOrder
@@ -289,6 +298,7 @@ export type NdieQuestionCandidateOrderByWithRelationInput = {
 
 export type NdieQuestionCandidateWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  importJobId_sourceFingerprint?: Prisma.NdieQuestionCandidateImportJobIdSourceFingerprintCompoundUniqueInput
   AND?: Prisma.NdieQuestionCandidateWhereInput | Prisma.NdieQuestionCandidateWhereInput[]
   OR?: Prisma.NdieQuestionCandidateWhereInput[]
   NOT?: Prisma.NdieQuestionCandidateWhereInput | Prisma.NdieQuestionCandidateWhereInput[]
@@ -297,6 +307,7 @@ export type NdieQuestionCandidateWhereUniqueInput = Prisma.AtLeast<{
   questionType?: Prisma.StringFilter<"NdieQuestionCandidate"> | string
   candidateJson?: Prisma.JsonFilter<"NdieQuestionCandidate">
   sourceMap?: Prisma.JsonNullableFilter<"NdieQuestionCandidate">
+  sourceFingerprint?: Prisma.StringNullableFilter<"NdieQuestionCandidate"> | string | null
   confidence?: Prisma.FloatNullableFilter<"NdieQuestionCandidate"> | number | null
   status?: Prisma.StringFilter<"NdieQuestionCandidate"> | string
   reviewStatus?: Prisma.StringFilter<"NdieQuestionCandidate"> | string
@@ -306,7 +317,7 @@ export type NdieQuestionCandidateWhereUniqueInput = Prisma.AtLeast<{
   importJob?: Prisma.XOR<Prisma.NdieImportJobScalarRelationFilter, Prisma.NdieImportJobWhereInput>
   reviewDecisions?: Prisma.NdieReviewDecisionListRelationFilter
   revisions?: Prisma.NdieRevisionListRelationFilter
-}, "id">
+}, "id" | "importJobId_sourceFingerprint">
 
 export type NdieQuestionCandidateOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -315,6 +326,7 @@ export type NdieQuestionCandidateOrderByWithAggregationInput = {
   questionType?: Prisma.SortOrder
   candidateJson?: Prisma.SortOrder
   sourceMap?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceFingerprint?: Prisma.SortOrderInput | Prisma.SortOrder
   confidence?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   reviewStatus?: Prisma.SortOrder
@@ -338,6 +350,7 @@ export type NdieQuestionCandidateScalarWhereWithAggregatesInput = {
   questionType?: Prisma.StringWithAggregatesFilter<"NdieQuestionCandidate"> | string
   candidateJson?: Prisma.JsonWithAggregatesFilter<"NdieQuestionCandidate">
   sourceMap?: Prisma.JsonNullableWithAggregatesFilter<"NdieQuestionCandidate">
+  sourceFingerprint?: Prisma.StringNullableWithAggregatesFilter<"NdieQuestionCandidate"> | string | null
   confidence?: Prisma.FloatNullableWithAggregatesFilter<"NdieQuestionCandidate"> | number | null
   status?: Prisma.StringWithAggregatesFilter<"NdieQuestionCandidate"> | string
   reviewStatus?: Prisma.StringWithAggregatesFilter<"NdieQuestionCandidate"> | string
@@ -352,6 +365,7 @@ export type NdieQuestionCandidateCreateInput = {
   questionType?: string
   candidateJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   sourceMap?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceFingerprint?: string | null
   confidence?: number | null
   status?: string
   reviewStatus?: string
@@ -370,6 +384,7 @@ export type NdieQuestionCandidateUncheckedCreateInput = {
   questionType?: string
   candidateJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   sourceMap?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceFingerprint?: string | null
   confidence?: number | null
   status?: string
   reviewStatus?: string
@@ -386,6 +401,7 @@ export type NdieQuestionCandidateUpdateInput = {
   questionType?: Prisma.StringFieldUpdateOperationsInput | string
   candidateJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   sourceMap?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -404,6 +420,7 @@ export type NdieQuestionCandidateUncheckedUpdateInput = {
   questionType?: Prisma.StringFieldUpdateOperationsInput | string
   candidateJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   sourceMap?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -421,6 +438,7 @@ export type NdieQuestionCandidateCreateManyInput = {
   questionType?: string
   candidateJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   sourceMap?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceFingerprint?: string | null
   confidence?: number | null
   status?: string
   reviewStatus?: string
@@ -435,6 +453,7 @@ export type NdieQuestionCandidateUpdateManyMutationInput = {
   questionType?: Prisma.StringFieldUpdateOperationsInput | string
   candidateJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   sourceMap?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -450,6 +469,7 @@ export type NdieQuestionCandidateUncheckedUpdateManyInput = {
   questionType?: Prisma.StringFieldUpdateOperationsInput | string
   candidateJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   sourceMap?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -468,6 +488,11 @@ export type NdieQuestionCandidateOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type NdieQuestionCandidateImportJobIdSourceFingerprintCompoundUniqueInput = {
+  importJobId: string
+  sourceFingerprint: string
+}
+
 export type NdieQuestionCandidateCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   importJobId?: Prisma.SortOrder
@@ -475,6 +500,7 @@ export type NdieQuestionCandidateCountOrderByAggregateInput = {
   questionType?: Prisma.SortOrder
   candidateJson?: Prisma.SortOrder
   sourceMap?: Prisma.SortOrder
+  sourceFingerprint?: Prisma.SortOrder
   confidence?: Prisma.SortOrder
   status?: Prisma.SortOrder
   reviewStatus?: Prisma.SortOrder
@@ -492,6 +518,7 @@ export type NdieQuestionCandidateMaxOrderByAggregateInput = {
   importJobId?: Prisma.SortOrder
   questionNumber?: Prisma.SortOrder
   questionType?: Prisma.SortOrder
+  sourceFingerprint?: Prisma.SortOrder
   confidence?: Prisma.SortOrder
   status?: Prisma.SortOrder
   reviewStatus?: Prisma.SortOrder
@@ -505,6 +532,7 @@ export type NdieQuestionCandidateMinOrderByAggregateInput = {
   importJobId?: Prisma.SortOrder
   questionNumber?: Prisma.SortOrder
   questionType?: Prisma.SortOrder
+  sourceFingerprint?: Prisma.SortOrder
   confidence?: Prisma.SortOrder
   status?: Prisma.SortOrder
   reviewStatus?: Prisma.SortOrder
@@ -602,6 +630,7 @@ export type NdieQuestionCandidateCreateWithoutImportJobInput = {
   questionType?: string
   candidateJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   sourceMap?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceFingerprint?: string | null
   confidence?: number | null
   status?: string
   reviewStatus?: string
@@ -618,6 +647,7 @@ export type NdieQuestionCandidateUncheckedCreateWithoutImportJobInput = {
   questionType?: string
   candidateJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   sourceMap?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceFingerprint?: string | null
   confidence?: number | null
   status?: string
   reviewStatus?: string
@@ -664,6 +694,7 @@ export type NdieQuestionCandidateScalarWhereInput = {
   questionType?: Prisma.StringFilter<"NdieQuestionCandidate"> | string
   candidateJson?: Prisma.JsonFilter<"NdieQuestionCandidate">
   sourceMap?: Prisma.JsonNullableFilter<"NdieQuestionCandidate">
+  sourceFingerprint?: Prisma.StringNullableFilter<"NdieQuestionCandidate"> | string | null
   confidence?: Prisma.FloatNullableFilter<"NdieQuestionCandidate"> | number | null
   status?: Prisma.StringFilter<"NdieQuestionCandidate"> | string
   reviewStatus?: Prisma.StringFilter<"NdieQuestionCandidate"> | string
@@ -678,6 +709,7 @@ export type NdieQuestionCandidateCreateWithoutReviewDecisionsInput = {
   questionType?: string
   candidateJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   sourceMap?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceFingerprint?: string | null
   confidence?: number | null
   status?: string
   reviewStatus?: string
@@ -695,6 +727,7 @@ export type NdieQuestionCandidateUncheckedCreateWithoutReviewDecisionsInput = {
   questionType?: string
   candidateJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   sourceMap?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceFingerprint?: string | null
   confidence?: number | null
   status?: string
   reviewStatus?: string
@@ -726,6 +759,7 @@ export type NdieQuestionCandidateUpdateWithoutReviewDecisionsInput = {
   questionType?: Prisma.StringFieldUpdateOperationsInput | string
   candidateJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   sourceMap?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -743,6 +777,7 @@ export type NdieQuestionCandidateUncheckedUpdateWithoutReviewDecisionsInput = {
   questionType?: Prisma.StringFieldUpdateOperationsInput | string
   candidateJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   sourceMap?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -758,6 +793,7 @@ export type NdieQuestionCandidateCreateWithoutRevisionsInput = {
   questionType?: string
   candidateJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   sourceMap?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceFingerprint?: string | null
   confidence?: number | null
   status?: string
   reviewStatus?: string
@@ -775,6 +811,7 @@ export type NdieQuestionCandidateUncheckedCreateWithoutRevisionsInput = {
   questionType?: string
   candidateJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   sourceMap?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceFingerprint?: string | null
   confidence?: number | null
   status?: string
   reviewStatus?: string
@@ -806,6 +843,7 @@ export type NdieQuestionCandidateUpdateWithoutRevisionsInput = {
   questionType?: Prisma.StringFieldUpdateOperationsInput | string
   candidateJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   sourceMap?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -823,6 +861,7 @@ export type NdieQuestionCandidateUncheckedUpdateWithoutRevisionsInput = {
   questionType?: Prisma.StringFieldUpdateOperationsInput | string
   candidateJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   sourceMap?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -838,6 +877,7 @@ export type NdieQuestionCandidateCreateManyImportJobInput = {
   questionType?: string
   candidateJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   sourceMap?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceFingerprint?: string | null
   confidence?: number | null
   status?: string
   reviewStatus?: string
@@ -852,6 +892,7 @@ export type NdieQuestionCandidateUpdateWithoutImportJobInput = {
   questionType?: Prisma.StringFieldUpdateOperationsInput | string
   candidateJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   sourceMap?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -868,6 +909,7 @@ export type NdieQuestionCandidateUncheckedUpdateWithoutImportJobInput = {
   questionType?: Prisma.StringFieldUpdateOperationsInput | string
   candidateJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   sourceMap?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -884,6 +926,7 @@ export type NdieQuestionCandidateUncheckedUpdateManyWithoutImportJobInput = {
   questionType?: Prisma.StringFieldUpdateOperationsInput | string
   candidateJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   sourceMap?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -939,6 +982,7 @@ export type NdieQuestionCandidateSelect<ExtArgs extends runtime.Types.Extensions
   questionType?: boolean
   candidateJson?: boolean
   sourceMap?: boolean
+  sourceFingerprint?: boolean
   confidence?: boolean
   status?: boolean
   reviewStatus?: boolean
@@ -958,6 +1002,7 @@ export type NdieQuestionCandidateSelectCreateManyAndReturn<ExtArgs extends runti
   questionType?: boolean
   candidateJson?: boolean
   sourceMap?: boolean
+  sourceFingerprint?: boolean
   confidence?: boolean
   status?: boolean
   reviewStatus?: boolean
@@ -974,6 +1019,7 @@ export type NdieQuestionCandidateSelectUpdateManyAndReturn<ExtArgs extends runti
   questionType?: boolean
   candidateJson?: boolean
   sourceMap?: boolean
+  sourceFingerprint?: boolean
   confidence?: boolean
   status?: boolean
   reviewStatus?: boolean
@@ -990,6 +1036,7 @@ export type NdieQuestionCandidateSelectScalar = {
   questionType?: boolean
   candidateJson?: boolean
   sourceMap?: boolean
+  sourceFingerprint?: boolean
   confidence?: boolean
   status?: boolean
   reviewStatus?: boolean
@@ -998,7 +1045,7 @@ export type NdieQuestionCandidateSelectScalar = {
   updatedAt?: boolean
 }
 
-export type NdieQuestionCandidateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "importJobId" | "questionNumber" | "questionType" | "candidateJson" | "sourceMap" | "confidence" | "status" | "reviewStatus" | "approvedQuestionId" | "createdAt" | "updatedAt", ExtArgs["result"]["ndieQuestionCandidate"]>
+export type NdieQuestionCandidateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "importJobId" | "questionNumber" | "questionType" | "candidateJson" | "sourceMap" | "sourceFingerprint" | "confidence" | "status" | "reviewStatus" | "approvedQuestionId" | "createdAt" | "updatedAt", ExtArgs["result"]["ndieQuestionCandidate"]>
 export type NdieQuestionCandidateInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   importJob?: boolean | Prisma.NdieImportJobDefaultArgs<ExtArgs>
   reviewDecisions?: boolean | Prisma.NdieQuestionCandidate$reviewDecisionsArgs<ExtArgs>
@@ -1026,6 +1073,7 @@ export type $NdieQuestionCandidatePayload<ExtArgs extends runtime.Types.Extensio
     questionType: string
     candidateJson: runtime.JsonValue
     sourceMap: runtime.JsonValue | null
+    sourceFingerprint: string | null
     confidence: number | null
     status: string
     reviewStatus: string
@@ -1464,6 +1512,7 @@ export interface NdieQuestionCandidateFieldRefs {
   readonly questionType: Prisma.FieldRef<"NdieQuestionCandidate", 'String'>
   readonly candidateJson: Prisma.FieldRef<"NdieQuestionCandidate", 'Json'>
   readonly sourceMap: Prisma.FieldRef<"NdieQuestionCandidate", 'Json'>
+  readonly sourceFingerprint: Prisma.FieldRef<"NdieQuestionCandidate", 'String'>
   readonly confidence: Prisma.FieldRef<"NdieQuestionCandidate", 'Float'>
   readonly status: Prisma.FieldRef<"NdieQuestionCandidate", 'String'>
   readonly reviewStatus: Prisma.FieldRef<"NdieQuestionCandidate", 'String'>

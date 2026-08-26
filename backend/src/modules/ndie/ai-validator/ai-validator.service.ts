@@ -108,7 +108,7 @@ export const ndieAiValidatorService = {
       prisma.ndieQuestionCandidate.findMany({ where: { importJobId }, orderBy: [{ questionNumber: "asc" }, { createdAt: "asc" }] }),
       prisma.ndieAnswerKeyCandidate.findMany({ where: { importJobId } }),
       prisma.ndieSolutionCandidate.findMany({ where: { importJobId } }),
-      prisma.ndiePage.findMany({ where: { importJobId }, orderBy: [{ pageNumber: "asc" }] }),
+      prisma.ndiePage.findMany({ where: { importJobId }, include: { assets: true }, orderBy: [{ pageNumber: "asc" }] }),
       prisma.ndieElement.findMany({ where: { importJobId }, orderBy: [{ pageNumber: "asc" }, { readingOrder: "asc" }] }),
       prisma.ndieProviderRun.findFirst({ where: { importJobId, providerKind: "EVALUATION", status: "SUCCEEDED" }, orderBy: { completedAt: "desc" } })
     ]);
@@ -139,7 +139,11 @@ export const ndieAiValidatorService = {
         questionNumber: solution.questionNumber,
         solutionJson: solution.solutionJson,
         confidence: solution.confidence
-      }))
+      })),
+      pageAssets: pages.flatMap((page) => {
+        const preferred = page.assets.find((asset) => asset.role === "REVIEW_IMAGE") ?? page.assets.find((asset) => asset.role === "OCR_IMAGE");
+        return preferred?.url ? [{ pageId: page.id, pageNumber: page.pageNumber, role: preferred.role ?? "REVIEW_IMAGE", url: preferred.url }] : [];
+      }).slice(0, env.OPENAI_NDIE_MAX_PAGE_IMAGES)
     });
 
     const validationById = new Map(result.validations.map((validation) => [validation.candidateId, validation]));

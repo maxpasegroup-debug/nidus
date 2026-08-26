@@ -51,6 +51,9 @@ function requireAdmissions(actor: AdmissionsActor) {
   if (!admissionsRoles.has(actor.role) && template !== "ADMISSION_CELL") {
     throw Object.assign(new Error("Admissions OS access required"), { statusCode: 403 });
   }
+  if (actor.role !== Role.ADMIN && !actor.instituteId) {
+    throw Object.assign(new Error("Institution scope is required for Admissions OS"), { statusCode: 403 });
+  }
 }
 
 function isLeadOwnerScoped(actor: AdmissionsActor) {
@@ -89,7 +92,10 @@ function money(value: number) {
 }
 
 function leadWhere(actor: AdmissionsActor) {
-  return isLeadOwnerScoped(actor) ? { assignedTo: actor.id } : {};
+  if (isLeadOwnerScoped(actor)) return { assignedTo: actor.id };
+  return actor.instituteId
+    ? { assignedTo: { not: null }, assignee: { instituteId: actor.instituteId } }
+    : { id: "__missing_institute__" };
 }
 
 function activeLeadWhere(actor: AdmissionsActor) {
@@ -147,6 +153,9 @@ export const admissionsOsService = {
     const month = monthWindow();
     const ownerWhere = leadWhere(actor);
     const activeWhere = activeLeadWhere(actor);
+    const admissionWhere = isLeadOwnerScoped(actor)
+      ? { lead: ownerWhere }
+      : { instituteId: actor.instituteId ?? "__missing_institute__" };
 
     const [
       leadsToday,
@@ -177,9 +186,9 @@ export const admissionsOsService = {
         }
       }),
       prisma.counsellingBooking.count({ where: { bookingDate: { gte: start, lt: end }, lead: ownerWhere } }),
-      prisma.admission.count({ where: { createdAt: { gte: start, lt: end }, ...(isLeadOwnerScoped(actor) ? { lead: { assignedTo: actor.id } } : {}) } }),
-      prisma.admission.count({ where: { approvalStatus: "PENDING", ...(isLeadOwnerScoped(actor) ? { lead: { assignedTo: actor.id } } : {}) } }),
-      prisma.admission.count({ where: { approvedAt: { gte: start, lt: end }, approvalStatus: "APPROVED", ...(isLeadOwnerScoped(actor) ? { lead: { assignedTo: actor.id } } : {}) } }),
+      prisma.admission.count({ where: { ...admissionWhere, createdAt: { gte: start, lt: end } } }),
+      prisma.admission.count({ where: { ...admissionWhere, approvalStatus: "PENDING" } }),
+      prisma.admission.count({ where: { ...admissionWhere, approvedAt: { gte: start, lt: end }, approvalStatus: "APPROVED" } }),
       prisma.feePlan.aggregate({
         where: { status: "ACTIVE", createdAt: { gte: month.start, lt: month.end } },
         _sum: { totalAmount: true, paidAmount: true, dueAmount: true },
@@ -190,16 +199,16 @@ export const admissionsOsService = {
         _sum: { amount: true },
         _count: { _all: true }
       }),
-      prisma.admission.count({ where: { createdAt: { gte: month.start, lt: month.end }, ...(isLeadOwnerScoped(actor) ? { lead: { assignedTo: actor.id } } : {}) } }),
+      prisma.admission.count({ where: { ...admissionWhere, createdAt: { gte: month.start, lt: month.end } } }),
       prisma.admission.findMany({
-        where: { approvalStatus: "APPROVED", ...(isLeadOwnerScoped(actor) ? { lead: { assignedTo: actor.id } } : {}) },
+        where: { ...admissionWhere, approvalStatus: "APPROVED" },
         select: { id: true, studentId: true, batch: true, onboardingStatus: true, paymentStatus: true, student: { select: { id: true, name: true, email: true, role: true, isDisabled: true } }, lead: { select: { fullName: true, assignedTo: true } } },
         orderBy: { createdAt: "desc" },
         take: 100
       }),
-      prisma.batchStudent.findMany({ where: { status: "ACTIVE" }, select: { studentId: true, batchId: true, batch: { select: { id: true, name: true, programSlug: true } } }, take: 500 }),
-      prisma.parentStudentInvitation.count({ where: { createdAt: { gte: month.start, lt: month.end } } }),
-      prisma.parentStudentLink.count({ where: { status: "ACTIVE" } }),
+      prisma.batchStudent.findMany({ where: { status: "ACTIVE", batch: { instituteId: actor.instituteId ?? "__missing_institute__" } }, select: { studentId: true, batchId: true, batch: { select: { id: true, name: true, programSlug: true } } }, take: 500 }),
+      prisma.parentStudentInvitation.count({ where: { createdAt: { gte: month.start, lt: month.end }, student: { instituteId: actor.instituteId ?? "__missing_institute__" } } }),
+      prisma.parentStudentLink.count({ where: { status: "ACTIVE", student: { instituteId: actor.instituteId ?? "__missing_institute__" } } }),
       prisma.lead.findMany({
         where: activeWhere,
         include: {
@@ -303,8 +312,8 @@ export const admissionsOsService = {
 
   async leadJourney(actor: AdmissionsActor, leadId: string) {
     requireAdmissions(actor);
-    const lead = await prisma.lead.findUnique({
-      where: { id: leadId },
+    const lead = await prisma.lead.findFirst({
+      where: { id: leadId, ...leadWhere(actor) },
       include: {
         assignee: { select: { id: true, name: true, email: true, role: true } },
         followUps: { orderBy: { followUpDate: "asc" } },
@@ -320,14 +329,14 @@ export const admissionsOsService = {
       }
     });
     if (!lead) throw Object.assign(new Error("Lead not found"), { statusCode: 404 });
-    if (isLeadOwnerScoped(actor) && lead.assignedTo !== actor.id) throw Object.assign(new Error("Lead access denied"), { statusCode: 403 });
+    if (!lead) throw Object.assign(new Error("Lead access denied"), { statusCode: 403 });
 
     const admission = lead.admissions[0];
     const batchLinks = admission
-      ? await prisma.batchStudent.findMany({ where: { studentId: admission.studentId }, include: { batch: { select: { id: true, name: true, programSlug: true } } } })
+      ? await prisma.batchStudent.findMany({ where: { studentId: admission.studentId, batch: { instituteId: actor.instituteId ?? "__missing_institute__" } }, include: { batch: { select: { id: true, name: true, programSlug: true } } } })
       : [];
-    const parentInvitations = admission ? await prisma.parentStudentInvitation.count({ where: { studentId: admission.studentId } }) : 0;
-    const parentLinks = admission ? await prisma.parentStudentLink.count({ where: { studentId: admission.studentId, status: "ACTIVE" } }) : 0;
+    const parentInvitations = admission ? await prisma.parentStudentInvitation.count({ where: { studentId: admission.studentId, student: { instituteId: actor.instituteId ?? "__missing_institute__" } } }) : 0;
+    const parentLinks = admission ? await prisma.parentStudentLink.count({ where: { studentId: admission.studentId, status: "ACTIVE", student: { instituteId: actor.instituteId ?? "__missing_institute__" } } }) : 0;
     const documents = admission ? await prisma.document.count({ where: { uploadedBy: admission.studentId } }) : 0;
 
     const completed = new Set<string>();

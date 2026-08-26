@@ -37,6 +37,7 @@ export type NdieAnswerKeyCandidateSumAggregateOutputType = {
 export type NdieAnswerKeyCandidateMinAggregateOutputType = {
   id: string | null
   importJobId: string | null
+  questionCandidateId: string | null
   sourceDocumentId: string | null
   questionNumber: string | null
   confidence: number | null
@@ -47,6 +48,7 @@ export type NdieAnswerKeyCandidateMinAggregateOutputType = {
 export type NdieAnswerKeyCandidateMaxAggregateOutputType = {
   id: string | null
   importJobId: string | null
+  questionCandidateId: string | null
   sourceDocumentId: string | null
   questionNumber: string | null
   confidence: number | null
@@ -57,6 +59,7 @@ export type NdieAnswerKeyCandidateMaxAggregateOutputType = {
 export type NdieAnswerKeyCandidateCountAggregateOutputType = {
   id: number
   importJobId: number
+  questionCandidateId: number
   sourceDocumentId: number
   questionNumber: number
   answerJson: number
@@ -78,6 +81,7 @@ export type NdieAnswerKeyCandidateSumAggregateInputType = {
 export type NdieAnswerKeyCandidateMinAggregateInputType = {
   id?: true
   importJobId?: true
+  questionCandidateId?: true
   sourceDocumentId?: true
   questionNumber?: true
   confidence?: true
@@ -88,6 +92,7 @@ export type NdieAnswerKeyCandidateMinAggregateInputType = {
 export type NdieAnswerKeyCandidateMaxAggregateInputType = {
   id?: true
   importJobId?: true
+  questionCandidateId?: true
   sourceDocumentId?: true
   questionNumber?: true
   confidence?: true
@@ -98,6 +103,7 @@ export type NdieAnswerKeyCandidateMaxAggregateInputType = {
 export type NdieAnswerKeyCandidateCountAggregateInputType = {
   id?: true
   importJobId?: true
+  questionCandidateId?: true
   sourceDocumentId?: true
   questionNumber?: true
   answerJson?: true
@@ -196,6 +202,7 @@ export type NdieAnswerKeyCandidateGroupByArgs<ExtArgs extends runtime.Types.Exte
 export type NdieAnswerKeyCandidateGroupByOutputType = {
   id: string
   importJobId: string
+  questionCandidateId: string | null
   sourceDocumentId: string | null
   questionNumber: string | null
   answerJson: runtime.JsonValue
@@ -230,6 +237,7 @@ export type NdieAnswerKeyCandidateWhereInput = {
   NOT?: Prisma.NdieAnswerKeyCandidateWhereInput | Prisma.NdieAnswerKeyCandidateWhereInput[]
   id?: Prisma.StringFilter<"NdieAnswerKeyCandidate"> | string
   importJobId?: Prisma.StringFilter<"NdieAnswerKeyCandidate"> | string
+  questionCandidateId?: Prisma.StringNullableFilter<"NdieAnswerKeyCandidate"> | string | null
   sourceDocumentId?: Prisma.StringNullableFilter<"NdieAnswerKeyCandidate"> | string | null
   questionNumber?: Prisma.StringNullableFilter<"NdieAnswerKeyCandidate"> | string | null
   answerJson?: Prisma.JsonFilter<"NdieAnswerKeyCandidate">
@@ -242,6 +250,7 @@ export type NdieAnswerKeyCandidateWhereInput = {
 export type NdieAnswerKeyCandidateOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   importJobId?: Prisma.SortOrder
+  questionCandidateId?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceDocumentId?: Prisma.SortOrderInput | Prisma.SortOrder
   questionNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   answerJson?: Prisma.SortOrder
@@ -253,6 +262,7 @@ export type NdieAnswerKeyCandidateOrderByWithRelationInput = {
 
 export type NdieAnswerKeyCandidateWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  questionCandidateId?: string
   AND?: Prisma.NdieAnswerKeyCandidateWhereInput | Prisma.NdieAnswerKeyCandidateWhereInput[]
   OR?: Prisma.NdieAnswerKeyCandidateWhereInput[]
   NOT?: Prisma.NdieAnswerKeyCandidateWhereInput | Prisma.NdieAnswerKeyCandidateWhereInput[]
@@ -264,11 +274,12 @@ export type NdieAnswerKeyCandidateWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.StringFilter<"NdieAnswerKeyCandidate"> | string
   createdAt?: Prisma.DateTimeFilter<"NdieAnswerKeyCandidate"> | Date | string
   importJob?: Prisma.XOR<Prisma.NdieImportJobScalarRelationFilter, Prisma.NdieImportJobWhereInput>
-}, "id">
+}, "id" | "questionCandidateId">
 
 export type NdieAnswerKeyCandidateOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   importJobId?: Prisma.SortOrder
+  questionCandidateId?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceDocumentId?: Prisma.SortOrderInput | Prisma.SortOrder
   questionNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   answerJson?: Prisma.SortOrder
@@ -288,6 +299,7 @@ export type NdieAnswerKeyCandidateScalarWhereWithAggregatesInput = {
   NOT?: Prisma.NdieAnswerKeyCandidateScalarWhereWithAggregatesInput | Prisma.NdieAnswerKeyCandidateScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"NdieAnswerKeyCandidate"> | string
   importJobId?: Prisma.StringWithAggregatesFilter<"NdieAnswerKeyCandidate"> | string
+  questionCandidateId?: Prisma.StringNullableWithAggregatesFilter<"NdieAnswerKeyCandidate"> | string | null
   sourceDocumentId?: Prisma.StringNullableWithAggregatesFilter<"NdieAnswerKeyCandidate"> | string | null
   questionNumber?: Prisma.StringNullableWithAggregatesFilter<"NdieAnswerKeyCandidate"> | string | null
   answerJson?: Prisma.JsonWithAggregatesFilter<"NdieAnswerKeyCandidate">
@@ -298,6 +310,7 @@ export type NdieAnswerKeyCandidateScalarWhereWithAggregatesInput = {
 
 export type NdieAnswerKeyCandidateCreateInput = {
   id?: string
+  questionCandidateId?: string | null
   sourceDocumentId?: string | null
   questionNumber?: string | null
   answerJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -310,6 +323,7 @@ export type NdieAnswerKeyCandidateCreateInput = {
 export type NdieAnswerKeyCandidateUncheckedCreateInput = {
   id?: string
   importJobId: string
+  questionCandidateId?: string | null
   sourceDocumentId?: string | null
   questionNumber?: string | null
   answerJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -320,6 +334,7 @@ export type NdieAnswerKeyCandidateUncheckedCreateInput = {
 
 export type NdieAnswerKeyCandidateUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  questionCandidateId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   answerJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -332,6 +347,7 @@ export type NdieAnswerKeyCandidateUpdateInput = {
 export type NdieAnswerKeyCandidateUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   importJobId?: Prisma.StringFieldUpdateOperationsInput | string
+  questionCandidateId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   answerJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -343,6 +359,7 @@ export type NdieAnswerKeyCandidateUncheckedUpdateInput = {
 export type NdieAnswerKeyCandidateCreateManyInput = {
   id?: string
   importJobId: string
+  questionCandidateId?: string | null
   sourceDocumentId?: string | null
   questionNumber?: string | null
   answerJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -353,6 +370,7 @@ export type NdieAnswerKeyCandidateCreateManyInput = {
 
 export type NdieAnswerKeyCandidateUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  questionCandidateId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   answerJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -364,6 +382,7 @@ export type NdieAnswerKeyCandidateUpdateManyMutationInput = {
 export type NdieAnswerKeyCandidateUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   importJobId?: Prisma.StringFieldUpdateOperationsInput | string
+  questionCandidateId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   answerJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -385,6 +404,7 @@ export type NdieAnswerKeyCandidateOrderByRelationAggregateInput = {
 export type NdieAnswerKeyCandidateCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   importJobId?: Prisma.SortOrder
+  questionCandidateId?: Prisma.SortOrder
   sourceDocumentId?: Prisma.SortOrder
   questionNumber?: Prisma.SortOrder
   answerJson?: Prisma.SortOrder
@@ -400,6 +420,7 @@ export type NdieAnswerKeyCandidateAvgOrderByAggregateInput = {
 export type NdieAnswerKeyCandidateMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   importJobId?: Prisma.SortOrder
+  questionCandidateId?: Prisma.SortOrder
   sourceDocumentId?: Prisma.SortOrder
   questionNumber?: Prisma.SortOrder
   confidence?: Prisma.SortOrder
@@ -410,6 +431,7 @@ export type NdieAnswerKeyCandidateMaxOrderByAggregateInput = {
 export type NdieAnswerKeyCandidateMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   importJobId?: Prisma.SortOrder
+  questionCandidateId?: Prisma.SortOrder
   sourceDocumentId?: Prisma.SortOrder
   questionNumber?: Prisma.SortOrder
   confidence?: Prisma.SortOrder
@@ -465,6 +487,7 @@ export type NdieAnswerKeyCandidateUncheckedUpdateManyWithoutImportJobNestedInput
 
 export type NdieAnswerKeyCandidateCreateWithoutImportJobInput = {
   id?: string
+  questionCandidateId?: string | null
   sourceDocumentId?: string | null
   questionNumber?: string | null
   answerJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -475,6 +498,7 @@ export type NdieAnswerKeyCandidateCreateWithoutImportJobInput = {
 
 export type NdieAnswerKeyCandidateUncheckedCreateWithoutImportJobInput = {
   id?: string
+  questionCandidateId?: string | null
   sourceDocumentId?: string | null
   questionNumber?: string | null
   answerJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -515,6 +539,7 @@ export type NdieAnswerKeyCandidateScalarWhereInput = {
   NOT?: Prisma.NdieAnswerKeyCandidateScalarWhereInput | Prisma.NdieAnswerKeyCandidateScalarWhereInput[]
   id?: Prisma.StringFilter<"NdieAnswerKeyCandidate"> | string
   importJobId?: Prisma.StringFilter<"NdieAnswerKeyCandidate"> | string
+  questionCandidateId?: Prisma.StringNullableFilter<"NdieAnswerKeyCandidate"> | string | null
   sourceDocumentId?: Prisma.StringNullableFilter<"NdieAnswerKeyCandidate"> | string | null
   questionNumber?: Prisma.StringNullableFilter<"NdieAnswerKeyCandidate"> | string | null
   answerJson?: Prisma.JsonFilter<"NdieAnswerKeyCandidate">
@@ -525,6 +550,7 @@ export type NdieAnswerKeyCandidateScalarWhereInput = {
 
 export type NdieAnswerKeyCandidateCreateManyImportJobInput = {
   id?: string
+  questionCandidateId?: string | null
   sourceDocumentId?: string | null
   questionNumber?: string | null
   answerJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -535,6 +561,7 @@ export type NdieAnswerKeyCandidateCreateManyImportJobInput = {
 
 export type NdieAnswerKeyCandidateUpdateWithoutImportJobInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  questionCandidateId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   answerJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -545,6 +572,7 @@ export type NdieAnswerKeyCandidateUpdateWithoutImportJobInput = {
 
 export type NdieAnswerKeyCandidateUncheckedUpdateWithoutImportJobInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  questionCandidateId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   answerJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -555,6 +583,7 @@ export type NdieAnswerKeyCandidateUncheckedUpdateWithoutImportJobInput = {
 
 export type NdieAnswerKeyCandidateUncheckedUpdateManyWithoutImportJobInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  questionCandidateId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   answerJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -568,6 +597,7 @@ export type NdieAnswerKeyCandidateUncheckedUpdateManyWithoutImportJobInput = {
 export type NdieAnswerKeyCandidateSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   importJobId?: boolean
+  questionCandidateId?: boolean
   sourceDocumentId?: boolean
   questionNumber?: boolean
   answerJson?: boolean
@@ -580,6 +610,7 @@ export type NdieAnswerKeyCandidateSelect<ExtArgs extends runtime.Types.Extension
 export type NdieAnswerKeyCandidateSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   importJobId?: boolean
+  questionCandidateId?: boolean
   sourceDocumentId?: boolean
   questionNumber?: boolean
   answerJson?: boolean
@@ -592,6 +623,7 @@ export type NdieAnswerKeyCandidateSelectCreateManyAndReturn<ExtArgs extends runt
 export type NdieAnswerKeyCandidateSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   importJobId?: boolean
+  questionCandidateId?: boolean
   sourceDocumentId?: boolean
   questionNumber?: boolean
   answerJson?: boolean
@@ -604,6 +636,7 @@ export type NdieAnswerKeyCandidateSelectUpdateManyAndReturn<ExtArgs extends runt
 export type NdieAnswerKeyCandidateSelectScalar = {
   id?: boolean
   importJobId?: boolean
+  questionCandidateId?: boolean
   sourceDocumentId?: boolean
   questionNumber?: boolean
   answerJson?: boolean
@@ -612,7 +645,7 @@ export type NdieAnswerKeyCandidateSelectScalar = {
   createdAt?: boolean
 }
 
-export type NdieAnswerKeyCandidateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "importJobId" | "sourceDocumentId" | "questionNumber" | "answerJson" | "confidence" | "status" | "createdAt", ExtArgs["result"]["ndieAnswerKeyCandidate"]>
+export type NdieAnswerKeyCandidateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "importJobId" | "questionCandidateId" | "sourceDocumentId" | "questionNumber" | "answerJson" | "confidence" | "status" | "createdAt", ExtArgs["result"]["ndieAnswerKeyCandidate"]>
 export type NdieAnswerKeyCandidateInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   importJob?: boolean | Prisma.NdieImportJobDefaultArgs<ExtArgs>
 }
@@ -631,6 +664,7 @@ export type $NdieAnswerKeyCandidatePayload<ExtArgs extends runtime.Types.Extensi
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     importJobId: string
+    questionCandidateId: string | null
     sourceDocumentId: string | null
     questionNumber: string | null
     answerJson: runtime.JsonValue
@@ -1063,6 +1097,7 @@ export interface Prisma__NdieAnswerKeyCandidateClient<T, Null = never, ExtArgs e
 export interface NdieAnswerKeyCandidateFieldRefs {
   readonly id: Prisma.FieldRef<"NdieAnswerKeyCandidate", 'String'>
   readonly importJobId: Prisma.FieldRef<"NdieAnswerKeyCandidate", 'String'>
+  readonly questionCandidateId: Prisma.FieldRef<"NdieAnswerKeyCandidate", 'String'>
   readonly sourceDocumentId: Prisma.FieldRef<"NdieAnswerKeyCandidate", 'String'>
   readonly questionNumber: Prisma.FieldRef<"NdieAnswerKeyCandidate", 'String'>
   readonly answerJson: Prisma.FieldRef<"NdieAnswerKeyCandidate", 'Json'>

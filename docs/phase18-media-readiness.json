@@ -1,0 +1,8 @@
+{
+  "phase": 18,
+  "status": "BLOCKED — ENVIRONMENT",
+  "provider": "Cloudinary",
+  "configured": false,
+  "applicationAuthorization": "Previously certified",
+  "liveProviderChecks": "Not executed"
+}

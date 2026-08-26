@@ -1,0 +1,15 @@
+{
+  "phase": 16,
+  "status": "PARTIAL",
+  "checks": [
+    {
+      "name": "academy assignments A",
+      "route": "/academy/assignments",
+      "method": "GET",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403/404 fail-closed"
+    }
+  ],
+  "limitation": "Only read contract and existing Phase 15 batch/exam assignment evidence are available in this staging fixture; remaining mutation contracts require dedicated resources."
+}

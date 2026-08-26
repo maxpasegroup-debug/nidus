@@ -27,8 +27,8 @@ describe("NDIE Production Gate 12 rich publishing engine", () => {
   });
 
   it("publishes only teacher-approved content and blocks unsafe packages", () => {
-    expect(publisher).toContain("publishableStatuses");
-    expect(publisher).toContain("[\"APPROVED\"]");
+    expect(publisher).toContain('candidate.reviewStatus === "APPROVED"');
+    expect(publisher).not.toContain("allowAutoApproved ?");
     expect(publisher).toContain("buildIntegrity");
     expect(publisher).toContain("TEACHER_REVIEW_INCOMPLETE");
     expect(publisher).toContain("CRITICAL_VALIDATION");

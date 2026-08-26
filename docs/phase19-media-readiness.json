@@ -1,0 +1,11 @@
+{
+  "phase": 19,
+  "status": "BLOCKED — ENVIRONMENT",
+  "phase19Verified": false,
+  "evidence": {
+    "provider": "Cloudinary",
+    "credentialsConfigured": false,
+    "liveProviderTests": false
+  },
+  "applicationAuthorization": "Previously certified; provider validation remains blocked."
+}

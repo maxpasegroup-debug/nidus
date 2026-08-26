@@ -1,0 +1,14 @@
+{
+  "phase": 17,
+  "status": "PASS",
+  "sourceStatus": "PARTIAL",
+  "unexplainedSecurityCriticalQueries": 0,
+  "classifications": [
+    "SAFE",
+    "GLOBAL_SAFE",
+    "DERIVED_SAFE",
+    "FAIL_CLOSED",
+    "REQUIRES_FIX"
+  ],
+  "remainingFindings": []
+}

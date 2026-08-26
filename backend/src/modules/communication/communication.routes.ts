@@ -12,7 +12,7 @@ export const pushRouter = Router();
 export const whatsappRouter = Router();
 
 const authenticated = [protect];
-const publishers = [protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.TEACHER, Role.TELECALLER, Role.MARKETING_COORDINATOR)];
+const publishers = [protect, allowRoles(Role.ADMIN, Role.DIRECTOR)];
 
 notificationsRouter.get("/", ...authenticated, communicationController.notifications);
 notificationsRouter.put("/read/:id", ...authenticated, communicationController.markNotificationRead);

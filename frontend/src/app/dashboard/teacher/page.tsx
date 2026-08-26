@@ -21,9 +21,11 @@ function taskHref(task?: { batchId?: string | null } | null) {
 export default function TeacherDashboardPage() {
   const todayQuery = useQuery({ queryKey: ["teacher", "starter-today"], queryFn: () => getAcademyToday() });
   const today = todayQuery.data;
-  const nextTask = today?.nextUpcomingTask ?? today?.todayTasks.find((task) => !task.done) ?? today?.upcomingTasks[0] ?? null;
-  const remaining = today?.todayTasks.filter((task) => !task.done).length ?? 0;
-  const pendingEvaluation = today?.todayTasks.filter((task) => !task.done && String(task.type || "").toUpperCase().includes("EXAM")).length ?? 0;
+  const todayTasks = today?.todayTasks ?? [];
+  const upcomingTasks = today?.upcomingTasks ?? [];
+  const nextTask = today?.nextUpcomingTask ?? todayTasks.find((task) => !task.done) ?? upcomingTasks[0] ?? null;
+  const remaining = todayTasks.filter((task) => !task.done).length;
+  const pendingEvaluation = todayTasks.filter((task) => !task.done && String(task.type || "").toUpperCase().includes("EXAM")).length;
 
   return (
     <WorkspaceDashboard
@@ -65,18 +67,18 @@ export default function TeacherDashboardPage() {
         { label: "Study Materials", href: "/dashboard/teacher/library?action=upload-lesson", icon: Library },
       ]}
       metrics={[
-        { label: "Classes Today", value: todayQuery.isLoading ? "..." : today?.todayTasks.length ?? 0 },
+        { label: "Classes Today", value: todayQuery.isLoading ? "..." : todayTasks.length },
         { label: "Remaining", value: todayQuery.isLoading ? "..." : remaining, tone: remaining ? "warning" : "success" },
-        { label: "Upcoming", value: todayQuery.isLoading ? "..." : today?.upcomingTasks.length ?? 0 },
+        { label: "Upcoming", value: todayQuery.isLoading ? "..." : upcomingTasks.length },
         { label: "Pending Evaluation", value: todayQuery.isLoading ? "..." : pendingEvaluation },
       ]}
-      activity={(today?.todayTasks ?? []).slice(0, 5).map((task) => ({
+      activity={todayTasks.slice(0, 5).map((task) => ({
         title: task.batchName || task.title || "Class task",
         detail: `${task.subject || "Subject"} / ${task.topic || task.detail || "Topic pending"}`,
         href: taskHref(task),
         meta: task.done ? "Done" : displayTime(task.time),
       }))}
-      upcoming={(today?.upcomingTasks ?? []).slice(0, 5).map((task) => ({
+      upcoming={upcomingTasks.slice(0, 5).map((task) => ({
         title: task.batchName || task.title || "Upcoming class",
         detail: `${task.subject || "Subject"} / ${task.topic || task.detail || "Topic pending"}`,
         href: taskHref(task),

@@ -276,8 +276,14 @@ export const aiDirectorService = {
     };
   },
 
-  async snapshot(): Promise<OperationalSnapshot> {
+  async snapshot(actor?: AiDirectorActor): Promise<OperationalSnapshot> {
     const { start, tomorrow } = todayWindow();
+    const instituteId = actor?.instituteId;
+    if (actor && actor.role !== Role.ADMIN && !instituteId) throw Object.assign(new Error("Institution scope is required"), { statusCode: 403 });
+    const userScope = instituteId ? { instituteId } : {};
+    const leadScope = instituteId ? { assignedTo: { not: null }, assignee: { instituteId } } : {};
+    const admissionScope = instituteId ? { instituteId } : {};
+    const studentScope = instituteId ? { user: { instituteId } } : {};
     const [
       students,
       staff,
@@ -292,18 +298,18 @@ export const aiDirectorService = {
       failedJobsToday,
       loginFailuresToday
     ] = await Promise.all([
-      prisma.user.count({ where: { role: Role.STUDENT, isDisabled: false } }),
-      prisma.user.count({ where: { role: { in: staffRoles }, isDisabled: false } }),
-      prisma.followUp.count({ where: { followUpDate: { gte: start, lt: tomorrow }, status: { not: "COMPLETED" } } }),
-      prisma.lead.count({ where: { status: { in: ["NEW", "CONTACTED", "COUNSELLING"] } } }),
-      prisma.admission.count({ where: { createdAt: { gte: start } } }),
-      prisma.admission.count({ where: { status: { in: ["PENDING", "REVIEW", "SUBMITTED"] } } }).catch(() => 0),
-      prisma.feeInstallment.aggregate({ where: { dueDate: { lt: tomorrow }, paidStatus: { not: "PAID" } }, _sum: { dueAmount: true }, _count: { _all: true } }),
-      prisma.payment.aggregate({ where: { createdAt: { gte: start }, paymentStatus: { in: ["SUCCESS", "PAID", "VERIFIED", "CAPTURED"] } }, _sum: { amount: true }, _count: { _all: true } }),
-      prisma.auditLog.count({ where: { module: { startsWith: "event:" }, createdAt: { gte: start } } }),
-      prisma.queueJobLog.count({ where: { jobName: { startsWith: "automation:" }, createdAt: { gte: start } } }),
-      prisma.queueJobLog.count({ where: { status: "FAILED", createdAt: { gte: start } } }),
-      prisma.auditLog.count({ where: { action: "LOGIN_FAILED", createdAt: { gte: start } } })
+      prisma.user.count({ where: { ...userScope, role: Role.STUDENT, isDisabled: false } }),
+      prisma.user.count({ where: { ...userScope, role: { in: staffRoles }, isDisabled: false } }),
+      prisma.followUp.count({ where: { followUpDate: { gte: start, lt: tomorrow }, status: { not: "COMPLETED" }, lead: leadScope } }),
+      prisma.lead.count({ where: { ...leadScope, status: { in: ["NEW", "CONTACTED", "COUNSELLING"] } } }),
+      prisma.admission.count({ where: { ...admissionScope, createdAt: { gte: start } } }),
+      prisma.admission.count({ where: { ...admissionScope, status: { in: ["PENDING", "REVIEW", "SUBMITTED"] } } }).catch(() => 0),
+      prisma.feeInstallment.aggregate({ where: { ...studentScope, dueDate: { lt: tomorrow }, paidStatus: { not: "PAID" } }, _sum: { dueAmount: true }, _count: { _all: true } }),
+      prisma.payment.aggregate({ where: { ...studentScope, createdAt: { gte: start }, paymentStatus: { in: ["SUCCESS", "PAID", "VERIFIED", "CAPTURED"] } }, _sum: { amount: true }, _count: { _all: true } }),
+      instituteId ? Promise.resolve(0) : prisma.auditLog.count({ where: { module: { startsWith: "event:" }, createdAt: { gte: start } } }),
+      instituteId ? Promise.resolve(0) : prisma.queueJobLog.count({ where: { jobName: { startsWith: "automation:" }, createdAt: { gte: start } } }),
+      instituteId ? Promise.resolve(0) : prisma.queueJobLog.count({ where: { status: "FAILED", createdAt: { gte: start } } }),
+      instituteId ? Promise.resolve(0) : prisma.auditLog.count({ where: { action: "LOGIN_FAILED", createdAt: { gte: start } } })
     ]);
 
     return {
@@ -328,7 +334,7 @@ export const aiDirectorService = {
   async summary(actor: AiDirectorActor) {
     if (!canViewOperations(actor)) throw new Error("NIDUS AI Director is not available for this role");
     const started = Date.now();
-    const snapshot = await this.snapshot();
+    const snapshot = await this.snapshot(actor);
     const result = {
       assistantName: "NIDUS AI Director",
       academyHealth: academyHealth(snapshot),
@@ -359,7 +365,7 @@ export const aiDirectorService = {
     const started = Date.now();
     const cleanQuestion = question.trim();
     if (!cleanQuestion) throw new Error("Question is required");
-    const snapshot = await this.snapshot();
+    const snapshot = await this.snapshot(actor);
     const answer = answerQuestion(cleanQuestion, snapshot);
     const sensitiveAction = detectSensitiveAction(cleanQuestion, snapshot);
     const output = {

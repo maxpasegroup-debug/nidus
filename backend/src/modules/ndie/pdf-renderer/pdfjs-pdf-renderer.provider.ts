@@ -4,7 +4,7 @@ import * as pdfjs from "pdfjs-dist/legacy/build/pdf.mjs";
 import sharp from "sharp";
 import { env } from "../../../config/env.js";
 import type { RendererProvider } from "../contracts/providers.js";
-import { ndieAssetStorageProvider, type NdieAssetStorageProvider, type NdieStoredAsset } from "../storage/storage-provider.js";
+import { ndieAssetStorageProvider, readNdieStoredUrl, type NdieAssetStorageProvider, type NdieStoredAsset } from "../storage/storage-provider.js";
 
 type PdfAssetRole = "previewImage" | "reviewImage" | "ocrImage" | "thumbnailImage";
 
@@ -19,9 +19,7 @@ function isEncryptedPdf(buffer: Buffer) {
 }
 
 async function bufferFromUrl(url: string) {
-  const response = await fetch(url);
-  if (!response.ok) throw Object.assign(new Error("Unable to load preserved PDF source from storage."), { statusCode: 502 });
-  return Buffer.from(await response.arrayBuffer());
+  return readNdieStoredUrl(url);
 }
 
 function classifyPdfError(error: unknown) {
@@ -129,7 +127,6 @@ export class PdfJsRendererProvider implements RendererProvider {
       document = await pdfjs.getDocument({
         data: new Uint8Array(sourceBuffer),
         disableFontFace: true,
-        isEvalSupported: false,
         useSystemFonts: true
       }).promise;
     } catch (error) {

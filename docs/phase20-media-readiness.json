@@ -1,0 +1,16 @@
+{
+  "phase": 20,
+  "status": "BLOCKED — ENVIRONMENT",
+  "evidence": {
+    "provider": "Cloudinary",
+    "credentials": false,
+    "liveTests": false
+  },
+  "test_count": 0,
+  "passed": 0,
+  "failed": 0,
+  "blocked": 1,
+  "limitations": [
+    "No staging media credentials. Application authorization was previously certified."
+  ]
+}

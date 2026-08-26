@@ -1,13 +1,21 @@
-import { Router } from "express";
+import { Router, type NextFunction, type Response } from "express";
 import { body } from "express-validator";
 import { Role } from "../../generated/prisma/client.js";
-import { allowRoles, protect } from "../../middlewares/session.middleware.js";
+import { allowRoles, protect, type AuthenticatedRequest } from "../../middlewares/session.middleware.js";
 import { upload } from "../media/media.middleware.js";
 import { salesBoosterController } from "./sales-booster.controller.js";
 
 export const salesBoosterRouter = Router();
 
-const salesBoosterRoles = [protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.MARKETING_COORDINATOR)];
+function requireOwnedSalesBoosterScope(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+  if (req.user?.role !== Role.ADMIN && req.user?.instituteId) {
+    res.status(403).json({ message: "Sales Booster is unavailable until campaign ownership is institution-scoped" });
+    return;
+  }
+  next();
+}
+
+const salesBoosterRoles = [protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.MARKETING_COORDINATOR), requireOwnedSalesBoosterScope];
 const approvalStatuses = ["DRAFT", "SUBMITTED", "APPROVED", "NEEDS_REVISION", "REJECTED", "RUN_READY"];
 
 salesBoosterRouter.get("/webhooks/meta", salesBoosterController.verifyMetaWebhook);

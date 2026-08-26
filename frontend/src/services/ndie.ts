@@ -67,7 +67,7 @@ export type NdieReviewWorkspace = {
     confidence?: number | null;
   }>;
   questionCandidates: NdieQuestionCandidate[];
-  answerKeyCandidates: Array<{ id: string; questionNumber?: string | null; answerJson: unknown; confidence?: number | null }>;
+  answerKeyCandidates: Array<{ id: string; questionCandidateId?: string | null; questionNumber?: string | null; answerJson: unknown; confidence?: number | null }>;
   solutionCandidates: Array<{ id: string; questionNumber?: string | null; solutionJson: unknown; confidence?: number | null }>;
   qualityScores: NdieQualityScore[];
   providerRuns: Array<{ id: string; providerId: string; stage: string; status: string; confidence?: number | null }>;
@@ -125,7 +125,7 @@ export async function validateNdieImport(importId: string) {
   return response.data;
 }
 
-export async function reviewNdieCandidate(candidateId: string, input: { decision: NdieReviewDecision; notes?: string; candidateJson?: unknown }) {
+export async function reviewNdieCandidate(candidateId: string, input: { decision: NdieReviewDecision; notes?: string; candidateJson?: unknown; answerJson?: unknown }) {
   const response = await apiClient.patch(`/ndie/questions/${candidateId}/review`, input);
   return response.data;
 }

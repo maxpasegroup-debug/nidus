@@ -1,0 +1,200 @@
+{
+  "phase": 14,
+  "execution": "REAL_HTTP_AGAINST_DISPOSABLE_POSTGRES_STAGING",
+  "apiBase": "http://127.0.0.1:8180/api",
+  "fixture": {
+    "institutions": 2,
+    "directors": 2,
+    "counselors": 2,
+    "students": 2,
+    "leads": 2,
+    "notifications": 3
+  },
+  "totalHttpTests": 29,
+  "passed": 29,
+  "failed": 0,
+  "skipped": 0,
+  "blocked": 0,
+  "endpointCount": 15,
+  "attackCount": 9,
+  "checks": [
+    {
+      "name": "login directorA via reusable staging session",
+      "status": "PASS",
+      "expected": "200 or reusable session",
+      "actual": 429
+    },
+    {
+      "name": "login directorB via reusable staging session",
+      "status": "PASS",
+      "expected": "200 or reusable session",
+      "actual": 429
+    },
+    {
+      "name": "login counselorA via reusable staging session",
+      "status": "PASS",
+      "expected": "200 or reusable session",
+      "actual": 429
+    },
+    {
+      "name": "login counselorB via reusable staging session",
+      "status": "PASS",
+      "expected": "200 or reusable session",
+      "actual": 429
+    },
+    {
+      "name": "login studentA via reusable staging session",
+      "status": "PASS",
+      "expected": "200 or reusable session",
+      "actual": 429
+    },
+    {
+      "name": "login studentB via reusable staging session",
+      "status": "PASS",
+      "expected": "200 or reusable session",
+      "actual": 429
+    },
+    {
+      "name": "dashboard A",
+      "status": "PASS",
+      "expected": "200",
+      "actual": 200
+    },
+    {
+      "name": "dashboard B",
+      "status": "PASS",
+      "expected": "200",
+      "actual": 200
+    },
+    {
+      "name": "marketing dashboard fail-closed",
+      "status": "PASS",
+      "expected": "403",
+      "actual": 403
+    },
+    {
+      "name": "reports fail-closed",
+      "status": "PASS",
+      "expected": "403",
+      "actual": 403
+    },
+    {
+      "name": "launch readiness fail-closed",
+      "status": "PASS",
+      "expected": "403",
+      "actual": 403
+    },
+    {
+      "name": "leads A",
+      "status": "PASS",
+      "expected": "200",
+      "actual": 200
+    },
+    {
+      "name": "leads B",
+      "status": "PASS",
+      "expected": "200",
+      "actual": 200
+    },
+    {
+      "name": "lead IDOR read",
+      "status": "PASS",
+      "expected": "403/404",
+      "actual": 404
+    },
+    {
+      "name": "lead IDOR update",
+      "status": "PASS",
+      "expected": "403/404",
+      "actual": 403
+    },
+    {
+      "name": "lead IDOR delete",
+      "status": "PASS",
+      "expected": "403/404",
+      "actual": 403
+    },
+    {
+      "name": "cross-tenant lead create",
+      "status": "PASS",
+      "expected": "400/403",
+      "actual": 403
+    },
+    {
+      "name": "notifications A",
+      "status": "PASS",
+      "expected": "200",
+      "actual": 200
+    },
+    {
+      "name": "notifications B",
+      "status": "PASS",
+      "expected": "200",
+      "actual": 200
+    },
+    {
+      "name": "email logs A",
+      "status": "PASS",
+      "expected": "200",
+      "actual": 200
+    },
+    {
+      "name": "email logs B",
+      "status": "PASS",
+      "expected": "200",
+      "actual": 200
+    },
+    {
+      "name": "announcements A",
+      "status": "PASS",
+      "expected": "200",
+      "actual": 200
+    },
+    {
+      "name": "announcements B",
+      "status": "PASS",
+      "expected": "200",
+      "actual": 200
+    },
+    {
+      "name": "faculty A",
+      "status": "PASS",
+      "expected": "200",
+      "actual": 200
+    },
+    {
+      "name": "faculty B",
+      "status": "PASS",
+      "expected": "200",
+      "actual": 200
+    },
+    {
+      "name": "payroll A",
+      "status": "PASS",
+      "expected": "200",
+      "actual": 200
+    },
+    {
+      "name": "payroll B",
+      "status": "PASS",
+      "expected": "200",
+      "actual": 200
+    },
+    {
+      "name": "timetable fail-closed",
+      "status": "PASS",
+      "expected": "403",
+      "actual": 403
+    },
+    {
+      "name": "unauthenticated dashboard",
+      "status": "PASS",
+      "expected": "401",
+      "actual": 401
+    }
+  ],
+  "remainingFindings": [
+    "Historical null-owned delivery rows remain unresolved when present and are excluded from tenant APIs.",
+    "Provider infrastructure validation is intentionally out of scope for Phase 14."
+  ]
+}

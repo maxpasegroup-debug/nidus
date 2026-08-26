@@ -1,0 +1,49 @@
+{
+  "phase": "13",
+  "policy": "Every remaining apparently unscoped query is classified; unresolved legacy ownership is fail-closed rather than guessed.",
+  "findings": [
+    {
+      "file": "backend/src/modules/dashboard/dashboard.service.ts",
+      "area": "director dashboard",
+      "status": "SAFE_INHERITED_OR_FAIL_CLOSED",
+      "evidence": "Director scope is required; user, attendance, admission, payment, fee, faculty, batch and attempt paths use institution relations. Security-readiness aggregate endpoint is fail-closed for Directors."
+    },
+    {
+      "file": "backend/src/modules/admissions-os/admissions-os.service.ts",
+      "area": "admissions dashboard and lead journey",
+      "status": "SAFE_INHERITED_WITH_LEGACY_EXCLUSION",
+      "evidence": "Tenant actors are scoped through assigned user or Admission.instituteId; unassigned legacy leads are excluded."
+    },
+    {
+      "file": "backend/src/modules/communication/communication.service.ts",
+      "area": "notifications and email logs",
+      "status": "SAFE_FOR_SCOPED_RECORDS",
+      "evidence": "Target-role notifications require matching instituteId; institutionless users receive only direct notifications; email log access requires scope."
+    },
+    {
+      "file": "backend/src/modules/communication-os/communication-os.service.ts",
+      "area": "communication summaries",
+      "status": "SAFE_PARTIAL",
+      "evidence": "Delivery records are tenant-scoped; global queue and WhatsApp audit totals are withheld from tenant actors."
+    },
+    {
+      "file": "backend/src/modules/reports-os/reports-os.service.ts",
+      "area": "reports",
+      "status": "FAIL_CLOSED",
+      "evidence": "Report sources include legacy unowned/raw aggregate records; tenant actors receive 403 until source ownership is proven."
+    },
+    {
+      "file": "backend/src/modules/erp/erp.routes.ts",
+      "area": "timetable",
+      "status": "FAIL_CLOSED",
+      "evidence": "Timetable has no authoritative institution relation and remains unavailable with 403."
+    },
+    {
+      "file": "backend/src/modules/dashboard/dashboard.service.ts",
+      "area": "legacy marketing/global dashboard",
+      "status": "REQUIRES_REVIEW",
+      "evidence": "Legacy routes still expose global lead/admission aggregates and require a dedicated actor scope review."
+    }
+  ],
+  "securityCriticalUnknown": 2
+}

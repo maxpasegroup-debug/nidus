@@ -48,6 +48,7 @@ const examValidators = [
   body("questionSelection").optional().isIn(["MANUAL", "RANDOM", "HYBRID"]),
   body("questionIds").optional().isArray(),
   body("publishNow").optional().isBoolean(),
+  body("approvalAttestation").optional().equals("TEACHER_REVIEW_CONFIRMED"),
   body("publishAt").optional({ nullable: true }).isISO8601()
 ];
 
@@ -56,6 +57,11 @@ examinationRouter.use(protect, allowRoles(...manageRoles));
 examinationRouter.get("/question-bank", examinationController.questionBank);
 examinationRouter.post("/question-bank", questionValidators(), examinationController.createQuestion);
 examinationRouter.put("/question-bank/:id", questionValidators(true), examinationController.updateQuestion);
+examinationRouter.post(
+  "/question-bank/:id/approve",
+  [body("attestation").equals("TEACHER_REVIEW_CONFIRMED")],
+  examinationController.approveQuestion
+);
 examinationRouter.delete("/question-bank/:id", examinationController.deleteQuestion);
 examinationRouter.post("/question-bank/import", examinationController.importQuestions);
 

@@ -8,6 +8,7 @@ type ReportsActor = {
   name?: string | null;
   email?: string | null;
   role: Role;
+  instituteId?: string | null;
   roleMetadata?: Record<string, unknown> | null;
 };
 
@@ -143,6 +144,9 @@ export const reportsOsService = {
 
   async generate(actor: ReportsActor, period: ReportPeriod = "DAILY") {
     requireReports(actor);
+    if (actor.role !== Role.ADMIN || actor.instituteId) {
+      throw Object.assign(new Error("Reports are temporarily unavailable until all report sources have authoritative institution ownership"), { statusCode: 403 });
+    }
     const window = periodWindow(period);
     const [
       students,

@@ -258,6 +258,8 @@ export function buildAiReconstructionPrompt(input: NdieAiReconstructionInput) {
   const instructions = [
     "You are reconstructing an examination paper for NIDUS Academy.",
     "Use only the supplied NDIE structured outputs. Never invent questions, options, answers, formulas, diagrams, tables or graphs.",
+    "Do not invent questions or academic content that is absent from the source evidence.",
+    "Never silently discard uncertain content; preserve its source reference and mark it NEEDS_REVIEW.",
     "Preserve original numbering, section order, formulas, diagrams, tables, graphs, page references and answer mapping.",
     "If any item is uncertain, include it and mark reviewStatus as NEEDS_REVIEW.",
     "Never silently discard a question, option, formula, diagram, graph or table.",

@@ -1,0 +1,45 @@
+{
+  "phase": 19,
+  "staging": {
+    "configured": [
+      {
+        "name": "DATABASE_URL",
+        "status": "CONFIGURED"
+      },
+      {
+        "name": "JWT_SECRET",
+        "status": "CONFIGURED"
+      },
+      {
+        "name": "CORS_ORIGIN",
+        "status": "MISSING"
+      },
+      {
+        "name": "FRONTEND_APP_URL",
+        "status": "MISSING"
+      },
+      {
+        "name": "BACKEND_PUBLIC_URL",
+        "status": "MISSING"
+      }
+    ],
+    "environmentBlocked": [
+      "REDIS_URL",
+      "CLOUDINARY_CLOUD_NAME",
+      "CLOUDINARY_API_KEY",
+      "CLOUDINARY_API_SECRET",
+      "RESEND_API_KEY",
+      "FIREBASE_PROJECT_ID",
+      "FIREBASE_CLIENT_EMAIL",
+      "FIREBASE_PRIVATE_KEY",
+      "BACKUP_BUCKET",
+      "SENTRY_DSN"
+    ],
+    "secrets": "Values intentionally omitted."
+  },
+  "production": {
+    "status": "NOT TOUCHED",
+    "credentialsRead": false,
+    "deploymentAttempted": false
+  }
+}

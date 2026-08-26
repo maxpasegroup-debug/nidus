@@ -23,10 +23,13 @@ function sha256(buffer: Buffer) {
 function sniffMime(buffer: Buffer) {
   if (buffer.subarray(0, 4).toString("utf8") === "%PDF") return "application/pdf";
   if (buffer[0] === 0x50 && buffer[1] === 0x4b) return "application/zip";
+  if (buffer.subarray(0, 8).equals(Buffer.from([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1]))) return "application/msword";
   if (buffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return "image/png";
   if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) return "image/jpeg";
   if (["GIF87a", "GIF89a"].includes(buffer.subarray(0, 6).toString("ascii"))) return "image/gif";
   if (buffer.subarray(0, 4).toString("ascii") === "RIFF" && buffer.subarray(8, 12).toString("ascii") === "WEBP") return "image/webp";
+  if (buffer.subarray(0, 4).equals(Buffer.from([0x49, 0x49, 0x2a, 0x00])) || buffer.subarray(0, 4).equals(Buffer.from([0x4d, 0x4d, 0x00, 0x2a]))) return "image/tiff";
+  if (buffer.subarray(4, 8).toString("ascii") === "ftyp" && /heic|heix|hevc|heif|mif1/.test(buffer.subarray(8, 16).toString("ascii"))) return "image/heic";
   return buffer.subarray(0, Math.min(buffer.length, 512)).includes(0) ? "application/octet-stream" : "text/plain";
 }
 
@@ -52,6 +55,13 @@ function malwareHook(buffer: Buffer) {
   };
 }
 
+function mimeMatches(declared: string, detected: string) {
+  if (declared === detected) return true;
+  if (detected === "application/zip" && declared === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") return true;
+  if (detected === "text/plain" && ["text/plain", "text/csv"].includes(declared)) return true;
+  return false;
+}
+
 export const ndieComplianceService = {
   inspectUpload(file: Express.Multer.File): NdieUploadSecurityResult {
     const checksum = sha256(file.buffer);
@@ -59,6 +69,7 @@ export const ndieComplianceService = {
     const pdf = file.mimetype === "application/pdf" || mimeSniffed === "application/pdf" ? pdfSecurity(file.buffer) : { encrypted: false, passwordProtected: false };
     const malwareScan = malwareHook(file.buffer);
     const quarantineReasons = [
+      !mimeMatches(file.mimetype, mimeSniffed) ? "MIME_SIGNATURE_MISMATCH" : "",
       pdf.passwordProtected ? "PASSWORD_PROTECTED_DOCUMENT" : "",
       pdf.encrypted ? "ENCRYPTED_DOCUMENT" : "",
       malwareScan.status === "SUSPICIOUS" ? "MALWARE_HOOK_SUSPICIOUS" : ""

@@ -850,13 +850,13 @@ async function upsertBatchExam(batchId: string, batchName: string, teacherId: st
         topic,
         teacherId,
         publishAt,
-        "PUBLISHED",
-        new Date(),
-        new Date(),
-        teacherId,
+        "DRAFT",
+        null,
+        null,
+        null,
         durationMinutes,
         totalMarks,
-        true,
+        false,
         true,
         testId
       ]
@@ -880,13 +880,13 @@ async function upsertBatchExam(batchId: string, batchName: string, teacherId: st
         batchId,
         teacherId,
         publishAt,
-        "PUBLISHED",
-        new Date(),
-        new Date(),
-        teacherId,
+        "DRAFT",
+        null,
+        null,
+        null,
         durationMinutes,
         totalMarks,
-        true,
+        false,
         true,
         new Date()
       ]
@@ -897,8 +897,8 @@ async function upsertBatchExam(batchId: string, batchName: string, teacherId: st
     await client.query(
       `INSERT INTO "Question"
        ("id", "testId", "questionText", "optionA", "optionB", "optionC", "optionD", "correctAnswer",
-        "explanation", "marks", "negativeMarks", "difficultyLevel", "topic")
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`,
+        "explanation", "marks", "negativeMarks", "difficultyLevel", "topic", "reviewStatus")
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)`,
       [
         randomUUID(),
         testId,
@@ -912,7 +912,8 @@ async function upsertBatchExam(batchId: string, batchName: string, teacherId: st
         question.marks,
         question.negativeMarks,
         question.difficultyLevel,
-        question.topic
+        question.topic,
+        "DRAFT"
       ]
     );
   }
@@ -948,9 +949,9 @@ async function upsertBatchExam(batchId: string, batchName: string, teacherId: st
     difficulty: "MIXED",
     instructions: "Official Mathematics mock test. Duration: 10:00 AM to 12:30 PM. Total marks: 300.",
     draft,
-    status: "PUBLISHED",
-    approvedBy: teacherId,
-    approvedAt: new Date(),
+    status: "DRAFT",
+    approvedBy: null,
+    approvedAt: null,
     analytics: {
       commonExamGroup: "NDA_MATHS_MOCK_2026_07_06",
       reviewRequiredQuestions: Array.from(reviewRequired.keys())

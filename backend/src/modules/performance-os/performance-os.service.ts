@@ -142,6 +142,13 @@ export const performanceOsService = {
   async dashboard(actor: PerformanceActor, period: "MONTH" | "YEAR" = "MONTH") {
     requirePerformance(actor);
     const window = periodWindow(period);
+    if (actor.role !== Role.ADMIN && !actor.instituteId) {
+      throw Object.assign(new Error("Institution scope is required for Performance OS"), { statusCode: 403 });
+    }
+    const scopedUserIds = actor.instituteId
+      ? (await prisma.user.findMany({ where: { instituteId: actor.instituteId }, select: { id: true } })).map((item) => item.id)
+      : null;
+    const staffIds = scopedUserIds ?? undefined;
     const [
       users,
       faculty,
@@ -157,21 +164,21 @@ export const performanceOsService = {
       payroll
     ] = await Promise.all([
       prisma.user.findMany({
-        where: { role: { in: staffRoles }, isDisabled: false },
+        where: { id: staffIds ? { in: staffIds } : undefined, role: { in: staffRoles }, isDisabled: false },
         select: { id: true, name: true, email: true, role: true, roleMetadata: true, lastLoginAt: true, lastRoleActivityAt: true },
         orderBy: { name: "asc" }
       }),
-      prisma.faculty.findMany({ include: { user: { select: { id: true, name: true, email: true, role: true } } } }),
-      prisma.teacherBatchAssignment.findMany({ where: { status: "ACTIVE" } }),
-      prisma.teacherCalendarLogRecord.findMany({ where: { createdAt: { gte: window.start, lte: window.end } } }),
-      prisma.teacherAttendanceRecord.findMany({ where: { createdAt: { gte: window.start, lte: window.end } } }),
-      prisma.teacherAssignmentRecord.findMany({ where: { status: { not: "ARCHIVED" }, createdAt: { gte: window.start, lte: window.end } } }),
-      prisma.teacherExamRecord.findMany({ where: { status: { not: "ARCHIVED" }, createdAt: { gte: window.start, lte: window.end } } }),
-      prisma.teacherStudyMaterialRecord.findMany({ where: { status: { not: "ARCHIVED" }, createdAt: { gte: window.start, lte: window.end } } }),
-      prisma.teacherSyllabusProgressRecord.findMany({ where: { updatedAt: { gte: window.start, lte: window.end } } }),
-      prisma.academicActivityAuditRecord.findMany({ where: { createdAt: { gte: window.start, lte: window.end } } }),
-      prisma.roleActivity.findMany({ where: { createdAt: { gte: window.start, lte: window.end }, role: { in: staffRoles } } }),
-      prisma.payroll.findMany({ include: { faculty: true } })
+      prisma.faculty.findMany({ where: { user: { id: staffIds ? { in: staffIds } : undefined } }, include: { user: { select: { id: true, name: true, email: true, role: true } } } }),
+      prisma.teacherBatchAssignment.findMany({ where: { status: "ACTIVE", teacherId: staffIds ? { in: staffIds } : undefined } }),
+      prisma.teacherCalendarLogRecord.findMany({ where: { teacherId: staffIds ? { in: staffIds } : undefined, createdAt: { gte: window.start, lte: window.end } } }),
+      prisma.teacherAttendanceRecord.findMany({ where: { teacherId: staffIds ? { in: staffIds } : undefined, createdAt: { gte: window.start, lte: window.end } } }),
+      prisma.teacherAssignmentRecord.findMany({ where: { teacherId: staffIds ? { in: staffIds } : undefined, status: { not: "ARCHIVED" }, createdAt: { gte: window.start, lte: window.end } } }),
+      prisma.teacherExamRecord.findMany({ where: { teacherId: staffIds ? { in: staffIds } : undefined, status: { not: "ARCHIVED" }, createdAt: { gte: window.start, lte: window.end } } }),
+      prisma.teacherStudyMaterialRecord.findMany({ where: { teacherId: staffIds ? { in: staffIds } : undefined, status: { not: "ARCHIVED" }, createdAt: { gte: window.start, lte: window.end } } }),
+      prisma.teacherSyllabusProgressRecord.findMany({ where: { teacherId: staffIds ? { in: staffIds } : undefined, updatedAt: { gte: window.start, lte: window.end } } }),
+      prisma.academicActivityAuditRecord.findMany({ where: { actorId: staffIds ? { in: staffIds } : undefined, createdAt: { gte: window.start, lte: window.end } } }),
+      prisma.roleActivity.findMany({ where: { userId: staffIds ? { in: staffIds } : undefined, createdAt: { gte: window.start, lte: window.end }, role: { in: staffRoles } } }),
+      prisma.payroll.findMany({ where: { faculty: { user: { id: staffIds ? { in: staffIds } : undefined } } }, include: { faculty: true } })
     ]);
 
     const facultyByUser = new Map(faculty.map((item) => [item.userId, item]));

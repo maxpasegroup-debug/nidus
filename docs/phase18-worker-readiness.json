@@ -1,0 +1,5 @@
+{
+  "phase": 18,
+  "status": "BLOCKED — ENVIRONMENT",
+  "reason": "Redis is unavailable; BullMQ enqueue/consume/retry/recovery cannot be executed."
+}

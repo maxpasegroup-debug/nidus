@@ -130,7 +130,10 @@ export class TesseractOcrProvider implements OcrProvider {
     const source = input.imageBuffer ?? input.imageUrl;
     if (!source) throw Object.assign(new Error("OCR requires a rendered page image."), { statusCode: 422, retryable: false });
 
-    const worker = await createWorker(language);
+    const worker = await createWorker(language, undefined, {
+      ...(env.NDIE_TESSERACT_LANG_PATH ? { langPath: env.NDIE_TESSERACT_LANG_PATH } : {}),
+      gzip: env.NDIE_TESSERACT_LANG_GZIP
+    });
     try {
       const response = await worker.recognize(source);
       const data = response.data as typeof response.data & {

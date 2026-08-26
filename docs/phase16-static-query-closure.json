@@ -1,0 +1,15 @@
+{
+  "phase": 16,
+  "status": "PARTIAL",
+  "classifications": [
+    "SAFE",
+    "GLOBAL_SAFE",
+    "DERIVED_SAFE",
+    "FAIL_CLOSED",
+    "UNKNOWN_REQUIRES_DIRECT_REVIEW"
+  ],
+  "priorStatus": "PARTIAL",
+  "unknownSecurityCritical": 121,
+  "unsafeSecurityCritical": 0,
+  "evidence": "Payment service closure was reviewed and compiled; route-complete query-by-query classification remains incomplete for unexercised sensitive services."
+}

@@ -1,0 +1,25 @@
+{
+  "phase": 16,
+  "status": "PASS",
+  "evidence": "Sales Booster CSV export is explicitly fail-closed for tenant-scoped actors because campaign ownership is not authoritative. Reports-os PDF is also fail-closed for tenant actors.",
+  "routesTested": 1,
+  "checks": [
+    {
+      "name": "sales booster export A",
+      "route": "/sales-booster/conversion-report/export.csv",
+      "method": "GET",
+      "status": "PASS",
+      "actual": 403,
+      "expected": "403/404 fail-closed"
+    },
+    {
+      "name": "reports fail-closed",
+      "route": "/reports-os/current",
+      "method": "GET",
+      "status": "PASS",
+      "actual": 403,
+      "expected": "403 fail-closed"
+    }
+  ],
+  "providerValidation": "BLOCKED — ENVIRONMENT"
+}

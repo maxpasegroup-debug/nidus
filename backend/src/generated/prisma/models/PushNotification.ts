@@ -30,6 +30,7 @@ export type PushNotificationMinAggregateOutputType = {
   body: string | null
   targetAudience: string | null
   status: string | null
+  instituteId: string | null
   createdAt: Date | null
 }
 
@@ -39,6 +40,7 @@ export type PushNotificationMaxAggregateOutputType = {
   body: string | null
   targetAudience: string | null
   status: string | null
+  instituteId: string | null
   createdAt: Date | null
 }
 
@@ -48,6 +50,7 @@ export type PushNotificationCountAggregateOutputType = {
   body: number
   targetAudience: number
   status: number
+  instituteId: number
   createdAt: number
   _all: number
 }
@@ -59,6 +62,7 @@ export type PushNotificationMinAggregateInputType = {
   body?: true
   targetAudience?: true
   status?: true
+  instituteId?: true
   createdAt?: true
 }
 
@@ -68,6 +72,7 @@ export type PushNotificationMaxAggregateInputType = {
   body?: true
   targetAudience?: true
   status?: true
+  instituteId?: true
   createdAt?: true
 }
 
@@ -77,6 +82,7 @@ export type PushNotificationCountAggregateInputType = {
   body?: true
   targetAudience?: true
   status?: true
+  instituteId?: true
   createdAt?: true
   _all?: true
 }
@@ -159,6 +165,7 @@ export type PushNotificationGroupByOutputType = {
   body: string
   targetAudience: string
   status: string
+  instituteId: string | null
   createdAt: Date
   _count: PushNotificationCountAggregateOutputType | null
   _min: PushNotificationMinAggregateOutputType | null
@@ -189,7 +196,9 @@ export type PushNotificationWhereInput = {
   body?: Prisma.StringFilter<"PushNotification"> | string
   targetAudience?: Prisma.StringFilter<"PushNotification"> | string
   status?: Prisma.StringFilter<"PushNotification"> | string
+  instituteId?: Prisma.StringNullableFilter<"PushNotification"> | string | null
   createdAt?: Prisma.DateTimeFilter<"PushNotification"> | Date | string
+  institute?: Prisma.XOR<Prisma.InstituteNullableScalarRelationFilter, Prisma.InstituteWhereInput> | null
 }
 
 export type PushNotificationOrderByWithRelationInput = {
@@ -198,7 +207,9 @@ export type PushNotificationOrderByWithRelationInput = {
   body?: Prisma.SortOrder
   targetAudience?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  instituteId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  institute?: Prisma.InstituteOrderByWithRelationInput
 }
 
 export type PushNotificationWhereUniqueInput = Prisma.AtLeast<{
@@ -210,7 +221,9 @@ export type PushNotificationWhereUniqueInput = Prisma.AtLeast<{
   body?: Prisma.StringFilter<"PushNotification"> | string
   targetAudience?: Prisma.StringFilter<"PushNotification"> | string
   status?: Prisma.StringFilter<"PushNotification"> | string
+  instituteId?: Prisma.StringNullableFilter<"PushNotification"> | string | null
   createdAt?: Prisma.DateTimeFilter<"PushNotification"> | Date | string
+  institute?: Prisma.XOR<Prisma.InstituteNullableScalarRelationFilter, Prisma.InstituteWhereInput> | null
 }, "id">
 
 export type PushNotificationOrderByWithAggregationInput = {
@@ -219,6 +232,7 @@ export type PushNotificationOrderByWithAggregationInput = {
   body?: Prisma.SortOrder
   targetAudience?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  instituteId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.PushNotificationCountOrderByAggregateInput
   _max?: Prisma.PushNotificationMaxOrderByAggregateInput
@@ -234,6 +248,7 @@ export type PushNotificationScalarWhereWithAggregatesInput = {
   body?: Prisma.StringWithAggregatesFilter<"PushNotification"> | string
   targetAudience?: Prisma.StringWithAggregatesFilter<"PushNotification"> | string
   status?: Prisma.StringWithAggregatesFilter<"PushNotification"> | string
+  instituteId?: Prisma.StringNullableWithAggregatesFilter<"PushNotification"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PushNotification"> | Date | string
 }
 
@@ -244,6 +259,7 @@ export type PushNotificationCreateInput = {
   targetAudience: string
   status: string
   createdAt?: Date | string
+  institute?: Prisma.InstituteCreateNestedOneWithoutPushNotificationsInput
 }
 
 export type PushNotificationUncheckedCreateInput = {
@@ -252,6 +268,7 @@ export type PushNotificationUncheckedCreateInput = {
   body: string
   targetAudience: string
   status: string
+  instituteId?: string | null
   createdAt?: Date | string
 }
 
@@ -262,6 +279,7 @@ export type PushNotificationUpdateInput = {
   targetAudience?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  institute?: Prisma.InstituteUpdateOneWithoutPushNotificationsNestedInput
 }
 
 export type PushNotificationUncheckedUpdateInput = {
@@ -270,6 +288,7 @@ export type PushNotificationUncheckedUpdateInput = {
   body?: Prisma.StringFieldUpdateOperationsInput | string
   targetAudience?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -279,6 +298,7 @@ export type PushNotificationCreateManyInput = {
   body: string
   targetAudience: string
   status: string
+  instituteId?: string | null
   createdAt?: Date | string
 }
 
@@ -297,6 +317,7 @@ export type PushNotificationUncheckedUpdateManyInput = {
   body?: Prisma.StringFieldUpdateOperationsInput | string
   targetAudience?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -306,6 +327,7 @@ export type PushNotificationCountOrderByAggregateInput = {
   body?: Prisma.SortOrder
   targetAudience?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  instituteId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -315,6 +337,7 @@ export type PushNotificationMaxOrderByAggregateInput = {
   body?: Prisma.SortOrder
   targetAudience?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  instituteId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -324,7 +347,153 @@ export type PushNotificationMinOrderByAggregateInput = {
   body?: Prisma.SortOrder
   targetAudience?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  instituteId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+}
+
+export type PushNotificationListRelationFilter = {
+  every?: Prisma.PushNotificationWhereInput
+  some?: Prisma.PushNotificationWhereInput
+  none?: Prisma.PushNotificationWhereInput
+}
+
+export type PushNotificationOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
+export type PushNotificationCreateNestedManyWithoutInstituteInput = {
+  create?: Prisma.XOR<Prisma.PushNotificationCreateWithoutInstituteInput, Prisma.PushNotificationUncheckedCreateWithoutInstituteInput> | Prisma.PushNotificationCreateWithoutInstituteInput[] | Prisma.PushNotificationUncheckedCreateWithoutInstituteInput[]
+  connectOrCreate?: Prisma.PushNotificationCreateOrConnectWithoutInstituteInput | Prisma.PushNotificationCreateOrConnectWithoutInstituteInput[]
+  createMany?: Prisma.PushNotificationCreateManyInstituteInputEnvelope
+  connect?: Prisma.PushNotificationWhereUniqueInput | Prisma.PushNotificationWhereUniqueInput[]
+}
+
+export type PushNotificationUncheckedCreateNestedManyWithoutInstituteInput = {
+  create?: Prisma.XOR<Prisma.PushNotificationCreateWithoutInstituteInput, Prisma.PushNotificationUncheckedCreateWithoutInstituteInput> | Prisma.PushNotificationCreateWithoutInstituteInput[] | Prisma.PushNotificationUncheckedCreateWithoutInstituteInput[]
+  connectOrCreate?: Prisma.PushNotificationCreateOrConnectWithoutInstituteInput | Prisma.PushNotificationCreateOrConnectWithoutInstituteInput[]
+  createMany?: Prisma.PushNotificationCreateManyInstituteInputEnvelope
+  connect?: Prisma.PushNotificationWhereUniqueInput | Prisma.PushNotificationWhereUniqueInput[]
+}
+
+export type PushNotificationUpdateManyWithoutInstituteNestedInput = {
+  create?: Prisma.XOR<Prisma.PushNotificationCreateWithoutInstituteInput, Prisma.PushNotificationUncheckedCreateWithoutInstituteInput> | Prisma.PushNotificationCreateWithoutInstituteInput[] | Prisma.PushNotificationUncheckedCreateWithoutInstituteInput[]
+  connectOrCreate?: Prisma.PushNotificationCreateOrConnectWithoutInstituteInput | Prisma.PushNotificationCreateOrConnectWithoutInstituteInput[]
+  upsert?: Prisma.PushNotificationUpsertWithWhereUniqueWithoutInstituteInput | Prisma.PushNotificationUpsertWithWhereUniqueWithoutInstituteInput[]
+  createMany?: Prisma.PushNotificationCreateManyInstituteInputEnvelope
+  set?: Prisma.PushNotificationWhereUniqueInput | Prisma.PushNotificationWhereUniqueInput[]
+  disconnect?: Prisma.PushNotificationWhereUniqueInput | Prisma.PushNotificationWhereUniqueInput[]
+  delete?: Prisma.PushNotificationWhereUniqueInput | Prisma.PushNotificationWhereUniqueInput[]
+  connect?: Prisma.PushNotificationWhereUniqueInput | Prisma.PushNotificationWhereUniqueInput[]
+  update?: Prisma.PushNotificationUpdateWithWhereUniqueWithoutInstituteInput | Prisma.PushNotificationUpdateWithWhereUniqueWithoutInstituteInput[]
+  updateMany?: Prisma.PushNotificationUpdateManyWithWhereWithoutInstituteInput | Prisma.PushNotificationUpdateManyWithWhereWithoutInstituteInput[]
+  deleteMany?: Prisma.PushNotificationScalarWhereInput | Prisma.PushNotificationScalarWhereInput[]
+}
+
+export type PushNotificationUncheckedUpdateManyWithoutInstituteNestedInput = {
+  create?: Prisma.XOR<Prisma.PushNotificationCreateWithoutInstituteInput, Prisma.PushNotificationUncheckedCreateWithoutInstituteInput> | Prisma.PushNotificationCreateWithoutInstituteInput[] | Prisma.PushNotificationUncheckedCreateWithoutInstituteInput[]
+  connectOrCreate?: Prisma.PushNotificationCreateOrConnectWithoutInstituteInput | Prisma.PushNotificationCreateOrConnectWithoutInstituteInput[]
+  upsert?: Prisma.PushNotificationUpsertWithWhereUniqueWithoutInstituteInput | Prisma.PushNotificationUpsertWithWhereUniqueWithoutInstituteInput[]
+  createMany?: Prisma.PushNotificationCreateManyInstituteInputEnvelope
+  set?: Prisma.PushNotificationWhereUniqueInput | Prisma.PushNotificationWhereUniqueInput[]
+  disconnect?: Prisma.PushNotificationWhereUniqueInput | Prisma.PushNotificationWhereUniqueInput[]
+  delete?: Prisma.PushNotificationWhereUniqueInput | Prisma.PushNotificationWhereUniqueInput[]
+  connect?: Prisma.PushNotificationWhereUniqueInput | Prisma.PushNotificationWhereUniqueInput[]
+  update?: Prisma.PushNotificationUpdateWithWhereUniqueWithoutInstituteInput | Prisma.PushNotificationUpdateWithWhereUniqueWithoutInstituteInput[]
+  updateMany?: Prisma.PushNotificationUpdateManyWithWhereWithoutInstituteInput | Prisma.PushNotificationUpdateManyWithWhereWithoutInstituteInput[]
+  deleteMany?: Prisma.PushNotificationScalarWhereInput | Prisma.PushNotificationScalarWhereInput[]
+}
+
+export type PushNotificationCreateWithoutInstituteInput = {
+  id?: string
+  title: string
+  body: string
+  targetAudience: string
+  status: string
+  createdAt?: Date | string
+}
+
+export type PushNotificationUncheckedCreateWithoutInstituteInput = {
+  id?: string
+  title: string
+  body: string
+  targetAudience: string
+  status: string
+  createdAt?: Date | string
+}
+
+export type PushNotificationCreateOrConnectWithoutInstituteInput = {
+  where: Prisma.PushNotificationWhereUniqueInput
+  create: Prisma.XOR<Prisma.PushNotificationCreateWithoutInstituteInput, Prisma.PushNotificationUncheckedCreateWithoutInstituteInput>
+}
+
+export type PushNotificationCreateManyInstituteInputEnvelope = {
+  data: Prisma.PushNotificationCreateManyInstituteInput | Prisma.PushNotificationCreateManyInstituteInput[]
+  skipDuplicates?: boolean
+}
+
+export type PushNotificationUpsertWithWhereUniqueWithoutInstituteInput = {
+  where: Prisma.PushNotificationWhereUniqueInput
+  update: Prisma.XOR<Prisma.PushNotificationUpdateWithoutInstituteInput, Prisma.PushNotificationUncheckedUpdateWithoutInstituteInput>
+  create: Prisma.XOR<Prisma.PushNotificationCreateWithoutInstituteInput, Prisma.PushNotificationUncheckedCreateWithoutInstituteInput>
+}
+
+export type PushNotificationUpdateWithWhereUniqueWithoutInstituteInput = {
+  where: Prisma.PushNotificationWhereUniqueInput
+  data: Prisma.XOR<Prisma.PushNotificationUpdateWithoutInstituteInput, Prisma.PushNotificationUncheckedUpdateWithoutInstituteInput>
+}
+
+export type PushNotificationUpdateManyWithWhereWithoutInstituteInput = {
+  where: Prisma.PushNotificationScalarWhereInput
+  data: Prisma.XOR<Prisma.PushNotificationUpdateManyMutationInput, Prisma.PushNotificationUncheckedUpdateManyWithoutInstituteInput>
+}
+
+export type PushNotificationScalarWhereInput = {
+  AND?: Prisma.PushNotificationScalarWhereInput | Prisma.PushNotificationScalarWhereInput[]
+  OR?: Prisma.PushNotificationScalarWhereInput[]
+  NOT?: Prisma.PushNotificationScalarWhereInput | Prisma.PushNotificationScalarWhereInput[]
+  id?: Prisma.StringFilter<"PushNotification"> | string
+  title?: Prisma.StringFilter<"PushNotification"> | string
+  body?: Prisma.StringFilter<"PushNotification"> | string
+  targetAudience?: Prisma.StringFilter<"PushNotification"> | string
+  status?: Prisma.StringFilter<"PushNotification"> | string
+  instituteId?: Prisma.StringNullableFilter<"PushNotification"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"PushNotification"> | Date | string
+}
+
+export type PushNotificationCreateManyInstituteInput = {
+  id?: string
+  title: string
+  body: string
+  targetAudience: string
+  status: string
+  createdAt?: Date | string
+}
+
+export type PushNotificationUpdateWithoutInstituteInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  body?: Prisma.StringFieldUpdateOperationsInput | string
+  targetAudience?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type PushNotificationUncheckedUpdateWithoutInstituteInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  body?: Prisma.StringFieldUpdateOperationsInput | string
+  targetAudience?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type PushNotificationUncheckedUpdateManyWithoutInstituteInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  body?: Prisma.StringFieldUpdateOperationsInput | string
+  targetAudience?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -335,7 +504,9 @@ export type PushNotificationSelect<ExtArgs extends runtime.Types.Extensions.Inte
   body?: boolean
   targetAudience?: boolean
   status?: boolean
+  instituteId?: boolean
   createdAt?: boolean
+  institute?: boolean | Prisma.PushNotification$instituteArgs<ExtArgs>
 }, ExtArgs["result"]["pushNotification"]>
 
 export type PushNotificationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -344,7 +515,9 @@ export type PushNotificationSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   body?: boolean
   targetAudience?: boolean
   status?: boolean
+  instituteId?: boolean
   createdAt?: boolean
+  institute?: boolean | Prisma.PushNotification$instituteArgs<ExtArgs>
 }, ExtArgs["result"]["pushNotification"]>
 
 export type PushNotificationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -353,7 +526,9 @@ export type PushNotificationSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   body?: boolean
   targetAudience?: boolean
   status?: boolean
+  instituteId?: boolean
   createdAt?: boolean
+  institute?: boolean | Prisma.PushNotification$instituteArgs<ExtArgs>
 }, ExtArgs["result"]["pushNotification"]>
 
 export type PushNotificationSelectScalar = {
@@ -362,20 +537,33 @@ export type PushNotificationSelectScalar = {
   body?: boolean
   targetAudience?: boolean
   status?: boolean
+  instituteId?: boolean
   createdAt?: boolean
 }
 
-export type PushNotificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "body" | "targetAudience" | "status" | "createdAt", ExtArgs["result"]["pushNotification"]>
+export type PushNotificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "body" | "targetAudience" | "status" | "instituteId" | "createdAt", ExtArgs["result"]["pushNotification"]>
+export type PushNotificationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  institute?: boolean | Prisma.PushNotification$instituteArgs<ExtArgs>
+}
+export type PushNotificationIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  institute?: boolean | Prisma.PushNotification$instituteArgs<ExtArgs>
+}
+export type PushNotificationIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  institute?: boolean | Prisma.PushNotification$instituteArgs<ExtArgs>
+}
 
 export type $PushNotificationPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "PushNotification"
-  objects: {}
+  objects: {
+    institute: Prisma.$InstitutePayload<ExtArgs> | null
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     title: string
     body: string
     targetAudience: string
     status: string
+    instituteId: string | null
     createdAt: Date
   }, ExtArgs["result"]["pushNotification"]>
   composites: {}
@@ -771,6 +959,7 @@ readonly fields: PushNotificationFieldRefs;
  */
 export interface Prisma__PushNotificationClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  institute<T extends Prisma.PushNotification$instituteArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PushNotification$instituteArgs<ExtArgs>>): Prisma.Prisma__InstituteClient<runtime.Types.Result.GetResult<Prisma.$InstitutePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -805,6 +994,7 @@ export interface PushNotificationFieldRefs {
   readonly body: Prisma.FieldRef<"PushNotification", 'String'>
   readonly targetAudience: Prisma.FieldRef<"PushNotification", 'String'>
   readonly status: Prisma.FieldRef<"PushNotification", 'String'>
+  readonly instituteId: Prisma.FieldRef<"PushNotification", 'String'>
   readonly createdAt: Prisma.FieldRef<"PushNotification", 'DateTime'>
 }
     
@@ -822,6 +1012,10 @@ export type PushNotificationFindUniqueArgs<ExtArgs extends runtime.Types.Extensi
    * Omit specific fields from the PushNotification
    */
   omit?: Prisma.PushNotificationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PushNotificationInclude<ExtArgs> | null
   /**
    * Filter, which PushNotification to fetch.
    */
@@ -841,6 +1035,10 @@ export type PushNotificationFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.
    */
   omit?: Prisma.PushNotificationOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PushNotificationInclude<ExtArgs> | null
+  /**
    * Filter, which PushNotification to fetch.
    */
   where: Prisma.PushNotificationWhereUniqueInput
@@ -858,6 +1056,10 @@ export type PushNotificationFindFirstArgs<ExtArgs extends runtime.Types.Extensio
    * Omit specific fields from the PushNotification
    */
   omit?: Prisma.PushNotificationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PushNotificationInclude<ExtArgs> | null
   /**
    * Filter, which PushNotification to fetch.
    */
@@ -907,6 +1109,10 @@ export type PushNotificationFindFirstOrThrowArgs<ExtArgs extends runtime.Types.E
    */
   omit?: Prisma.PushNotificationOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PushNotificationInclude<ExtArgs> | null
+  /**
    * Filter, which PushNotification to fetch.
    */
   where?: Prisma.PushNotificationWhereInput
@@ -954,6 +1160,10 @@ export type PushNotificationFindManyArgs<ExtArgs extends runtime.Types.Extension
    * Omit specific fields from the PushNotification
    */
   omit?: Prisma.PushNotificationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PushNotificationInclude<ExtArgs> | null
   /**
    * Filter, which PushNotifications to fetch.
    */
@@ -1003,6 +1213,10 @@ export type PushNotificationCreateArgs<ExtArgs extends runtime.Types.Extensions.
    */
   omit?: Prisma.PushNotificationOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PushNotificationInclude<ExtArgs> | null
+  /**
    * The data needed to create a PushNotification.
    */
   data: Prisma.XOR<Prisma.PushNotificationCreateInput, Prisma.PushNotificationUncheckedCreateInput>
@@ -1036,6 +1250,10 @@ export type PushNotificationCreateManyAndReturnArgs<ExtArgs extends runtime.Type
    */
   data: Prisma.PushNotificationCreateManyInput | Prisma.PushNotificationCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PushNotificationIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1050,6 +1268,10 @@ export type PushNotificationUpdateArgs<ExtArgs extends runtime.Types.Extensions.
    * Omit specific fields from the PushNotification
    */
   omit?: Prisma.PushNotificationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PushNotificationInclude<ExtArgs> | null
   /**
    * The data needed to update a PushNotification.
    */
@@ -1102,6 +1324,10 @@ export type PushNotificationUpdateManyAndReturnArgs<ExtArgs extends runtime.Type
    * Limit how many PushNotifications to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PushNotificationIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1116,6 +1342,10 @@ export type PushNotificationUpsertArgs<ExtArgs extends runtime.Types.Extensions.
    * Omit specific fields from the PushNotification
    */
   omit?: Prisma.PushNotificationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PushNotificationInclude<ExtArgs> | null
   /**
    * The filter to search for the PushNotification to update in case it exists.
    */
@@ -1143,6 +1373,10 @@ export type PushNotificationDeleteArgs<ExtArgs extends runtime.Types.Extensions.
    */
   omit?: Prisma.PushNotificationOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PushNotificationInclude<ExtArgs> | null
+  /**
    * Filter which PushNotification to delete.
    */
   where: Prisma.PushNotificationWhereUniqueInput
@@ -1163,6 +1397,25 @@ export type PushNotificationDeleteManyArgs<ExtArgs extends runtime.Types.Extensi
 }
 
 /**
+ * PushNotification.institute
+ */
+export type PushNotification$instituteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Institute
+   */
+  select?: Prisma.InstituteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Institute
+   */
+  omit?: Prisma.InstituteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InstituteInclude<ExtArgs> | null
+  where?: Prisma.InstituteWhereInput
+}
+
+/**
  * PushNotification without action
  */
 export type PushNotificationDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1174,4 +1427,8 @@ export type PushNotificationDefaultArgs<ExtArgs extends runtime.Types.Extensions
    * Omit specific fields from the PushNotification
    */
   omit?: Prisma.PushNotificationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PushNotificationInclude<ExtArgs> | null
 }

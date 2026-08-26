@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle, Check, FileText, Filter, Maximize2, RefreshCw, RotateCw, Save, Search, SkipForward, X, ZoomIn } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ArrowRight, Check, FileText, Filter, Maximize2, Pencil, RefreshCw, RotateCw, Save, Search, SkipForward, X, ZoomIn } from "lucide-react";
 import Image from "next/image";
 import { getApiErrorMessage } from "@/services/api";
 import {
@@ -104,6 +104,40 @@ function optionList(candidate?: NdieQuestionCandidate | null) {
   return Array.isArray(source.options) ? source.options.map((option) => asRecord(option)) : [];
 }
 
+type QuestionEdit = { text: string; optionA: string; optionB: string; optionC: string; optionD: string; answer: string; marks: number };
+
+function answerValue(value: unknown) {
+  const answer = asRecord(value);
+  return String(answer.correctOption ?? answer.correctAnswer ?? answer.answer ?? "").toUpperCase();
+}
+
+function editCandidate(candidate: NdieQuestionCandidate, edit: QuestionEdit) {
+  const next = JSON.parse(JSON.stringify(candidate.candidateJson)) as NdieQuestionCandidate["candidateJson"];
+  const currentAssessment = asRecord(next.assessment ?? next);
+  const options = [edit.optionA, edit.optionB, edit.optionC, edit.optionD];
+  const currentOptions = Array.isArray(currentAssessment.options) ? currentAssessment.options.map(asRecord) : [];
+  currentAssessment.text = edit.text.trim();
+  currentAssessment.marks = edit.marks;
+  currentAssessment.options = ["A", "B", "C", "D"].map((key, index) => ({ ...currentOptions[index], key, text: options[index].trim() }));
+  next.assessment = currentAssessment;
+  next.metadata = { ...asRecord(next.metadata), marks: edit.marks, teacherCorrected: true };
+  if (Array.isArray(next.blocks)) {
+    let paragraphUpdated = false;
+    next.blocks = next.blocks.map((block) => {
+      if (!paragraphUpdated && block.type === "ParagraphBlock") {
+        paragraphUpdated = true;
+        return { ...block, text: edit.text.trim() };
+      }
+      if (block.type === "OptionBlock") {
+        const index = ["A", "B", "C", "D"].indexOf(String(block.key ?? "").toUpperCase());
+        if (index >= 0) return { ...block, blocks: [{ id: `${candidate.id}-option-${index + 1}`, type: "ParagraphBlock", text: options[index].trim() }] };
+      }
+      return block;
+    });
+  }
+  return next;
+}
+
 function stringify(value: unknown) {
   if (value === null || value === undefined) return "";
   if (typeof value === "string") return value;
@@ -124,6 +158,8 @@ export function TeacherReviewWorkspace({ importId }: { importId: string }) {
   const [rotation, setRotation] = useState(0);
   const [publishTitle, setPublishTitle] = useState("");
   const [duration, setDuration] = useState(60);
+  const [editing, setEditing] = useState(false);
+  const [questionEdit, setQuestionEdit] = useState<QuestionEdit>({ text: "", optionA: "", optionB: "", optionC: "", optionD: "", answer: "", marks: 1 });
 
   const query = useQuery({
     queryKey: ["ndie", "review", importId],
@@ -153,6 +189,23 @@ export function TeacherReviewWorkspace({ importId }: { importId: string }) {
   const completion = asRecord(dashboard?.completion);
   const publishReadiness = asRecord(dashboard?.publishReadiness);
 
+  useEffect(() => {
+    if (!selected) return;
+    const options = optionList(selected);
+    const mappedAnswer = workspace?.answerKeyCandidates.find((answer) => answer.questionCandidateId === selected.id)
+      ?? workspace?.answerKeyCandidates.find((answer) => answer.questionNumber === selected.questionNumber);
+    setQuestionEdit({
+      text: questionText(selected),
+      optionA: String(options.find((option) => String(option.key).toUpperCase() === "A")?.text ?? ""),
+      optionB: String(options.find((option) => String(option.key).toUpperCase() === "B")?.text ?? ""),
+      optionC: String(options.find((option) => String(option.key).toUpperCase() === "C")?.text ?? ""),
+      optionD: String(options.find((option) => String(option.key).toUpperCase() === "D")?.text ?? ""),
+      answer: answerValue(mappedAnswer?.answerJson),
+      marks: Math.max(0, Number(assessment(selected).marks ?? asRecord(selected.candidateJson.metadata).marks ?? 1))
+    });
+    setEditing(false);
+  }, [selected, workspace?.answerKeyCandidates]);
+
   const validateMutation = useMutation({
     mutationFn: () => validateNdieImport(importId),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["ndie", "review", importId] })
@@ -167,6 +220,23 @@ export function TeacherReviewWorkspace({ importId }: { importId: string }) {
       setNotes("");
       queryClient.invalidateQueries({ queryKey: ["ndie", "review", importId] });
       jumpToNextIssue();
+    }
+  });
+
+  const correctionMutation = useMutation({
+    mutationFn: () => {
+      if (!selected) throw new Error("Select a question candidate first");
+      return reviewNdieCandidate(selected.id, {
+        decision: "NEEDS_EDIT",
+        notes: notes.trim() || "Teacher correction saved; approval reset.",
+        candidateJson: editCandidate(selected, questionEdit),
+        answerJson: { correctOption: questionEdit.answer }
+      });
+    },
+    onSuccess: () => {
+      setEditing(false);
+      setNotes("");
+      queryClient.invalidateQueries({ queryKey: ["ndie", "review", importId] });
     }
   });
 
@@ -212,7 +282,7 @@ export function TeacherReviewWorkspace({ importId }: { importId: string }) {
   });
   const autosaveReviewSession = autosaveMutation.mutate;
 
-  const errorMessage = [query.error, validateMutation.error, reviewMutation.error, replayMutation.error, publishMutation.error, qualityMutation.error, bulkMutation.error, autosaveMutation.error].find(Boolean) as unknown;
+  const errorMessage = [query.error, validateMutation.error, reviewMutation.error, correctionMutation.error, replayMutation.error, publishMutation.error, qualityMutation.error, bulkMutation.error, autosaveMutation.error].find(Boolean) as unknown;
 
   const jumpTo = useCallback((offset: number) => {
     if (!filteredCandidates.length) return;
@@ -284,18 +354,21 @@ export function TeacherReviewWorkspace({ importId }: { importId: string }) {
               <HeaderButton icon={<RefreshCw size={16} />} label="Replay" onClick={() => replayMutation.mutate()} disabled={replayMutation.isPending} />
               <HeaderButton icon={<RefreshCw size={16} />} label="Validate" onClick={() => validateMutation.mutate()} disabled={validateMutation.isPending} />
               <HeaderButton icon={<Save size={16} />} label="Quality" onClick={() => qualityMutation.mutate()} disabled={qualityMutation.isPending} />
-              <HeaderButton icon={<Check size={16} />} label="Bulk Approve" onClick={() => bulkMutation.mutate("APPROVED")} disabled={!filteredCandidates.length || bulkMutation.isPending} />
+              <HeaderButton icon={<AlertTriangle size={16} />} label="Mark Shown for Review" onClick={() => bulkMutation.mutate("NEEDS_EDIT")} disabled={!filteredCandidates.length || bulkMutation.isPending} />
             </div>
           </div>
         </header>
 
-        <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-6">
+        <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
           <Metric label="Confidence" value={percent(dashboard?.overallConfidence ?? latestQuality?.aiConfidence)} tone={confidenceTone(dashboard?.overallConfidence ?? latestQuality?.aiConfidence)} />
           <Metric label="Risk" value={String(dashboard?.riskLevel ?? "LOW")} tone={riskTone(String(dashboard?.riskLevel ?? "LOW"))} />
           <Metric label="Readiness" value={String(publishReadiness.status ?? "PENDING")} tone={riskTone(String(publishReadiness.status ?? "PENDING"))} />
           <Metric label="Completion" value={numericPercent(completion.completionPercent)} />
           <Metric label="Questions" value={candidates.length} />
           <Metric label="Issues" value={Number(insights?.counts.missingAnswers ?? 0) + Number(insights?.counts.duplicateNumbering ?? 0) + Number(insights?.counts.missingDiagrams ?? 0)} tone="border-amber-200 bg-amber-50 text-amber-900" />
+          <Metric label="Approved" value={approvedCount} tone="border-emerald-200 bg-emerald-50 text-emerald-900" />
+          <Metric label="Rejected" value={Number(completion.rejectedQuestions ?? 0)} tone="border-rose-200 bg-rose-50 text-rose-900" />
+          <Metric label="Remaining" value={Number(completion.remainingIssues ?? candidates.length)} tone="border-amber-200 bg-amber-50 text-amber-900" />
         </section>
 
         <section className="grid gap-3 lg:grid-cols-[280px_1fr]">
@@ -369,7 +442,7 @@ export function TeacherReviewWorkspace({ importId }: { importId: string }) {
                   {selected ? <div className={`mt-3 rounded-lg border p-3 text-sm font-black ${confidenceTone(selected.confidence)}`}>Confidence {percent(selected.confidence)} / {selected.reviewStatus}</div> : null}
                 </div>
                 <div className="pt-3">
-                  {activeTab === "question" ? <QuestionReview candidate={selected} issues={selectedIssues} /> : null}
+                  {activeTab === "question" ? <QuestionReview candidate={selected} issues={selectedIssues} editing={editing} edit={questionEdit} onEdit={setQuestionEdit} /> : null}
                   {activeTab === "formula" ? <FormulaReview formulas={insights?.formulas ?? []} pageNumber={sourcePage?.pageNumber ?? 1} /> : null}
                   {activeTab === "visual" ? <VisualReview visuals={insights?.visuals ?? []} pageNumber={sourcePage?.pageNumber ?? 1} /> : null}
                   {activeTab === "answer" ? <AnswerReview workspace={workspace} selected={selected} /> : null}
@@ -379,10 +452,13 @@ export function TeacherReviewWorkspace({ importId }: { importId: string }) {
                 <div className="mt-4 grid gap-2">
                   <textarea value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="Review notes, correction reason, or formula/visual instruction" className="min-h-24 rounded-lg border border-slate-200 p-3 text-sm font-bold outline-none focus:border-[var(--gold)]" />
                   <div className="grid gap-2 md:grid-cols-4">
-                    <ActionButton icon={<Check size={16} />} label="Approve" onClick={() => reviewMutation.mutate("APPROVED")} />
+                    <ActionButton icon={<ArrowLeft size={16} />} label="Previous" onClick={() => jumpTo(-1)} />
+                    <ActionButton icon={editing ? <Save size={16} /> : <Pencil size={16} />} label={editing ? "Save Correction" : "Edit Question"} onClick={() => editing ? correctionMutation.mutate() : setEditing(true)} disabled={correctionMutation.isPending} />
+                    <ActionButton icon={<Check size={16} />} label="Approve & Next" onClick={() => reviewMutation.mutate("APPROVED")} disabled={editing || reviewMutation.isPending} />
                     <ActionButton icon={<AlertTriangle size={16} />} label="Needs Edit" onClick={() => reviewMutation.mutate("NEEDS_EDIT")} />
                     <ActionButton icon={<SkipForward size={16} />} label="Skip" onClick={() => reviewMutation.mutate("SKIPPED")} />
                     <ActionButton icon={<X size={16} />} label="Reject" onClick={() => reviewMutation.mutate("REJECTED")} />
+                    <ActionButton icon={<ArrowRight size={16} />} label="Next" onClick={() => jumpTo(1)} />
                   </div>
                   <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-slate-50 p-3 text-xs font-bold text-slate-600">
                     <span>Shortcuts: ↑/↓ navigate, N next issue, A approve, E edit, R reject, / search</span>
@@ -412,9 +488,25 @@ export function TeacherReviewWorkspace({ importId }: { importId: string }) {
   );
 }
 
-function QuestionReview({ candidate, issues }: { candidate: NdieQuestionCandidate | null; issues: string[] }) {
+function QuestionReview({ candidate, issues, editing, edit, onEdit }: { candidate: NdieQuestionCandidate | null; issues: string[]; editing: boolean; edit: QuestionEdit; onEdit: (value: QuestionEdit) => void }) {
   if (!candidate) return <EmptyReview message="No question selected." compact />;
   const options = optionList(candidate);
+  if (editing) return (
+    <div className="grid gap-3">
+      <label className="grid gap-1 text-xs font-black uppercase text-slate-600">Question<textarea value={edit.text} onChange={(event) => onEdit({ ...edit, text: event.target.value })} className="min-h-28 rounded-lg border border-slate-300 p-3 text-sm font-semibold normal-case text-slate-900" /></label>
+      <div className="grid gap-2 md:grid-cols-2">
+        {(["A", "B", "C", "D"] as const).map((key) => {
+          const field = `option${key}` as "optionA" | "optionB" | "optionC" | "optionD";
+          return <label key={key} className="grid gap-1 text-xs font-black uppercase text-slate-600">Option {key}<input value={edit[field]} onChange={(event) => onEdit({ ...edit, [field]: event.target.value })} className="min-h-11 rounded-lg border border-slate-300 px-3 text-sm font-semibold normal-case text-slate-900" /></label>;
+        })}
+      </div>
+      <div className="grid gap-2 sm:grid-cols-2">
+        <label className="grid gap-1 text-xs font-black uppercase text-slate-600">Correct Answer<select value={edit.answer} onChange={(event) => onEdit({ ...edit, answer: event.target.value })} className="min-h-11 rounded-lg border border-slate-300 px-3 text-sm font-semibold text-slate-900"><option value="">Select</option>{["A", "B", "C", "D"].map((key) => <option key={key} value={key}>{key}</option>)}</select></label>
+        <label className="grid gap-1 text-xs font-black uppercase text-slate-600">Marks<input type="number" min="0.01" step="0.25" value={edit.marks} onChange={(event) => onEdit({ ...edit, marks: Number(event.target.value) })} className="min-h-11 rounded-lg border border-slate-300 px-3 text-sm font-semibold text-slate-900" /></label>
+      </div>
+      <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs font-bold text-amber-900">Saving a correction revokes any earlier approval. Review the updated question once more, then select Approve & Next.</div>
+    </div>
+  );
   return (
     <div className="grid gap-3">
       <pre className="whitespace-pre-wrap rounded-lg border border-slate-200 bg-white p-4 text-sm font-semibold leading-6 text-slate-900">{questionText(candidate) || "No candidate text detected."}</pre>
@@ -488,6 +580,6 @@ function HeaderButton({ icon, label, onClick, disabled = false }: { icon: ReactN
   return <button onClick={onClick} disabled={disabled} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-xs font-black hover:bg-slate-50 disabled:opacity-60">{icon}{label}</button>;
 }
 
-function ActionButton({ icon, label, onClick }: { icon: ReactNode; label: string; onClick: () => void }) {
-  return <button onClick={onClick} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm font-black hover:bg-slate-50">{icon}{label}</button>;
+function ActionButton({ icon, label, onClick, disabled = false }: { icon: ReactNode; label: string; onClick: () => void; disabled?: boolean }) {
+  return <button onClick={onClick} disabled={disabled} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm font-black hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50">{icon}{label}</button>;
 }

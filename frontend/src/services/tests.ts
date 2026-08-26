@@ -49,6 +49,7 @@ export type TestPayload = {
     difficultyLevel: string;
     topic: string;
   }>;
+  approvalAttestation?: "TEACHER_REVIEW_CONFIRMED";
 };
 
 export type TestDraftRequest = {
@@ -95,7 +96,22 @@ export async function generateTestDraft(payload: TestDraftRequest) {
 }
 
 export async function publishGeneratedTest(payload: TestPayload) {
-  const response = await apiClient.post<{ test: Test }>("/tests/publish-draft", payload);
+  const draft = await createTest({ ...payload, status: "DRAFT", isLive: false });
+  const questionIds = draft.questions?.map((question) => question.id) ?? [];
+  if (!questionIds.length) throw new Error("The generated draft has no questions to review.");
+  const approval = await apiClient.post<{ test: Test }>(`/tests/${draft.id}/approve`, {
+    attestation: "TEACHER_REVIEW_CONFIRMED",
+    questionIds
+  });
+  const publication = await apiClient.post<{ test: Test }>(`/tests/${approval.data.test.id}/publish`, {
+    publishAt: payload.publishAt,
+    batchId: payload.batchId
+  });
+  return publication.data.test;
+}
+
+export async function updateTest(id: string, payload: Partial<TestPayload>) {
+  const response = await apiClient.put<{ test: Test }>(`/tests/${id}`, payload);
   return response.data.test;
 }
 

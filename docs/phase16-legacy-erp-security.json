@@ -1,0 +1,37 @@
+{
+  "phase": 16,
+  "status": "PARTIAL",
+  "checks": [
+    {
+      "name": "admin branches A",
+      "route": "/admin/branches",
+      "method": "GET",
+      "status": "PASS",
+      "actual": 403,
+      "expected": "200 scoped or 403/404 fail-closed"
+    },
+    {
+      "name": "academy assignments A",
+      "route": "/academy/assignments",
+      "method": "GET",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403/404 fail-closed"
+    },
+    {
+      "name": "timetable fail-closed",
+      "route": "/timetable",
+      "method": "GET",
+      "status": "PASS",
+      "actual": 403,
+      "expected": "403 fail-closed"
+    }
+  ],
+  "failClosed": [
+    "timetable",
+    "marketing",
+    "reports-os",
+    "launch-readiness"
+  ],
+  "limitation": "Unexercised legacy mutations remain open for direct proof or explicit fail-closed handling."
+}

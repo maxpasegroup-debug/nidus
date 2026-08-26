@@ -5,9 +5,11 @@ import { Prisma, Role } from "../../generated/prisma/client.js";
 import { prisma } from "../../config/prisma.js";
 import { deleteCloudinaryAsset, signedMediaUrl, uploadBufferToCloudinary } from "../../config/cloudinary.js";
 import { enqueuePDF } from "../../queues/pdf.queue.js";
-import { testsService, validatePublishedQuestions, type TestPayload } from "../tests/tests.service.js";
+import { testsService, type TestPayload } from "../tests/tests.service.js";
+import { validatePublishedQuestions } from "../tests/exam-publishing-gate.js";
 import { callOpenAIJson } from "../ai-engine/openai.service.js";
 import { ndieAiReconstructionService, type NdieAiReconstructionInput } from "../ndie/ai-reconstruction/ai-reconstruction.service.js";
+import { ndieComplianceService } from "../ndie/security/compliance.service.js";
 import { DEFAULT_ACCOUNT_PIN } from "../auth/auth.v2.service.js";
 
 const db = prisma as any;
@@ -18,6 +20,8 @@ type Requester = {
   role: Role;
   email?: string | null;
   roleMetadata?: Record<string, unknown> | null;
+  instituteId?: string | null;
+  branchId?: string | null;
 };
 
 type BatchInput = {
@@ -565,6 +569,8 @@ function clearDefaultPinFlags(metadata: Record<string, unknown>) {
   const next = { ...metadata };
   delete next.defaultPassword;
   delete next.defaultPin;
+  delete next.accessPin;
+  delete next.access_pin;
   return next;
 }
 
@@ -965,7 +971,7 @@ function questionSignalsForValidation(question: ExamImportValidationQuestion, in
   return {
     number: question.number ?? index + 1,
     confidence,
-    status: issues.length ? "MANUAL_CORRECTION_REQUIRED" : confidence < 75 || visualRisk || mathRisk ? "NEEDS_REVIEW" : "AUTO_APPROVED",
+    status: issues.length ? "MANUAL_CORRECTION_REQUIRED" : "NEEDS_REVIEW",
     issues,
     warnings,
     riskTags: [
@@ -989,7 +995,7 @@ function fallbackImportValidation(input: ExamImportValidationInput) {
     engine: "NIDUS_IMPORT_VALIDATOR_V1",
     provider: "HEURISTIC_FALLBACK",
     averageConfidence,
-    publishReady: questionReports.length > 0 && manualCorrection === 0 && needsReview === 0,
+    publishReady: false,
     summary: {
       totalQuestions: questionReports.length,
       autoApproved,
@@ -1993,7 +1999,6 @@ async function findStudentUserForAdmission(input: StudentInput) {
           authMobile: mobile,
           defaultPassword: true,
           defaultPin: true,
-          accessPin: defaultPin,
           oldAdmissionImport: true,
           authSyncedAt: new Date().toISOString(),
           credentialGeneratedAt: new Date().toISOString(),
@@ -2186,7 +2191,6 @@ export const academyService = {
       updateData.password = await bcrypt.hash(nextPin, 12);
       updateData.roleMetadata = toJsonObject({
         ...(isDefaultPin ? { ...baseMetadata, defaultPassword: true, defaultPin: true } : clearDefaultPinFlags(baseMetadata)),
-        accessPin: nextPin,
         pinUpdatedBy: user.id,
         pinUpdatedAt: new Date().toISOString(),
       });
@@ -3492,7 +3496,6 @@ export const academyService = {
       authMobile: normalizeMobile(input.phone),
       defaultPassword: true,
       defaultPin: true,
-      accessPin: temporaryPassword,
       createdBy: user.id,
       authSyncedAt: new Date().toISOString(),
       authSyncedBy: user.id,
@@ -3581,8 +3584,8 @@ export const academyService = {
       }
       const isDefaultPin = nextPin === DEFAULT_ACCOUNT_PIN;
       const pinMetadata = isDefaultPin
-        ? { ...roleMetadata, defaultPassword: true, defaultPin: true, accessPin: nextPin }
-        : { ...clearDefaultPinFlags(roleMetadata), accessPin: nextPin };
+        ? { ...clearDefaultPinFlags(roleMetadata), defaultPassword: true, defaultPin: true }
+        : clearDefaultPinFlags(roleMetadata);
       updateData.password = await bcrypt.hash(nextPin, 12);
       updateData.isDisabled = false;
       updateData.disabledAt = null;
@@ -3655,8 +3658,8 @@ export const academyService = {
     const existingMetadata = (employee.roleMetadata ?? {}) as Record<string, unknown>;
     const isDefaultPin = passwordValue === DEFAULT_ACCOUNT_PIN;
     const pinMetadata = isDefaultPin
-      ? { ...existingMetadata, defaultPassword: true, defaultPin: true, accessPin: passwordValue }
-      : { ...clearDefaultPinFlags(existingMetadata), accessPin: passwordValue };
+      ? { ...clearDefaultPinFlags(existingMetadata), defaultPassword: true, defaultPin: true }
+      : clearDefaultPinFlags(existingMetadata);
     const updated = await prisma.user.update({
       where: { id: employeeId },
       data: {
@@ -4814,6 +4817,13 @@ export const academyService = {
     if (!["QUESTION_PAPER", "ANSWER_KEY", "EXPLANATION", "SUPPORTING_ASSET"].includes(sourceKind)) {
       throw Object.assign(new Error("Invalid exam upload source kind"), { statusCode: 400 });
     }
+    const uploadSecurity = ndieComplianceService.inspectUpload(file);
+    if (uploadSecurity.quarantineReasons.length) {
+      const message = uploadSecurity.passwordProtected
+        ? "This document is password protected. Remove the password and upload it again."
+        : "This document did not pass secure file validation. The original was not processed.";
+      throw Object.assign(new Error(message), { statusCode: 422, code: "EXAM_UPLOAD_QUARANTINED" });
+    }
     const extractionAudit = input.extractionAudit && typeof input.extractionAudit === "object"
       ? input.extractionAudit as Record<string, unknown>
       : null;
@@ -4826,13 +4836,13 @@ export const academyService = {
       INSERT INTO "ExamImportJob"
       ("id", "batchId", "subject", "topic", "sourceKind", "originalName", "fileType", "fileSize", "cloudinaryUrl", "publicId", "documentClass", "pipeline", "status", "classification", "confidence", "reviewStatus", "manualReviewRequired", "uploadedBy", "createdAt", "updatedAt")
       VALUES
-      (${importJobId}, ${input.batchId || null}, ${input.subject || null}, ${input.topic || null}, ${sourceKind}, ${file.originalname}, ${file.mimetype}, ${file.size}, ${result.secureUrl}, ${result.publicId}, ${classification.documentClass}, ${classification.pipeline}, 'CLASSIFIED', ${JSON.stringify(classification.classification)}::jsonb, ${classification.confidence}, ${classification.manualReviewRequired ? "PENDING_REVIEW" : "AUTO_CLASSIFIED"}, ${classification.manualReviewRequired}, ${user.id}, ${now}, ${now})
+      (${importJobId}, ${input.batchId || null}, ${input.subject || null}, ${input.topic || null}, ${sourceKind}, ${file.originalname}, ${uploadSecurity.mimeSniffed}, ${file.size}, ${result.secureUrl}, ${result.publicId}, ${classification.documentClass}, ${classification.pipeline}, 'CLASSIFIED', ${JSON.stringify({ ...classification.classification, uploadSecurity })}::jsonb, ${classification.confidence}, 'PENDING_REVIEW', true, ${user.id}, ${now}, ${now})
     `;
     await prisma.$executeRaw`
       INSERT INTO "ExamUpload"
       ("id", "importJobId", "batchId", "subject", "topic", "sourceKind", "fileName", "originalName", "fileType", "fileSize", "cloudinaryUrl", "publicId", "documentClass", "pipeline", "classification", "extractionStatus", "extractionAudit", "manualReviewRequired", "manualReviewCompleted", "uploadedBy", "createdAt", "updatedAt")
       VALUES
-      (${id}, ${importJobId}, ${input.batchId || null}, ${input.subject || null}, ${input.topic || null}, ${sourceKind}, ${file.originalname.replace(/\s+/g, "-")}, ${file.originalname}, ${file.mimetype}, ${file.size}, ${result.secureUrl}, ${result.publicId}, ${classification.documentClass}, ${classification.pipeline}, ${JSON.stringify(classification.classification)}::jsonb, ${input.extractionStatus || "UPLOADED"}, ${extractionAudit ? JSON.stringify({ ...extractionAudit, importClassification: classification.classification }) : JSON.stringify({ importClassification: classification.classification })}::jsonb, ${classification.manualReviewRequired}, ${Boolean(input.manualReviewCompleted)}, ${user.id}, ${now}, ${now})
+      (${id}, ${importJobId}, ${input.batchId || null}, ${input.subject || null}, ${input.topic || null}, ${sourceKind}, ${file.originalname.replace(/\s+/g, "-")}, ${file.originalname}, ${uploadSecurity.mimeSniffed}, ${file.size}, ${result.secureUrl}, ${result.publicId}, ${classification.documentClass}, ${classification.pipeline}, ${JSON.stringify({ ...classification.classification, uploadSecurity })}::jsonb, ${input.extractionStatus || "UPLOADED"}, ${extractionAudit ? JSON.stringify({ ...extractionAudit, importClassification: classification.classification, uploadSecurity }) : JSON.stringify({ importClassification: classification.classification, uploadSecurity })}::jsonb, true, false, ${user.id}, ${now}, ${now})
     `;
     const rows = await prisma.$queryRaw<any[]>`
       SELECT * FROM "ExamUpload" WHERE "id" = ${id} LIMIT 1
@@ -4934,7 +4944,7 @@ export const academyService = {
           "You are NIDUS Academy Exam Import Validator.",
           "Validate extracted defence exam MCQ questions before teacher publish.",
           "Return strict JSON with engine, provider, averageConfidence, publishReady, summary, questionReports, recommendations, createdAt.",
-          "Every questionReports item must include number, confidence 0-100, status AUTO_APPROVED/NEEDS_REVIEW/MANUAL_CORRECTION_REQUIRED, issues, warnings, riskTags.",
+          "Every questionReports item must include number, confidence 0-100, status NEEDS_REVIEW or MANUAL_CORRECTION_REQUIRED, issues, warnings, riskTags. Automated validation must never approve academic content.",
           "Be strict with mathematics, physics diagrams, tables, answer-key mismatch and weak options.",
         ].join("\n"),
         JSON.stringify({
@@ -4962,7 +4972,7 @@ export const academyService = {
         ? "MANUAL_CORRECTION_REQUIRED"
         : aiResult.summary.needsReview > 0
           ? "PENDING_REVIEW"
-          : "AUTO_APPROVED";
+          : "PENDING_REVIEW";
       await prisma.$executeRaw`
         UPDATE "ExamImportJob"
         SET
@@ -4970,7 +4980,7 @@ export const academyService = {
           "confidence" = ${Number(aiResult.averageConfidence || 0) / 100},
           "reviewStatus" = ${reviewStatus},
           "status" = 'VALIDATED',
-          "manualReviewRequired" = ${reviewStatus !== "AUTO_APPROVED"},
+          "manualReviewRequired" = true,
           "updatedAt" = ${new Date()}
         WHERE "id" IN (${Prisma.join(importJobIds)})
           AND ("uploadedBy" = ${user.id} OR ${user.role} IN ('ADMIN', 'DIRECTOR', 'ACADEMIC_HEAD'))
@@ -5015,8 +5025,8 @@ export const academyService = {
         SET
           "aiResult" = COALESCE("aiResult", '{}'::jsonb) || ${JSON.stringify({ aiReconstruction: { ...result, draft: undefined } })}::jsonb,
           "confidence" = GREATEST(COALESCE("confidence", 0), ${result.confidence}),
-          "reviewStatus" = ${result.draft.needsReview > 0 ? "PENDING_REVIEW" : "AUTO_APPROVED"},
-          "manualReviewRequired" = ${result.draft.needsReview > 0},
+          "reviewStatus" = 'PENDING_REVIEW',
+          "manualReviewRequired" = true,
           "updatedAt" = ${new Date()}
         WHERE "id" IN (${Prisma.join(importJobIds)})
           AND ("uploadedBy" = ${user.id} OR ${user.role} IN ('ADMIN', 'DIRECTOR', 'ACADEMIC_HEAD'))
@@ -5154,6 +5164,20 @@ export const academyService = {
     const providedDraft = asDraftPayload(input);
     const generatedDraft = providedDraft?.questions?.length ? providedDraft : await buildExamDraft(user, input);
     const questions = generatedDraft.questions ?? [];
+    const examUploadIds = draftExamUploadIds(generatedDraft, input);
+    if (examUploadIds.length) {
+      const ownedUploads = await prisma.$queryRaw<Array<{ id: string }>>`
+        SELECT "id" FROM "ExamUpload"
+        WHERE "id" IN (${Prisma.join(examUploadIds)})
+          AND ("uploadedBy" = ${user.id} OR ${user.role} IN ('ADMIN', 'DIRECTOR', 'ACADEMIC_HEAD'))
+      `;
+      if (ownedUploads.length !== examUploadIds.length) {
+        throw Object.assign(new Error("One or more source documents are unavailable or not authorized."), { statusCode: 403 });
+      }
+      if (!("manualPaperReview" in generatedDraft) || !Boolean((generatedDraft as { manualPaperReview?: unknown }).manualPaperReview)) {
+        throw Object.assign(new Error("Review the extracted paper beside the original source and confirm completion before publishing."), { statusCode: 400 });
+      }
+    }
     // Browser clients send an ISO instant. The explicit IST fallback keeps older
     // clients correct even though Railway runs in UTC.
     const publishAt = input.publishAt
@@ -5181,7 +5205,11 @@ export const academyService = {
       status: "PUBLISHED",
       questions,
     };
-    const test = await testsService.publishDraft(user, testPayload);
+    const test = await testsService.publishDraft(user, {
+      ...testPayload,
+      approvalAttestation: "TEACHER_REVIEW_CONFIRMED",
+      approvalReferenceId: `academy:${user.id}:${new Date().toISOString()}`,
+    });
     const id = randomUUID();
     const now = new Date();
     await prisma.$executeRaw`
@@ -5193,7 +5221,6 @@ export const academyService = {
     const rows = await prisma.$queryRaw<any[]>`
       SELECT * FROM "TeacherExamRecord" WHERE "id" = ${id} LIMIT 1
     `;
-    const examUploadIds = draftExamUploadIds(generatedDraft, input);
     const manualReviewCompleted = "manualPaperReview" in generatedDraft ? Boolean((generatedDraft as { manualPaperReview?: unknown }).manualPaperReview) : false;
     const paperUnderstanding = "paperUnderstanding" in generatedDraft ? (generatedDraft as { paperUnderstanding?: unknown }).paperUnderstanding : undefined;
     const visualFidelity = "visualFidelity" in generatedDraft ? (generatedDraft as { visualFidelity?: unknown }).visualFidelity : undefined;
@@ -5235,7 +5262,7 @@ export const academyService = {
     const replacementDraft = asDraftPayload(input);
     const replacementQuestions = replacementDraft?.questions;
     if (replacementQuestions?.length) {
-      validatePublishedQuestions(replacementQuestions);
+      validatePublishedQuestions(replacementQuestions.map((question) => ({ ...question, reviewStatus: "APPROVED" })));
       if (!current.testId) throw Object.assign(new Error("This legacy exam has no editable question paper."), { statusCode: 409 });
       const attemptCount = await prisma.testAttempt.count({ where: { testId: current.testId } });
       if (attemptCount > 0) {
@@ -5243,7 +5270,7 @@ export const academyService = {
       }
       await prisma.$transaction([
         prisma.question.deleteMany({ where: { testId: current.testId } }),
-        prisma.question.createMany({ data: replacementQuestions.map((question) => ({ ...question, testId: current.testId })) }),
+        prisma.question.createMany({ data: replacementQuestions.map((question) => ({ ...question, reviewStatus: "DRAFT", testId: current.testId })) }),
         prisma.test.update({
           where: { id: current.testId },
           data: {
@@ -5252,6 +5279,11 @@ export const academyService = {
             subject: input.subject ?? current.subject,
             topic: input.topic ?? current.topic,
             duration: typeof input.durationMinutes === "number" ? input.durationMinutes : current.durationMinutes,
+            status: "DRAFT",
+            isLive: false,
+            reviewedAt: null,
+            approvedAt: null,
+            approvedById: null,
           },
         }),
       ]);
@@ -5267,7 +5299,7 @@ export const academyService = {
           "difficulty" = ${input.difficulty ?? current.difficulty},
           "instructions" = ${input.instructions ?? current.instructions},
           "draft" = ${replacementDraft ? JSON.stringify(replacementDraft) : JSON.stringify(current.draft)}::jsonb,
-          "status" = ${input.status ?? current.status},
+          "status" = ${replacementQuestions?.length ? "DRAFT" : input.status ?? current.status},
           "updatedAt" = ${new Date()}
       WHERE "id" = ${examId}
     `;
@@ -5310,6 +5342,22 @@ export const academyService = {
   },
 
   async publishExamChanges(user: Requester, examId: string) {
+    const rows = await prisma.$queryRaw<any[]>`
+      SELECT * FROM "TeacherExamRecord" WHERE "id" = ${examId} LIMIT 1
+    `;
+    const exam = rows[0];
+    if (!exam) throw Object.assign(new Error("Exam not found"), { statusCode: 404 });
+    await assertBatchSubjectAccess(user, exam.batchId, exam.subject);
+    if (user.role === Role.TEACHER && exam.teacherId !== user.id && !isAcademicManager(user)) {
+      throw Object.assign(new Error("Only the publishing teacher can republish this exam"), { statusCode: 403 });
+    }
+    if (!exam.testId) throw Object.assign(new Error("This exam has no publishable CBT paper."), { statusCode: 409 });
+    const test = await testsService.details(user, exam.testId);
+    await testsService.approve(user, test.id, {
+      questionIds: test.questions.map((question) => question.id),
+      attestation: "TEACHER_REVIEW_CONFIRMED",
+    });
+    await testsService.publishApproved(user, test.id, { batchId: exam.batchId });
     return this.updateExam(user, examId, { status: "PUBLISHED" });
   },
 
@@ -5806,7 +5854,10 @@ export const academyService = {
     }
 
     const batches = await db.batch.findMany({
-      where: { id: { in: requestedBatchIds } },
+      where: {
+        id: { in: requestedBatchIds },
+        ...(user.role !== Role.ADMIN ? { instituteId: user.instituteId ?? "__missing_institute__" } : {})
+      },
       include: { course: true },
     });
     if (batches.length !== requestedBatchIds.length) {
@@ -5864,6 +5915,8 @@ export const academyService = {
               leadId: input.leadId || undefined,
               studentId: student.id,
               courseId: batch.courseId,
+              instituteId: batch.instituteId ?? undefined,
+              branchId: batch.branchId ?? undefined,
               admissionDate: recordDate,
               paymentStatus,
               status: "ENROLLED",
@@ -5887,6 +5940,8 @@ export const academyService = {
           studentId: student.id,
           admissionId: typeof admission?.id === "string" ? admission.id : undefined,
           courseId: batch.courseId || undefined,
+          instituteId: batch.instituteId || undefined,
+          branchId: batch.branchId || undefined,
           title: `Admission fee - ${batchNames}`,
           totalAmount: totalFee,
           netAmount: totalFee,
@@ -5985,7 +6040,14 @@ export const academyService = {
     }
 
     if (input.leadId) {
-      const lead = await prisma.lead.findUnique({ where: { id: input.leadId } });
+      const lead = await prisma.lead.findFirst({
+        where: {
+          id: input.leadId,
+          ...(user.role !== Role.ADMIN
+            ? { assignedTo: { not: null }, assignee: { instituteId: user.instituteId ?? "__missing_institute__" } }
+            : {})
+        }
+      });
       if (lead) {
         const existingNotes = lead.notes ? `${lead.notes}\n\n` : "";
         await prisma.lead.update({

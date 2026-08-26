@@ -12,3 +12,7 @@ Thumbs.db
 playwright-report
 test-results
 lighthouse-report*.json
+.staging/
+# Local real-paper inputs are too large and may contain source material.
+/real-exam-inputs/
+/real-exam-inputs/

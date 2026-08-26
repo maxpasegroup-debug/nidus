@@ -30,8 +30,8 @@ export default function StudentDashboardPage() {
     );
   }
 
-  const todayClasses = data.academyProfile.todayClasses ?? [];
-  const upcomingClasses = data.academyProfile.upcomingClasses ?? [];
+  const todayClasses = data.academyProfile?.todayClasses ?? [];
+  const upcomingClasses = data.academyProfile?.upcomingClasses ?? [];
   const nextClass = todayClasses[0] ?? upcomingClasses[0] ?? null;
   const nextTest = data.upcomingTests[0] ?? null;
   const pendingLessons = data.enrolledCourses.filter((course) => course.progress < 100);

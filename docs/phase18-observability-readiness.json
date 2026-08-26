@@ -1,0 +1,9 @@
+{
+  "phase": 18,
+  "status": "PARTIAL",
+  "requestIds": "CONFIGURED_IN_CODE",
+  "redaction": "CONFIGURED_IN_CODE",
+  "healthEndpoints": "AVAILABLE",
+  "sentry": "BLOCKED — ENVIRONMENT",
+  "centralTelemetry": "Not configured"
+}

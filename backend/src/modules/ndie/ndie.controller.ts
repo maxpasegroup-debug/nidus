@@ -183,6 +183,7 @@ export const ndieController = {
         decision: decision as "APPROVED" | "REJECTED" | "NEEDS_EDIT" | "SKIPPED",
         notes: typeof req.body.notes === "string" ? req.body.notes : undefined,
         candidateJson: req.body.candidateJson,
+        answerJson: req.body.answerJson,
         reviewedBy: req.user.id,
         reviewedByRole: req.user.role
       });

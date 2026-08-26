@@ -1,0 +1,13 @@
+{
+  "phase": 20,
+  "status": "PASS",
+  "evidence": {
+    "phase17Certification": "PASS",
+    "note": "No authorization code changed in Phase 20."
+  },
+  "test_count": 9,
+  "passed": 9,
+  "failed": 0,
+  "blocked": 0,
+  "limitations": []
+}

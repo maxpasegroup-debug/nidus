@@ -6,6 +6,8 @@ import type { Role } from "../../generated/prisma/client.js";
 type DashboardUser = {
   id: string;
   role: Role;
+  instituteId?: string | null;
+  branchId?: string | null;
 };
 
 const paidStatuses = ["SUCCESS", "PAID", "VERIFIED", "CAPTURED"];
@@ -689,8 +691,15 @@ export const dashboardService = {
       where: { id: user.id },
       select: { instituteId: true, branchId: true, roleMetadata: true }
     });
+    if (!director?.instituteId) {
+      throw Object.assign(new Error("Institution scope is required for the Director dashboard"), { statusCode: 403 });
+    }
     const customDashboard = staffDashboard(metadataObject(director?.roleMetadata), "EXECUTIVE_COMMAND");
-    const scopedWhere = user.role === "DIRECTOR" ? { instituteId: director?.instituteId ?? undefined, branchId: director?.branchId ?? undefined } : {};
+    const scopedWhere = user.role === "DIRECTOR" ? { instituteId: director.instituteId, ...(director.branchId ? { branchId: director.branchId } : {}) } : {};
+    const leadScope = { assignedTo: { not: null }, assignee: { instituteId: director.instituteId } };
+    const admissionScope = { instituteId: director.instituteId, ...(director.branchId ? { branchId: director.branchId } : {}) };
+    const batchScope = { batch: { instituteId: director.instituteId, ...(director.branchId ? { branchId: director.branchId } : {}) } };
+    const attemptScope = { test: { OR: [{ batch: { instituteId: director.instituteId } }, { teacher: { instituteId: director.instituteId } }] } };
     const subjectTeacherWhere = {
       role: "TEACHER" as Role,
       ...scopedWhere,
@@ -736,16 +745,17 @@ export const dashboardService = {
       archivedStaff
     ] = await Promise.all([
       prisma.user.count({ where: { role: "STUDENT", ...scopedWhere } }),
-      prisma.batchStudent.count({ where: { status: "ACTIVE" } }),
-      prisma.lead.count(),
-      prisma.lead.count({ where: { status: "COUNSELLING", notes: { contains: "Ready For Admission", mode: "insensitive" } } }),
-      prisma.admission.count(),
+      prisma.batchStudent.count({ where: { status: "ACTIVE", ...batchScope } }),
+      prisma.lead.count({ where: leadScope }),
+      prisma.lead.count({ where: { ...leadScope, status: "COUNSELLING", notes: { contains: "Ready For Admission", mode: "insensitive" } } }),
+      prisma.admission.count({ where: admissionScope }),
       prisma.batch.count({ where: { status: "ACTIVE" } }),
       prisma.course.count(),
-      prisma.user.count({ where: { OR: [{ role: "ACADEMIC_HEAD" }, { role: "TEACHER", roleMetadata: { path: ["dashboardTemplate"], equals: "ACADEMIC_HEAD" } }] } }),
+      prisma.user.count({ where: { ...scopedWhere, OR: [{ role: "ACADEMIC_HEAD" }, { role: "TEACHER", roleMetadata: { path: ["dashboardTemplate"], equals: "ACADEMIC_HEAD" } }] } }),
       prisma.user.count({ where: subjectTeacherWhere }),
       prisma.user.count({
         where: {
+          ...scopedWhere,
           OR: [
             { role: "PHYSICAL_TRAINER" },
             { role: "TEACHER", roleMetadata: { path: ["dashboardTemplate"], equals: "PHYSICAL_TRAINER" } },
@@ -753,33 +763,33 @@ export const dashboardService = {
           ]
         }
       }),
-      prisma.user.count({ where: { OR: [{ role: "ADMINISTRATIVE_OFFICER" }, { role: "ADMIN", roleMetadata: { path: ["dashboardTemplate"], equals: "ADMISSION_CELL" } }] } }),
-      prisma.user.count({ where: { role: { in: ["BUSINESS_DEVELOPMENT_EXECUTIVE", "TELECALLER", "MARKETING_COORDINATOR"] } } }),
-      prisma.attendance.findMany({ orderBy: { date: "desc" }, take: 500 }),
-      prisma.testAttempt.count({ where: { submittedAt: { not: null } } }),
-      prisma.testAttempt.count(),
-      prisma.payment.aggregate({ where: { paymentStatus: { in: paidStatuses } }, _sum: { amount: true } }),
-      prisma.feeInstallment.aggregate({ where: { paidStatus: { not: "PAID" } }, _sum: { dueAmount: true, amount: true } }),
-      prisma.feeInstallment.count({ where: { paidStatus: { not: "PAID" } } }),
-      prisma.faculty.count({ where: { status: { not: "ACTIVE" } } }),
+      prisma.user.count({ where: { ...scopedWhere, OR: [{ role: "ADMINISTRATIVE_OFFICER" }, { role: "ADMIN", roleMetadata: { path: ["dashboardTemplate"], equals: "ADMISSION_CELL" } }] } }),
+      prisma.user.count({ where: { ...scopedWhere, role: { in: ["BUSINESS_DEVELOPMENT_EXECUTIVE", "TELECALLER", "MARKETING_COORDINATOR"] } } }),
+      prisma.attendance.findMany({ where: { user: scopedWhere }, orderBy: { date: "desc" }, take: 500 }),
+      prisma.testAttempt.count({ where: { ...attemptScope, submittedAt: { not: null } } }),
+      prisma.testAttempt.count({ where: attemptScope }),
+      prisma.payment.aggregate({ where: { user: scopedWhere, paymentStatus: { in: paidStatuses } }, _sum: { amount: true } }),
+      prisma.feeInstallment.aggregate({ where: { student: scopedWhere, paidStatus: { not: "PAID" } }, _sum: { dueAmount: true, amount: true } }),
+      prisma.feeInstallment.count({ where: { student: scopedWhere, paidStatus: { not: "PAID" } } }),
+      prisma.faculty.count({ where: { status: { not: "ACTIVE" }, user: scopedWhere } }),
       academyArchitectureSummary(),
-      prisma.batch.groupBy({ by: ["batchType"], _count: { id: true } }),
+      prisma.batch.groupBy({ by: ["batchType"], where: { instituteId: director.instituteId, ...(director.branchId ? { branchId: director.branchId } : {}) }, _count: { id: true } }),
       prisma.course.groupBy({ by: ["category"], _count: { id: true } }),
-      prisma.batch.groupBy({ by: ["courseId"], _count: { id: true }, where: { courseId: { not: null } } }),
+      prisma.batch.groupBy({ by: ["courseId"], _count: { id: true }, where: { instituteId: director.instituteId, ...(director.branchId ? { branchId: director.branchId } : {}), courseId: { not: null } } }),
       prisma.liveClass.count(),
       prisma.teacherStudyMaterialRecord.count({ where: { archivedAt: null } }),
-      prisma.teacherExamRecord.count({ where: { status: { in: ["PUBLISHED", "LIVE", "APPROVED"] } } }),
-      prisma.teacherAssignmentRecord.count({ where: { status: "PUBLISHED" } }),
-      prisma.lead.count({ where: { status: "COUNSELLING", notes: { contains: "Documents: PENDING", mode: "insensitive" } } }),
-      prisma.lead.count({ where: { status: "COUNSELLING", notes: { contains: "Fees: PENDING", mode: "insensitive" } } }),
-      prisma.lead.count({ where: { status: "COUNSELLING", notes: { contains: "Batch Allocation: PENDING", mode: "insensitive" } } }),
+      prisma.teacherExamRecord.count({ where: { teacherId: { not: null }, status: { in: ["PUBLISHED", "LIVE", "APPROVED"] } } }),
+      prisma.teacherAssignmentRecord.count({ where: { teacherId: { not: null }, status: "PUBLISHED" } }),
+      prisma.lead.count({ where: { ...leadScope, status: "COUNSELLING", notes: { contains: "Documents: PENDING", mode: "insensitive" } } }),
+      prisma.lead.count({ where: { ...leadScope, status: "COUNSELLING", notes: { contains: "Fees: PENDING", mode: "insensitive" } } }),
+      prisma.lead.count({ where: { ...leadScope, status: "COUNSELLING", notes: { contains: "Batch Allocation: PENDING", mode: "insensitive" } } }),
       prisma.teacherAttendanceRecord.count({ where: { status: "SAVED", records: { string_contains: "ABSENT" } } }),
       prisma.teacherExamRecord.count({ where: { status: { in: ["DRAFT", "REVIEW", "PENDING_REVIEW"] } } }),
-      prisma.user.count({ where: { role: { in: staffRoles }, roleOnboardingStatus: "ARCHIVED" } })
+      prisma.user.count({ where: { ...scopedWhere, role: { in: staffRoles }, roleOnboardingStatus: "ARCHIVED" } })
     ]);
     const batchStudentGroups = await prisma.batchStudent.groupBy({
       by: ["batchId"],
-      where: { status: "ACTIVE" },
+      where: { status: "ACTIVE", ...batchScope },
       _count: { id: true },
       orderBy: { _count: { id: "desc" } },
       take: 12
@@ -945,6 +955,9 @@ export const dashboardService = {
   },
 
   async getDirectorSecurityReadiness(_user: DashboardUser) {
+    if (_user.role === "DIRECTOR") {
+      throw Object.assign(new Error("Security readiness aggregates require tenant-scoped ownership evidence"), { statusCode: 403 });
+    }
     const [
       activeGuests,
       lockedUsers,
@@ -1338,7 +1351,10 @@ export const dashboardService = {
     };
   },
 
-  async getMarketingDashboard(_user: DashboardUser) {
+  async getMarketingDashboard(user: DashboardUser) {
+    if (user.role !== "ADMIN" || user.instituteId) {
+      throw Object.assign(new Error("Marketing dashboard is unavailable until all sources have authoritative institution ownership"), { statusCode: 403 });
+    }
     const [leads, admissions, sourceCounts, announcements] = await Promise.all([
       prisma.lead.count(),
       prisma.admission.count(),

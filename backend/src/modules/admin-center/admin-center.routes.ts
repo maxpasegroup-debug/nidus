@@ -1,10 +1,18 @@
 import { Router } from "express";
 import { body } from "express-validator";
-import { protect } from "../../middlewares/session.middleware.js";
+import { protect, type AuthenticatedRequest } from "../../middlewares/session.middleware.js";
 import { adminCenterController } from "./admin-center.controller.js";
 import { auditAction, requirePermission } from "./admin-center.rbac.js";
 
 export const adminCenterRouter = Router();
+
+function requireGlobalAdministrator(req: AuthenticatedRequest, res: import("express").Response, next: import("express").NextFunction) {
+  if (req.user?.role !== "ADMIN") {
+    res.status(403).json({ message: "Administrative control plane requires global administrator access" });
+    return;
+  }
+  next();
+}
 
 const roleValidators = [
   body("name").trim().isLength({ min: 2, max: 80 }).withMessage("Role name must be 2-80 characters"),
@@ -13,7 +21,7 @@ const roleValidators = [
   body("permissionIds.*").optional().isString().withMessage("Permission id must be valid")
 ];
 
-adminCenterRouter.use(protect);
+adminCenterRouter.use(protect, requireGlobalAdministrator);
 
 adminCenterRouter.get("/", requirePermission("admin", "read"), adminCenterController.dashboard);
 adminCenterRouter.get("/operations", requirePermission("operations", "read"), adminCenterController.operations);

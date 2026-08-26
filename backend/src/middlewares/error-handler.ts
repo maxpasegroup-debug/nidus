@@ -4,18 +4,20 @@ import { logger } from "../utils/logger.js";
 
 export const errorHandler: ErrorRequestHandler = (error, req, res, _next) => {
   if (error instanceof Error) {
-    const statusCode =
-      error.message.includes("Invalid credentials") ||
-      error.message.includes("Invalid or expired OTP") ||
-      error.message.includes("Invalid reset token")
+    const explicitStatus = Number((error as Error & { statusCode?: unknown }).statusCode);
+    const statusCode = Number.isInteger(explicitStatus) && explicitStatus >= 400 && explicitStatus <= 599
+      ? explicitStatus
+      : error.message.includes("Invalid credentials") ||
+          error.message.includes("Invalid or expired OTP") ||
+          error.message.includes("Invalid reset token")
         ? 401
         : error.message.includes("Forbidden") || error.message.includes("Permission denied")
           ? 403
           : error.message.includes("not found") || error.message.includes("not registered")
-          ? 404
-          : error.message.includes("already registered")
-            ? 409
-            : 400;
+            ? 404
+            : error.message.includes("already registered")
+              ? 409
+              : 400;
 
     logger.error("Request failed", {
       statusCode,

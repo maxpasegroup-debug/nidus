@@ -1,6 +1,5 @@
 import { createHash } from "node:crypto";
 import type { Prisma } from "../../../generated/prisma/client.js";
-import { uploadBufferToCloudinary } from "../../../config/cloudinary.js";
 import { env } from "../../../config/env.js";
 import { prisma } from "../../../config/prisma.js";
 import type { NdieImportManifest } from "../contracts/import-manifest.js";
@@ -8,6 +7,7 @@ import type { NdieCheckpoint } from "../contracts/pipeline-events.js";
 import { ndieQueueService } from "../queue/queue.service.js";
 import { safeNdieFileName } from "../security/ndie-security.js";
 import type { NdieUploadSecurityResult } from "../security/compliance.service.js";
+import { storeNdieSource } from "../storage/storage-provider.js";
 
 export type NdieCreateImportInput = {
   file: Express.Multer.File;
@@ -103,7 +103,7 @@ export const ndieSourceStorageService = {
     const pageCount = input.file.mimetype.startsWith("image/") ? 1 : null;
     const checkpoints = foundationCheckpoints(true);
     const manifest = buildManifest({ file: input.file, sourceKind, pageCount, checkpoints });
-    const uploadResult = await uploadBufferToCloudinary(input.file, "nidus/ndie/sources");
+    const uploadResult = await storeNdieSource(input.file, "nidus/ndie/sources");
     const fileChecksum = input.uploadSecurity?.sha256 ?? checksum(input.file.buffer);
     const duplicate = await prisma.ndieSourceDocument.findFirst({
       where: { checksum: fileChecksum },
@@ -138,7 +138,7 @@ export const ndieSourceStorageService = {
           fileName: safeNdieFileName(input.file.originalname, input.file.mimetype),
           fileType: input.file.mimetype,
           fileSize: input.file.size,
-          storageProvider: "cloudinary",
+          storageProvider: uploadResult.storageProvider,
           storageUrl: uploadResult.secureUrl,
           storagePublicId: uploadResult.publicId,
           checksum: fileChecksum,
@@ -169,6 +169,41 @@ export const ndieSourceStorageService = {
           uploadedBy: input.userId
         }
       });
+
+      if (documentClass === "IMAGE") {
+        const page = await tx.ndiePage.create({
+          data: {
+            importJobId: importJob.id,
+            sourceDocumentId: sourceDocument.id,
+            pageNumber: 1,
+            imageUrl: uploadResult.secureUrl,
+            imagePublicId: uploadResult.publicId,
+            checksum: fileChecksum,
+            pipelineVersion: env.NDIE_PIPELINE_VERSION,
+            renderStatus: "RENDERED",
+            ocrStatus: "READY_FOR_OCR",
+            diagnostics: {
+              originalImage: true,
+              sourceChecksum: fileChecksum,
+              sourcePreserved: true,
+              pipelineVersion: env.NDIE_PIPELINE_VERSION
+            }
+          }
+        });
+        await tx.ndiePageAsset.createMany({
+          data: ["PREVIEW_IMAGE", "REVIEW_IMAGE", "OCR_IMAGE", "THUMBNAIL"].map((role) => ({
+            importJobId: importJob.id,
+            sourceDocumentId: sourceDocument.id,
+            pageId: page.id,
+            assetType: "RENDERED_PAGE_IMAGE",
+            role,
+            url: uploadResult.secureUrl,
+            publicId: uploadResult.publicId,
+            pageNumber: 1,
+            metadata: { originalImage: true, immutableSourceReference: true, sourceChecksum: fileChecksum }
+          }))
+        });
+      }
 
       return {
         importJob,

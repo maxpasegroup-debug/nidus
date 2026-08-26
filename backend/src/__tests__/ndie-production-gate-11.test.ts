@@ -59,10 +59,11 @@ describe("NDIE Production Gate 11 teacher review workspace", () => {
     expect(workspace).toContain("HistoryReview");
   });
 
-  it("supports keyboard productivity, filters, bulk actions and autosave recovery", () => {
+  it("supports keyboard productivity, filters, safe bulk review and autosave recovery", () => {
     expect(workspace).toContain("ArrowDown");
     expect(workspace).toContain("jumpToNextIssue");
-    expect(workspace).toContain("Bulk Approve");
+    expect(workspace).toContain("Mark Shown for Review");
+    expect(workspace).not.toContain("Bulk Approve");
     expect(workspace).toContain("issueOnly");
     expect(workspace).toContain("statusFilter");
     expect(workspace).toContain("saveNdieReviewSession");

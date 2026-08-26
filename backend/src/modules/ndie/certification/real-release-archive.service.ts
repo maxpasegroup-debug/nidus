@@ -39,6 +39,7 @@ export type RealReleaseArchiveReport = {
   files: RealReleaseArchiveFile[];
   bundleVerified: boolean;
   verified: boolean;
+  sealPlanned: boolean;
   sealed: boolean;
   overwriteProtected: boolean;
   archiveUsableForProductionCertification: boolean;
@@ -187,12 +188,26 @@ export const realReleaseArchiveService = {
 
   plan(options: { archiveRoot?: string; now?: Date } = {}): RealReleaseArchiveReport {
     const root = assertSafeArchiveRoot(options.archiveRoot ?? defaultArchiveRoot);
-    return this.create({ archiveRoot: root, archiveId: archiveIdFromDate(options.now ?? new Date()), write: false });
+    return this.planBundle(realReleasePackService.bundle(), { archiveRoot: root, now: options.now });
   },
 
   write(options: { archiveRoot?: string; archiveId?: string; now?: Date } = {}): RealReleaseArchiveReport {
     const root = assertSafeArchiveRoot(options.archiveRoot ?? defaultArchiveRoot);
-    return this.create({ archiveRoot: root, archiveId: options.archiveId ?? archiveIdFromDate(options.now ?? new Date()), write: true });
+    return this.writeBundle(realReleasePackService.bundle(), { archiveRoot: root, archiveId: options.archiveId, now: options.now });
+  },
+
+  planBundle(bundle: RealReleasePackBundle, options: { archiveRoot?: string; now?: Date } = {}): RealReleaseArchiveReport {
+    const root = assertSafeArchiveRoot(options.archiveRoot ?? defaultArchiveRoot);
+    return this.createFromBundle(bundle, { archiveRoot: root, archiveId: archiveIdFromDate(options.now ?? new Date()), write: false });
+  },
+
+  writeBundle(bundle: RealReleasePackBundle, options: { archiveRoot?: string; archiveId?: string; now?: Date } = {}): RealReleaseArchiveReport {
+    const root = assertSafeArchiveRoot(options.archiveRoot ?? defaultArchiveRoot);
+    return this.createFromBundle(bundle, {
+      archiveRoot: root,
+      archiveId: options.archiveId ?? archiveIdFromDate(options.now ?? new Date()),
+      write: true
+    });
   },
 
   verifyWrittenArchive(report: RealReleaseArchiveReport) {
@@ -204,8 +219,11 @@ export const realReleaseArchiveService = {
   },
 
   create(input: { archiveRoot: string; archiveId: string; write: boolean }): RealReleaseArchiveReport {
+    return this.createFromBundle(realReleasePackService.bundle(), input);
+  },
+
+  createFromBundle(bundle: RealReleasePackBundle, input: { archiveRoot: string; archiveId: string; write: boolean }): RealReleaseArchiveReport {
     const archiveId = assertSafeArchiveId(input.archiveId);
-    const bundle: RealReleasePackBundle = realReleasePackService.bundle();
     const bundleVerification = realReleasePackService.verifyBundle(bundle);
     if (!bundleVerification.valid) throw new Error("Release pack bundle failed cryptographic verification and cannot be archived.");
     const archiveDirectory = path.join(input.archiveRoot, archiveId);
@@ -229,7 +247,8 @@ export const realReleaseArchiveService = {
 
     const archiveFiles = files.map((file) => archiveFile(file, archiveDirectory, input.write));
     const verified = input.write ? archiveFilesValid(archiveFiles) : filesMatchPayload(files);
-    const sealed = verified && archiveFiles.some((file) => file.name === "archive-seal.json");
+    const sealPlanned = archiveFiles.some((file) => file.name === "archive-seal.json");
+    const sealed = input.write && verified && sealPlanned;
     const productionReady = bundle.pack.launchGateStatus === "PASS" &&
       bundle.pack.certificationState === "READY_FOR_IMMUTABLE_ARCHIVE" &&
       bundle.pack.signoffStatus === "READY_FOR_SIGNATURE";
@@ -254,6 +273,7 @@ export const realReleaseArchiveService = {
       files: archiveFiles,
       bundleVerified: bundleVerification.valid,
       verified,
+      sealPlanned,
       sealed,
       overwriteProtected: true,
       archiveUsableForProductionCertification: productionReady && input.write && verified && sealed,

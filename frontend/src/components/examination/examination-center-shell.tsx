@@ -709,7 +709,7 @@ export function ExaminationCenterShell({ view }: ExaminationCenterShellProps) {
     onError: (mutationError) => showToast(getApiErrorMessage(mutationError), "error")
   });
   const publishMutation = useMutation({
-    mutationFn: publishExam,
+    mutationFn: (id: string) => publishExam(id),
     onSuccess: async () => {
       showToast("Exam published", "success");
       await refreshExamData();

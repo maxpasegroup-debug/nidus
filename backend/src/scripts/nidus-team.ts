@@ -233,8 +233,7 @@ function roleMetadata(member: TeamMemberSeed, includeDefaultPassword: boolean) {
 function defaultCredentialMetadata() {
   return {
     defaultPassword: true,
-    defaultPin: true,
-    accessPin: DEFAULT_ACCOUNT_PIN
+    defaultPin: true
   };
 }
 

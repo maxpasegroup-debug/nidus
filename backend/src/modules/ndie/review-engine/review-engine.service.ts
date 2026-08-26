@@ -1,11 +1,13 @@
 import type { Prisma } from "../../../generated/prisma/client.js";
 import { prisma } from "../../../config/prisma.js";
+import { assertCandidateIntegrity } from "./candidate-integrity.js";
 
 export type NdieReviewInput = {
   candidateId: string;
   decision: "APPROVED" | "REJECTED" | "NEEDS_EDIT" | "SKIPPED";
   notes?: string;
   candidateJson?: unknown;
+  answerJson?: unknown;
   reviewedBy: string;
   reviewedByRole?: string;
 };
@@ -257,15 +259,51 @@ export const ndieReviewEngineService = {
   },
 
   async reviewCandidate(input: NdieReviewInput) {
-    const candidate = await prisma.ndieQuestionCandidate.findUnique({ where: { id: input.candidateId } });
+    const candidate = await prisma.ndieQuestionCandidate.findUnique({
+      where: { id: input.candidateId },
+      include: { importJob: { select: { status: true } } }
+    });
     if (!candidate) throw new Error("NDIE question candidate not found");
+    const activeProcessingStates = new Set([
+      "QUEUED", "PROCESSING", "RETRY_PENDING", "REPLAY_PENDING", "RENDERING", "OCR_RUNNING",
+      "LAYOUT_RUNNING", "FORMULA_RUNNING", "VISUAL_RUNNING", "QUESTION_RUNNING", "ANSWER_RUNNING",
+      "AI_VALIDATION_RUNNING", "PUBLISH_RUNNING"
+    ]);
+    if (activeProcessingStates.has(candidate.importJob.status)) {
+      throw Object.assign(new Error("This paper is still being prepared. Review will open when processing is complete."), { statusCode: 409 });
+    }
     const existingRevisions = await prisma.ndieRevision.findMany({
       where: { questionCandidateId: candidate.id },
       select: { revision: true }
     });
     const before = candidate.candidateJson as Prisma.InputJsonValue;
     const snapshot = (input.candidateJson ?? candidate.candidateJson) as Prisma.InputJsonValue;
-    const reviewStatus = decisionStatus(input.decision);
+    const contentChanged = input.candidateJson !== undefined && JSON.stringify(input.candidateJson) !== JSON.stringify(candidate.candidateJson);
+    const answerChanged = input.answerJson !== undefined;
+    if ((contentChanged || answerChanged) && input.decision === "APPROVED") {
+      throw Object.assign(new Error("Save the correction first, then approve the updated question in a separate review action."), { statusCode: 409 });
+    }
+    const reviewStatus = contentChanged || answerChanged ? "NEEDS_EDIT" : decisionStatus(input.decision);
+
+    const [answerCandidate, assets] = await Promise.all([
+      prisma.ndieAnswerKeyCandidate.findFirst({
+        where: {
+          importJobId: candidate.importJobId,
+          OR: [{ questionCandidateId: candidate.id }, { questionNumber: candidate.questionNumber }]
+        },
+        orderBy: [{ questionCandidateId: "desc" }, { createdAt: "desc" }]
+      }),
+      prisma.ndiePageAsset.findMany({ where: { importJobId: candidate.importJobId }, select: { id: true } })
+    ]);
+    if (input.decision === "APPROVED") {
+      assertCandidateIntegrity({
+        questionType: candidate.questionType,
+        candidateJson: snapshot,
+        sourceMap: candidate.sourceMap,
+        answerJson: answerCandidate?.answerJson,
+        availableAssetIds: new Set(assets.map((asset) => asset.id))
+      });
+    }
 
     return prisma.$transaction(async (tx) => {
       const updated = await tx.ndieQuestionCandidate.update({
@@ -273,9 +311,27 @@ export const ndieReviewEngineService = {
         data: {
           candidateJson: snapshot,
           reviewStatus,
-          status: input.decision === "APPROVED" ? "TEACHER_APPROVED" : input.decision === "REJECTED" ? "TEACHER_REJECTED" : input.decision === "SKIPPED" ? "TEACHER_SKIPPED" : "PENDING_REVIEW"
+          status: contentChanged || answerChanged ? "PENDING_REVIEW" : input.decision === "APPROVED" ? "TEACHER_APPROVED" : input.decision === "REJECTED" ? "TEACHER_REJECTED" : input.decision === "SKIPPED" ? "TEACHER_SKIPPED" : "PENDING_REVIEW"
         }
       });
+
+      if (input.answerJson !== undefined) {
+        await tx.ndieAnswerKeyCandidate.upsert({
+          where: { questionCandidateId: candidate.id },
+          update: {
+            answerJson: input.answerJson as Prisma.InputJsonValue,
+            questionNumber: candidate.questionNumber,
+            status: "TEACHER_CORRECTED"
+          },
+          create: {
+            importJobId: candidate.importJobId,
+            questionCandidateId: candidate.id,
+            questionNumber: candidate.questionNumber,
+            answerJson: input.answerJson as Prisma.InputJsonValue,
+            status: "TEACHER_CORRECTED"
+          }
+        });
+      }
 
       const decision = await tx.ndieReviewDecision.create({
         data: {
@@ -294,12 +350,13 @@ export const ndieReviewEngineService = {
           importJobId: candidate.importJobId,
           questionCandidateId: candidate.id,
           revision: nextRevision(existingRevisions),
-          changeType: input.candidateJson ? "TEACHER_EDIT" : `TEACHER_${input.decision}`,
+          changeType: contentChanged || answerChanged ? "TEACHER_EDIT" : `TEACHER_${input.decision}`,
           changeReason: input.notes || null,
           snapshot: {
             before,
             after: snapshot,
-            decision: input.decision,
+            decision: contentChanged || answerChanged ? "CORRECTION_SAVED_APPROVAL_REVOKED" : input.decision,
+            answerChanged,
             notes: input.notes || null
           } as Prisma.InputJsonValue,
           changedBy: input.reviewedBy,
@@ -312,11 +369,15 @@ export const ndieReviewEngineService = {
         where: { importJobId: candidate.importJobId },
         _count: { _all: true }
       });
+      const reviewComplete = counts.length > 0 && counts.every((row) => ["APPROVED", "REJECTED", "SKIPPED"].includes(row.reviewStatus));
+      const hasRejected = counts.some((row) => row.reviewStatus === "REJECTED" && row._count._all > 0);
+      const hasApproved = counts.some((row) => row.reviewStatus === "APPROVED" && row._count._all > 0);
 
       await tx.ndieImportJob.update({
         where: { id: candidate.importJobId },
         data: {
-          reviewStatus: counts.every((row) => ["APPROVED", "REJECTED", "SKIPPED"].includes(row.reviewStatus)) ? "REVIEWED" : "PENDING_REVIEW",
+          status: reviewComplete && hasApproved && !hasRejected ? "READY_FOR_PUBLISH" : "READY_FOR_TEACHER_REVIEW",
+          reviewStatus: reviewComplete ? "REVIEWED" : "PENDING_REVIEW",
           teacherSummary: {
             reviewCounts: counts.reduce<Record<string, number>>((acc, row) => {
               acc[row.reviewStatus] = row._count._all;
@@ -332,6 +393,9 @@ export const ndieReviewEngineService = {
   },
 
   async bulkReview(input: NdieBulkReviewInput) {
+    if (input.decision === "APPROVED") {
+      throw Object.assign(new Error("Bulk approval is disabled. Each imported question must be verified individually."), { statusCode: 400 });
+    }
     const candidates = await prisma.ndieQuestionCandidate.findMany({
       where: { importJobId: input.importJobId, id: { in: input.candidateIds } }
     });

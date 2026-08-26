@@ -1,0 +1,12 @@
+{
+  "phase": 18,
+  "status": "PASS",
+  "database": "PostgreSQL",
+  "connection": true,
+  "migrationsObserved": 71,
+  "failedMigrations": 0,
+  "tableCount": 231,
+  "transactionPassed": true,
+  "existingStaging": "PASS",
+  "freshDatabaseRehearsal": "BLOCKED — ENVIRONMENT: pg_dump/psql tooling unavailable for an independent disposable fresh-database replay."
+}

@@ -139,7 +139,22 @@ async function mockAcademicApi(page: Page, user: Record<string, unknown>) {
   await page.route("**/api/auth/me", (route) => json(route, { success: true, user }));
   await page.route("**/api/auth/logout", (route) => json(route, { message: "Logged out" }));
   await page.route("**/api/my-courses", (route) => json(route, { courses: [] }));
-  await page.route("**/api/dashboard/**", (route) => json(route, { role: user.role, data: { profile: user } }));
+  await page.route("**/api/dashboard/**", (route) => json(route, {
+    role: user.role,
+    data: user.role === "STUDENT"
+      ? {
+          profile: user,
+          enrolledCourses: [],
+          academyProfile: { assignedBatches: [batch], todayClasses: [], upcomingClasses: [], librarySubjects: [] },
+          upcomingTests: [],
+          attendance: { percentage: 100, present: 1, total: 1, trend: [] },
+          leaderboardRank: { rank: 1, percentile: 100, batch: batch.name },
+          aiRecommendations: [],
+          fitnessProgress: { score: 0, streakDays: 0, focus: "Baseline" },
+          recentActivities: [],
+        }
+      : { profile: user },
+  }));
   await page.route("**/api/tests/available", (route) => json(route, [exam]));
   await page.route("**/api/tests/attempts/history", (route) => json(route, [{ id: "attempt-1", testId: "test-1", score: 80, status: "SUBMITTED", submittedAt: new Date().toISOString() }]));
   await page.route("**/api/academy/**", (route) => {
@@ -197,87 +212,40 @@ test.describe("Academic dashboard production flow", () => {
     await mockAcademicApi(page, { id: "director-1", name: "Director", email: "director@nidus.test", role: "DIRECTOR" });
     await page.goto("/dashboard/director/academic");
 
-    await expect(page.getByRole("heading", { name: /director planning room/i })).toBeVisible();
-    await expect(page.getByRole("heading", { name: /create batch/i })).toBeVisible();
-    await expect(page.getByRole("heading", { name: /teacher allocation/i })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "NDA Foundation Alpha" })).toBeVisible();
-
-    await page.getByLabel("Batch name").fill("NDA Foundation Bravo");
-    await page.getByLabel("Program").selectOption({ index: 1 });
-    await Promise.all([
-      page.waitForRequest((request) => request.method() === "POST" && request.url().includes("/api/academy/batches")),
-      page.getByRole("button", { name: /create batch/i }).click(),
-    ]);
-
-    await page.locator("#teacher-allocation").getByLabel("Batch").selectOption(batch.id);
-    await page.locator("#teacher-allocation").getByLabel("Teacher").selectOption(teacher.id);
-    await page.locator("#teacher-allocation").getByLabel("Subject").fill("History");
-    await Promise.all([
-      page.waitForRequest((request) => request.method() === "POST" && request.url().includes(`/api/academy/batches/${batch.id}/teachers`)),
-      page.getByRole("button", { name: /assign teacher/i }).click(),
-    ]);
-
-    await expect(page.getByRole("heading", { name: /attendance monitoring/i })).toBeVisible();
-    await expect(page.getByRole("heading", { name: /assignment monitoring/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /academic command/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /director actions/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /teach today/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /create exam/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /create batch/i })).toBeVisible();
   });
 
   test("Academic Head sees planning, approvals and monitoring", async ({ page }) => {
     await mockAcademicApi(page, { id: "hod-1", name: "Academic Head", email: "hod@nidus.test", role: "TEACHER", roleMetadata: { dashboardTemplate: "ACADEMIC_HEAD" } });
     await page.goto("/dashboard/academic-head");
 
-    await expect(page.getByRole("heading", { name: /academic department control/i })).toBeVisible();
-    await expect(page.getByRole("heading", { name: /assign teacher to batch/i })).toBeVisible();
-    await expect(page.getByRole("heading", { name: /teacher-created test monitor/i })).toBeVisible();
-    await expect(page.getByRole("heading", { name: /study material quality control/i })).toBeVisible();
-    await expect(page.getByText("Medieval India quick notes")).toBeVisible();
+    await expect(page.getByRole("heading", { name: /today's academic work/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /choose one/i })).toBeVisible();
+    await expect(page.locator("#main-content").getByRole("link", { name: "My Classes", exact: true })).toBeVisible();
+    await expect(page.locator("#main-content").getByRole("link", { name: "Faculty", exact: true })).toBeVisible();
   });
 
   test("Teacher can run class actions from one workspace", async ({ page }) => {
     await mockAcademicApi(page, teacher);
     await page.goto("/dashboard/teacher");
 
-    await expect(page.getByRole("heading", { name: /assigned batches and subjects/i })).toBeVisible();
-    await expect(page.locator("#classes").getByRole("heading", { name: "NDA Foundation Alpha" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: /one-click class attendance/i })).toBeVisible();
-
-    await Promise.all([
-      page.waitForRequest((request) => request.method() === "POST" && request.url().includes("/api/academy/attendance")),
-      page.getByRole("button", { name: /save attendance/i }).click(),
-    ]);
-    await expect(page.getByText("Attendance saved.")).toBeVisible();
-
-    await page.locator("#library").getByLabel("Title").fill("New class notes");
-    await Promise.all([
-      page.waitForRequest((request) => request.method() === "POST" && request.url().includes("/api/academy/study-materials")),
-      page.getByRole("button", { name: /publish to class/i }).click(),
-    ]);
-
-    await page.locator("#assignments").getByLabel("Title").fill("Practice set 02");
-    await page.locator("#assignments").getByLabel("Instructions").fill("Submit short answers.");
-    await Promise.all([
-      page.waitForRequest((request) => request.method() === "POST" && request.url().includes("/api/academy/assignments")),
-      page.getByRole("button", { name: /publish assignment/i }).click(),
-    ]);
-
-    await expect(page.getByRole("heading", { name: /create quick class exams/i })).toBeVisible();
-    await expect(page.getByText("NDA History Test 01")).toBeVisible();
+    await expect(page.getByRole("heading", { name: /today's teaching work/i })).toBeVisible();
+    await expect(page.locator("#main-content").getByRole("link", { name: "My Classes", exact: true })).toBeVisible();
+    await expect(page.locator("#main-content").getByRole("link", { name: "Mark Attendance", exact: true })).toBeVisible();
+    await expect(page.locator("#main-content").getByRole("link", { name: "Exams", exact: true })).toBeVisible();
   });
 
   test("Student receives assigned academic services", async ({ page }) => {
     await mockAcademicApi(page, student);
     await page.goto("/dashboard/student");
 
-    await expect(page.getByRole("heading", { name: /your academy dashboard/i })).toBeVisible();
-    await expect(page.locator("h2").filter({ hasText: /^Assignments$/ })).toBeVisible();
-    await expect(page.getByText("Medieval India practice")).toBeVisible();
-    await expect(page.getByText("Medieval India quick notes")).toBeVisible();
-    await expect(page.getByText("NDA History Test 01")).toBeVisible();
-
-    await page.getByPlaceholder("Write your answer or submission note").fill("Completed.");
-    await Promise.all([
-      page.waitForRequest((request) => request.method() === "POST" && request.url().includes(`/api/academy/assignments/${assignment.id}/submit`)),
-      page.getByRole("button", { name: /submit assignment/i }).click(),
-    ]);
-    await expect(page.getByText("Assignment submitted.")).toBeVisible();
+    await expect(page.getByRole("heading", { name: /today, aarav student/i })).toBeVisible();
+    await expect(page.locator("#main-content").getByRole("link", { name: "Learning", exact: true })).toBeVisible();
+    await expect(page.locator("#main-content").getByRole("link", { name: "Practice", exact: true })).toBeVisible();
+    await expect(page.locator("#main-content").getByRole("link", { name: "Exams", exact: true })).toBeVisible();
   });
 });

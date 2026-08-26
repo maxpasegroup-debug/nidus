@@ -55,6 +55,7 @@ describe("NDIE Phase 9 - Real Certification Dossier", () => {
 
     expect(dossier.dossierSha256).toMatch(/^[a-f0-9]{64}$/);
     expect(realCertificationDossierService.verify(dossier)).toBe(true);
+    expect(realCertificationDossierService.verify(JSON.parse(JSON.stringify(dossier)))).toBe(true);
     expect(realCertificationDossierService.verify({ ...dossier, releaseScope: "INTERNATIONAL_CERTIFIED" })).toBe(false);
   });
 

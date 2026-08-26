@@ -12,6 +12,7 @@ export type NdieRetryPolicy = {
 export type NdieQueueJobInput = {
   importJobId: string;
   replayRunId?: string | null;
+  idempotencyKey?: string | null;
   jobType: NdieJobType;
   stage: string;
   priority?: number;
@@ -90,6 +91,8 @@ export type NdieQueueMetrics = {
 export interface NdieQueueProvider {
   id: string;
   health(): Promise<{ provider: string; status: "ready" | "degraded" | "disabled"; pendingJobs: number; failedJobs: number; dlqCount: number }>;
+  claimNext?(workerId: string): Promise<NdieQueueJobSnapshot | null>;
+  recoverStale?(timeoutMs: number): Promise<number>;
   enqueue(input: NdieQueueJobInput): Promise<NdieQueueJobSnapshot>;
   transition(jobId: string, nextState: NdieJobState, metadata?: Record<string, unknown>): Promise<NdieQueueJobSnapshot>;
   updateProgress(jobId: string, progress: number, currentStage: string): Promise<NdieQueueJobSnapshot>;

@@ -29,6 +29,7 @@ export type EmailLogMinAggregateOutputType = {
   recipient: string | null
   subject: string | null
   status: string | null
+  instituteId: string | null
   sentAt: Date | null
 }
 
@@ -37,6 +38,7 @@ export type EmailLogMaxAggregateOutputType = {
   recipient: string | null
   subject: string | null
   status: string | null
+  instituteId: string | null
   sentAt: Date | null
 }
 
@@ -45,6 +47,7 @@ export type EmailLogCountAggregateOutputType = {
   recipient: number
   subject: number
   status: number
+  instituteId: number
   sentAt: number
   _all: number
 }
@@ -55,6 +58,7 @@ export type EmailLogMinAggregateInputType = {
   recipient?: true
   subject?: true
   status?: true
+  instituteId?: true
   sentAt?: true
 }
 
@@ -63,6 +67,7 @@ export type EmailLogMaxAggregateInputType = {
   recipient?: true
   subject?: true
   status?: true
+  instituteId?: true
   sentAt?: true
 }
 
@@ -71,6 +76,7 @@ export type EmailLogCountAggregateInputType = {
   recipient?: true
   subject?: true
   status?: true
+  instituteId?: true
   sentAt?: true
   _all?: true
 }
@@ -152,6 +158,7 @@ export type EmailLogGroupByOutputType = {
   recipient: string
   subject: string
   status: string
+  instituteId: string | null
   sentAt: Date
   _count: EmailLogCountAggregateOutputType | null
   _min: EmailLogMinAggregateOutputType | null
@@ -181,7 +188,9 @@ export type EmailLogWhereInput = {
   recipient?: Prisma.StringFilter<"EmailLog"> | string
   subject?: Prisma.StringFilter<"EmailLog"> | string
   status?: Prisma.StringFilter<"EmailLog"> | string
+  instituteId?: Prisma.StringNullableFilter<"EmailLog"> | string | null
   sentAt?: Prisma.DateTimeFilter<"EmailLog"> | Date | string
+  institute?: Prisma.XOR<Prisma.InstituteNullableScalarRelationFilter, Prisma.InstituteWhereInput> | null
 }
 
 export type EmailLogOrderByWithRelationInput = {
@@ -189,7 +198,9 @@ export type EmailLogOrderByWithRelationInput = {
   recipient?: Prisma.SortOrder
   subject?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  instituteId?: Prisma.SortOrderInput | Prisma.SortOrder
   sentAt?: Prisma.SortOrder
+  institute?: Prisma.InstituteOrderByWithRelationInput
 }
 
 export type EmailLogWhereUniqueInput = Prisma.AtLeast<{
@@ -200,7 +211,9 @@ export type EmailLogWhereUniqueInput = Prisma.AtLeast<{
   recipient?: Prisma.StringFilter<"EmailLog"> | string
   subject?: Prisma.StringFilter<"EmailLog"> | string
   status?: Prisma.StringFilter<"EmailLog"> | string
+  instituteId?: Prisma.StringNullableFilter<"EmailLog"> | string | null
   sentAt?: Prisma.DateTimeFilter<"EmailLog"> | Date | string
+  institute?: Prisma.XOR<Prisma.InstituteNullableScalarRelationFilter, Prisma.InstituteWhereInput> | null
 }, "id">
 
 export type EmailLogOrderByWithAggregationInput = {
@@ -208,6 +221,7 @@ export type EmailLogOrderByWithAggregationInput = {
   recipient?: Prisma.SortOrder
   subject?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  instituteId?: Prisma.SortOrderInput | Prisma.SortOrder
   sentAt?: Prisma.SortOrder
   _count?: Prisma.EmailLogCountOrderByAggregateInput
   _max?: Prisma.EmailLogMaxOrderByAggregateInput
@@ -222,6 +236,7 @@ export type EmailLogScalarWhereWithAggregatesInput = {
   recipient?: Prisma.StringWithAggregatesFilter<"EmailLog"> | string
   subject?: Prisma.StringWithAggregatesFilter<"EmailLog"> | string
   status?: Prisma.StringWithAggregatesFilter<"EmailLog"> | string
+  instituteId?: Prisma.StringNullableWithAggregatesFilter<"EmailLog"> | string | null
   sentAt?: Prisma.DateTimeWithAggregatesFilter<"EmailLog"> | Date | string
 }
 
@@ -231,6 +246,7 @@ export type EmailLogCreateInput = {
   subject: string
   status: string
   sentAt?: Date | string
+  institute?: Prisma.InstituteCreateNestedOneWithoutEmailLogsInput
 }
 
 export type EmailLogUncheckedCreateInput = {
@@ -238,6 +254,7 @@ export type EmailLogUncheckedCreateInput = {
   recipient: string
   subject: string
   status: string
+  instituteId?: string | null
   sentAt?: Date | string
 }
 
@@ -247,6 +264,7 @@ export type EmailLogUpdateInput = {
   subject?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   sentAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  institute?: Prisma.InstituteUpdateOneWithoutEmailLogsNestedInput
 }
 
 export type EmailLogUncheckedUpdateInput = {
@@ -254,6 +272,7 @@ export type EmailLogUncheckedUpdateInput = {
   recipient?: Prisma.StringFieldUpdateOperationsInput | string
   subject?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sentAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -262,6 +281,7 @@ export type EmailLogCreateManyInput = {
   recipient: string
   subject: string
   status: string
+  instituteId?: string | null
   sentAt?: Date | string
 }
 
@@ -278,6 +298,7 @@ export type EmailLogUncheckedUpdateManyInput = {
   recipient?: Prisma.StringFieldUpdateOperationsInput | string
   subject?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sentAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -286,6 +307,7 @@ export type EmailLogCountOrderByAggregateInput = {
   recipient?: Prisma.SortOrder
   subject?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  instituteId?: Prisma.SortOrder
   sentAt?: Prisma.SortOrder
 }
 
@@ -294,6 +316,7 @@ export type EmailLogMaxOrderByAggregateInput = {
   recipient?: Prisma.SortOrder
   subject?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  instituteId?: Prisma.SortOrder
   sentAt?: Prisma.SortOrder
 }
 
@@ -302,7 +325,146 @@ export type EmailLogMinOrderByAggregateInput = {
   recipient?: Prisma.SortOrder
   subject?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  instituteId?: Prisma.SortOrder
   sentAt?: Prisma.SortOrder
+}
+
+export type EmailLogListRelationFilter = {
+  every?: Prisma.EmailLogWhereInput
+  some?: Prisma.EmailLogWhereInput
+  none?: Prisma.EmailLogWhereInput
+}
+
+export type EmailLogOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
+export type EmailLogCreateNestedManyWithoutInstituteInput = {
+  create?: Prisma.XOR<Prisma.EmailLogCreateWithoutInstituteInput, Prisma.EmailLogUncheckedCreateWithoutInstituteInput> | Prisma.EmailLogCreateWithoutInstituteInput[] | Prisma.EmailLogUncheckedCreateWithoutInstituteInput[]
+  connectOrCreate?: Prisma.EmailLogCreateOrConnectWithoutInstituteInput | Prisma.EmailLogCreateOrConnectWithoutInstituteInput[]
+  createMany?: Prisma.EmailLogCreateManyInstituteInputEnvelope
+  connect?: Prisma.EmailLogWhereUniqueInput | Prisma.EmailLogWhereUniqueInput[]
+}
+
+export type EmailLogUncheckedCreateNestedManyWithoutInstituteInput = {
+  create?: Prisma.XOR<Prisma.EmailLogCreateWithoutInstituteInput, Prisma.EmailLogUncheckedCreateWithoutInstituteInput> | Prisma.EmailLogCreateWithoutInstituteInput[] | Prisma.EmailLogUncheckedCreateWithoutInstituteInput[]
+  connectOrCreate?: Prisma.EmailLogCreateOrConnectWithoutInstituteInput | Prisma.EmailLogCreateOrConnectWithoutInstituteInput[]
+  createMany?: Prisma.EmailLogCreateManyInstituteInputEnvelope
+  connect?: Prisma.EmailLogWhereUniqueInput | Prisma.EmailLogWhereUniqueInput[]
+}
+
+export type EmailLogUpdateManyWithoutInstituteNestedInput = {
+  create?: Prisma.XOR<Prisma.EmailLogCreateWithoutInstituteInput, Prisma.EmailLogUncheckedCreateWithoutInstituteInput> | Prisma.EmailLogCreateWithoutInstituteInput[] | Prisma.EmailLogUncheckedCreateWithoutInstituteInput[]
+  connectOrCreate?: Prisma.EmailLogCreateOrConnectWithoutInstituteInput | Prisma.EmailLogCreateOrConnectWithoutInstituteInput[]
+  upsert?: Prisma.EmailLogUpsertWithWhereUniqueWithoutInstituteInput | Prisma.EmailLogUpsertWithWhereUniqueWithoutInstituteInput[]
+  createMany?: Prisma.EmailLogCreateManyInstituteInputEnvelope
+  set?: Prisma.EmailLogWhereUniqueInput | Prisma.EmailLogWhereUniqueInput[]
+  disconnect?: Prisma.EmailLogWhereUniqueInput | Prisma.EmailLogWhereUniqueInput[]
+  delete?: Prisma.EmailLogWhereUniqueInput | Prisma.EmailLogWhereUniqueInput[]
+  connect?: Prisma.EmailLogWhereUniqueInput | Prisma.EmailLogWhereUniqueInput[]
+  update?: Prisma.EmailLogUpdateWithWhereUniqueWithoutInstituteInput | Prisma.EmailLogUpdateWithWhereUniqueWithoutInstituteInput[]
+  updateMany?: Prisma.EmailLogUpdateManyWithWhereWithoutInstituteInput | Prisma.EmailLogUpdateManyWithWhereWithoutInstituteInput[]
+  deleteMany?: Prisma.EmailLogScalarWhereInput | Prisma.EmailLogScalarWhereInput[]
+}
+
+export type EmailLogUncheckedUpdateManyWithoutInstituteNestedInput = {
+  create?: Prisma.XOR<Prisma.EmailLogCreateWithoutInstituteInput, Prisma.EmailLogUncheckedCreateWithoutInstituteInput> | Prisma.EmailLogCreateWithoutInstituteInput[] | Prisma.EmailLogUncheckedCreateWithoutInstituteInput[]
+  connectOrCreate?: Prisma.EmailLogCreateOrConnectWithoutInstituteInput | Prisma.EmailLogCreateOrConnectWithoutInstituteInput[]
+  upsert?: Prisma.EmailLogUpsertWithWhereUniqueWithoutInstituteInput | Prisma.EmailLogUpsertWithWhereUniqueWithoutInstituteInput[]
+  createMany?: Prisma.EmailLogCreateManyInstituteInputEnvelope
+  set?: Prisma.EmailLogWhereUniqueInput | Prisma.EmailLogWhereUniqueInput[]
+  disconnect?: Prisma.EmailLogWhereUniqueInput | Prisma.EmailLogWhereUniqueInput[]
+  delete?: Prisma.EmailLogWhereUniqueInput | Prisma.EmailLogWhereUniqueInput[]
+  connect?: Prisma.EmailLogWhereUniqueInput | Prisma.EmailLogWhereUniqueInput[]
+  update?: Prisma.EmailLogUpdateWithWhereUniqueWithoutInstituteInput | Prisma.EmailLogUpdateWithWhereUniqueWithoutInstituteInput[]
+  updateMany?: Prisma.EmailLogUpdateManyWithWhereWithoutInstituteInput | Prisma.EmailLogUpdateManyWithWhereWithoutInstituteInput[]
+  deleteMany?: Prisma.EmailLogScalarWhereInput | Prisma.EmailLogScalarWhereInput[]
+}
+
+export type EmailLogCreateWithoutInstituteInput = {
+  id?: string
+  recipient: string
+  subject: string
+  status: string
+  sentAt?: Date | string
+}
+
+export type EmailLogUncheckedCreateWithoutInstituteInput = {
+  id?: string
+  recipient: string
+  subject: string
+  status: string
+  sentAt?: Date | string
+}
+
+export type EmailLogCreateOrConnectWithoutInstituteInput = {
+  where: Prisma.EmailLogWhereUniqueInput
+  create: Prisma.XOR<Prisma.EmailLogCreateWithoutInstituteInput, Prisma.EmailLogUncheckedCreateWithoutInstituteInput>
+}
+
+export type EmailLogCreateManyInstituteInputEnvelope = {
+  data: Prisma.EmailLogCreateManyInstituteInput | Prisma.EmailLogCreateManyInstituteInput[]
+  skipDuplicates?: boolean
+}
+
+export type EmailLogUpsertWithWhereUniqueWithoutInstituteInput = {
+  where: Prisma.EmailLogWhereUniqueInput
+  update: Prisma.XOR<Prisma.EmailLogUpdateWithoutInstituteInput, Prisma.EmailLogUncheckedUpdateWithoutInstituteInput>
+  create: Prisma.XOR<Prisma.EmailLogCreateWithoutInstituteInput, Prisma.EmailLogUncheckedCreateWithoutInstituteInput>
+}
+
+export type EmailLogUpdateWithWhereUniqueWithoutInstituteInput = {
+  where: Prisma.EmailLogWhereUniqueInput
+  data: Prisma.XOR<Prisma.EmailLogUpdateWithoutInstituteInput, Prisma.EmailLogUncheckedUpdateWithoutInstituteInput>
+}
+
+export type EmailLogUpdateManyWithWhereWithoutInstituteInput = {
+  where: Prisma.EmailLogScalarWhereInput
+  data: Prisma.XOR<Prisma.EmailLogUpdateManyMutationInput, Prisma.EmailLogUncheckedUpdateManyWithoutInstituteInput>
+}
+
+export type EmailLogScalarWhereInput = {
+  AND?: Prisma.EmailLogScalarWhereInput | Prisma.EmailLogScalarWhereInput[]
+  OR?: Prisma.EmailLogScalarWhereInput[]
+  NOT?: Prisma.EmailLogScalarWhereInput | Prisma.EmailLogScalarWhereInput[]
+  id?: Prisma.StringFilter<"EmailLog"> | string
+  recipient?: Prisma.StringFilter<"EmailLog"> | string
+  subject?: Prisma.StringFilter<"EmailLog"> | string
+  status?: Prisma.StringFilter<"EmailLog"> | string
+  instituteId?: Prisma.StringNullableFilter<"EmailLog"> | string | null
+  sentAt?: Prisma.DateTimeFilter<"EmailLog"> | Date | string
+}
+
+export type EmailLogCreateManyInstituteInput = {
+  id?: string
+  recipient: string
+  subject: string
+  status: string
+  sentAt?: Date | string
+}
+
+export type EmailLogUpdateWithoutInstituteInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  recipient?: Prisma.StringFieldUpdateOperationsInput | string
+  subject?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  sentAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type EmailLogUncheckedUpdateWithoutInstituteInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  recipient?: Prisma.StringFieldUpdateOperationsInput | string
+  subject?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  sentAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type EmailLogUncheckedUpdateManyWithoutInstituteInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  recipient?: Prisma.StringFieldUpdateOperationsInput | string
+  subject?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  sentAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -312,7 +474,9 @@ export type EmailLogSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   recipient?: boolean
   subject?: boolean
   status?: boolean
+  instituteId?: boolean
   sentAt?: boolean
+  institute?: boolean | Prisma.EmailLog$instituteArgs<ExtArgs>
 }, ExtArgs["result"]["emailLog"]>
 
 export type EmailLogSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -320,7 +484,9 @@ export type EmailLogSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   recipient?: boolean
   subject?: boolean
   status?: boolean
+  instituteId?: boolean
   sentAt?: boolean
+  institute?: boolean | Prisma.EmailLog$instituteArgs<ExtArgs>
 }, ExtArgs["result"]["emailLog"]>
 
 export type EmailLogSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -328,7 +494,9 @@ export type EmailLogSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   recipient?: boolean
   subject?: boolean
   status?: boolean
+  instituteId?: boolean
   sentAt?: boolean
+  institute?: boolean | Prisma.EmailLog$instituteArgs<ExtArgs>
 }, ExtArgs["result"]["emailLog"]>
 
 export type EmailLogSelectScalar = {
@@ -336,19 +504,32 @@ export type EmailLogSelectScalar = {
   recipient?: boolean
   subject?: boolean
   status?: boolean
+  instituteId?: boolean
   sentAt?: boolean
 }
 
-export type EmailLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "recipient" | "subject" | "status" | "sentAt", ExtArgs["result"]["emailLog"]>
+export type EmailLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "recipient" | "subject" | "status" | "instituteId" | "sentAt", ExtArgs["result"]["emailLog"]>
+export type EmailLogInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  institute?: boolean | Prisma.EmailLog$instituteArgs<ExtArgs>
+}
+export type EmailLogIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  institute?: boolean | Prisma.EmailLog$instituteArgs<ExtArgs>
+}
+export type EmailLogIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  institute?: boolean | Prisma.EmailLog$instituteArgs<ExtArgs>
+}
 
 export type $EmailLogPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "EmailLog"
-  objects: {}
+  objects: {
+    institute: Prisma.$InstitutePayload<ExtArgs> | null
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     recipient: string
     subject: string
     status: string
+    instituteId: string | null
     sentAt: Date
   }, ExtArgs["result"]["emailLog"]>
   composites: {}
@@ -744,6 +925,7 @@ readonly fields: EmailLogFieldRefs;
  */
 export interface Prisma__EmailLogClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  institute<T extends Prisma.EmailLog$instituteArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmailLog$instituteArgs<ExtArgs>>): Prisma.Prisma__InstituteClient<runtime.Types.Result.GetResult<Prisma.$InstitutePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -777,6 +959,7 @@ export interface EmailLogFieldRefs {
   readonly recipient: Prisma.FieldRef<"EmailLog", 'String'>
   readonly subject: Prisma.FieldRef<"EmailLog", 'String'>
   readonly status: Prisma.FieldRef<"EmailLog", 'String'>
+  readonly instituteId: Prisma.FieldRef<"EmailLog", 'String'>
   readonly sentAt: Prisma.FieldRef<"EmailLog", 'DateTime'>
 }
     
@@ -794,6 +977,10 @@ export type EmailLogFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Omit specific fields from the EmailLog
    */
   omit?: Prisma.EmailLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmailLogInclude<ExtArgs> | null
   /**
    * Filter, which EmailLog to fetch.
    */
@@ -813,6 +1000,10 @@ export type EmailLogFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensio
    */
   omit?: Prisma.EmailLogOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmailLogInclude<ExtArgs> | null
+  /**
    * Filter, which EmailLog to fetch.
    */
   where: Prisma.EmailLogWhereUniqueInput
@@ -830,6 +1021,10 @@ export type EmailLogFindFirstArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Omit specific fields from the EmailLog
    */
   omit?: Prisma.EmailLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmailLogInclude<ExtArgs> | null
   /**
    * Filter, which EmailLog to fetch.
    */
@@ -879,6 +1074,10 @@ export type EmailLogFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extension
    */
   omit?: Prisma.EmailLogOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmailLogInclude<ExtArgs> | null
+  /**
    * Filter, which EmailLog to fetch.
    */
   where?: Prisma.EmailLogWhereInput
@@ -926,6 +1125,10 @@ export type EmailLogFindManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Omit specific fields from the EmailLog
    */
   omit?: Prisma.EmailLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmailLogInclude<ExtArgs> | null
   /**
    * Filter, which EmailLogs to fetch.
    */
@@ -975,6 +1178,10 @@ export type EmailLogCreateArgs<ExtArgs extends runtime.Types.Extensions.Internal
    */
   omit?: Prisma.EmailLogOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmailLogInclude<ExtArgs> | null
+  /**
    * The data needed to create a EmailLog.
    */
   data: Prisma.XOR<Prisma.EmailLogCreateInput, Prisma.EmailLogUncheckedCreateInput>
@@ -1008,6 +1215,10 @@ export type EmailLogCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extens
    */
   data: Prisma.EmailLogCreateManyInput | Prisma.EmailLogCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmailLogIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1022,6 +1233,10 @@ export type EmailLogUpdateArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Omit specific fields from the EmailLog
    */
   omit?: Prisma.EmailLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmailLogInclude<ExtArgs> | null
   /**
    * The data needed to update a EmailLog.
    */
@@ -1074,6 +1289,10 @@ export type EmailLogUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extens
    * Limit how many EmailLogs to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmailLogIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1088,6 +1307,10 @@ export type EmailLogUpsertArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Omit specific fields from the EmailLog
    */
   omit?: Prisma.EmailLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmailLogInclude<ExtArgs> | null
   /**
    * The filter to search for the EmailLog to update in case it exists.
    */
@@ -1115,6 +1338,10 @@ export type EmailLogDeleteArgs<ExtArgs extends runtime.Types.Extensions.Internal
    */
   omit?: Prisma.EmailLogOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmailLogInclude<ExtArgs> | null
+  /**
    * Filter which EmailLog to delete.
    */
   where: Prisma.EmailLogWhereUniqueInput
@@ -1135,6 +1362,25 @@ export type EmailLogDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
 }
 
 /**
+ * EmailLog.institute
+ */
+export type EmailLog$instituteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Institute
+   */
+  select?: Prisma.InstituteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Institute
+   */
+  omit?: Prisma.InstituteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InstituteInclude<ExtArgs> | null
+  where?: Prisma.InstituteWhereInput
+}
+
+/**
  * EmailLog without action
  */
 export type EmailLogDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1146,4 +1392,8 @@ export type EmailLogDefaultArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Omit specific fields from the EmailLog
    */
   omit?: Prisma.EmailLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmailLogInclude<ExtArgs> | null
 }

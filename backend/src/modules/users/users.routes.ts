@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "../../config/prisma.js";
 import { Prisma, Role } from "../../generated/prisma/client.js";
-import { allowRoles, protect } from "../../middlewares/session.middleware.js";
+import { allowRoles, protect, type AuthenticatedRequest } from "../../middlewares/session.middleware.js";
 import { DEFAULT_ACCOUNT_PIN } from "../auth/auth.v2.service.js";
 
 const createUserSchema = z.object({
@@ -28,6 +28,13 @@ function metadataObject(value: unknown) {
   return value && typeof value === "object" && !Array.isArray(value) ? value : {};
 }
 
+function credentialSafeMetadata(value: unknown) {
+  const metadata = { ...metadataObject(value) } as Record<string, unknown>;
+  delete metadata.accessPin;
+  delete metadata.access_pin;
+  return metadata;
+}
+
 function normalizeMobile(value: string) {
   return value.trim().replace(/[\s()-]/g, "");
 }
@@ -47,9 +54,17 @@ export const usersRouter = Router();
 
 usersRouter.use(protect, allowRoles(Role.ADMIN, Role.DIRECTOR));
 
-usersRouter.get("/", async (_req, res, next) => {
+function directorInstitute(req: AuthenticatedRequest) {
+  if (req.user?.role !== Role.DIRECTOR) return undefined;
+  if (!req.user.instituteId) throw Object.assign(new Error("Director institution assignment is required"), { statusCode: 403 });
+  return req.user.instituteId;
+}
+
+usersRouter.get("/", async (req: AuthenticatedRequest, res, next) => {
   try {
+    const instituteId = directorInstitute(req);
     const users = await prisma.user.findMany({
+      where: instituteId ? { instituteId } : undefined,
       select: {
         id: true,
         name: true,
@@ -74,9 +89,10 @@ usersRouter.get("/", async (_req, res, next) => {
   }
 });
 
-usersRouter.post("/", async (req, res, next) => {
+usersRouter.post("/", async (req: AuthenticatedRequest, res, next) => {
   try {
     const payload = createUserSchema.parse(req.body);
+    const instituteId = directorInstitute(req);
     const email = payload.email.trim().toLowerCase();
     const mobile = normalizeMobile(payload.mobile);
     const existingUser = await prisma.user.findFirst({ where: { OR: [{ email }, { mobile: { in: mobileCandidates(mobile) } }] } });
@@ -107,7 +123,9 @@ usersRouter.post("/", async (req, res, next) => {
         roleOnboardingStatus: "ACTIVE",
         roleActivatedAt: new Date(),
         lastRoleActivityAt: new Date(),
-        roleMetadata: { loginMobile: mobile, authMobile: mobile, defaultPassword: true, defaultPin: true, accessPin: DEFAULT_ACCOUNT_PIN, createdByAdmin: true, authSyncedAt: new Date().toISOString() }
+        roleMetadata: { loginMobile: mobile, authMobile: mobile, defaultPassword: true, defaultPin: true, createdByAdmin: true, authSyncedAt: new Date().toISOString() },
+        instituteId: instituteId ?? req.user?.instituteId ?? undefined,
+        branchId: req.user?.role === Role.DIRECTOR ? req.user.branchId ?? undefined : undefined
       },
       select: {
         id: true,
@@ -133,9 +151,15 @@ usersRouter.post("/", async (req, res, next) => {
   }
 });
 
-usersRouter.post("/:id/reset-password", async (req, res, next) => {
+usersRouter.post("/:id/reset-password", async (req: AuthenticatedRequest, res, next) => {
   try {
-    const user = await prisma.user.findUnique({ where: { id: req.params.id } });
+    const instituteId = directorInstitute(req);
+    const id = typeof req.params.id === "string" ? req.params.id : undefined;
+    if (!id) {
+      res.status(400).json({ message: "Invalid user id" });
+      return;
+    }
+    const user = await prisma.user.findFirst({ where: { id, ...(instituteId ? { instituteId } : {}) } });
     if (!user) {
       res.status(404).json({ message: "User not found" });
       return;
@@ -150,7 +174,7 @@ usersRouter.post("/:id/reset-password", async (req, res, next) => {
         loginFailureCount: 0,
         lockedUntil: null,
         mobileVerified: true,
-        roleMetadata: { ...metadataObject(user.roleMetadata), loginMobile: normalizeMobile(user.mobile), authMobile: normalizeMobile(user.mobile), defaultPassword: true, defaultPin: true, accessPin: DEFAULT_ACCOUNT_PIN, authSyncedAt: new Date().toISOString(), pinResetByAdminAt: new Date().toISOString(), passwordResetByAdminAt: new Date().toISOString() }
+        roleMetadata: { ...credentialSafeMetadata(user.roleMetadata), loginMobile: normalizeMobile(user.mobile), authMobile: normalizeMobile(user.mobile), defaultPassword: true, defaultPin: true, authSyncedAt: new Date().toISOString(), pinResetByAdminAt: new Date().toISOString(), passwordResetByAdminAt: new Date().toISOString() }
       }
     });
     await prisma.sessionToken.deleteMany({ where: { userId: user.id } });

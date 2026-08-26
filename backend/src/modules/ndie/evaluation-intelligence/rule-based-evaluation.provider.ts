@@ -175,7 +175,7 @@ export class RuleBasedEvaluationProvider implements EvaluationProvider {
       const text = elementText(element);
       if (!text) continue;
 
-      for (const match of text.matchAll(answerPattern)) {
+      for (const match of sourceLooksLikeKey ? text.matchAll(answerPattern) : []) {
         const questionNumber = match[1];
         const question = findQuestion(input.assessment, questionNumber);
         const correctOptions = splitOptions(match[2]);
@@ -183,13 +183,13 @@ export class RuleBasedEvaluationProvider implements EvaluationProvider {
           answerId: `answer-${input.importJobId}-${questionNumber}-${answersByQuestion.get(questionNumber)?.length ?? 0}`,
           questionId: question?.questionId ?? null,
           questionNumber,
-          answerKind: sourceLooksLikeKey ? "SEPARATE_ANSWER_KEY_DOCUMENT" : "INLINE_ANSWER_KEY",
+          answerKind: "SEPARATE_ANSWER_KEY_DOCUMENT",
           correctOptions,
           rawAnswer: match[2],
           versionLabel: null,
           sourceElementIds: [element.id],
           boundingBoxes: [asBox(element.coordinates)].filter((box): box is NdieLayoutBox => Boolean(box)),
-          confidence: sourceLooksLikeKey ? 0.82 : 0.58
+          confidence: 0.82
         };
         answersByQuestion.set(questionNumber, [...(answersByQuestion.get(questionNumber) ?? []), answer]);
       }

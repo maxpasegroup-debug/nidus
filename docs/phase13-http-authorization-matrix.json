@@ -1,0 +1,31 @@
+{
+  "phase": "13",
+  "execution": "HTTP execution requires PHASE13_HTTP_E2E=1 and disposable staging fixtures; this artifact is the route contract, not proof of runtime execution.",
+  "matrix": [
+    {
+      "endpointFamily": "dashboard",
+      "classification": "TENANT_SCOPED",
+      "evidence": "Director institution scope and relation filters"
+    },
+    {
+      "endpointFamily": "admissions-os",
+      "classification": "TENANT_SCOPED_WITH_FAIL_CLOSED_LEGACY",
+      "evidence": "Lead assignee/admission institute filters"
+    },
+    {
+      "endpointFamily": "communication",
+      "classification": "TENANT_SCOPED_FOR_NEW_DELIVERY_RECORDS",
+      "evidence": "Notification/EmailLog/PushNotification instituteId"
+    },
+    {
+      "endpointFamily": "timetable",
+      "classification": "FAIL_CLOSED",
+      "evidence": "No safe ownership relation"
+    },
+    {
+      "endpointFamily": "legacy_erp",
+      "classification": "REQUIRES_REVIEW",
+      "evidence": "Several denormalized records lack direct ownership"
+    }
+  ]
+}

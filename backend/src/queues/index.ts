@@ -7,6 +7,7 @@ import { startPDFWorker } from "./pdf.queue.js";
 import { scheduleRecurringJobs, startDailyIntelligenceWorker, startScheduledWorker } from "./scheduler.queue.js";
 import { startWhatsAppWorker } from "./whatsapp.queue.js";
 import { closeQueues, isQueueAvailable } from "./queue.config.js";
+import { startNdieDatabaseWorkers, stopNdieDatabaseWorkers } from "../modules/ndie/worker/database-worker.runtime.js";
 
 const workers: Array<{ worker: { close: () => Promise<void> }; events?: { close: () => Promise<void> } } | null> = [];
 
@@ -15,6 +16,8 @@ export async function startInfrastructureWorkers() {
     logger.info("Queue workers skipped for web process", { processRole: env.PROCESS_ROLE });
     return;
   }
+
+  startNdieDatabaseWorkers();
 
   if (!env.QUEUE_WORKERS_ENABLED || !isQueueAvailable()) {
     logger.warn("Queue workers not started", { workersEnabled: env.QUEUE_WORKERS_ENABLED, queueAvailable: isQueueAvailable() });
@@ -27,6 +30,7 @@ export async function startInfrastructureWorkers() {
 }
 
 export async function stopInfrastructureWorkers() {
+  await stopNdieDatabaseWorkers();
   await Promise.all(workers.filter(Boolean).map(async (entry) => {
     await entry?.events?.close().catch(() => undefined);
     await entry?.worker.close().catch(() => undefined);

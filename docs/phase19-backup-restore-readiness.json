@@ -1,0 +1,12 @@
+{
+  "phase": 19,
+  "status": "BLOCKED — ENVIRONMENT",
+  "phase19Verified": false,
+  "evidence": {
+    "pgDump": false,
+    "pgRestore": false,
+    "psql": false,
+    "backupBucket": false,
+    "productionTouched": false
+  }
+}

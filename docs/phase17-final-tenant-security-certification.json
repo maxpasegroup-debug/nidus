@@ -1,0 +1,21 @@
+{
+  "phase": 17,
+  "totalRoutes": 472,
+  "totalSensitiveRoutes": 125,
+  "provenSafe": 109,
+  "global": 4,
+  "failClosed": 12,
+  "notApplicable": 0,
+  "requiresFix": 0,
+  "environmentBlocked": 0,
+  "httpChecksExecuted": 18,
+  "httpChecksPassed": 18,
+  "httpChecksFailed": 0,
+  "httpChecksSkipped": 0,
+  "unresolvedFindings": [],
+  "remainingRisks": [
+    "Unexercised sensitive route candidates require direct HTTP proof or explicit fail-closed handling.",
+    "Provider-dependent media retrieval remains environment-blocked."
+  ],
+  "certification": "CERTIFIED"
+}

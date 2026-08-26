@@ -1,17 +1,30 @@
 import { prisma } from "../../config/prisma.js";
 
+type TenantScope = { id: string; instituteId: string | null };
+
+function requireTenant(scope: TenantScope) {
+  if (!scope.instituteId) throw Object.assign(new Error("Institution scope is required"), { statusCode: 403 });
+  return scope.instituteId;
+}
+
 export const erpService = {
-  markAttendance(markerId: string, input: { userId: string; date: string; status: string }) {
+  async markAttendance(marker: TenantScope, input: { userId: string; date: string; status: string }) {
+    const instituteId = requireTenant(marker);
+    const user = await prisma.user.findFirst({ where: { id: input.userId, instituteId }, select: { id: true } });
+    if (!user) throw Object.assign(new Error("Attendance user is outside the institution"), { statusCode: 403 });
     return prisma.attendance.create({
-      data: { userId: input.userId, date: new Date(input.date), status: input.status, markedBy: markerId },
+      data: { userId: input.userId, date: new Date(input.date), status: input.status, markedBy: marker.id },
       include: { user: { select: { id: true, name: true, role: true } } }
     });
   },
-  studentAttendance(userId: string) {
-    return prisma.attendance.findMany({ where: { userId }, orderBy: { date: "desc" } });
+  async studentAttendance(scope: TenantScope, userId: string) {
+    const instituteId = requireTenant(scope);
+    return prisma.attendance.findMany({ where: { userId, user: { instituteId } }, orderBy: { date: "desc" } });
   },
-  classAttendance() {
+  async classAttendance(scope: TenantScope) {
+    const instituteId = requireTenant(scope);
     return prisma.attendance.findMany({
+      where: { user: { instituteId } },
       orderBy: { date: "desc" },
       include: { user: { select: { id: true, name: true, role: true } } }
     });
@@ -32,14 +45,16 @@ export const erpService = {
     await prisma.timetable.delete({ where: { id } });
     return { message: "Timetable deleted successfully" };
   },
-  faculty() {
-    return prisma.faculty.findMany({ include: { user: { select: { id: true, name: true, email: true } }, payrolls: true } });
+  async faculty(scope: TenantScope) {
+    const instituteId = requireTenant(scope);
+    return prisma.faculty.findMany({ where: { user: { instituteId } }, include: { user: { select: { id: true, name: true, email: true } }, payrolls: true } });
   },
   createFaculty(input: { userId: string; department: string; designation: string; joiningDate: string; salary: number; status: string }) {
     return prisma.faculty.create({ data: { ...input, joiningDate: new Date(input.joiningDate) }, include: { user: true } });
   },
-  payroll() {
-    return prisma.payroll.findMany({ include: { faculty: { include: { user: { select: { name: true, email: true } } } } } });
+  async payroll(scope: TenantScope) {
+    const instituteId = requireTenant(scope);
+    return prisma.payroll.findMany({ where: { faculty: { user: { instituteId } } }, include: { faculty: { include: { user: { select: { name: true, email: true } } } } } });
   },
   createPayroll(input: { facultyId: string; month: string; basicSalary: number; incentives: number; deductions: number; paidStatus: string }) {
     return prisma.payroll.create({ data: { ...input, totalSalary: input.basicSalary + input.incentives - input.deductions } });
@@ -62,10 +77,12 @@ export const erpService = {
       facultyAssignmentWorkflow: { facultyCount, status: "READY" }
     };
   },
-  announcements() {
-    return prisma.announcement.findMany({ orderBy: { createdAt: "desc" } });
+  async announcements(scope: TenantScope) {
+    const instituteId = requireTenant(scope);
+    return prisma.announcement.findMany({ where: { creator: { instituteId } }, orderBy: { createdAt: "desc" } });
   },
-  createAnnouncement(input: { title: string; description: string; targetAudience: string }) {
-    return prisma.announcement.create({ data: input });
+  createAnnouncement(scope: TenantScope, input: { title: string; description: string; targetAudience: string }) {
+    requireTenant(scope);
+    return prisma.announcement.create({ data: { ...input, createdBy: scope.id } });
   }
 };

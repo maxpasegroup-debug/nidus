@@ -4,6 +4,7 @@ import { prisma } from "../../../config/prisma.js";
 import { NIDUS_QUESTION_CONTENT_FORMAT } from "../../document-intelligence/question-content.schema.js";
 import { testsService, type TestPayload } from "../../tests/tests.service.js";
 import type { NdieExamPackage, NdiePublishIntegrityIssue, NdiePublishResult, NdiePublishedAsset, NdiePublishedQuestion } from "../contracts/publish-package.js";
+import { validateCandidateIntegrity } from "../review-engine/candidate-integrity.js";
 
 type Requester = {
   id: string;
@@ -109,8 +110,15 @@ function sourceCoordinates(candidate: { sourceMap?: Prisma.JsonValue | null }) {
   return asRecord(map.coordinates);
 }
 
-function answerByQuestionNumber(answers: Array<{ questionNumber?: string | null; answerJson: Prisma.JsonValue }>) {
-  return new Map(answers.map((answer) => [String(answer.questionNumber || ""), asRecord(answer.answerJson)]));
+function answerMaps(answers: Array<{ questionCandidateId?: string | null; questionNumber?: string | null; answerJson: Prisma.JsonValue }>) {
+  return {
+    byCandidate: new Map(answers.filter((answer) => answer.questionCandidateId).map((answer) => [String(answer.questionCandidateId), asRecord(answer.answerJson)])),
+    byNumber: new Map(answers.map((answer) => [String(answer.questionNumber || ""), asRecord(answer.answerJson)]))
+  };
+}
+
+function answerForCandidate(maps: ReturnType<typeof answerMaps>, candidate: { id: string; questionNumber?: string | null }) {
+  return maps.byCandidate.get(candidate.id) ?? maps.byNumber.get(String(candidate.questionNumber || "")) ?? {};
 }
 
 function solutionByQuestionNumber(solutions: Array<{ questionNumber?: string | null; solutionJson: Prisma.JsonValue }>) {
@@ -127,6 +135,19 @@ function explanationText(solution: Record<string, unknown>, hasAnswer: boolean) 
   const text = typeof solution.text === "string" ? solution.text.trim() : "";
   if (text) return text;
   return hasAnswer ? "NDIE teacher-approved answer key. Explanation was not supplied in the source document." : "";
+}
+
+function candidateMarks(candidateJson: CandidateJson) {
+  const assessment = asRecord(asRecord(candidateJson).assessment);
+  const metadata = asRecord(candidateJson.metadata);
+  return Number(assessment.marks ?? metadata.marks);
+}
+
+function candidateDifficulty(candidateJson: CandidateJson) {
+  const assessment = asRecord(asRecord(candidateJson).assessment);
+  const metadata = asRecord(candidateJson.metadata);
+  const value = String(assessment.difficulty ?? metadata.difficulty ?? "MEDIUM").toUpperCase();
+  return ["EASY", "MEDIUM", "HARD"].includes(value) ? value : "MEDIUM";
 }
 
 function contentBlocks(input: {
@@ -241,7 +262,7 @@ function validationIssues(providerRun: { outputSummary?: Prisma.JsonValue | null
 function buildIntegrity(input: {
   importJob: {
     questionCandidates: Array<{ id: string; questionNumber: string | null; questionType: string; reviewStatus: string; candidateJson: Prisma.JsonValue; sourceMap?: Prisma.JsonValue | null }>;
-    answerKeyCandidates: Array<{ questionNumber?: string | null; answerJson: Prisma.JsonValue }>;
+    answerKeyCandidates: Array<{ questionCandidateId?: string | null; questionNumber?: string | null; answerJson: Prisma.JsonValue }>;
     assets: Array<{ id: string; assetType: string; role: string | null; url: string; sourceDocumentId: string; pageNumber: number | null; metadata: Prisma.JsonValue | null }>;
     providerRuns: Array<{ stage: string; outputSummary?: Prisma.JsonValue | null; completedAt?: Date | null; startedAt: Date }>;
   };
@@ -281,10 +302,11 @@ function buildIntegrity(input: {
     }));
   }
 
-  const answerMap = answerByQuestionNumber(input.importJob.answerKeyCandidates);
+  const answers = answerMaps(input.importJob.answerKeyCandidates);
+  const assetIds = new Set(input.importJob.assets.map((asset) => asset.id));
   for (const candidate of input.approvedCandidates) {
     const questionType = String(candidate.questionType || "").toUpperCase();
-    const answer = answerMap.get(String(candidate.questionNumber || "")) ?? {};
+    const answer = answerForCandidate(answers, candidate);
     if (OBJECTIVE_QUESTION_TYPES.has(questionType) && !correctOption(answer)) {
       issues.push(issue({
         severity: "CRITICAL",
@@ -296,8 +318,17 @@ function buildIntegrity(input: {
     }
 
     const candidateJson = asRecord(candidate.candidateJson) as CandidateJson;
+    const candidateValidation = validateCandidateIntegrity({
+      questionType: candidate.questionType,
+      candidateJson: candidate.candidateJson,
+      sourceMap: input.importJob.questionCandidates.find((item) => item.id === candidate.id)?.sourceMap,
+      answerJson: answer as Prisma.InputJsonValue,
+      availableAssetIds: assetIds
+    });
+    for (const reason of candidateValidation.errors) {
+      issues.push(issue({ severity: "CRITICAL", issueType: "INVALID_CONTENT", targetId: candidate.id, reason, blockPublish: true }));
+    }
     const visualLinks = linkIds(candidateJson, "visualLinks");
-    const assetIds = new Set(input.importJob.assets.map((asset) => asset.id));
     const missingVisualLinks = visualLinks.filter((id) => !assetIds.has(id));
     if (missingVisualLinks.length) {
       issues.push(issue({
@@ -383,8 +414,7 @@ export const ndiePublisherService = {
     if (!importJob) throw Object.assign(new Error("NDIE import not found"), { statusCode: 404 });
     if (importJob.testId) throw Object.assign(new Error("This NDIE import has already been published to CBT."), { statusCode: 409 });
 
-    const publishableStatuses = input.allowAutoApproved ? ["APPROVED", "AUTO_APPROVED"] : ["APPROVED"];
-    const approvedCandidates = importJob.questionCandidates.filter((candidate) => publishableStatuses.includes(candidate.reviewStatus));
+    const approvedCandidates = importJob.questionCandidates.filter((candidate) => candidate.reviewStatus === "APPROVED");
     const integrity = buildIntegrity({ importJob, approvedCandidates });
     if (integrity.status === "BLOCKED") {
       const visible = integrity.issues.filter((item) => item.blockPublish).slice(0, 5).map((item) => item.reason).join(" ");
@@ -394,7 +424,7 @@ export const ndiePublisherService = {
       throw Object.assign(new Error("Approve at least one NDIE question candidate before publishing."), { statusCode: 400 });
     }
 
-    const answerMap = answerByQuestionNumber(importJob.answerKeyCandidates);
+    const answers = answerMaps(importJob.answerKeyCandidates);
     const solutionMap = solutionByQuestionNumber(importJob.solutionCandidates);
     const sourceDocumentId = importJob.sourceDocuments[0]?.id ?? null;
     const packageId = `ndie-package-${randomUUID()}`;
@@ -405,7 +435,7 @@ export const ndiePublisherService = {
       const candidateJson = asRecord(candidate.candidateJson) as CandidateJson;
       const blocks = Array.isArray(candidateJson.blocks) ? candidateJson.blocks.map(asRecord) : [];
       const options = optionsFromBlocks(blocks);
-      const answer = answerMap.get(String(candidate.questionNumber || "")) ?? {};
+      const answer = answerForCandidate(answers, candidate);
       const correctAnswer = correctOption(answer);
       const solution = solutionMap.get(String(candidate.questionNumber || "")) ?? {};
       const page = sourcePage(candidate);
@@ -457,9 +487,9 @@ export const ndiePublisherService = {
         optionD: options.D,
         correctAnswer,
         explanation,
-        marks: 1,
+        marks: candidateMarks(candidateJson),
         negativeMarks: 0,
-        difficultyLevel: "MEDIUM",
+        difficultyLevel: candidateDifficulty(candidateJson),
         topic: input.topic || importJob.topic || input.subject || importJob.subject || "NDIE Import"
       };
     });
@@ -467,7 +497,7 @@ export const ndiePublisherService = {
     const richQuestions: NdiePublishedQuestion[] = approvedCandidates.map((candidate, index) => {
       const question = questions[index];
       const candidateJson = asRecord(candidate.candidateJson) as CandidateJson;
-      const answer = answerMap.get(String(candidate.questionNumber || "")) ?? null;
+      const answer = answerForCandidate(answers, candidate);
       const solution = solutionMap.get(String(candidate.questionNumber || "")) ?? null;
       const formulaLinks = linkIds(candidateJson, "formulaLinks");
       const visualLinks = linkIds(candidateJson, "visualLinks");
@@ -559,7 +589,11 @@ export const ndiePublisherService = {
       questions
     };
 
-    const test = await testsService.publishDraft(input.requester, payload);
+    const test = await testsService.publishDraft(input.requester, {
+      ...payload,
+      approvalAttestation: "TEACHER_REVIEW_CONFIRMED",
+      approvalReferenceId: `ndie:${importJob.id}`,
+    });
     const createdQuestions = await prisma.question.findMany({ where: { testId: test.id } });
     const questionByCandidateId = new Map<string, string>();
     for (const question of createdQuestions) {

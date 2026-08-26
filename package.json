@@ -10,6 +10,9 @@
     "frontend",
     "backend"
   ],
+  "overrides": {
+    "websocket-driver": "0.7.5"
+  },
   "scripts": {
     "dev": "node scripts/dev.mjs",
     "dev:frontend": "npm run dev --workspace frontend",

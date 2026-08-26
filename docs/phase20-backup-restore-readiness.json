@@ -1,0 +1,17 @@
+{
+  "phase": 20,
+  "status": "BLOCKED — ENVIRONMENT",
+  "evidence": {
+    "pgDump": false,
+    "pgRestore": false,
+    "psql": false,
+    "offHostTarget": false
+  },
+  "test_count": 0,
+  "passed": 0,
+  "failed": 0,
+  "blocked": 1,
+  "limitations": [
+    "No native backup tools or approved backup target."
+  ]
+}

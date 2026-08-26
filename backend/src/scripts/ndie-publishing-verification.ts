@@ -13,7 +13,7 @@ const files = {
 
 const required = [
   ["rich exam package contract", files.contract.includes("NdieExamPackage") && files.contract.includes("ndie-rich-exam-package-v1")],
-  ["approved-only publish authority", files.publisher.includes("[\"APPROVED\"]") && files.publisher.includes("reviewStatus: \"APPROVED\"")],
+  ["approved-only publish authority", files.publisher.includes('candidate.reviewStatus === "APPROVED"') && !files.publisher.includes("allowAutoApproved ?")],
   ["teacher review blocker", files.publisher.includes("TEACHER_REVIEW_INCOMPLETE")],
   ["validation blocker", files.publisher.includes("CRITICAL_VALIDATION")],
   ["answer and asset integrity blockers", files.publisher.includes("MISSING_ANSWER") && files.publisher.includes("MISSING_ASSET")],

@@ -1,0 +1,16 @@
+{
+  "phase": 20,
+  "status": "BLOCKED — ENVIRONMENT",
+  "evidence": {
+    "resend": false,
+    "firebase": false,
+    "whatsapp": false
+  },
+  "test_count": 0,
+  "passed": 0,
+  "failed": 0,
+  "blocked": 3,
+  "limitations": [
+    "No test provider credentials; no messages sent."
+  ]
+}

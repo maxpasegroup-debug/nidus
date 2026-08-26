@@ -9,5 +9,5 @@ export default defineConfig([
       "react/no-unescaped-entities": "warn"
     }
   },
-  globalIgnores([".next/**", "node_modules/**"])
+  globalIgnores([".next/**", "node_modules/**", "playwright-report/**", "test-results/**"])
 ]);

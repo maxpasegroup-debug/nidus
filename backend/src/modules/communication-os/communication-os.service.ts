@@ -10,6 +10,7 @@ type CommunicationActor = {
   name?: string | null;
   email?: string | null;
   role: Role;
+  instituteId?: string | null;
   roleMetadata?: Record<string, unknown> | null;
 };
 
@@ -96,7 +97,7 @@ function optedOut(preferences: Record<string, unknown>, channel: Channel) {
 
 async function targetUser(input: DispatchInput) {
   if (!input.targetUserId) return null;
-  return prisma.user.findUnique({ where: { id: input.targetUserId }, select: { id: true, email: true, mobile: true, roleMetadata: true } });
+  return prisma.user.findUnique({ where: { id: input.targetUserId }, select: { id: true, email: true, mobile: true, roleMetadata: true, instituteId: true } });
 }
 
 async function recentlySent(input: DispatchInput, actor: CommunicationActor) {
@@ -156,6 +157,15 @@ export const communicationOsService = {
     }
 
     const user = await targetUser(input);
+    if (input.targetUserId && !user) {
+      throw Object.assign(new Error("Target user not found"), { statusCode: 404 });
+    }
+    if (user && actor.instituteId && user.instituteId !== actor.instituteId && actor.role !== Role.ADMIN) {
+      throw Object.assign(new Error("Cross-institution communication is not allowed"), { statusCode: 403 });
+    }
+    if (!input.targetUserId && (input.targetRole || input.email || input.phone) && actor.instituteId && actor.role !== Role.ADMIN) {
+      throw Object.assign(new Error("Tenant-scoped communication requires a verified target user"), { statusCode: 403 });
+    }
     const preferences = rolePreferences(user?.roleMetadata);
     const channels = defaultChannels({ ...input, email: input.email ?? user?.email ?? undefined, phone: input.phone ?? user?.mobile ?? undefined });
     const results: Array<{ channel: Channel; status: string; id?: string | null }> = [];
@@ -172,7 +182,8 @@ export const communicationOsService = {
             message: input.body,
             type: normalizePriority(input.priority),
             userId: input.targetUserId,
-            targetRole: input.targetRole
+            targetRole: input.targetRole,
+            instituteId: actor.instituteId ?? undefined
           }
         });
         results.push({ channel, status: "SENT", id: notification.id });
@@ -185,12 +196,12 @@ export const communicationOsService = {
         }
         const htmlContent = renderEmailTemplate({ title: input.title, body: input.body });
         const result = await resendService.sendEmail({ recipient, subject: input.title, htmlContent, textContent: input.body }).catch(() => ({ status: "FAILED" }));
-        await prisma.emailLog.create({ data: { recipient, subject: input.title, status: result.status } }).catch(() => undefined);
+        await prisma.emailLog.create({ data: { recipient, subject: input.title, status: result.status, instituteId: actor.instituteId ?? undefined } }).catch(() => undefined);
         results.push({ channel, status: result.status });
       }
       if (channel === "PUSH") {
         const job = await enqueueNotification({ title: input.title, body: input.body, targetAudience: input.targetUserId ?? input.targetRole ?? "ALL" });
-        await prisma.pushNotification.create({ data: { title: input.title, body: input.body, targetAudience: input.targetUserId ?? input.targetRole ?? "ALL", status: job ? "QUEUED" : "QUEUE_UNAVAILABLE" } }).catch(() => undefined);
+        await prisma.pushNotification.create({ data: { title: input.title, body: input.body, targetAudience: input.targetUserId ?? input.targetRole ?? "ALL", status: job ? "QUEUED" : "QUEUE_UNAVAILABLE", instituteId: actor.instituteId ?? undefined } }).catch(() => undefined);
         results.push({ channel, status: job ? "QUEUED" : "QUEUE_UNAVAILABLE", id: job?.id ?? null });
       }
       if (channel === "WHATSAPP") {
@@ -220,12 +231,13 @@ export const communicationOsService = {
     else if (period === "MONTHLY") since.setMonth(since.getMonth() - 1);
     else since.setHours(0, 0, 0, 0);
 
+    const tenant = actor.role === Role.ADMIN && !actor.instituteId ? undefined : actor.instituteId ?? "__missing_institute__";
     const [notifications, emailLogs, pushLogs, queueLogs, whatsappLogs] = await Promise.all([
-      prisma.notification.count({ where: { createdAt: { gte: since }, userId: input.targetUserId, targetRole: input.targetRole } }),
-      prisma.emailLog.count({ where: { sentAt: { gte: since } } }),
-      prisma.pushNotification.count({ where: { createdAt: { gte: since }, targetAudience: input.targetUserId ?? input.targetRole } }),
-      prisma.queueJobLog.groupBy({ by: ["status"], where: { createdAt: { gte: since }, queueName: { in: ["nidus.email", "nidus.notifications", "nidus.whatsapp"] } }, _count: { _all: true } }),
-      prisma.auditLog.count({ where: { createdAt: { gte: since }, module: "whatsapp" } })
+      prisma.notification.count({ where: { createdAt: { gte: since }, instituteId: tenant, userId: input.targetUserId, targetRole: input.targetRole } }),
+      prisma.emailLog.count({ where: { sentAt: { gte: since }, instituteId: tenant } }),
+      prisma.pushNotification.count({ where: { createdAt: { gte: since }, instituteId: tenant, targetAudience: input.targetUserId ?? input.targetRole } }),
+      tenant ? Promise.resolve([] as Array<{ status: string; _count: { _all: number } }>) : prisma.queueJobLog.groupBy({ by: ["status"], where: { createdAt: { gte: since }, queueName: { in: ["nidus.email", "nidus.notifications", "nidus.whatsapp"] } }, _count: { _all: true } }),
+      tenant ? Promise.resolve(0) : prisma.auditLog.count({ where: { createdAt: { gte: since }, module: "whatsapp" } })
     ]);
 
     const summary = {
@@ -247,12 +259,13 @@ export const communicationOsService = {
     requireManager(actor);
     const since = new Date();
     since.setDate(since.getDate() - 1);
+    const tenant = actor.role === Role.ADMIN && !actor.instituteId ? undefined : actor.instituteId ?? "__missing_institute__";
     const [emailFailures, pushFailures, whatsappFailures, queuedJobs, failedJobs] = await Promise.all([
-      prisma.emailLog.count({ where: { status: "FAILED", sentAt: { gte: since } } }),
-      prisma.pushNotification.count({ where: { status: "FAILED", createdAt: { gte: since } } }),
-      prisma.auditLog.count({ where: { module: "whatsapp", action: "WHATSAPP_SEND_FAILED", createdAt: { gte: since } } }),
-      prisma.queueJobLog.count({ where: { queueName: { in: ["nidus.email", "nidus.notifications", "nidus.whatsapp"] }, status: "QUEUED", createdAt: { gte: since } } }),
-      prisma.queueJobLog.count({ where: { queueName: { in: ["nidus.email", "nidus.notifications", "nidus.whatsapp"] }, status: "FAILED", createdAt: { gte: since } } })
+      prisma.emailLog.count({ where: { status: "FAILED", sentAt: { gte: since }, instituteId: tenant } }),
+      prisma.pushNotification.count({ where: { status: "FAILED", createdAt: { gte: since }, instituteId: tenant } }),
+      tenant ? Promise.resolve(0) : prisma.auditLog.count({ where: { module: "whatsapp", action: "WHATSAPP_SEND_FAILED", createdAt: { gte: since } } }),
+      tenant ? Promise.resolve(0) : prisma.queueJobLog.count({ where: { queueName: { in: ["nidus.email", "nidus.notifications", "nidus.whatsapp"] }, status: "QUEUED", createdAt: { gte: since } } }),
+      tenant ? Promise.resolve(0) : prisma.queueJobLog.count({ where: { queueName: { in: ["nidus.email", "nidus.notifications", "nidus.whatsapp"] }, status: "FAILED", createdAt: { gte: since } } })
     ]);
     const health = {
       name: "NIDUS Communication Health",

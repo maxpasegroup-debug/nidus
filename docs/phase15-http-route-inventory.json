@@ -1,0 +1,3779 @@
+{
+  "phase": 15,
+  "generatedBy": "phase15-http-tenant-certification",
+  "totalRoutes": 472,
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/flow",
+      "module": "academic-os",
+      "router": "academicOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/dashboard",
+      "module": "academic-os",
+      "router": "academicOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/batches/:batchId",
+      "module": "academic-os",
+      "router": "academicOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "ROUTER",
+      "path": "(dynamic or multiline registration)",
+      "module": "academy",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "module": "admin-center",
+      "router": "adminCenterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/operations",
+      "module": "admin-center",
+      "router": "adminCenterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/roles",
+      "module": "admin-center",
+      "router": "adminCenterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/roles",
+      "module": "admin-center",
+      "router": "adminCenterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "PUT",
+      "path": "/roles/:id",
+      "module": "admin-center",
+      "router": "adminCenterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "DELETE",
+      "path": "/roles/:id",
+      "module": "admin-center",
+      "router": "adminCenterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/permissions",
+      "module": "admin-center",
+      "router": "adminCenterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/user-role",
+      "module": "admin-center",
+      "router": "adminCenterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/settings",
+      "module": "admin-center",
+      "router": "adminCenterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "PUT",
+      "path": "/settings",
+      "module": "admin-center",
+      "router": "adminCenterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/audit-logs",
+      "module": "admin-center",
+      "router": "adminCenterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/branches",
+      "module": "admin-center",
+      "router": "adminCenterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/branches",
+      "module": "admin-center",
+      "router": "adminCenterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "PATCH",
+      "path": "/users/:id/disabled",
+      "module": "admin-center",
+      "router": "adminCenterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/users/:id/force-logout",
+      "module": "admin-center",
+      "router": "adminCenterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/users/:id/reset-verification",
+      "module": "admin-center",
+      "router": "adminCenterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "DELETE",
+      "path": "/sessions/:id",
+      "module": "admin-center",
+      "router": "adminCenterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/journey",
+      "module": "admissions-os",
+      "router": "admissionsOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/dashboard",
+      "module": "admissions-os",
+      "router": "admissionsOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/leads/:leadId",
+      "module": "admissions-os",
+      "router": "admissionsOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/guardrails",
+      "module": "ai-director",
+      "router": "aiDirectorRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/summary",
+      "module": "ai-director",
+      "router": "aiDirectorRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/ask",
+      "module": "ai-director",
+      "router": "aiDirectorRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/approve",
+      "module": "ai-director",
+      "router": "aiDirectorRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/interview/start",
+      "module": "ai-engine",
+      "router": "aiEngineRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/interview/next-question",
+      "module": "ai-engine",
+      "router": "aiEngineRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/interview/submit-answer",
+      "module": "ai-engine",
+      "router": "aiEngineRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/interview/result/:sessionId",
+      "module": "ai-engine",
+      "router": "aiEngineRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/doubt",
+      "module": "ai-engine",
+      "router": "aiEngineRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/doubts/history",
+      "module": "ai-engine",
+      "router": "aiEngineRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/recommendations",
+      "module": "ai-engine",
+      "router": "aiEngineRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/officer-potential",
+      "module": "ai-engine",
+      "router": "aiEngineRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "ROUTER",
+      "path": "(dynamic or multiline registration)",
+      "module": "ai-exam",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/generate",
+      "module": "ai-planner",
+      "router": "aiPlannerRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/my-plan",
+      "module": "ai-planner",
+      "router": "aiPlannerRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/performance",
+      "module": "ai-planner",
+      "router": "analyticsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/recommendations",
+      "module": "ai-planner",
+      "router": "analyticsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/create",
+      "module": "ai-planner",
+      "router": "revisionScheduleRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "module": "ai-planner",
+      "router": "revisionScheduleRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "ROUTER",
+      "path": "(dynamic or multiline registration)",
+      "module": "ai-workflow",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/assessments",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/assessments/:id",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/assessments",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "PATCH",
+      "path": "/admin/assessments/:id",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/traits",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/traits",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "PATCH",
+      "path": "/admin/traits/:id",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/dimensions",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/dimensions",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "PATCH",
+      "path": "/admin/dimensions/:id",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/questions",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/questions",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "PATCH",
+      "path": "/admin/questions/:id",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/question-options",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/question-versions",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/reviews",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/reviews",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "PATCH",
+      "path": "/admin/reviews/:id",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/review-boards",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/review-boards",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/pilots",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/pilots",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "PATCH",
+      "path": "/admin/pilots/:id",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/pilot-responses",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/attempts",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/attempts/:id",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/scoring-fixture",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/score",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/integrity",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/risk",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/confidence",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/growth",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/score",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/integrity",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/risk",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/confidence",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/growth",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/attempt/start",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/attempt/submit",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/attempt/:id",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/attempt/:id/questions",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/attempt/:id/status",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/questions/analytics",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/questions",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/questions",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "PUT",
+      "path": "/questions/:id",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/questions/:id/clone",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/questions/:id/review",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/questions/:id/publish",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/questions/:id/retire",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/questions/:id/archive",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/questions/:id/restore",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/questions/:id/exposure",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/questions/:id",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/reports/generate",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/reports/:id/pdf",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/reports/:id/version",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/reports/:id",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/trait-library/seed",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/trait-library/counts",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/trait-library/traits",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/trait-library/traits/:slug",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/trait-library/dimensions",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/trait-library/interpretations",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/mappings/assessments",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/mappings/traits",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/mappings/dimensions",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/mappings/coverage",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/blueprints",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/blueprints/coverage",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/blueprints/:assessmentId",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/ssb/seed",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/ssb/olqs",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/ssb/readiness",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/ssb/calculate",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/ssb/interpretable-profile",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/toprank/readiness",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/toprank/performance",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/toprank/growth",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/toprank/risks",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/toprank/calculate",
+      "module": "assessment-arena",
+      "router": "assessmentArenaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/signup",
+      "module": "auth",
+      "router": "authRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/register",
+      "module": "auth",
+      "router": "authRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/login",
+      "module": "auth",
+      "router": "authRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/forgot-password",
+      "module": "auth",
+      "router": "authRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/forgot-password/send-otp",
+      "module": "auth",
+      "router": "authRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/reset-password",
+      "module": "auth",
+      "router": "authRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/me",
+      "module": "auth",
+      "router": "authRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/logout",
+      "module": "auth",
+      "router": "authRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/logout-all",
+      "module": "auth",
+      "router": "authRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/sessions",
+      "module": "auth",
+      "router": "authRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "DELETE",
+      "path": "/sessions/:id",
+      "module": "auth",
+      "router": "authRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/change-password",
+      "module": "auth",
+      "router": "authRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "PUT",
+      "path": "/profile",
+      "module": "auth",
+      "router": "authRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/profile-photo",
+      "module": "auth",
+      "router": "authRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/parent-link/invite",
+      "module": "auth",
+      "router": "authRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/parent-link/accept",
+      "module": "auth",
+      "router": "authRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/rules",
+      "module": "automation-engine",
+      "router": "automationEngineRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/summary",
+      "module": "automation-engine",
+      "router": "automationEngineRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/framework",
+      "module": "class-rating-os",
+      "router": "classRatingOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/pending",
+      "module": "class-rating-os",
+      "router": "classRatingOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/summary",
+      "module": "class-rating-os",
+      "router": "classRatingOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/feedback",
+      "module": "class-rating-os",
+      "router": "classRatingOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "module": "communication",
+      "router": "notificationsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "PUT",
+      "path": "/read/:id",
+      "module": "communication",
+      "router": "notificationsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "module": "communication",
+      "router": "messagesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/thread",
+      "module": "communication",
+      "router": "messagesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/send",
+      "module": "communication",
+      "router": "messagesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/thread/:id",
+      "module": "communication",
+      "router": "messagesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "module": "communication",
+      "router": "communicationAnnouncementsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/",
+      "module": "communication",
+      "router": "communicationAnnouncementsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/logs",
+      "module": "communication",
+      "router": "emailsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/send",
+      "module": "communication",
+      "router": "emailsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/send",
+      "module": "communication",
+      "router": "pushRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/webhook",
+      "module": "communication",
+      "router": "whatsappRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/webhook",
+      "module": "communication",
+      "router": "whatsappRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/health",
+      "module": "communication",
+      "router": "whatsappRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/send",
+      "module": "communication",
+      "router": "whatsappRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/director/daily-report",
+      "module": "communication",
+      "router": "whatsappRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/framework",
+      "module": "communication-os",
+      "router": "communicationOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/bundle",
+      "module": "communication-os",
+      "router": "communicationOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/health",
+      "module": "communication-os",
+      "router": "communicationOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/dispatch",
+      "module": "communication-os",
+      "router": "communicationOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "module": "courses",
+      "router": "coursesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/:slug",
+      "module": "courses",
+      "router": "coursesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/",
+      "module": "courses",
+      "router": "coursesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "PUT",
+      "path": "/:id",
+      "module": "courses",
+      "router": "coursesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "DELETE",
+      "path": "/:id",
+      "module": "courses",
+      "router": "coursesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/enroll",
+      "module": "courses",
+      "router": "coursesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/public-leads",
+      "module": "crm",
+      "router": "crmRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/leads",
+      "module": "crm",
+      "router": "crmRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/guest-applications",
+      "module": "crm",
+      "router": "crmRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/leads",
+      "module": "crm",
+      "router": "crmRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/leads/bulk",
+      "module": "crm",
+      "router": "crmRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/guest-applicants",
+      "module": "crm",
+      "router": "crmRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "PUT",
+      "path": "/leads/:id",
+      "module": "crm",
+      "router": "crmRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "DELETE",
+      "path": "/leads/:id",
+      "module": "crm",
+      "router": "crmRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/followup",
+      "module": "crm",
+      "router": "crmRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/followups",
+      "module": "crm",
+      "router": "crmRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/admission",
+      "module": "crm",
+      "router": "crmRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/admissions",
+      "module": "crm",
+      "router": "crmRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/admissions/:id/approval",
+      "module": "crm",
+      "router": "crmRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/approvals",
+      "module": "crm",
+      "router": "crmRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/scholarships",
+      "module": "crm",
+      "router": "crmRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/scholarships/:id/review",
+      "module": "crm",
+      "router": "crmRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/counselling",
+      "module": "crm",
+      "router": "crmRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/counselling",
+      "module": "crm",
+      "router": "crmRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/referrals",
+      "module": "crm",
+      "router": "crmRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/referrals",
+      "module": "crm",
+      "router": "crmRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/student",
+      "module": "dashboard",
+      "router": "dashboardRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/parent",
+      "module": "dashboard",
+      "router": "dashboardRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/admin",
+      "module": "dashboard",
+      "router": "dashboardRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/guest",
+      "module": "dashboard",
+      "router": "dashboardRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/teacher",
+      "module": "dashboard",
+      "router": "dashboardRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/academic-head",
+      "module": "dashboard",
+      "router": "dashboardRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/director",
+      "module": "dashboard",
+      "router": "dashboardRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/director/ops-readiness",
+      "module": "dashboard",
+      "router": "dashboardRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/director/security-readiness",
+      "module": "dashboard",
+      "router": "dashboardRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/director/launch-certification",
+      "module": "dashboard",
+      "router": "dashboardRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/business-development",
+      "module": "dashboard",
+      "router": "dashboardRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/telecaller",
+      "module": "dashboard",
+      "router": "dashboardRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/marketing",
+      "module": "dashboard",
+      "router": "dashboardRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/mark",
+      "module": "erp",
+      "router": "attendanceRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/student/:id",
+      "module": "erp",
+      "router": "attendanceRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/class",
+      "module": "erp",
+      "router": "attendanceRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "module": "erp",
+      "router": "timetableRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/",
+      "module": "erp",
+      "router": "timetableRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "PUT",
+      "path": "/:id",
+      "module": "erp",
+      "router": "timetableRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "DELETE",
+      "path": "/:id",
+      "module": "erp",
+      "router": "timetableRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "module": "erp",
+      "router": "facultyRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/",
+      "module": "erp",
+      "router": "facultyRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "module": "erp",
+      "router": "payrollRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/operations-shell",
+      "module": "erp",
+      "router": "payrollRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/",
+      "module": "erp",
+      "router": "payrollRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "module": "erp",
+      "router": "announcementsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/",
+      "module": "erp",
+      "router": "announcementsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/definitions",
+      "module": "event-engine",
+      "router": "eventEngineRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/summary",
+      "module": "event-engine",
+      "router": "eventEngineRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "module": "event-engine",
+      "router": "eventEngineRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/question-bank",
+      "module": "examination",
+      "router": "examinationRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/question-bank",
+      "module": "examination",
+      "router": "examinationRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "PUT",
+      "path": "/question-bank/:id",
+      "module": "examination",
+      "router": "examinationRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/question-bank/:id/approve",
+      "module": "examination",
+      "router": "examinationRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "DELETE",
+      "path": "/question-bank/:id",
+      "module": "examination",
+      "router": "examinationRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/question-bank/import",
+      "module": "examination",
+      "router": "examinationRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/exams/from-bank",
+      "module": "examination",
+      "router": "examinationRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/exams/:id/publish",
+      "module": "examination",
+      "router": "examinationRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/exams/:id/close",
+      "module": "examination",
+      "router": "examinationRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "DELETE",
+      "path": "/exams/:id",
+      "module": "examination",
+      "router": "examinationRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/results",
+      "module": "examination",
+      "router": "examinationRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/analytics",
+      "module": "examination",
+      "router": "examinationRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/profile",
+      "module": "fitness",
+      "router": "fitnessRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/profile",
+      "module": "fitness",
+      "router": "fitnessRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "PUT",
+      "path": "/profile",
+      "module": "fitness",
+      "router": "fitnessRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/pt-schedules",
+      "module": "fitness",
+      "router": "fitnessRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/pt-schedules",
+      "module": "fitness",
+      "router": "fitnessRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/attendance",
+      "module": "fitness",
+      "router": "fitnessRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/attendance/:studentId",
+      "module": "fitness",
+      "router": "fitnessRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/eligibility",
+      "module": "fitness",
+      "router": "fitnessRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/eligibility/check",
+      "module": "fitness",
+      "router": "fitnessRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/log",
+      "module": "fitness",
+      "router": "fitnessRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/logs",
+      "module": "fitness",
+      "router": "fitnessRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "module": "hostel",
+      "router": "hostelsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/",
+      "module": "hostel",
+      "router": "hostelsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "module": "hostel",
+      "router": "roomsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/",
+      "module": "hostel",
+      "router": "roomsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/allocate",
+      "module": "hostel",
+      "router": "hostelOpsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/student/:id",
+      "module": "hostel",
+      "router": "hostelOpsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/inout",
+      "module": "hostel",
+      "router": "hostelOpsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/inout/history",
+      "module": "hostel",
+      "router": "hostelOpsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/leave",
+      "module": "hostel",
+      "router": "hostelOpsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/leave",
+      "module": "hostel",
+      "router": "hostelOpsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "PUT",
+      "path": "/leave/:id",
+      "module": "hostel",
+      "router": "hostelOpsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/menu",
+      "module": "hostel",
+      "router": "messRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/menu",
+      "module": "hostel",
+      "router": "messRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/",
+      "module": "hostel",
+      "router": "disciplineRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/student/:id",
+      "module": "hostel",
+      "router": "disciplineRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/",
+      "module": "hostel",
+      "router": "paradeRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/student/:id",
+      "module": "hostel",
+      "router": "paradeRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/framework",
+      "module": "launch-readiness-os",
+      "router": "launchReadinessOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/checklist",
+      "module": "launch-readiness-os",
+      "router": "launchReadinessOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/categories",
+      "module": "learning-hub",
+      "router": "pyqRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/questions",
+      "module": "learning-hub",
+      "router": "pyqRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/questions",
+      "module": "learning-hub",
+      "router": "pyqRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "module": "learning-hub",
+      "router": "currentAffairsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/",
+      "module": "learning-hub",
+      "router": "currentAffairsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "module": "learning-hub",
+      "router": "quizBattlesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/",
+      "module": "learning-hub",
+      "router": "quizBattlesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/join",
+      "module": "learning-hub",
+      "router": "quizBattlesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/submit",
+      "module": "learning-hub",
+      "router": "quizBattlesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "module": "learning-hub",
+      "router": "leaderboardRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/offline/sync",
+      "module": "learning-stability",
+      "router": "learningStabilityRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/analytics",
+      "module": "learning-stability",
+      "router": "learningStabilityRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/adaptive",
+      "module": "learning-stability",
+      "router": "learningStabilityRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/tutor/sessions",
+      "module": "learning-stability",
+      "router": "learningStabilityRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/tutor/sessions/:id",
+      "module": "learning-stability",
+      "router": "learningStabilityRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/tutor/sessions/:id/message",
+      "module": "learning-stability",
+      "router": "learningStabilityRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/tutor/sessions/:id/feedback",
+      "module": "learning-stability",
+      "router": "learningStabilityRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/daily-intelligence",
+      "module": "learning-stability",
+      "router": "learningStabilityRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/daily-intelligence/moderation",
+      "module": "learning-stability",
+      "router": "learningStabilityRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/daily-intelligence",
+      "module": "learning-stability",
+      "router": "learningStabilityRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/daily-intelligence/schedule",
+      "module": "learning-stability",
+      "router": "learningStabilityRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/daily-intelligence/:id/publish",
+      "module": "learning-stability",
+      "router": "learningStabilityRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/daily-intelligence/:id/archive",
+      "module": "learning-stability",
+      "router": "learningStabilityRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/content/generate",
+      "module": "learning-stability",
+      "router": "learningStabilityRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/ingestion/jobs",
+      "module": "learning-stability",
+      "router": "learningStabilityRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/ingestion/jobs",
+      "module": "learning-stability",
+      "router": "learningStabilityRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/ai-governance",
+      "module": "learning-stability",
+      "router": "learningStabilityRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "module": "live-classes",
+      "router": "liveClassesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/",
+      "module": "live-classes",
+      "router": "liveClassesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "PUT",
+      "path": "/:id",
+      "module": "live-classes",
+      "router": "liveClassesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "DELETE",
+      "path": "/:id",
+      "module": "live-classes",
+      "router": "liveClassesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "module": "live-classes",
+      "router": "recordedLecturesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/:id",
+      "module": "live-classes",
+      "router": "recordedLecturesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/update",
+      "module": "live-classes",
+      "router": "lectureProgressRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/:lectureId",
+      "module": "live-classes",
+      "router": "lectureProgressRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/folders",
+      "module": "media",
+      "router": "mediaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/folders",
+      "module": "media",
+      "router": "mediaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/upload",
+      "module": "media",
+      "router": "mediaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/files",
+      "module": "media",
+      "router": "mediaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "DELETE",
+      "path": "/files/:id",
+      "module": "media",
+      "router": "mediaRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "module": "media",
+      "router": "documentsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/",
+      "module": "media",
+      "router": "documentsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/quests",
+      "module": "mobile-guru",
+      "router": "mobileGuruRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/quests/:questId",
+      "module": "mobile-guru",
+      "router": "mobileGuruRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/lessons/:lessonId/complete",
+      "module": "mobile-guru",
+      "router": "mobileGuruRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/quests/:questId/reflections",
+      "module": "mobile-guru",
+      "router": "mobileGuruRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/challenges/:challengeId/complete",
+      "module": "mobile-guru",
+      "router": "mobileGuruRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/evidence",
+      "module": "mobile-guru",
+      "router": "mobileGuruRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/progress",
+      "module": "mobile-guru",
+      "router": "mobileGuruRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/certificates",
+      "module": "mobile-guru",
+      "router": "mobileGuruRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/growth",
+      "module": "mobile-guru",
+      "router": "mobileGuruRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/daily-missions/:missionId/complete",
+      "module": "mobile-guru",
+      "router": "mobileGuruRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/summary",
+      "module": "mobile-guru",
+      "router": "mobileGuruRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/quests",
+      "module": "mobile-guru",
+      "router": "mobileGuruRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/quests",
+      "module": "mobile-guru",
+      "router": "mobileGuruRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "PUT",
+      "path": "/admin/quests/:id",
+      "module": "mobile-guru",
+      "router": "mobileGuruRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/quests/:questId/lessons",
+      "module": "mobile-guru",
+      "router": "mobileGuruRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/quests/:questId/reflections",
+      "module": "mobile-guru",
+      "router": "mobileGuruRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/quests/:questId/challenges",
+      "module": "mobile-guru",
+      "router": "mobileGuruRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/progress",
+      "module": "mobile-guru",
+      "router": "mobileGuruRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/health",
+      "module": "ndie",
+      "router": "ndieRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/analytics",
+      "module": "ndie",
+      "router": "ndieRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/operations",
+      "module": "ndie",
+      "router": "ndieRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/operations/diagnostics",
+      "module": "ndie",
+      "router": "ndieRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/imports",
+      "module": "ndie",
+      "router": "ndieRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/imports/:id",
+      "module": "ndie",
+      "router": "ndieRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/imports/:id/timeline",
+      "module": "ndie",
+      "router": "ndieRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/imports/:id/analyze-layout",
+      "module": "ndie",
+      "router": "ndieRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/imports/:id/detect-formulas",
+      "module": "ndie",
+      "router": "ndieRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/imports/:id/detect-visuals",
+      "module": "ndie",
+      "router": "ndieRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/imports/:id/detect-questions",
+      "module": "ndie",
+      "router": "ndieRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/imports/:id/map-answers",
+      "module": "ndie",
+      "router": "ndieRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/imports/:id/validate-ai",
+      "module": "ndie",
+      "router": "ndieRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/imports/:id/review",
+      "module": "ndie",
+      "router": "ndieRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/imports/:id/publish",
+      "module": "ndie",
+      "router": "ndieRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/imports/:id/replay",
+      "module": "ndie",
+      "router": "ndieRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/imports/:id/cancel",
+      "module": "ndie",
+      "router": "ndieRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/imports/:id/replay-runs",
+      "module": "ndie",
+      "router": "ndieRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/imports/:id/quality-report",
+      "module": "ndie",
+      "router": "ndieRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "PATCH",
+      "path": "/imports/:id/review-session",
+      "module": "ndie",
+      "router": "ndieRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "PATCH",
+      "path": "/imports/:id/review/bulk",
+      "module": "ndie",
+      "router": "ndieRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "PATCH",
+      "path": "/questions/:candidateId/review",
+      "module": "ndie",
+      "router": "ndieRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "ROUTER",
+      "path": "(dynamic or multiline registration)",
+      "module": "nidus-guru",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/create-order",
+      "module": "payments",
+      "router": "paymentsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/orders",
+      "module": "payments",
+      "router": "paymentsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/verify",
+      "module": "payments",
+      "router": "paymentsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/webhook",
+      "module": "payments",
+      "router": "paymentsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/manual",
+      "module": "payments",
+      "router": "paymentsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/:id/fail",
+      "module": "payments",
+      "router": "paymentsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/:id/refund",
+      "module": "payments",
+      "router": "paymentsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/history",
+      "module": "payments",
+      "router": "paymentsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/analytics",
+      "module": "payments",
+      "router": "paymentsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "module": "payments",
+      "router": "subscriptionsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/",
+      "module": "payments",
+      "router": "subscriptionsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "module": "payments",
+      "router": "feesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/plans",
+      "module": "payments",
+      "router": "feesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/installment",
+      "module": "payments",
+      "router": "feesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "PUT",
+      "path": "/pay/:id",
+      "module": "payments",
+      "router": "feesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "module": "payments",
+      "router": "invoicesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/generate",
+      "module": "payments",
+      "router": "invoicesRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/framework",
+      "module": "performance-os",
+      "router": "performanceOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/dashboard",
+      "module": "performance-os",
+      "router": "performanceOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/staff/:userId",
+      "module": "performance-os",
+      "router": "performanceOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/framework",
+      "module": "pilot-launch-os",
+      "router": "pilotLaunchOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/readiness",
+      "module": "pilot-launch-os",
+      "router": "pilotLaunchOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/tests",
+      "module": "psychometric",
+      "router": "psychometricRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/overview",
+      "module": "psychometric",
+      "router": "psychometricRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/analytics",
+      "module": "psychometric",
+      "router": "psychometricRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/readiness",
+      "module": "psychometric",
+      "router": "psychometricRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/tests",
+      "module": "psychometric",
+      "router": "psychometricRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "PATCH",
+      "path": "/admin/tests/:id",
+      "module": "psychometric",
+      "router": "psychometricRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "PATCH",
+      "path": "/admin/questions/:id",
+      "module": "psychometric",
+      "router": "psychometricRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/tests/:id/history",
+      "module": "psychometric",
+      "router": "psychometricRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/tests/:id",
+      "module": "psychometric",
+      "router": "psychometricRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/reports",
+      "module": "psychometric",
+      "router": "psychometricRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/start",
+      "module": "psychometric",
+      "router": "psychometricRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/attempts/:attemptId",
+      "module": "psychometric",
+      "router": "psychometricRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/submit",
+      "module": "psychometric",
+      "router": "psychometricRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/results/:attemptId",
+      "module": "psychometric",
+      "router": "psychometricRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/results/:attemptId/pdf",
+      "module": "psychometric",
+      "router": "psychometricRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/olq-report",
+      "module": "psychometric",
+      "router": "psychometricRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/intelligence",
+      "module": "psychometric",
+      "router": "psychometricRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/framework",
+      "module": "reports-os",
+      "router": "reportsOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/current",
+      "module": "reports-os",
+      "router": "reportsOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/pdf",
+      "module": "reports-os",
+      "router": "reportsOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/webhooks/meta",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/webhooks/meta",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/webhooks/whatsapp",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/webhooks/whatsapp",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/campaigns",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/summary",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/analytics",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/conversion-report",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/conversion-report/export.csv",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/operations",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/connectors",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/connectors/health",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/whatsapp/templates",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/scheduled",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/calendar",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/creatives/library",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/audience",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/ai-generate",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/creatives/upload",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/audience",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/audience/import-leads",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/audience/opt-out",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/whatsapp/broadcast",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/campaigns",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "PUT",
+      "path": "/campaigns/:id",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "PATCH",
+      "path": "/campaigns/:id/status",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "PATCH",
+      "path": "/campaigns/:id/creative",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "DELETE",
+      "path": "/campaigns/:id",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/campaigns/:id/run",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/scheduled/run-due",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "PATCH",
+      "path": "/campaigns/:id/schedule",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/campaigns/:id/report",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/campaigns/:id/analytics/sync",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/campaigns/:id/metrics",
+      "module": "sales-booster",
+      "router": "salesBoosterRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/framework",
+      "module": "student-competition-os",
+      "router": "studentCompetitionOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/leaderboard",
+      "module": "student-competition-os",
+      "router": "studentCompetitionOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/students/:userId",
+      "module": "student-competition-os",
+      "router": "studentCompetitionOsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/status",
+      "module": "system",
+      "router": "systemRouter",
+      "authentication": "PUBLIC_OR_ROUTE_SPECIFIC",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "module": "tests",
+      "router": "testsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/available",
+      "module": "tests",
+      "router": "testsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/attempts/history",
+      "module": "tests",
+      "router": "testsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/result/:attemptId",
+      "module": "tests",
+      "router": "testsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/attempts/:attemptId/resume",
+      "module": "tests",
+      "router": "testsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/attempts/:attemptId/review-plan",
+      "module": "tests",
+      "router": "testsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/attempts/:attemptId/intelligence",
+      "module": "tests",
+      "router": "testsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/ai-draft",
+      "module": "tests",
+      "router": "testsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/publish-draft",
+      "module": "tests",
+      "router": "testsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/:id/approve",
+      "module": "tests",
+      "router": "testsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/:id/publish",
+      "module": "tests",
+      "router": "testsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/:id",
+      "module": "tests",
+      "router": "testsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/",
+      "module": "tests",
+      "router": "testsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "PUT",
+      "path": "/:id",
+      "module": "tests",
+      "router": "testsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "DELETE",
+      "path": "/:id",
+      "module": "tests",
+      "router": "testsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/start",
+      "module": "tests",
+      "router": "testsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/submit",
+      "module": "tests",
+      "router": "testsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/autosave",
+      "module": "tests",
+      "router": "testsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/integrity-event",
+      "module": "tests",
+      "router": "testsRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/auth/register",
+      "module": "toprank",
+      "router": "topRankRouter",
+      "authentication": "PUBLIC_OR_ROUTE_SPECIFIC",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/auth/login",
+      "module": "toprank",
+      "router": "topRankRouter",
+      "authentication": "PUBLIC_OR_ROUTE_SPECIFIC",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/auth/forgot-password",
+      "module": "toprank",
+      "router": "topRankRouter",
+      "authentication": "PUBLIC_OR_ROUTE_SPECIFIC",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/auth/logout",
+      "module": "toprank",
+      "router": "topRankRouter",
+      "authentication": "PUBLIC_OR_ROUTE_SPECIFIC",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/auth/me",
+      "module": "toprank",
+      "router": "topRankRouter",
+      "authentication": "PUBLIC_OR_ROUTE_SPECIFIC",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/auth/change-password",
+      "module": "toprank",
+      "router": "topRankRouter",
+      "authentication": "PUBLIC_OR_ROUTE_SPECIFIC",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "PATCH",
+      "path": "/auth/contact",
+      "module": "toprank",
+      "router": "topRankRouter",
+      "authentication": "PUBLIC_OR_ROUTE_SPECIFIC",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/batches",
+      "module": "toprank",
+      "router": "topRankRouter",
+      "authentication": "PUBLIC_OR_ROUTE_SPECIFIC",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/onboarding",
+      "module": "toprank",
+      "router": "topRankRouter",
+      "authentication": "PUBLIC_OR_ROUTE_SPECIFIC",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/onboarding/profile",
+      "module": "toprank",
+      "router": "topRankRouter",
+      "authentication": "PUBLIC_OR_ROUTE_SPECIFIC",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/onboarding/batch",
+      "module": "toprank",
+      "router": "topRankRouter",
+      "authentication": "PUBLIC_OR_ROUTE_SPECIFIC",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/onboarding/agreement",
+      "module": "toprank",
+      "router": "topRankRouter",
+      "authentication": "PUBLIC_OR_ROUTE_SPECIFIC",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/onboarding/complete",
+      "module": "toprank",
+      "router": "topRankRouter",
+      "authentication": "PUBLIC_OR_ROUTE_SPECIFIC",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/assessment",
+      "module": "toprank",
+      "router": "topRankRouter",
+      "authentication": "PUBLIC_OR_ROUTE_SPECIFIC",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/assessment",
+      "module": "toprank",
+      "router": "topRankRouter",
+      "authentication": "PUBLIC_OR_ROUTE_SPECIFIC",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/missions",
+      "module": "toprank",
+      "router": "topRankRouter",
+      "authentication": "PUBLIC_OR_ROUTE_SPECIFIC",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/missions/generate",
+      "module": "toprank",
+      "router": "topRankRouter",
+      "authentication": "PUBLIC_OR_ROUTE_SPECIFIC",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/missions/calendar",
+      "module": "toprank",
+      "router": "topRankRouter",
+      "authentication": "PUBLIC_OR_ROUTE_SPECIFIC",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/missions/:missionId",
+      "module": "toprank",
+      "router": "topRankRouter",
+      "authentication": "PUBLIC_OR_ROUTE_SPECIFIC",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "POST",
+      "path": "/missions/:missionId/complete",
+      "module": "toprank",
+      "router": "topRankRouter",
+      "authentication": "PUBLIC_OR_ROUTE_SPECIFIC",
+      "classification": "GLOBAL_OR_SYSTEM_REVIEW"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/students",
+      "module": "toprank",
+      "router": "topRankRouter",
+      "authentication": "PUBLIC_OR_ROUTE_SPECIFIC",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/mentor/batches",
+      "module": "toprank",
+      "router": "topRankRouter",
+      "authentication": "PUBLIC_OR_ROUTE_SPECIFIC",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "module": "users",
+      "router": "usersRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/",
+      "module": "users",
+      "router": "usersRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    },
+    {
+      "method": "POST",
+      "path": "/:id/reset-password",
+      "module": "users",
+      "router": "usersRouter",
+      "authentication": "AUTHENTICATED_OR_MIXED",
+      "classification": "REQUIRES_HTTP_CERTIFICATION"
+    }
+  ]
+}

@@ -1,5 +1,5 @@
-import TeacherDashboardClient from "../TeacherDashboardClient";
+import { SimpleExamStudio } from "@/components/teacher/simple-exam-studio";
 
 export default function TeacherExamsPage() {
-  return <TeacherDashboardClient view="exams" />;
+  return <SimpleExamStudio />;
 }

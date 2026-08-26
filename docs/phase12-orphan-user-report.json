@@ -1,0 +1,30 @@
+{
+  "phase": "12",
+  "generatedBy": "phase12-tenant-reports",
+  "policy": "No orphan user is reassigned or deleted automatically.",
+  "totalUsers": 284,
+  "usersWithoutInstitution": 17,
+  "byRole": [
+    {
+      "role": "MARKETING_COORDINATOR",
+      "count": 1
+    },
+    {
+      "role": "TELECALLER",
+      "count": 1
+    },
+    {
+      "role": "DIRECTOR",
+      "count": 2
+    },
+    {
+      "role": "ADMIN",
+      "count": 2
+    },
+    {
+      "role": "TEACHER",
+      "count": 11
+    }
+  ],
+  "status": "MANUAL_REMEDIATION_REQUIRED"
+}

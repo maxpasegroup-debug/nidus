@@ -20,10 +20,32 @@ function assertFinanceAdmin(requester: Requester) {
   if (!financeAdminRoles.has(requester.role)) throw new Error("Payment finalization requires admin or director access");
 }
 
-function assertDirectorScope(requester: Requester, target?: { instituteId?: string | null; branchId?: string | null }) {
-  if (requester.role !== Role.DIRECTOR || !target) return;
-  if (requester.instituteId && target.instituteId && requester.instituteId !== target.instituteId) throw new Error("Institute access denied");
-  if (requester.branchId && target.branchId && requester.branchId !== target.branchId) throw new Error("Branch access denied");
+function forbidden(message = "Institute access denied"): never {
+  throw Object.assign(new Error(message), { statusCode: 403 });
+}
+
+function assertTargetScope(requester: Requester, target?: { instituteId?: string | null; branchId?: string | null }) {
+  if (requester.role === Role.ADMIN) return;
+  if (!requester.instituteId) forbidden("Institution scope is required");
+  if (!target?.instituteId || requester.instituteId !== target.instituteId) forbidden();
+  if (requester.branchId && target.branchId && requester.branchId !== target.branchId) forbidden("Branch access denied");
+}
+
+async function userScope(requester: Requester, userId: string) {
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, instituteId: true, branchId: true } });
+  if (!user) throw Object.assign(new Error("User not found"), { statusCode: 404 });
+  assertTargetScope(requester, user);
+  return user;
+}
+
+async function paymentScope(requester: Requester, paymentId: string) {
+  const payment = await prisma.payment.findUnique({
+    where: { id: paymentId },
+    select: { id: true, userId: true, branchId: true, paymentStatus: true, refundStatus: true, user: { select: { instituteId: true, branchId: true } } }
+  });
+  if (!payment) throw Object.assign(new Error("Payment not found"), { statusCode: 404 });
+  assertTargetScope(requester, { instituteId: payment.user.instituteId, branchId: payment.user.branchId ?? payment.branchId });
+  return payment;
 }
 
 function receiptNumber(prefix = "RCPT") {
@@ -97,6 +119,7 @@ async function reconcileFeePlan(feePlanId: string) {
 export const paymentsService = {
   async createOrder(requester: Requester, input: { userId?: string; courseId?: string; admissionId?: string; feeInstallmentId?: string; invoiceId?: string; amount: number; currency?: string; paymentMethod?: string; product?: string; examSlug?: string }) {
     const userId = scopedUser(requester, input.userId) ?? requester.id;
+    await userScope(requester, userId);
     const currency = input.currency ?? "INR";
     const amount = input.amount;
     const localReceipt = `nidus_${Date.now()}`;
@@ -124,7 +147,8 @@ export const paymentsService = {
   async verify(requester: Requester, input: { razorpayOrderId: string; razorpayPaymentId: string; razorpaySignature: string; paymentMethod?: string }) {
     const existing = await prisma.payment.findUnique({ where: { razorpayOrderId: input.razorpayOrderId } });
     if (!existing) throw new Error("Payment not found");
-    if (requester.role !== Role.ADMIN && requester.role !== Role.DIRECTOR && existing.userId !== requester.id) throw new Error("Forbidden");
+    await paymentScope(requester, existing.id);
+    if (requester.role !== Role.ADMIN && requester.role !== Role.DIRECTOR && existing.userId !== requester.id) forbidden();
     if (existing.paymentStatus === "SUCCESS") throw new Error("Payment already verified");
 
     const verified = razorpayService.verifySignature(input);
@@ -186,7 +210,8 @@ export const paymentsService = {
     assertFinanceAdmin(requester);
     const method = input.paymentMethod.toUpperCase();
     if (!manualMethods.has(method)) throw new Error("Unsupported manual payment method");
-    assertDirectorScope(requester, { branchId: input.branchId });
+    const target = await userScope(requester, input.userId);
+    assertTargetScope(requester, { instituteId: target.instituteId, branchId: input.branchId ?? target.branchId });
     const payment = await prisma.payment.create({
       data: {
         userId: input.userId,
@@ -228,7 +253,7 @@ export const paymentsService = {
 
   async failPayment(requester: Requester, paymentId: string, reason: string) {
     assertFinanceAdmin(requester);
-    const existing = await prisma.payment.findUniqueOrThrow({ where: { id: paymentId } });
+    const existing = await paymentScope(requester, paymentId);
     const payment = await prisma.payment.update({ where: { id: paymentId }, data: { paymentStatus: "FAILED", failureReason: reason }, include: paymentInclude });
     await logPayment(payment.id, "PAYMENT_MARKED_FAILED", requester.id, existing.paymentStatus, "FAILED", { reason });
     return payment;
@@ -236,7 +261,7 @@ export const paymentsService = {
 
   async refundShell(requester: Requester, paymentId: string, input: { amount: number; reason?: string }) {
     assertFinanceAdmin(requester);
-    const existing = await prisma.payment.findUniqueOrThrow({ where: { id: paymentId } });
+    const existing = await paymentScope(requester, paymentId);
     if (existing.paymentStatus !== "SUCCESS") throw new Error("Only successful payments can be marked for refund");
     const payment = await prisma.payment.update({
       where: { id: paymentId },
@@ -249,15 +274,15 @@ export const paymentsService = {
 
   history(requester: Requester) {
     return prisma.payment.findMany({
-      where: requester.role === Role.ADMIN ? undefined : requester.role === Role.DIRECTOR ? { branchId: requester.branchId ?? undefined } : { userId: requester.id },
+      where: requester.role === Role.ADMIN ? undefined : requester.role === Role.DIRECTOR ? { user: { instituteId: requester.instituteId ?? "__missing_institute__", ...(requester.branchId ? { branchId: requester.branchId } : {}) } } : { userId: requester.id },
       orderBy: { createdAt: "desc" },
       include: paymentInclude
     });
   },
 
   analytics(requester: Requester) {
-    const scope = requester.role === Role.DIRECTOR ? { branchId: requester.branchId ?? undefined } : {};
-    return prisma.payment.findMany({ where: requester.role === Role.ADMIN ? undefined : scope }).then((payments) => {
+    const scope = requester.role === Role.DIRECTOR ? { user: { instituteId: requester.instituteId ?? "__missing_institute__", ...(requester.branchId ? { branchId: requester.branchId } : {}) } } : {};
+    return prisma.payment.findMany({ where: requester.role === Role.ADMIN ? undefined : requester.role === Role.DIRECTOR ? scope : { userId: requester.id } }).then((payments) => {
       const success = payments.filter((payment) => payment.paymentStatus === "SUCCESS");
       const pending = payments.filter((payment) => payment.paymentStatus !== "SUCCESS");
       const byMethod = success.reduce<Record<string, number>>((acc, payment) => {
@@ -278,7 +303,7 @@ export const paymentsService = {
 
   subscriptions(requester: Requester) {
     return prisma.subscription.findMany({
-      where: requester.role === Role.ADMIN ? undefined : { userId: requester.id },
+      where: requester.role === Role.ADMIN ? undefined : requester.role === Role.DIRECTOR ? { user: { instituteId: requester.instituteId ?? "__missing_institute__" } } : { userId: requester.id },
       orderBy: { createdAt: "desc" },
       include: { user: { select: userSelect } }
     });
@@ -287,15 +312,16 @@ export const paymentsService = {
   createSubscription(requester: Requester, input: { userId?: string; planName: string; startDate: string; endDate: string; status: string; amount: number }) {
     assertFinanceAdmin(requester);
     const userId = input.userId ?? requester.id;
-    return prisma.subscription.create({
+    return userScope(requester, userId).then(() => prisma.subscription.create({
       data: { userId, planName: input.planName, startDate: new Date(input.startDate), endDate: new Date(input.endDate), status: input.status, amount: input.amount },
       include: { user: { select: userSelect } }
-    });
+    }));
   },
 
   async createFeePlan(requester: Requester, input: { studentId: string; admissionId?: string; courseId?: string; instituteId?: string; branchId?: string; title: string; totalAmount: number; discountAmount?: number; scholarshipAmount?: number; installments: Array<{ title: string; amount: number; dueDate: string }> }) {
     assertFinanceAdmin(requester);
-    assertDirectorScope(requester, { instituteId: input.instituteId, branchId: input.branchId });
+    const student = await userScope(requester, input.studentId);
+    assertTargetScope(requester, { instituteId: student.instituteId, branchId: input.branchId ?? student.branchId });
     const discountAmount = input.discountAmount ?? 0;
     const scholarshipAmount = input.scholarshipAmount ?? 0;
     const netAmount = Math.max(0, input.totalAmount - discountAmount - scholarshipAmount);
@@ -306,8 +332,8 @@ export const paymentsService = {
         studentId: input.studentId,
         admissionId: input.admissionId,
         courseId: input.courseId,
-        instituteId: input.instituteId,
-        branchId: input.branchId,
+        instituteId: student.instituteId,
+        branchId: input.branchId ?? student.branchId,
         title: input.title,
         totalAmount: input.totalAmount,
         discountAmount,
@@ -340,6 +366,11 @@ export const paymentsService = {
 
   async createInstallment(requester: Requester, input: { studentId: string; feePlanId?: string; title: string; amount: number; dueDate: string; paidStatus?: string }) {
     assertFinanceAdmin(requester);
+    await userScope(requester, input.studentId);
+    if (input.feePlanId) {
+      const plan = await prisma.feePlan.findUnique({ where: { id: input.feePlanId }, select: { studentId: true } });
+      if (!plan || plan.studentId !== input.studentId) throw Object.assign(new Error("Fee plan not found"), { statusCode: 404 });
+    }
     return prisma.feeInstallment.create({
       data: { ...input, dueDate: new Date(input.dueDate), paidStatus: input.paidStatus ?? "PENDING", dueAmount: input.paidStatus === "PAID" ? 0 : input.amount, paidAmount: input.paidStatus === "PAID" ? input.amount : 0 },
       include: { student: { select: userSelect } }
@@ -349,7 +380,8 @@ export const paymentsService = {
   async payInstallment(requester: Requester, id: string) {
     const fee = await prisma.feeInstallment.findUnique({ where: { id } });
     if (!fee) throw new Error("Fee installment not found");
-    if (requester.role !== Role.ADMIN && requester.role !== Role.DIRECTOR && fee.studentId !== requester.id) throw new Error("Forbidden");
+    await userScope(requester, fee.studentId);
+    if (requester.role !== Role.ADMIN && requester.role !== Role.DIRECTOR && fee.studentId !== requester.id) forbidden();
     return prisma.feeInstallment.update({
       where: { id },
       data: { paidStatus: "PAID", paidAmount: fee.amount, dueAmount: 0, paidAt: new Date() },
@@ -367,7 +399,7 @@ export const paymentsService = {
 
   invoices(requester: Requester) {
     return prisma.invoice.findMany({
-      where: requester.role === Role.ADMIN || requester.role === Role.DIRECTOR ? undefined : { studentId: requester.id },
+      where: requester.role === Role.ADMIN ? undefined : requester.role === Role.DIRECTOR ? { student: { instituteId: requester.instituteId ?? "__missing_institute__", ...(requester.branchId ? { branchId: requester.branchId } : {}) } } : { studentId: requester.id },
       orderBy: { generatedAt: "desc" },
       include: { student: { select: userSelect }, payments: true }
     });
@@ -375,6 +407,7 @@ export const paymentsService = {
 
   async generateInvoice(requester: Requester, input: { studentId: string; admissionId?: string; feePlanId?: string; amount: number; status?: string }) {
     assertFinanceAdmin(requester);
+    await userScope(requester, input.studentId);
     const invoiceNumber = receiptNumber("INV");
     const invoice = await prisma.invoice.create({
       data: {

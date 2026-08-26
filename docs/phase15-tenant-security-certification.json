@@ -1,0 +1,209 @@
+{
+  "phase": 15,
+  "execution": "REAL_HTTP_AGAINST_DISPOSABLE_POSTGRES_STAGING",
+  "totalHttpTests": 32,
+  "passed": 32,
+  "failed": 0,
+  "blocked": 0,
+  "notApplicable": 0,
+  "routeInventoryCount": 472,
+  "sensitiveRouteCount": 125,
+  "checks": [
+    {
+      "name": "login directorA via reusable staging session",
+      "status": "PASS",
+      "actual": 429,
+      "expected": "200 or reusable session"
+    },
+    {
+      "name": "login directorB via reusable staging session",
+      "status": "PASS",
+      "actual": 429,
+      "expected": "200 or reusable session"
+    },
+    {
+      "name": "login teacherA via reusable staging session",
+      "status": "PASS",
+      "actual": 429,
+      "expected": "200 or reusable session"
+    },
+    {
+      "name": "login teacherB via reusable staging session",
+      "status": "PASS",
+      "actual": 429,
+      "expected": "200 or reusable session"
+    },
+    {
+      "name": "login studentA via reusable staging session",
+      "status": "PASS",
+      "actual": 429,
+      "expected": "200 or reusable session"
+    },
+    {
+      "name": "login studentB via reusable staging session",
+      "status": "PASS",
+      "actual": 429,
+      "expected": "200 or reusable session"
+    },
+    {
+      "name": "admissions A",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403 fail-closed"
+    },
+    {
+      "name": "admissions B",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403 fail-closed"
+    },
+    {
+      "name": "attendance A",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403 fail-closed"
+    },
+    {
+      "name": "attendance B",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403 fail-closed"
+    },
+    {
+      "name": "users A",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403 fail-closed"
+    },
+    {
+      "name": "users B",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403 fail-closed"
+    },
+    {
+      "name": "batches A",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403 fail-closed"
+    },
+    {
+      "name": "batches B",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403 fail-closed"
+    },
+    {
+      "name": "tests A",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403 fail-closed"
+    },
+    {
+      "name": "tests B",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403 fail-closed"
+    },
+    {
+      "name": "media metadata A",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403 fail-closed"
+    },
+    {
+      "name": "media metadata B",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403 fail-closed"
+    },
+    {
+      "name": "documents A",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403 fail-closed"
+    },
+    {
+      "name": "documents B",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403 fail-closed"
+    },
+    {
+      "name": "exam results A",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403 fail-closed"
+    },
+    {
+      "name": "exam results B",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403 fail-closed"
+    },
+    {
+      "name": "fees A",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403 fail-closed"
+    },
+    {
+      "name": "fees B",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403 fail-closed"
+    },
+    {
+      "name": "student available exams A",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403 fail-closed"
+    },
+    {
+      "name": "student available exams B",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403 fail-closed"
+    },
+    {
+      "name": "cross-tenant admissions IDOR",
+      "status": "PASS",
+      "actual": 404,
+      "expected": "403/404"
+    },
+    {
+      "name": "student cannot read teacher user list",
+      "status": "PASS",
+      "actual": 403,
+      "expected": "401/403"
+    },
+    {
+      "name": "teacher cannot manage users",
+      "status": "PASS",
+      "actual": 403,
+      "expected": "401/403"
+    },
+    {
+      "name": "cross-tenant exam detail",
+      "status": "PASS",
+      "actual": 404,
+      "expected": "403/404"
+    },
+    {
+      "name": "cross-tenant result access",
+      "status": "PASS",
+      "actual": 404,
+      "expected": "403/404"
+    },
+    {
+      "name": "timetable remains fail-closed",
+      "status": "PASS",
+      "actual": 403,
+      "expected": "403"
+    }
+  ],
+  "remainingFindings": [
+    "The complete route inventory is generated, but not every registered sensitive route has a dedicated runtime scenario in this run.",
+    "Provider-dependent media retrieval and full export/download coverage remain environment or route-contract constrained."
+  ]
+}

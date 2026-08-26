@@ -49,6 +49,20 @@ testsRouter.post(
   testsController.generateDraft
 );
 testsRouter.post("/publish-draft", protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER), testValidators(), testsController.publishDraft);
+testsRouter.post(
+  "/:id/approve",
+  protect,
+  allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER),
+  [body("attestation").equals("TEACHER_REVIEW_CONFIRMED"), body("questionIds").isArray({ min: 1 })],
+  testsController.approve
+);
+testsRouter.post(
+  "/:id/publish",
+  protect,
+  allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER),
+  [body("publishAt").optional({ nullable: true }).isISO8601(), body("batchId").optional({ nullable: true }).trim()],
+  testsController.publishApproved
+);
 testsRouter.get("/:id", protect, allowRoles(Role.STUDENT, Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER), testsController.details);
 testsRouter.post("/", protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER), testValidators(), testsController.create);
 testsRouter.put("/:id", protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER), testValidators(true), testsController.update);

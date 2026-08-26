@@ -83,8 +83,30 @@ export const testsController = {
   async publishDraft(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       assertValid(req);
-      const test = await testsService.publishDraft(requester(req), req.body);
-      res.status(201).json({ test });
+      throw Object.assign(
+        new Error("Direct draft publication is disabled. Create the draft, approve every question, then publish the approved exam."),
+        { statusCode: 409 }
+      );
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async approve(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      assertValid(req);
+      const test = await testsService.approve(requester(req), param(req, "id"), req.body);
+      res.json({ test });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async publishApproved(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      assertValid(req);
+      const test = await testsService.publishApproved(requester(req), param(req, "id"), req.body ?? {});
+      res.json({ test });
     } catch (error) {
       next(error);
     }

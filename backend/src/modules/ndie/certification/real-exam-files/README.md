@@ -246,10 +246,13 @@ The archive includes:
 
 - every release-pack artifact
 - `release-pack-manifest.json`
+- checksum-bound `archive-seal.json`
 - SHA-256 hashes for every file
 - package and manifest hashes
 
-If the launch gate is failing, the archive is verified only as a failed pre-launch dossier. It must not be used as production certification evidence.
+Phase 11 verifies the complete Phase 10 bundle before planning or writing an archive. Write mode uses a private staging directory, verifies every staged payload and atomically renames the completed directory into place. Existing archive IDs cannot be overwritten, and unsafe archive IDs or roots are rejected.
+
+Use `realReleaseArchiveService.verifyWrittenArchive(report)` to detect post-write modification. If the launch gate is failing, the archive is verified only as a failed pre-launch dossier. Production certification requires a written, sealed archive from a `READY_FOR_IMMUTABLE_ARCHIVE` pack with sign-off ready.
 
 ## Phase 12 Certification Suite
 
@@ -273,9 +276,22 @@ The suite checks the full release chain:
 The suite returns:
 
 - suite status
+- assessment or release mode
+- `BLOCKED`, `READY_TO_ARCHIVE` or `CERTIFIED_FOR_LAUNCH` state
 - release scope
 - failed steps
+- detailed blocking failures
+- dossier, release-pack and archive integrity results
+- shared release snapshot and package checksums
+- next required action
 - next required command
+- readiness to write the production archive
 - production launch safety decision
 
-If the suite reports `safeToBeginProductionLaunch: false`, do not launch as production certified.
+Assessment mode never authorizes launch because it only plans the archive. After every certification prerequisite passes, run release mode deliberately:
+
+```bash
+npm run test:ndie-real-certification-suite --workspace backend -- --write-archive
+```
+
+Release mode uses the same verified Phase 10 bundle for its Phase 11 archive. It refuses to write when prerequisites fail. `safeToBeginProductionLaunch` becomes true only after the physical archive is atomically written, sealed and reverified. If it is false, do not launch as production certified.

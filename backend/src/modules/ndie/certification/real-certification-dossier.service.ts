@@ -67,6 +67,21 @@ export type RealCertificationDossierReport = {
 
 export const REAL_CERTIFICATION_DOSSIER_VERSION = "real-certification-dossier-v3";
 
+type CanonicalJson = null | boolean | number | string | CanonicalJson[] | { [key: string]: CanonicalJson };
+
+function canonicalize(value: unknown): CanonicalJson {
+  if (value === null || typeof value === "boolean" || typeof value === "number" || typeof value === "string") return value;
+  if (Array.isArray(value)) return value.map(canonicalize);
+  if (typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>)
+        .sort(([left], [right]) => left.localeCompare(right))
+        .map(([key, item]) => [key, canonicalize(item)])
+    );
+  }
+  return String(value);
+}
+
 function scoreLine(label: string, score: number) {
   return `${label}: ${score}/100`;
 }
@@ -129,7 +144,7 @@ function evidenceLines(summary: RealCertificationDossierReport["evidenceSummary"
 }
 
 function dossierFingerprint(report: Omit<RealCertificationDossierReport, "dossierSha256" | "markdown">) {
-  return createHash("sha256").update(JSON.stringify({
+  return createHash("sha256").update(JSON.stringify(canonicalize({
     dossierVersion: report.dossierVersion,
     generatedAt: report.generatedAt,
     executiveDecision: report.executiveDecision,
@@ -158,7 +173,7 @@ function dossierFingerprint(report: Omit<RealCertificationDossierReport, "dossie
       completedStages: slot.completedStages,
       failedStages: slot.failedStages
     }))
-  })).digest("hex");
+  }))).digest("hex");
 }
 
 function markdownSection(section: RealCertificationDossierSection) {

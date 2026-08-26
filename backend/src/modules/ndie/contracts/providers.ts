@@ -236,6 +236,12 @@ export interface AiProvider extends NdieProvider {
       solutionJson: unknown;
       confidence?: number | null;
     }>;
+    pageAssets?: Array<{
+      pageId: string;
+      pageNumber: number;
+      role: string;
+      url: string;
+    }>;
   }): Promise<NdieValidationResult>;
 }
 

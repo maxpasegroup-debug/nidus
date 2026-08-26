@@ -233,6 +233,9 @@ export type InstituteWhereInput = {
   admissions?: Prisma.AdmissionListRelationFilter
   feePlans?: Prisma.FeePlanListRelationFilter
   batches?: Prisma.BatchListRelationFilter
+  notifications?: Prisma.NotificationListRelationFilter
+  emailLogs?: Prisma.EmailLogListRelationFilter
+  pushNotifications?: Prisma.PushNotificationListRelationFilter
 }
 
 export type InstituteOrderByWithRelationInput = {
@@ -254,6 +257,9 @@ export type InstituteOrderByWithRelationInput = {
   admissions?: Prisma.AdmissionOrderByRelationAggregateInput
   feePlans?: Prisma.FeePlanOrderByRelationAggregateInput
   batches?: Prisma.BatchOrderByRelationAggregateInput
+  notifications?: Prisma.NotificationOrderByRelationAggregateInput
+  emailLogs?: Prisma.EmailLogOrderByRelationAggregateInput
+  pushNotifications?: Prisma.PushNotificationOrderByRelationAggregateInput
 }
 
 export type InstituteWhereUniqueInput = Prisma.AtLeast<{
@@ -278,6 +284,9 @@ export type InstituteWhereUniqueInput = Prisma.AtLeast<{
   admissions?: Prisma.AdmissionListRelationFilter
   feePlans?: Prisma.FeePlanListRelationFilter
   batches?: Prisma.BatchListRelationFilter
+  notifications?: Prisma.NotificationListRelationFilter
+  emailLogs?: Prisma.EmailLogListRelationFilter
+  pushNotifications?: Prisma.PushNotificationListRelationFilter
 }, "id" | "code">
 
 export type InstituteOrderByWithAggregationInput = {
@@ -333,6 +342,9 @@ export type InstituteCreateInput = {
   admissions?: Prisma.AdmissionCreateNestedManyWithoutInstituteInput
   feePlans?: Prisma.FeePlanCreateNestedManyWithoutInstituteInput
   batches?: Prisma.BatchCreateNestedManyWithoutInstituteInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutInstituteInput
+  emailLogs?: Prisma.EmailLogCreateNestedManyWithoutInstituteInput
+  pushNotifications?: Prisma.PushNotificationCreateNestedManyWithoutInstituteInput
 }
 
 export type InstituteUncheckedCreateInput = {
@@ -354,6 +366,9 @@ export type InstituteUncheckedCreateInput = {
   admissions?: Prisma.AdmissionUncheckedCreateNestedManyWithoutInstituteInput
   feePlans?: Prisma.FeePlanUncheckedCreateNestedManyWithoutInstituteInput
   batches?: Prisma.BatchUncheckedCreateNestedManyWithoutInstituteInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutInstituteInput
+  emailLogs?: Prisma.EmailLogUncheckedCreateNestedManyWithoutInstituteInput
+  pushNotifications?: Prisma.PushNotificationUncheckedCreateNestedManyWithoutInstituteInput
 }
 
 export type InstituteUpdateInput = {
@@ -375,6 +390,9 @@ export type InstituteUpdateInput = {
   admissions?: Prisma.AdmissionUpdateManyWithoutInstituteNestedInput
   feePlans?: Prisma.FeePlanUpdateManyWithoutInstituteNestedInput
   batches?: Prisma.BatchUpdateManyWithoutInstituteNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutInstituteNestedInput
+  emailLogs?: Prisma.EmailLogUpdateManyWithoutInstituteNestedInput
+  pushNotifications?: Prisma.PushNotificationUpdateManyWithoutInstituteNestedInput
 }
 
 export type InstituteUncheckedUpdateInput = {
@@ -396,6 +414,9 @@ export type InstituteUncheckedUpdateInput = {
   admissions?: Prisma.AdmissionUncheckedUpdateManyWithoutInstituteNestedInput
   feePlans?: Prisma.FeePlanUncheckedUpdateManyWithoutInstituteNestedInput
   batches?: Prisma.BatchUncheckedUpdateManyWithoutInstituteNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutInstituteNestedInput
+  emailLogs?: Prisma.EmailLogUncheckedUpdateManyWithoutInstituteNestedInput
+  pushNotifications?: Prisma.PushNotificationUncheckedUpdateManyWithoutInstituteNestedInput
 }
 
 export type InstituteCreateManyInput = {
@@ -549,6 +570,54 @@ export type InstituteUpdateOneWithoutFeePlansNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.InstituteUpdateToOneWithWhereWithoutFeePlansInput, Prisma.InstituteUpdateWithoutFeePlansInput>, Prisma.InstituteUncheckedUpdateWithoutFeePlansInput>
 }
 
+export type InstituteCreateNestedOneWithoutNotificationsInput = {
+  create?: Prisma.XOR<Prisma.InstituteCreateWithoutNotificationsInput, Prisma.InstituteUncheckedCreateWithoutNotificationsInput>
+  connectOrCreate?: Prisma.InstituteCreateOrConnectWithoutNotificationsInput
+  connect?: Prisma.InstituteWhereUniqueInput
+}
+
+export type InstituteUpdateOneWithoutNotificationsNestedInput = {
+  create?: Prisma.XOR<Prisma.InstituteCreateWithoutNotificationsInput, Prisma.InstituteUncheckedCreateWithoutNotificationsInput>
+  connectOrCreate?: Prisma.InstituteCreateOrConnectWithoutNotificationsInput
+  upsert?: Prisma.InstituteUpsertWithoutNotificationsInput
+  disconnect?: Prisma.InstituteWhereInput | boolean
+  delete?: Prisma.InstituteWhereInput | boolean
+  connect?: Prisma.InstituteWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.InstituteUpdateToOneWithWhereWithoutNotificationsInput, Prisma.InstituteUpdateWithoutNotificationsInput>, Prisma.InstituteUncheckedUpdateWithoutNotificationsInput>
+}
+
+export type InstituteCreateNestedOneWithoutEmailLogsInput = {
+  create?: Prisma.XOR<Prisma.InstituteCreateWithoutEmailLogsInput, Prisma.InstituteUncheckedCreateWithoutEmailLogsInput>
+  connectOrCreate?: Prisma.InstituteCreateOrConnectWithoutEmailLogsInput
+  connect?: Prisma.InstituteWhereUniqueInput
+}
+
+export type InstituteUpdateOneWithoutEmailLogsNestedInput = {
+  create?: Prisma.XOR<Prisma.InstituteCreateWithoutEmailLogsInput, Prisma.InstituteUncheckedCreateWithoutEmailLogsInput>
+  connectOrCreate?: Prisma.InstituteCreateOrConnectWithoutEmailLogsInput
+  upsert?: Prisma.InstituteUpsertWithoutEmailLogsInput
+  disconnect?: Prisma.InstituteWhereInput | boolean
+  delete?: Prisma.InstituteWhereInput | boolean
+  connect?: Prisma.InstituteWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.InstituteUpdateToOneWithWhereWithoutEmailLogsInput, Prisma.InstituteUpdateWithoutEmailLogsInput>, Prisma.InstituteUncheckedUpdateWithoutEmailLogsInput>
+}
+
+export type InstituteCreateNestedOneWithoutPushNotificationsInput = {
+  create?: Prisma.XOR<Prisma.InstituteCreateWithoutPushNotificationsInput, Prisma.InstituteUncheckedCreateWithoutPushNotificationsInput>
+  connectOrCreate?: Prisma.InstituteCreateOrConnectWithoutPushNotificationsInput
+  connect?: Prisma.InstituteWhereUniqueInput
+}
+
+export type InstituteUpdateOneWithoutPushNotificationsNestedInput = {
+  create?: Prisma.XOR<Prisma.InstituteCreateWithoutPushNotificationsInput, Prisma.InstituteUncheckedCreateWithoutPushNotificationsInput>
+  connectOrCreate?: Prisma.InstituteCreateOrConnectWithoutPushNotificationsInput
+  upsert?: Prisma.InstituteUpsertWithoutPushNotificationsInput
+  disconnect?: Prisma.InstituteWhereInput | boolean
+  delete?: Prisma.InstituteWhereInput | boolean
+  connect?: Prisma.InstituteWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.InstituteUpdateToOneWithWhereWithoutPushNotificationsInput, Prisma.InstituteUpdateWithoutPushNotificationsInput>, Prisma.InstituteUncheckedUpdateWithoutPushNotificationsInput>
+}
+
 export type InstituteCreateNestedOneWithoutUserRolesInput = {
   create?: Prisma.XOR<Prisma.InstituteCreateWithoutUserRolesInput, Prisma.InstituteUncheckedCreateWithoutUserRolesInput>
   connectOrCreate?: Prisma.InstituteCreateOrConnectWithoutUserRolesInput
@@ -615,6 +684,9 @@ export type InstituteCreateWithoutUsersInput = {
   admissions?: Prisma.AdmissionCreateNestedManyWithoutInstituteInput
   feePlans?: Prisma.FeePlanCreateNestedManyWithoutInstituteInput
   batches?: Prisma.BatchCreateNestedManyWithoutInstituteInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutInstituteInput
+  emailLogs?: Prisma.EmailLogCreateNestedManyWithoutInstituteInput
+  pushNotifications?: Prisma.PushNotificationCreateNestedManyWithoutInstituteInput
 }
 
 export type InstituteUncheckedCreateWithoutUsersInput = {
@@ -635,6 +707,9 @@ export type InstituteUncheckedCreateWithoutUsersInput = {
   admissions?: Prisma.AdmissionUncheckedCreateNestedManyWithoutInstituteInput
   feePlans?: Prisma.FeePlanUncheckedCreateNestedManyWithoutInstituteInput
   batches?: Prisma.BatchUncheckedCreateNestedManyWithoutInstituteInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutInstituteInput
+  emailLogs?: Prisma.EmailLogUncheckedCreateNestedManyWithoutInstituteInput
+  pushNotifications?: Prisma.PushNotificationUncheckedCreateNestedManyWithoutInstituteInput
 }
 
 export type InstituteCreateOrConnectWithoutUsersInput = {
@@ -671,6 +746,9 @@ export type InstituteUpdateWithoutUsersInput = {
   admissions?: Prisma.AdmissionUpdateManyWithoutInstituteNestedInput
   feePlans?: Prisma.FeePlanUpdateManyWithoutInstituteNestedInput
   batches?: Prisma.BatchUpdateManyWithoutInstituteNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutInstituteNestedInput
+  emailLogs?: Prisma.EmailLogUpdateManyWithoutInstituteNestedInput
+  pushNotifications?: Prisma.PushNotificationUpdateManyWithoutInstituteNestedInput
 }
 
 export type InstituteUncheckedUpdateWithoutUsersInput = {
@@ -691,6 +769,9 @@ export type InstituteUncheckedUpdateWithoutUsersInput = {
   admissions?: Prisma.AdmissionUncheckedUpdateManyWithoutInstituteNestedInput
   feePlans?: Prisma.FeePlanUncheckedUpdateManyWithoutInstituteNestedInput
   batches?: Prisma.BatchUncheckedUpdateManyWithoutInstituteNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutInstituteNestedInput
+  emailLogs?: Prisma.EmailLogUncheckedUpdateManyWithoutInstituteNestedInput
+  pushNotifications?: Prisma.PushNotificationUncheckedUpdateManyWithoutInstituteNestedInput
 }
 
 export type InstituteCreateWithoutBatchesInput = {
@@ -711,6 +792,9 @@ export type InstituteCreateWithoutBatchesInput = {
   roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutInstituteInput
   admissions?: Prisma.AdmissionCreateNestedManyWithoutInstituteInput
   feePlans?: Prisma.FeePlanCreateNestedManyWithoutInstituteInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutInstituteInput
+  emailLogs?: Prisma.EmailLogCreateNestedManyWithoutInstituteInput
+  pushNotifications?: Prisma.PushNotificationCreateNestedManyWithoutInstituteInput
 }
 
 export type InstituteUncheckedCreateWithoutBatchesInput = {
@@ -731,6 +815,9 @@ export type InstituteUncheckedCreateWithoutBatchesInput = {
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutInstituteInput
   admissions?: Prisma.AdmissionUncheckedCreateNestedManyWithoutInstituteInput
   feePlans?: Prisma.FeePlanUncheckedCreateNestedManyWithoutInstituteInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutInstituteInput
+  emailLogs?: Prisma.EmailLogUncheckedCreateNestedManyWithoutInstituteInput
+  pushNotifications?: Prisma.PushNotificationUncheckedCreateNestedManyWithoutInstituteInput
 }
 
 export type InstituteCreateOrConnectWithoutBatchesInput = {
@@ -767,6 +854,9 @@ export type InstituteUpdateWithoutBatchesInput = {
   roleActivities?: Prisma.RoleActivityUpdateManyWithoutInstituteNestedInput
   admissions?: Prisma.AdmissionUpdateManyWithoutInstituteNestedInput
   feePlans?: Prisma.FeePlanUpdateManyWithoutInstituteNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutInstituteNestedInput
+  emailLogs?: Prisma.EmailLogUpdateManyWithoutInstituteNestedInput
+  pushNotifications?: Prisma.PushNotificationUpdateManyWithoutInstituteNestedInput
 }
 
 export type InstituteUncheckedUpdateWithoutBatchesInput = {
@@ -787,6 +877,9 @@ export type InstituteUncheckedUpdateWithoutBatchesInput = {
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutInstituteNestedInput
   admissions?: Prisma.AdmissionUncheckedUpdateManyWithoutInstituteNestedInput
   feePlans?: Prisma.FeePlanUncheckedUpdateManyWithoutInstituteNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutInstituteNestedInput
+  emailLogs?: Prisma.EmailLogUncheckedUpdateManyWithoutInstituteNestedInput
+  pushNotifications?: Prisma.PushNotificationUncheckedUpdateManyWithoutInstituteNestedInput
 }
 
 export type InstituteCreateWithoutAdmissionsInput = {
@@ -807,6 +900,9 @@ export type InstituteCreateWithoutAdmissionsInput = {
   roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutInstituteInput
   feePlans?: Prisma.FeePlanCreateNestedManyWithoutInstituteInput
   batches?: Prisma.BatchCreateNestedManyWithoutInstituteInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutInstituteInput
+  emailLogs?: Prisma.EmailLogCreateNestedManyWithoutInstituteInput
+  pushNotifications?: Prisma.PushNotificationCreateNestedManyWithoutInstituteInput
 }
 
 export type InstituteUncheckedCreateWithoutAdmissionsInput = {
@@ -827,6 +923,9 @@ export type InstituteUncheckedCreateWithoutAdmissionsInput = {
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutInstituteInput
   feePlans?: Prisma.FeePlanUncheckedCreateNestedManyWithoutInstituteInput
   batches?: Prisma.BatchUncheckedCreateNestedManyWithoutInstituteInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutInstituteInput
+  emailLogs?: Prisma.EmailLogUncheckedCreateNestedManyWithoutInstituteInput
+  pushNotifications?: Prisma.PushNotificationUncheckedCreateNestedManyWithoutInstituteInput
 }
 
 export type InstituteCreateOrConnectWithoutAdmissionsInput = {
@@ -863,6 +962,9 @@ export type InstituteUpdateWithoutAdmissionsInput = {
   roleActivities?: Prisma.RoleActivityUpdateManyWithoutInstituteNestedInput
   feePlans?: Prisma.FeePlanUpdateManyWithoutInstituteNestedInput
   batches?: Prisma.BatchUpdateManyWithoutInstituteNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutInstituteNestedInput
+  emailLogs?: Prisma.EmailLogUpdateManyWithoutInstituteNestedInput
+  pushNotifications?: Prisma.PushNotificationUpdateManyWithoutInstituteNestedInput
 }
 
 export type InstituteUncheckedUpdateWithoutAdmissionsInput = {
@@ -883,6 +985,9 @@ export type InstituteUncheckedUpdateWithoutAdmissionsInput = {
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutInstituteNestedInput
   feePlans?: Prisma.FeePlanUncheckedUpdateManyWithoutInstituteNestedInput
   batches?: Prisma.BatchUncheckedUpdateManyWithoutInstituteNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutInstituteNestedInput
+  emailLogs?: Prisma.EmailLogUncheckedUpdateManyWithoutInstituteNestedInput
+  pushNotifications?: Prisma.PushNotificationUncheckedUpdateManyWithoutInstituteNestedInput
 }
 
 export type InstituteCreateWithoutFeePlansInput = {
@@ -903,6 +1008,9 @@ export type InstituteCreateWithoutFeePlansInput = {
   roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutInstituteInput
   admissions?: Prisma.AdmissionCreateNestedManyWithoutInstituteInput
   batches?: Prisma.BatchCreateNestedManyWithoutInstituteInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutInstituteInput
+  emailLogs?: Prisma.EmailLogCreateNestedManyWithoutInstituteInput
+  pushNotifications?: Prisma.PushNotificationCreateNestedManyWithoutInstituteInput
 }
 
 export type InstituteUncheckedCreateWithoutFeePlansInput = {
@@ -923,6 +1031,9 @@ export type InstituteUncheckedCreateWithoutFeePlansInput = {
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutInstituteInput
   admissions?: Prisma.AdmissionUncheckedCreateNestedManyWithoutInstituteInput
   batches?: Prisma.BatchUncheckedCreateNestedManyWithoutInstituteInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutInstituteInput
+  emailLogs?: Prisma.EmailLogUncheckedCreateNestedManyWithoutInstituteInput
+  pushNotifications?: Prisma.PushNotificationUncheckedCreateNestedManyWithoutInstituteInput
 }
 
 export type InstituteCreateOrConnectWithoutFeePlansInput = {
@@ -959,6 +1070,9 @@ export type InstituteUpdateWithoutFeePlansInput = {
   roleActivities?: Prisma.RoleActivityUpdateManyWithoutInstituteNestedInput
   admissions?: Prisma.AdmissionUpdateManyWithoutInstituteNestedInput
   batches?: Prisma.BatchUpdateManyWithoutInstituteNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutInstituteNestedInput
+  emailLogs?: Prisma.EmailLogUpdateManyWithoutInstituteNestedInput
+  pushNotifications?: Prisma.PushNotificationUpdateManyWithoutInstituteNestedInput
 }
 
 export type InstituteUncheckedUpdateWithoutFeePlansInput = {
@@ -979,6 +1093,333 @@ export type InstituteUncheckedUpdateWithoutFeePlansInput = {
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutInstituteNestedInput
   admissions?: Prisma.AdmissionUncheckedUpdateManyWithoutInstituteNestedInput
   batches?: Prisma.BatchUncheckedUpdateManyWithoutInstituteNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutInstituteNestedInput
+  emailLogs?: Prisma.EmailLogUncheckedUpdateManyWithoutInstituteNestedInput
+  pushNotifications?: Prisma.PushNotificationUncheckedUpdateManyWithoutInstituteNestedInput
+}
+
+export type InstituteCreateWithoutNotificationsInput = {
+  id?: string
+  name: string
+  code: string
+  city?: string | null
+  state?: string | null
+  contactEmail?: string | null
+  contactNumber?: string | null
+  status?: string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  branches?: Prisma.BranchCreateNestedManyWithoutInstituteInput
+  users?: Prisma.UserCreateNestedManyWithoutInstituteInput
+  userRoles?: Prisma.UserRoleCreateNestedManyWithoutInstituteInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutInstituteInput
+  admissions?: Prisma.AdmissionCreateNestedManyWithoutInstituteInput
+  feePlans?: Prisma.FeePlanCreateNestedManyWithoutInstituteInput
+  batches?: Prisma.BatchCreateNestedManyWithoutInstituteInput
+  emailLogs?: Prisma.EmailLogCreateNestedManyWithoutInstituteInput
+  pushNotifications?: Prisma.PushNotificationCreateNestedManyWithoutInstituteInput
+}
+
+export type InstituteUncheckedCreateWithoutNotificationsInput = {
+  id?: string
+  name: string
+  code: string
+  city?: string | null
+  state?: string | null
+  contactEmail?: string | null
+  contactNumber?: string | null
+  status?: string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  branches?: Prisma.BranchUncheckedCreateNestedManyWithoutInstituteInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutInstituteInput
+  userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutInstituteInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutInstituteInput
+  admissions?: Prisma.AdmissionUncheckedCreateNestedManyWithoutInstituteInput
+  feePlans?: Prisma.FeePlanUncheckedCreateNestedManyWithoutInstituteInput
+  batches?: Prisma.BatchUncheckedCreateNestedManyWithoutInstituteInput
+  emailLogs?: Prisma.EmailLogUncheckedCreateNestedManyWithoutInstituteInput
+  pushNotifications?: Prisma.PushNotificationUncheckedCreateNestedManyWithoutInstituteInput
+}
+
+export type InstituteCreateOrConnectWithoutNotificationsInput = {
+  where: Prisma.InstituteWhereUniqueInput
+  create: Prisma.XOR<Prisma.InstituteCreateWithoutNotificationsInput, Prisma.InstituteUncheckedCreateWithoutNotificationsInput>
+}
+
+export type InstituteUpsertWithoutNotificationsInput = {
+  update: Prisma.XOR<Prisma.InstituteUpdateWithoutNotificationsInput, Prisma.InstituteUncheckedUpdateWithoutNotificationsInput>
+  create: Prisma.XOR<Prisma.InstituteCreateWithoutNotificationsInput, Prisma.InstituteUncheckedCreateWithoutNotificationsInput>
+  where?: Prisma.InstituteWhereInput
+}
+
+export type InstituteUpdateToOneWithWhereWithoutNotificationsInput = {
+  where?: Prisma.InstituteWhereInput
+  data: Prisma.XOR<Prisma.InstituteUpdateWithoutNotificationsInput, Prisma.InstituteUncheckedUpdateWithoutNotificationsInput>
+}
+
+export type InstituteUpdateWithoutNotificationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  branches?: Prisma.BranchUpdateManyWithoutInstituteNestedInput
+  users?: Prisma.UserUpdateManyWithoutInstituteNestedInput
+  userRoles?: Prisma.UserRoleUpdateManyWithoutInstituteNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutInstituteNestedInput
+  admissions?: Prisma.AdmissionUpdateManyWithoutInstituteNestedInput
+  feePlans?: Prisma.FeePlanUpdateManyWithoutInstituteNestedInput
+  batches?: Prisma.BatchUpdateManyWithoutInstituteNestedInput
+  emailLogs?: Prisma.EmailLogUpdateManyWithoutInstituteNestedInput
+  pushNotifications?: Prisma.PushNotificationUpdateManyWithoutInstituteNestedInput
+}
+
+export type InstituteUncheckedUpdateWithoutNotificationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  branches?: Prisma.BranchUncheckedUpdateManyWithoutInstituteNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutInstituteNestedInput
+  userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutInstituteNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutInstituteNestedInput
+  admissions?: Prisma.AdmissionUncheckedUpdateManyWithoutInstituteNestedInput
+  feePlans?: Prisma.FeePlanUncheckedUpdateManyWithoutInstituteNestedInput
+  batches?: Prisma.BatchUncheckedUpdateManyWithoutInstituteNestedInput
+  emailLogs?: Prisma.EmailLogUncheckedUpdateManyWithoutInstituteNestedInput
+  pushNotifications?: Prisma.PushNotificationUncheckedUpdateManyWithoutInstituteNestedInput
+}
+
+export type InstituteCreateWithoutEmailLogsInput = {
+  id?: string
+  name: string
+  code: string
+  city?: string | null
+  state?: string | null
+  contactEmail?: string | null
+  contactNumber?: string | null
+  status?: string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  branches?: Prisma.BranchCreateNestedManyWithoutInstituteInput
+  users?: Prisma.UserCreateNestedManyWithoutInstituteInput
+  userRoles?: Prisma.UserRoleCreateNestedManyWithoutInstituteInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutInstituteInput
+  admissions?: Prisma.AdmissionCreateNestedManyWithoutInstituteInput
+  feePlans?: Prisma.FeePlanCreateNestedManyWithoutInstituteInput
+  batches?: Prisma.BatchCreateNestedManyWithoutInstituteInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutInstituteInput
+  pushNotifications?: Prisma.PushNotificationCreateNestedManyWithoutInstituteInput
+}
+
+export type InstituteUncheckedCreateWithoutEmailLogsInput = {
+  id?: string
+  name: string
+  code: string
+  city?: string | null
+  state?: string | null
+  contactEmail?: string | null
+  contactNumber?: string | null
+  status?: string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  branches?: Prisma.BranchUncheckedCreateNestedManyWithoutInstituteInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutInstituteInput
+  userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutInstituteInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutInstituteInput
+  admissions?: Prisma.AdmissionUncheckedCreateNestedManyWithoutInstituteInput
+  feePlans?: Prisma.FeePlanUncheckedCreateNestedManyWithoutInstituteInput
+  batches?: Prisma.BatchUncheckedCreateNestedManyWithoutInstituteInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutInstituteInput
+  pushNotifications?: Prisma.PushNotificationUncheckedCreateNestedManyWithoutInstituteInput
+}
+
+export type InstituteCreateOrConnectWithoutEmailLogsInput = {
+  where: Prisma.InstituteWhereUniqueInput
+  create: Prisma.XOR<Prisma.InstituteCreateWithoutEmailLogsInput, Prisma.InstituteUncheckedCreateWithoutEmailLogsInput>
+}
+
+export type InstituteUpsertWithoutEmailLogsInput = {
+  update: Prisma.XOR<Prisma.InstituteUpdateWithoutEmailLogsInput, Prisma.InstituteUncheckedUpdateWithoutEmailLogsInput>
+  create: Prisma.XOR<Prisma.InstituteCreateWithoutEmailLogsInput, Prisma.InstituteUncheckedCreateWithoutEmailLogsInput>
+  where?: Prisma.InstituteWhereInput
+}
+
+export type InstituteUpdateToOneWithWhereWithoutEmailLogsInput = {
+  where?: Prisma.InstituteWhereInput
+  data: Prisma.XOR<Prisma.InstituteUpdateWithoutEmailLogsInput, Prisma.InstituteUncheckedUpdateWithoutEmailLogsInput>
+}
+
+export type InstituteUpdateWithoutEmailLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  branches?: Prisma.BranchUpdateManyWithoutInstituteNestedInput
+  users?: Prisma.UserUpdateManyWithoutInstituteNestedInput
+  userRoles?: Prisma.UserRoleUpdateManyWithoutInstituteNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutInstituteNestedInput
+  admissions?: Prisma.AdmissionUpdateManyWithoutInstituteNestedInput
+  feePlans?: Prisma.FeePlanUpdateManyWithoutInstituteNestedInput
+  batches?: Prisma.BatchUpdateManyWithoutInstituteNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutInstituteNestedInput
+  pushNotifications?: Prisma.PushNotificationUpdateManyWithoutInstituteNestedInput
+}
+
+export type InstituteUncheckedUpdateWithoutEmailLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  branches?: Prisma.BranchUncheckedUpdateManyWithoutInstituteNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutInstituteNestedInput
+  userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutInstituteNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutInstituteNestedInput
+  admissions?: Prisma.AdmissionUncheckedUpdateManyWithoutInstituteNestedInput
+  feePlans?: Prisma.FeePlanUncheckedUpdateManyWithoutInstituteNestedInput
+  batches?: Prisma.BatchUncheckedUpdateManyWithoutInstituteNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutInstituteNestedInput
+  pushNotifications?: Prisma.PushNotificationUncheckedUpdateManyWithoutInstituteNestedInput
+}
+
+export type InstituteCreateWithoutPushNotificationsInput = {
+  id?: string
+  name: string
+  code: string
+  city?: string | null
+  state?: string | null
+  contactEmail?: string | null
+  contactNumber?: string | null
+  status?: string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  branches?: Prisma.BranchCreateNestedManyWithoutInstituteInput
+  users?: Prisma.UserCreateNestedManyWithoutInstituteInput
+  userRoles?: Prisma.UserRoleCreateNestedManyWithoutInstituteInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutInstituteInput
+  admissions?: Prisma.AdmissionCreateNestedManyWithoutInstituteInput
+  feePlans?: Prisma.FeePlanCreateNestedManyWithoutInstituteInput
+  batches?: Prisma.BatchCreateNestedManyWithoutInstituteInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutInstituteInput
+  emailLogs?: Prisma.EmailLogCreateNestedManyWithoutInstituteInput
+}
+
+export type InstituteUncheckedCreateWithoutPushNotificationsInput = {
+  id?: string
+  name: string
+  code: string
+  city?: string | null
+  state?: string | null
+  contactEmail?: string | null
+  contactNumber?: string | null
+  status?: string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  branches?: Prisma.BranchUncheckedCreateNestedManyWithoutInstituteInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutInstituteInput
+  userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutInstituteInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutInstituteInput
+  admissions?: Prisma.AdmissionUncheckedCreateNestedManyWithoutInstituteInput
+  feePlans?: Prisma.FeePlanUncheckedCreateNestedManyWithoutInstituteInput
+  batches?: Prisma.BatchUncheckedCreateNestedManyWithoutInstituteInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutInstituteInput
+  emailLogs?: Prisma.EmailLogUncheckedCreateNestedManyWithoutInstituteInput
+}
+
+export type InstituteCreateOrConnectWithoutPushNotificationsInput = {
+  where: Prisma.InstituteWhereUniqueInput
+  create: Prisma.XOR<Prisma.InstituteCreateWithoutPushNotificationsInput, Prisma.InstituteUncheckedCreateWithoutPushNotificationsInput>
+}
+
+export type InstituteUpsertWithoutPushNotificationsInput = {
+  update: Prisma.XOR<Prisma.InstituteUpdateWithoutPushNotificationsInput, Prisma.InstituteUncheckedUpdateWithoutPushNotificationsInput>
+  create: Prisma.XOR<Prisma.InstituteCreateWithoutPushNotificationsInput, Prisma.InstituteUncheckedCreateWithoutPushNotificationsInput>
+  where?: Prisma.InstituteWhereInput
+}
+
+export type InstituteUpdateToOneWithWhereWithoutPushNotificationsInput = {
+  where?: Prisma.InstituteWhereInput
+  data: Prisma.XOR<Prisma.InstituteUpdateWithoutPushNotificationsInput, Prisma.InstituteUncheckedUpdateWithoutPushNotificationsInput>
+}
+
+export type InstituteUpdateWithoutPushNotificationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  branches?: Prisma.BranchUpdateManyWithoutInstituteNestedInput
+  users?: Prisma.UserUpdateManyWithoutInstituteNestedInput
+  userRoles?: Prisma.UserRoleUpdateManyWithoutInstituteNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutInstituteNestedInput
+  admissions?: Prisma.AdmissionUpdateManyWithoutInstituteNestedInput
+  feePlans?: Prisma.FeePlanUpdateManyWithoutInstituteNestedInput
+  batches?: Prisma.BatchUpdateManyWithoutInstituteNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutInstituteNestedInput
+  emailLogs?: Prisma.EmailLogUpdateManyWithoutInstituteNestedInput
+}
+
+export type InstituteUncheckedUpdateWithoutPushNotificationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  branches?: Prisma.BranchUncheckedUpdateManyWithoutInstituteNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutInstituteNestedInput
+  userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutInstituteNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutInstituteNestedInput
+  admissions?: Prisma.AdmissionUncheckedUpdateManyWithoutInstituteNestedInput
+  feePlans?: Prisma.FeePlanUncheckedUpdateManyWithoutInstituteNestedInput
+  batches?: Prisma.BatchUncheckedUpdateManyWithoutInstituteNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutInstituteNestedInput
+  emailLogs?: Prisma.EmailLogUncheckedUpdateManyWithoutInstituteNestedInput
 }
 
 export type InstituteCreateWithoutUserRolesInput = {
@@ -999,6 +1440,9 @@ export type InstituteCreateWithoutUserRolesInput = {
   admissions?: Prisma.AdmissionCreateNestedManyWithoutInstituteInput
   feePlans?: Prisma.FeePlanCreateNestedManyWithoutInstituteInput
   batches?: Prisma.BatchCreateNestedManyWithoutInstituteInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutInstituteInput
+  emailLogs?: Prisma.EmailLogCreateNestedManyWithoutInstituteInput
+  pushNotifications?: Prisma.PushNotificationCreateNestedManyWithoutInstituteInput
 }
 
 export type InstituteUncheckedCreateWithoutUserRolesInput = {
@@ -1019,6 +1463,9 @@ export type InstituteUncheckedCreateWithoutUserRolesInput = {
   admissions?: Prisma.AdmissionUncheckedCreateNestedManyWithoutInstituteInput
   feePlans?: Prisma.FeePlanUncheckedCreateNestedManyWithoutInstituteInput
   batches?: Prisma.BatchUncheckedCreateNestedManyWithoutInstituteInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutInstituteInput
+  emailLogs?: Prisma.EmailLogUncheckedCreateNestedManyWithoutInstituteInput
+  pushNotifications?: Prisma.PushNotificationUncheckedCreateNestedManyWithoutInstituteInput
 }
 
 export type InstituteCreateOrConnectWithoutUserRolesInput = {
@@ -1055,6 +1502,9 @@ export type InstituteUpdateWithoutUserRolesInput = {
   admissions?: Prisma.AdmissionUpdateManyWithoutInstituteNestedInput
   feePlans?: Prisma.FeePlanUpdateManyWithoutInstituteNestedInput
   batches?: Prisma.BatchUpdateManyWithoutInstituteNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutInstituteNestedInput
+  emailLogs?: Prisma.EmailLogUpdateManyWithoutInstituteNestedInput
+  pushNotifications?: Prisma.PushNotificationUpdateManyWithoutInstituteNestedInput
 }
 
 export type InstituteUncheckedUpdateWithoutUserRolesInput = {
@@ -1075,6 +1525,9 @@ export type InstituteUncheckedUpdateWithoutUserRolesInput = {
   admissions?: Prisma.AdmissionUncheckedUpdateManyWithoutInstituteNestedInput
   feePlans?: Prisma.FeePlanUncheckedUpdateManyWithoutInstituteNestedInput
   batches?: Prisma.BatchUncheckedUpdateManyWithoutInstituteNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutInstituteNestedInput
+  emailLogs?: Prisma.EmailLogUncheckedUpdateManyWithoutInstituteNestedInput
+  pushNotifications?: Prisma.PushNotificationUncheckedUpdateManyWithoutInstituteNestedInput
 }
 
 export type InstituteCreateWithoutRoleActivitiesInput = {
@@ -1095,6 +1548,9 @@ export type InstituteCreateWithoutRoleActivitiesInput = {
   admissions?: Prisma.AdmissionCreateNestedManyWithoutInstituteInput
   feePlans?: Prisma.FeePlanCreateNestedManyWithoutInstituteInput
   batches?: Prisma.BatchCreateNestedManyWithoutInstituteInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutInstituteInput
+  emailLogs?: Prisma.EmailLogCreateNestedManyWithoutInstituteInput
+  pushNotifications?: Prisma.PushNotificationCreateNestedManyWithoutInstituteInput
 }
 
 export type InstituteUncheckedCreateWithoutRoleActivitiesInput = {
@@ -1115,6 +1571,9 @@ export type InstituteUncheckedCreateWithoutRoleActivitiesInput = {
   admissions?: Prisma.AdmissionUncheckedCreateNestedManyWithoutInstituteInput
   feePlans?: Prisma.FeePlanUncheckedCreateNestedManyWithoutInstituteInput
   batches?: Prisma.BatchUncheckedCreateNestedManyWithoutInstituteInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutInstituteInput
+  emailLogs?: Prisma.EmailLogUncheckedCreateNestedManyWithoutInstituteInput
+  pushNotifications?: Prisma.PushNotificationUncheckedCreateNestedManyWithoutInstituteInput
 }
 
 export type InstituteCreateOrConnectWithoutRoleActivitiesInput = {
@@ -1151,6 +1610,9 @@ export type InstituteUpdateWithoutRoleActivitiesInput = {
   admissions?: Prisma.AdmissionUpdateManyWithoutInstituteNestedInput
   feePlans?: Prisma.FeePlanUpdateManyWithoutInstituteNestedInput
   batches?: Prisma.BatchUpdateManyWithoutInstituteNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutInstituteNestedInput
+  emailLogs?: Prisma.EmailLogUpdateManyWithoutInstituteNestedInput
+  pushNotifications?: Prisma.PushNotificationUpdateManyWithoutInstituteNestedInput
 }
 
 export type InstituteUncheckedUpdateWithoutRoleActivitiesInput = {
@@ -1171,6 +1633,9 @@ export type InstituteUncheckedUpdateWithoutRoleActivitiesInput = {
   admissions?: Prisma.AdmissionUncheckedUpdateManyWithoutInstituteNestedInput
   feePlans?: Prisma.FeePlanUncheckedUpdateManyWithoutInstituteNestedInput
   batches?: Prisma.BatchUncheckedUpdateManyWithoutInstituteNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutInstituteNestedInput
+  emailLogs?: Prisma.EmailLogUncheckedUpdateManyWithoutInstituteNestedInput
+  pushNotifications?: Prisma.PushNotificationUncheckedUpdateManyWithoutInstituteNestedInput
 }
 
 export type InstituteCreateWithoutBranchesInput = {
@@ -1191,6 +1656,9 @@ export type InstituteCreateWithoutBranchesInput = {
   admissions?: Prisma.AdmissionCreateNestedManyWithoutInstituteInput
   feePlans?: Prisma.FeePlanCreateNestedManyWithoutInstituteInput
   batches?: Prisma.BatchCreateNestedManyWithoutInstituteInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutInstituteInput
+  emailLogs?: Prisma.EmailLogCreateNestedManyWithoutInstituteInput
+  pushNotifications?: Prisma.PushNotificationCreateNestedManyWithoutInstituteInput
 }
 
 export type InstituteUncheckedCreateWithoutBranchesInput = {
@@ -1211,6 +1679,9 @@ export type InstituteUncheckedCreateWithoutBranchesInput = {
   admissions?: Prisma.AdmissionUncheckedCreateNestedManyWithoutInstituteInput
   feePlans?: Prisma.FeePlanUncheckedCreateNestedManyWithoutInstituteInput
   batches?: Prisma.BatchUncheckedCreateNestedManyWithoutInstituteInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutInstituteInput
+  emailLogs?: Prisma.EmailLogUncheckedCreateNestedManyWithoutInstituteInput
+  pushNotifications?: Prisma.PushNotificationUncheckedCreateNestedManyWithoutInstituteInput
 }
 
 export type InstituteCreateOrConnectWithoutBranchesInput = {
@@ -1247,6 +1718,9 @@ export type InstituteUpdateWithoutBranchesInput = {
   admissions?: Prisma.AdmissionUpdateManyWithoutInstituteNestedInput
   feePlans?: Prisma.FeePlanUpdateManyWithoutInstituteNestedInput
   batches?: Prisma.BatchUpdateManyWithoutInstituteNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutInstituteNestedInput
+  emailLogs?: Prisma.EmailLogUpdateManyWithoutInstituteNestedInput
+  pushNotifications?: Prisma.PushNotificationUpdateManyWithoutInstituteNestedInput
 }
 
 export type InstituteUncheckedUpdateWithoutBranchesInput = {
@@ -1267,6 +1741,9 @@ export type InstituteUncheckedUpdateWithoutBranchesInput = {
   admissions?: Prisma.AdmissionUncheckedUpdateManyWithoutInstituteNestedInput
   feePlans?: Prisma.FeePlanUncheckedUpdateManyWithoutInstituteNestedInput
   batches?: Prisma.BatchUncheckedUpdateManyWithoutInstituteNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutInstituteNestedInput
+  emailLogs?: Prisma.EmailLogUncheckedUpdateManyWithoutInstituteNestedInput
+  pushNotifications?: Prisma.PushNotificationUncheckedUpdateManyWithoutInstituteNestedInput
 }
 
 
@@ -1282,6 +1759,9 @@ export type InstituteCountOutputType = {
   admissions: number
   feePlans: number
   batches: number
+  notifications: number
+  emailLogs: number
+  pushNotifications: number
 }
 
 export type InstituteCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1292,6 +1772,9 @@ export type InstituteCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensi
   admissions?: boolean | InstituteCountOutputTypeCountAdmissionsArgs
   feePlans?: boolean | InstituteCountOutputTypeCountFeePlansArgs
   batches?: boolean | InstituteCountOutputTypeCountBatchesArgs
+  notifications?: boolean | InstituteCountOutputTypeCountNotificationsArgs
+  emailLogs?: boolean | InstituteCountOutputTypeCountEmailLogsArgs
+  pushNotifications?: boolean | InstituteCountOutputTypeCountPushNotificationsArgs
 }
 
 /**
@@ -1353,6 +1836,27 @@ export type InstituteCountOutputTypeCountBatchesArgs<ExtArgs extends runtime.Typ
   where?: Prisma.BatchWhereInput
 }
 
+/**
+ * InstituteCountOutputType without action
+ */
+export type InstituteCountOutputTypeCountNotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.NotificationWhereInput
+}
+
+/**
+ * InstituteCountOutputType without action
+ */
+export type InstituteCountOutputTypeCountEmailLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EmailLogWhereInput
+}
+
+/**
+ * InstituteCountOutputType without action
+ */
+export type InstituteCountOutputTypeCountPushNotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PushNotificationWhereInput
+}
+
 
 export type InstituteSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1373,6 +1877,9 @@ export type InstituteSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   admissions?: boolean | Prisma.Institute$admissionsArgs<ExtArgs>
   feePlans?: boolean | Prisma.Institute$feePlansArgs<ExtArgs>
   batches?: boolean | Prisma.Institute$batchesArgs<ExtArgs>
+  notifications?: boolean | Prisma.Institute$notificationsArgs<ExtArgs>
+  emailLogs?: boolean | Prisma.Institute$emailLogsArgs<ExtArgs>
+  pushNotifications?: boolean | Prisma.Institute$pushNotificationsArgs<ExtArgs>
   _count?: boolean | Prisma.InstituteCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["institute"]>
 
@@ -1427,6 +1934,9 @@ export type InstituteInclude<ExtArgs extends runtime.Types.Extensions.InternalAr
   admissions?: boolean | Prisma.Institute$admissionsArgs<ExtArgs>
   feePlans?: boolean | Prisma.Institute$feePlansArgs<ExtArgs>
   batches?: boolean | Prisma.Institute$batchesArgs<ExtArgs>
+  notifications?: boolean | Prisma.Institute$notificationsArgs<ExtArgs>
+  emailLogs?: boolean | Prisma.Institute$emailLogsArgs<ExtArgs>
+  pushNotifications?: boolean | Prisma.Institute$pushNotificationsArgs<ExtArgs>
   _count?: boolean | Prisma.InstituteCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type InstituteIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1442,6 +1952,9 @@ export type $InstitutePayload<ExtArgs extends runtime.Types.Extensions.InternalA
     admissions: Prisma.$AdmissionPayload<ExtArgs>[]
     feePlans: Prisma.$FeePlanPayload<ExtArgs>[]
     batches: Prisma.$BatchPayload<ExtArgs>[]
+    notifications: Prisma.$NotificationPayload<ExtArgs>[]
+    emailLogs: Prisma.$EmailLogPayload<ExtArgs>[]
+    pushNotifications: Prisma.$PushNotificationPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1856,6 +2369,9 @@ export interface Prisma__InstituteClient<T, Null = never, ExtArgs extends runtim
   admissions<T extends Prisma.Institute$admissionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Institute$admissionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AdmissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   feePlans<T extends Prisma.Institute$feePlansArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Institute$feePlansArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FeePlanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   batches<T extends Prisma.Institute$batchesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Institute$batchesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BatchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  notifications<T extends Prisma.Institute$notificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Institute$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  emailLogs<T extends Prisma.Institute$emailLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Institute$emailLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmailLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  pushNotifications<T extends Prisma.Institute$pushNotificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Institute$pushNotificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PushNotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2454,6 +2970,78 @@ export type Institute$batchesArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.BatchScalarFieldEnum | Prisma.BatchScalarFieldEnum[]
+}
+
+/**
+ * Institute.notifications
+ */
+export type Institute$notificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Notification
+   */
+  select?: Prisma.NotificationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Notification
+   */
+  omit?: Prisma.NotificationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.NotificationInclude<ExtArgs> | null
+  where?: Prisma.NotificationWhereInput
+  orderBy?: Prisma.NotificationOrderByWithRelationInput | Prisma.NotificationOrderByWithRelationInput[]
+  cursor?: Prisma.NotificationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.NotificationScalarFieldEnum | Prisma.NotificationScalarFieldEnum[]
+}
+
+/**
+ * Institute.emailLogs
+ */
+export type Institute$emailLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EmailLog
+   */
+  select?: Prisma.EmailLogSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the EmailLog
+   */
+  omit?: Prisma.EmailLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmailLogInclude<ExtArgs> | null
+  where?: Prisma.EmailLogWhereInput
+  orderBy?: Prisma.EmailLogOrderByWithRelationInput | Prisma.EmailLogOrderByWithRelationInput[]
+  cursor?: Prisma.EmailLogWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.EmailLogScalarFieldEnum | Prisma.EmailLogScalarFieldEnum[]
+}
+
+/**
+ * Institute.pushNotifications
+ */
+export type Institute$pushNotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PushNotification
+   */
+  select?: Prisma.PushNotificationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PushNotification
+   */
+  omit?: Prisma.PushNotificationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PushNotificationInclude<ExtArgs> | null
+  where?: Prisma.PushNotificationWhereInput
+  orderBy?: Prisma.PushNotificationOrderByWithRelationInput | Prisma.PushNotificationOrderByWithRelationInput[]
+  cursor?: Prisma.PushNotificationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PushNotificationScalarFieldEnum | Prisma.PushNotificationScalarFieldEnum[]
 }
 
 /**

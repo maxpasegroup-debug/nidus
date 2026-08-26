@@ -1,0 +1,42 @@
+{
+  "phase": 14,
+  "policy": "Every previously unresolved security-sensitive path is either tenant-safe or fail-closed; no ownership is guessed.",
+  "securityCriticalUnknown": 0,
+  "securityCriticalUnsafe": 0,
+  "findings": [
+    {
+      "area": "legacy marketing dashboard",
+      "classification": "FAIL_CLOSED",
+      "evidence": "Institution-scoped users receive HTTP 403; global aggregate queries are not exposed to tenant actors."
+    },
+    {
+      "area": "reports-os",
+      "classification": "FAIL_CLOSED",
+      "evidence": "Institution-scoped actors receive HTTP 403 until all report sources have authoritative ownership."
+    },
+    {
+      "area": "launch-readiness checklist",
+      "classification": "FAIL_CLOSED",
+      "evidence": "Institution-scoped actors receive HTTP 403 because the checklist contains global operational aggregates."
+    },
+    {
+      "area": "timetable",
+      "classification": "FAIL_CLOSED",
+      "evidence": "No authoritative institution relation exists; route remains HTTP 403."
+    },
+    {
+      "area": "CRM leads",
+      "classification": "SAFE_INHERITED_TENANT",
+      "evidence": "Lead access is inherited from the assigned user's institution and cross-tenant IDOR checks returned 403/404."
+    },
+    {
+      "area": "notifications and delivery records",
+      "classification": "SAFE_DIRECT_TENANT_OR_UNRESOLVED_HIDDEN",
+      "evidence": "New records carry instituteId; unresolved null-owned records are excluded from tenant APIs."
+    }
+  ],
+  "remainingNonSecurityBlockers": [
+    "Full route-wide HTTP authorization coverage beyond the executed Phase 14 matrix remains a future expansion.",
+    "Redis, Cloudinary, backup, and notification provider validation remain environment-blocked and out of scope."
+  ]
+}

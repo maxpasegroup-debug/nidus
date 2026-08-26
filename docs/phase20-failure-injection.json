@@ -1,0 +1,21 @@
+{
+  "phase": 20,
+  "status": "BLOCKED — ENVIRONMENT",
+  "evidence": {
+    "applicationOnly": false,
+    "infrastructureFailures": [
+      "Redis",
+      "worker",
+      "media",
+      "notifications",
+      "database backup"
+    ]
+  },
+  "test_count": 0,
+  "passed": 0,
+  "failed": 0,
+  "blocked": 5,
+  "limitations": [
+    "Infrastructure failure injection not executable without services."
+  ]
+}

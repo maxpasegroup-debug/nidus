@@ -19,11 +19,15 @@ async function startupChecks() {
   await AuthServiceV2.ensureSuperAdmin();
   await AuthServiceV2.ensureTestAccount();
   await ensureNidusTeam();
-  await verifyRedisConnection().catch((error) => {
-    logger.warn("Redis startup check failed. Continuing without Redis-backed cache/queues.", {
+  const redisConnected = await verifyRedisConnection().catch((error) => {
+    logger.warn("Redis startup check failed.", {
       error: error instanceof Error ? error.message : "Unknown error"
     });
+    return false;
   });
+  if (env.REDIS_REQUIRED && !redisConnected) {
+    throw new Error("Redis is required but unavailable");
+  }
   if (!assertCloudinaryReady()) {
     logger.warn("Cloudinary credentials are not configured. Media upload features will stay disabled until Cloudinary env vars are added.");
   }
@@ -33,16 +37,17 @@ async function startupChecks() {
 await attachProductionFrontend(app);
 app.use(errorHandler);
 
-const server = app.listen(PORT, "0.0.0.0", async () => {
-  try {
-    await startupChecks();
-    markRuntimeReady();
-    logger.info("NIDUS backend started", { port: PORT, environment: env.NODE_ENV, processRole: env.PROCESS_ROLE });
-  } catch (error) {
-    markRuntimeDegraded(error);
-    logger.error("Startup validation failed", { error: error instanceof Error ? error.message : "Unknown error" });
-    process.exit(1);
-  }
+try {
+  await startupChecks();
+  markRuntimeReady();
+} catch (error) {
+  markRuntimeDegraded(error);
+  logger.error("Startup validation failed", { error: error instanceof Error ? error.message : "Unknown error" });
+  process.exit(1);
+}
+
+const server = app.listen(PORT, "0.0.0.0", () => {
+  logger.info("NIDUS backend started", { port: PORT, environment: env.NODE_ENV, processRole: env.PROCESS_ROLE });
 });
 
 async function shutdown(signal: string) {

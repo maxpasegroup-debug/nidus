@@ -14,20 +14,28 @@ function param(req: Request, key: string) {
   return value;
 }
 
-function markerId(req: AuthenticatedRequest) {
+function scope(req: AuthenticatedRequest) {
   if (!req.user) throw new Error("Unauthorized");
-  return req.user.id;
+  return { id: req.user.id, instituteId: req.user.instituteId };
 }
 
 export const erpController = {
   async markAttendance(req: AuthenticatedRequest, res: Response, next: NextFunction) {
-    try { assertValid(req); res.status(201).json({ attendance: await erpService.markAttendance(markerId(req), req.body) }); } catch (error) { next(error); }
+    try { assertValid(req); res.status(201).json({ attendance: await erpService.markAttendance(scope(req), req.body) }); } catch (error) { next(error); }
   },
-  async studentAttendance(req: Request, res: Response, next: NextFunction) {
-    try { res.json({ attendance: await erpService.studentAttendance(param(req, "id")) }); } catch (error) { next(error); }
+  async studentAttendance(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const requester = scope(req);
+      const targetId = param(req, "id");
+      if (req.user?.role === "STUDENT" && req.user.id !== targetId) {
+        res.status(403).json({ message: "Students may only view their own attendance" });
+        return;
+      }
+      res.json({ attendance: await erpService.studentAttendance(requester, targetId) });
+    } catch (error) { next(error); }
   },
-  async classAttendance(_req: Request, res: Response, next: NextFunction) {
-    try { res.json({ attendance: await erpService.classAttendance() }); } catch (error) { next(error); }
+  async classAttendance(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try { res.json({ attendance: await erpService.classAttendance(scope(req)) }); } catch (error) { next(error); }
   },
   async timetable(_req: Request, res: Response, next: NextFunction) {
     try { res.json({ timetable: await erpService.timetable() }); } catch (error) { next(error); }
@@ -41,14 +49,14 @@ export const erpController = {
   async deleteTimetable(req: Request, res: Response, next: NextFunction) {
     try { res.json(await erpService.deleteTimetable(param(req, "id"))); } catch (error) { next(error); }
   },
-  async faculty(_req: Request, res: Response, next: NextFunction) {
-    try { res.json({ faculty: await erpService.faculty() }); } catch (error) { next(error); }
+  async faculty(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try { res.json({ faculty: await erpService.faculty(scope(req)) }); } catch (error) { next(error); }
   },
   async createFaculty(req: Request, res: Response, next: NextFunction) {
     try { assertValid(req); res.status(201).json({ faculty: await erpService.createFaculty(req.body) }); } catch (error) { next(error); }
   },
-  async payroll(_req: Request, res: Response, next: NextFunction) {
-    try { res.json({ payroll: await erpService.payroll() }); } catch (error) { next(error); }
+  async payroll(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try { res.json({ payroll: await erpService.payroll(scope(req)) }); } catch (error) { next(error); }
   },
   async operationsShell(_req: Request, res: Response, next: NextFunction) {
     try { res.json({ operations: await erpService.operationsShell() }); } catch (error) { next(error); }
@@ -56,10 +64,10 @@ export const erpController = {
   async createPayroll(req: Request, res: Response, next: NextFunction) {
     try { assertValid(req); res.status(201).json({ payroll: await erpService.createPayroll(req.body) }); } catch (error) { next(error); }
   },
-  async announcements(_req: Request, res: Response, next: NextFunction) {
-    try { res.json({ announcements: await erpService.announcements() }); } catch (error) { next(error); }
+  async announcements(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try { res.json({ announcements: await erpService.announcements(scope(req)) }); } catch (error) { next(error); }
   },
-  async createAnnouncement(req: Request, res: Response, next: NextFunction) {
-    try { assertValid(req); res.status(201).json({ announcement: await erpService.createAnnouncement(req.body) }); } catch (error) { next(error); }
+  async createAnnouncement(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try { assertValid(req); res.status(201).json({ announcement: await erpService.createAnnouncement(scope(req), req.body) }); } catch (error) { next(error); }
   }
 };

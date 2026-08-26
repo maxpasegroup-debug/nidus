@@ -389,7 +389,7 @@ model Test {
   batchId     String?
   teacherId   String?
   publishAt   DateTime?
-  status      String        @default("PUBLISHED")
+  status      String        @default("DRAFT")
   reviewedAt  DateTime?
   approvedAt  DateTime?
   approvedById String?
@@ -428,7 +428,7 @@ model Question {
   layout          Json?
   renderMode      String   @default("LEGACY_MCQ")
   aiConfidence    Float?
-  reviewStatus    String   @default("APPROVED")
+  reviewStatus    String   @default("DRAFT")
   publishedVersion Int     @default(1)
   optionA         String
   optionB         String
@@ -468,7 +468,7 @@ model QuestionVersion {
   explanation        String?
   renderMode         String   @default("LEGACY_MCQ")
   aiConfidence       Float?
-  reviewStatus       String   @default("APPROVED")
+  reviewStatus       String   @default("DRAFT")
   sourceDocumentId   String?
   sourcePageNumber   Int?
   boundingBoxes      Json?
@@ -543,6 +543,7 @@ model TestAttempt {
 
   @@index([userId])
   @@index([testId])
+  @@unique([userId, testId])
 }
 
 model CBTAnswerState {
@@ -2579,10 +2580,13 @@ model Notification {
   targetRole String?
   isRead     Boolean  @default(false)
   userId     String?
+  instituteId String?
   createdAt  DateTime @default(now())
   user       User?    @relation("NotificationUser", fields: [userId], references: [id], onDelete: Cascade)
+  institute  Institute? @relation("NotificationInstitute", fields: [instituteId], references: [id], onDelete: SetNull)
 
   @@index([userId])
+  @@index([instituteId])
   @@index([targetRole])
   @@index([isRead])
   @@index([createdAt])
@@ -2623,9 +2627,12 @@ model EmailLog {
   recipient String
   subject   String
   status    String
+  instituteId String?
   sentAt    DateTime @default(now())
+  institute Institute? @relation("EmailLogInstitute", fields: [instituteId], references: [id], onDelete: SetNull)
 
   @@index([recipient])
+  @@index([instituteId])
   @@index([status])
   @@index([sentAt])
 }
@@ -2636,9 +2643,12 @@ model PushNotification {
   body           String
   targetAudience String
   status         String
+  instituteId    String?
   createdAt      DateTime @default(now())
+  institute      Institute? @relation("PushNotificationInstitute", fields: [instituteId], references: [id], onDelete: SetNull)
 
   @@index([targetAudience])
+  @@index([instituteId])
   @@index([status])
 }
 
@@ -3684,6 +3694,9 @@ model Institute {
   admissions    Admission[]
   feePlans      FeePlan[]
   batches       Batch[]
+  notifications Notification[] @relation("NotificationInstitute")
+  emailLogs     EmailLog[] @relation("EmailLogInstitute")
+  pushNotifications PushNotification[] @relation("PushNotificationInstitute")
 
   @@index([status])
   @@index([createdAt])
@@ -4086,6 +4099,7 @@ model NdieQuestionCandidate {
   questionType       String   @default("MCQ")
   candidateJson      Json
   sourceMap          Json?
+  sourceFingerprint  String?
   confidence         Float?
   status             String   @default("PENDING_REVIEW")
   reviewStatus       String   @default("PENDING_REVIEW")
@@ -4103,11 +4117,13 @@ model NdieQuestionCandidate {
   @@index([status])
   @@index([reviewStatus])
   @@index([approvedQuestionId])
+  @@unique([importJobId, sourceFingerprint])
 }
 
 model NdieAnswerKeyCandidate {
   id               String   @id @default(cuid())
   importJobId      String
+  questionCandidateId String? @unique
   sourceDocumentId String?
   questionNumber   String?
   answerJson       Json
@@ -4119,6 +4135,7 @@ model NdieAnswerKeyCandidate {
 
   @@index([importJobId])
   @@index([sourceDocumentId])
+  @@index([questionCandidateId])
   @@index([questionNumber])
   @@index([status])
 }
@@ -4252,6 +4269,7 @@ model NdieQueueJob {
   id              String   @id @default(cuid())
   importJobId     String
   replayRunId     String?
+  idempotencyKey  String?  @unique
   jobType         String
   stage           String
   state           String   @default("QUEUED")

@@ -1,0 +1,155 @@
+{
+  "phase": 16,
+  "execution": "REAL_HTTP_AGAINST_DISPOSABLE_POSTGRES_STAGING",
+  "totalHttpTests": 18,
+  "passed": 18,
+  "failed": 0,
+  "blocked": 0,
+  "notApplicable": 0,
+  "checks": [
+    {
+      "name": "payment history A",
+      "route": "/payments/history",
+      "method": "GET",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403/404 fail-closed"
+    },
+    {
+      "name": "payment history B",
+      "route": "/payments/history",
+      "method": "GET",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403/404 fail-closed"
+    },
+    {
+      "name": "payment analytics A",
+      "route": "/payments/analytics",
+      "method": "GET",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403/404 fail-closed"
+    },
+    {
+      "name": "fees A",
+      "route": "/fees",
+      "method": "GET",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403/404 fail-closed"
+    },
+    {
+      "name": "invoices A",
+      "route": "/invoices",
+      "method": "GET",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403/404 fail-closed"
+    },
+    {
+      "name": "media A",
+      "route": "/media/files",
+      "method": "GET",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403/404 fail-closed"
+    },
+    {
+      "name": "documents A",
+      "route": "/documents",
+      "method": "GET",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403/404 fail-closed"
+    },
+    {
+      "name": "admin branches A",
+      "route": "/admin/branches",
+      "method": "GET",
+      "status": "PASS",
+      "actual": 403,
+      "expected": "200 scoped or 403/404 fail-closed"
+    },
+    {
+      "name": "academy assignments A",
+      "route": "/academy/assignments",
+      "method": "GET",
+      "status": "PASS",
+      "actual": 200,
+      "expected": "200 scoped or 403/404 fail-closed"
+    },
+    {
+      "name": "sales booster export A",
+      "route": "/sales-booster/conversion-report/export.csv",
+      "method": "GET",
+      "status": "PASS",
+      "actual": 403,
+      "expected": "403/404 fail-closed"
+    },
+    {
+      "name": "cross-tenant fee plan create",
+      "route": "/fees/plans",
+      "method": "POST",
+      "status": "PASS",
+      "actual": 403,
+      "expected": "403/404"
+    },
+    {
+      "name": "cross-tenant invoice create",
+      "route": "/invoices/generate",
+      "method": "POST",
+      "status": "PASS",
+      "actual": 403,
+      "expected": "403/404"
+    },
+    {
+      "name": "cross-tenant manual payment",
+      "route": "/payments/manual",
+      "method": "POST",
+      "status": "PASS",
+      "actual": 403,
+      "expected": "403/404"
+    },
+    {
+      "name": "cross-tenant media delete",
+      "route": "/media/files/phase5-media-b",
+      "method": "DELETE",
+      "status": "PASS",
+      "actual": 404,
+      "expected": "403/404"
+    },
+    {
+      "name": "timetable fail-closed",
+      "route": "/timetable",
+      "method": "GET",
+      "status": "PASS",
+      "actual": 403,
+      "expected": "403 fail-closed"
+    },
+    {
+      "name": "marketing fail-closed",
+      "route": "/dashboard/marketing",
+      "method": "GET",
+      "status": "PASS",
+      "actual": 403,
+      "expected": "403 fail-closed"
+    },
+    {
+      "name": "reports fail-closed",
+      "route": "/reports-os/current",
+      "method": "GET",
+      "status": "PASS",
+      "actual": 403,
+      "expected": "403 fail-closed"
+    },
+    {
+      "name": "launch readiness fail-closed",
+      "route": "/launch-readiness-os/checklist",
+      "method": "GET",
+      "status": "PASS",
+      "actual": 403,
+      "expected": "403 fail-closed"
+    }
+  ]
+}

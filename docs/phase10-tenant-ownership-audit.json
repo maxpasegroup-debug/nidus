@@ -1,0 +1,1604 @@
+{
+  "phase": "10",
+  "generatedBy": "phase10-tenant-ownership-audit",
+  "source": "backend/prisma/schema.prisma",
+  "policy": "No ownership is inferred for existing records. REVIEW_REQUIRED entities block multi-tenant certification until classified.",
+  "summary": {
+    "totalModels": 227,
+    "tenantOwned": 27,
+    "global": 3,
+    "derived": 99,
+    "reviewRequired": 98
+  },
+  "models": [
+    {
+      "entity": "User",
+      "classification": "TENANT_OWNED",
+      "directInstituteId": true,
+      "ownershipEvidence": "instituteId",
+      "remediation": null
+    },
+    {
+      "entity": "SessionToken",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "PasswordReset",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "ParentStudentInvitation",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "ParentStudentLink",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "Otp",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "Course",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "Module",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "Lesson",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "Enrollment",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "Batch",
+      "classification": "TENANT_OWNED",
+      "directInstituteId": true,
+      "ownershipEvidence": "instituteId",
+      "remediation": null
+    },
+    {
+      "entity": "BatchStudent",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "TeacherBatchAssignment",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "Test",
+      "classification": "TENANT_OWNED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "Question",
+      "classification": "TENANT_OWNED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": null
+    },
+    {
+      "entity": "QuestionVersion",
+      "classification": "TENANT_OWNED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": null
+    },
+    {
+      "entity": "QuestionBankItem",
+      "classification": "TENANT_OWNED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "TestAttempt",
+      "classification": "TENANT_OWNED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "CBTAnswerState",
+      "classification": "TENANT_OWNED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": null
+    },
+    {
+      "entity": "CBTIntegrityEvent",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "Answer",
+      "classification": "TENANT_OWNED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": null
+    },
+    {
+      "entity": "PsychometricTest",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "PsychometricQuestion",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "PsychometricAttempt",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "PsychometricReport",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "PsychometricAnswer",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AssessmentArenaAssessment",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AssessmentTraitMapping",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AssessmentDimensionMapping",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AssessmentQuestionBlueprint",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AssessmentTraitBlueprint",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AssessmentDimensionBlueprint",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AssessmentTrait",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AssessmentDimension",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AssessmentQuestion",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AssessmentQuestionOption",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AssessmentQuestionVersion",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AssessmentQuestionReview",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AssessmentReviewBoard",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AssessmentPilotRun",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AssessmentPilotResponse",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AssessmentQuestionExposure",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "AssessmentAttempt",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "AssessmentAttemptQuestion",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AssessmentAnswer",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AssessmentTraitScore",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AssessmentDimensionScore",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AssessmentIntegritySignal",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AssessmentRiskSignal",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AssessmentGrowthSnapshot",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "AssessmentRankPrediction",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "AssessmentReportSnapshot",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "TopRankUser",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "TopRankGateway",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "TopRankProgram",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "TopRankBatch",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "TopRankSession",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "TopRankStudentProfile",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "TopRankEnrollment",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "TopRankBatchAssignment",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "TopRankProgramAgreement",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "TopRankOrientationProgress",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "TopRankAssessment",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "TopRankAssessmentAnswer",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "TopRankAPR",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "TopRankMission",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "TopRankMissionTask",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "TopRankMissionCompletion",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "TopRankMissionCalendar",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "TopRankSignalSnapshot",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "TopRankReadinessScore",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "TopRankPerformanceTrend",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "TopRankGrowthTrend",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "TopRankRiskTrend",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "TopRankMentorFeedback",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "TopRankSignalWeightConfig",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AssessmentTraitLibraryItem",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AssessmentDimensionLibraryItem",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AssessmentTraitBandInterpretation",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AssessmentRiskInterpretation",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AssessmentReadinessInterpretation",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AssessmentSsbOlq",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AssessmentSsbOlqMapping",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AssessmentSsbOlqInterpretation",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "OLQScore",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "StudyPlan",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "PerformanceAnalytics",
+      "classification": "TENANT_OWNED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "RevisionSchedule",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "LiveClass",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "RecordedLecture",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "LectureProgress",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "LecturePlaybackEvent",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "Attendance",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "Timetable",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "Faculty",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "Classroom",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "Payroll",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "Announcement",
+      "classification": "TENANT_OWNED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "Hostel",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "Room",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "HostelAllocation",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "InOutEntry",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "HostelLeave",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "MessMenu",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "DisciplineRecord",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "ParadePerformance",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "Lead",
+      "classification": "TENANT_OWNED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "FollowUp",
+      "classification": "TENANT_OWNED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "Admission",
+      "classification": "TENANT_OWNED",
+      "directInstituteId": true,
+      "ownershipEvidence": "instituteId",
+      "remediation": null
+    },
+    {
+      "entity": "CounsellingBooking",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "Referral",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "Payment",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "Subscription",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "FeeInstallment",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "Invoice",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "FeePlan",
+      "classification": "TENANT_OWNED",
+      "directInstituteId": true,
+      "ownershipEvidence": "instituteId",
+      "remediation": null
+    },
+    {
+      "entity": "PaymentTransactionLog",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "ApprovalRequest",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "ScholarshipDiscount",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "FinanceDocument",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "Notification",
+      "classification": "TENANT_OWNED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "MessageThread",
+      "classification": "TENANT_OWNED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "Message",
+      "classification": "TENANT_OWNED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": null
+    },
+    {
+      "entity": "EmailLog",
+      "classification": "TENANT_OWNED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": null
+    },
+    {
+      "entity": "PushNotification",
+      "classification": "TENANT_OWNED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": null
+    },
+    {
+      "entity": "AIInterviewSession",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "AIInterviewQuestion",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "DoubtQuery",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "AIRecommendation",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "AITutorSession",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "AITutorMessage",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AITutorFeedback",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "AIResponseCache",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "LearningTopicInsight",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "RevisionQueueItem",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "CBTIntelligenceReport",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "ContentIngestionJob",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "GeneratedContentAsset",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "OfflineSyncEvent",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "LearningAnalyticsSnapshot",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "DailyIntelligenceIssue",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "ContentModerationItem",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "OfficerPotential",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "FitnessProfile",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "PTSchedule",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "PTAttendance",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "PhysicalEligibility",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "DailyFitnessLog",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "PYQCategory",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "PYQQuestion",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "CurrentAffair",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "CurrentAffairQuiz",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "QuizBattle",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "QuizBattleParticipant",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "Leaderboard",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "MediaFolder",
+      "classification": "TENANT_OWNED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "MediaFile",
+      "classification": "TENANT_OWNED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "Document",
+      "classification": "TENANT_OWNED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "AdminRole",
+      "classification": "GLOBAL",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": null
+    },
+    {
+      "entity": "Permission",
+      "classification": "GLOBAL",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": null
+    },
+    {
+      "entity": "RolePermission",
+      "classification": "GLOBAL",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": null
+    },
+    {
+      "entity": "UserRole",
+      "classification": "TENANT_OWNED",
+      "directInstituteId": true,
+      "ownershipEvidence": "instituteId",
+      "remediation": null
+    },
+    {
+      "entity": "RoleActivity",
+      "classification": "TENANT_OWNED",
+      "directInstituteId": true,
+      "ownershipEvidence": "instituteId",
+      "remediation": null
+    },
+    {
+      "entity": "SystemSetting",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AuditLog",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "QueueJobLog",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AIRequestLog",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "SalesBoosterCampaign",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "SalesBoosterMetricSnapshot",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "SalesBoosterAudienceContact",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "GuruQuest",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "GuruLesson",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "GuruLessonCompletion",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "GuruReflectionQuestion",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "GuruReflectionAnswer",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "GuruChallenge",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "GuruChallengeCompletion",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "GuruProgress",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "GuruAchievement",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "GuruUserAchievement",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "GuruCertificate",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "GuruUserCertificate",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "GuruDailyMission",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "GuruDailyMissionCompletion",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "GuruMentorNote",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "GuruReflectionInsight",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "GuruXpLedger",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "Branch",
+      "classification": "TENANT_OWNED",
+      "directInstituteId": true,
+      "ownershipEvidence": "instituteId",
+      "remediation": null
+    },
+    {
+      "entity": "Institute",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "TeacherAttendanceRecord",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "TeacherAssignmentRecord",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "AssignmentSubmissionRecord",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "TeacherStudyMaterialRecord",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "TeacherExamRecord",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "ExamImportJob",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "ExamUpload",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "NdieImportJob",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "NdieSourceDocument",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "NdiePage",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "NdiePageAsset",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "NdieElement",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "NdieQuestionCandidate",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "NdieAnswerKeyCandidate",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "NdieSolutionCandidate",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "NdieReviewDecision",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "NdieRevision",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "NdieReplayRun",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "NdieQualityScore",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "NdieProviderRun",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "NdieQueueJob",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "TeacherCalendarLogRecord",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "TeacherSyllabusProgressRecord",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "NdpReview",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "NdpManualEntry",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "AcademicActivityAuditRecord",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "DirectorExpenseRecord",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "AiWorkflowRequest",
+      "classification": "TENANT_OWNED",
+      "directInstituteId": true,
+      "ownershipEvidence": "instituteId",
+      "remediation": null
+    },
+    {
+      "entity": "AiWorkflowContext",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "AiWorkflowContextSource",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AiWorkflowDraft",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AiWorkflowDraftVersion",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AiWorkflowReview",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AiWorkflowApproval",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AiWorkflowFeedback",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    },
+    {
+      "entity": "AiWorkflowPublication",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AiWorkflowAuditEvent",
+      "classification": "REVIEW_REQUIRED",
+      "directInstituteId": false,
+      "ownershipEvidence": "none detected",
+      "remediation": "Confirm GLOBAL, SYSTEM, or add authoritative tenant ownership before multi-institution production."
+    },
+    {
+      "entity": "AcademicLeaveRequest",
+      "classification": "DERIVED",
+      "directInstituteId": false,
+      "ownershipEvidence": "user/parent relationship",
+      "remediation": null
+    }
+  ]
+}

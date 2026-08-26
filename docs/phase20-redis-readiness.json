@@ -1,0 +1,16 @@
+{
+  "phase": 20,
+  "status": "BLOCKED — ENVIRONMENT",
+  "evidence": {
+    "redis": false,
+    "docker": false,
+    "queues": 8
+  },
+  "test_count": 0,
+  "passed": 0,
+  "failed": 0,
+  "blocked": 1,
+  "limitations": [
+    "No Redis runtime or container tooling."
+  ]
+}

@@ -2330,11 +2330,13 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
       const fileName = file.name.toLowerCase();
       const isTxt = file.type.startsWith("text/") || fileName.endsWith(".txt");
       const isDocx = fileName.endsWith(".docx");
+      const isLegacyDoc = fileName.endsWith(".doc");
       const isPdf = fileName.endsWith(".pdf") || file.type === "application/pdf";
-      const isImage = file.type.startsWith("image/") || /\.(jpe?g|png|webp)$/i.test(fileName);
-      if (!isTxt && !isDocx && !isPdf && !isImage) {
+      const isBrowserImage = /\.(jpe?g|png|webp)$/i.test(fileName) || /image\/(jpeg|png|webp)/i.test(file.type);
+      const isImage = file.type.startsWith("image/") || /\.(jpe?g|png|webp|tiff?|heic|heif)$/i.test(fileName);
+      if (!isTxt && !isDocx && !isLegacyDoc && !isPdf && !isImage) {
         setUploadState("UNSUPPORTED_DOCUMENT");
-        setMessage("Unsupported File. Please upload a PDF, DOCX, TXT, JPG, PNG or WEBP file.");
+        setMessage("Unsupported File. Please upload a PDF, Word document, TXT, JPG, PNG, WEBP, TIFF or HEIC file.");
         return;
       }
       let renderedPageCount = isImage ? 1 : 0;
@@ -2343,14 +2345,14 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
         renderedPageCount = assets.length;
         if (assets.length) setVisualAssets((current) => [...current.filter((asset) => asset.fileName !== file.name), ...assets]);
       }
-      if (sourceKind === "QUESTION_PAPER" && isImage) {
+      if (sourceKind === "QUESTION_PAPER" && isBrowserImage) {
         const asset = await renderImageAsset(file);
         setVisualAssets((current) => [...current.filter((item) => item.fileName !== file.name), asset]);
       }
       setUploadState("UNDERSTANDING_PAPER");
       let text = isDocx ? await extractDocxText(file) : isPdf ? await extractPdfText(file) : isTxt ? await file.text().catch(() => "") : "";
-      if (!text.trim() && (isPdf || isImage)) {
-        const ocrAssets = isImage ? [await renderImageAsset(file)] : await renderPdfPageAssets(file).catch(() => []);
+      if (!text.trim() && (isPdf || isBrowserImage)) {
+        const ocrAssets = isBrowserImage ? [await renderImageAsset(file)] : await renderPdfPageAssets(file).catch(() => []);
         if (ocrAssets.length) {
           setOcrBusy(true);
           setMessage("Understanding paper...");
@@ -3257,11 +3259,11 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
 
               {step === 2 ? (
                 <div className="mx-auto grid max-w-5xl gap-5">
-                  <ExamInputCard title="Upload Question Paper" description="PDF, DOCX, JPG, PNG or pasted questions. NIDUS detects the paper type automatically.">
+                  <ExamInputCard title="Upload Question Paper" description="PDF, Word, image, text or pasted questions. NIDUS detects the paper type automatically.">
                     <FileUploadRow
                       label="Drop question paper here or choose file"
                       fileName={uploadedQuestionPaper}
-                      accept=".txt,.docx,.pdf,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/jpeg,image/png,image/*"
+                      accept=".txt,.doc,.docx,.pdf,.jpg,.jpeg,.png,.webp,.tif,.tiff,.heic,.heif,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/*"
                       onChange={(file) => void appendFileText(file, setQuestionSource, questionSource, "QUESTION_PAPER", setUploadedQuestionPaper)}
                     />
                     <div className="my-4 flex items-center gap-3 text-xs font-black uppercase tracking-[0.18em] text-[var(--muted-blue)]">
@@ -3335,7 +3337,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                     <FileUploadRow
                       label="Drop answer key here or choose file"
                       fileName={uploadedAnswerGuide}
-                      accept=".txt,.docx,.pdf,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/jpeg,image/png,image/*"
+                      accept=".txt,.doc,.docx,.pdf,.jpg,.jpeg,.png,.webp,.tif,.tiff,.heic,.heif,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/*"
                       onChange={(file) => void appendFileText(file, setAnswerGuide, answerGuide, "ANSWER_KEY", setUploadedAnswerGuide)}
                     />
                     <div className="my-4 flex items-center gap-3 text-xs font-black uppercase tracking-[0.18em] text-[var(--muted-blue)]">
@@ -3988,7 +3990,7 @@ function TeacherUploadProgressCard({ state, busy }: { state: TeacherUploadState;
     READY_FOR_PUBLISH: { title: "Ready for Publish", detail: "The draft has passed the teacher checklist.", tone: "border-emerald-200 bg-emerald-50 text-emerald-950" },
     PASSWORD_PROTECTED: { title: "Password protected PDF", detail: "Please upload an unlocked copy of this paper.", tone: "border-rose-200 bg-rose-50 text-rose-950" },
     CORRUPTED_FILE: { title: "Corrupted file", detail: "NIDUS could not open this file. Please upload a fresh copy.", tone: "border-rose-200 bg-rose-50 text-rose-950" },
-    UNSUPPORTED_DOCUMENT: { title: "Unsupported document", detail: "Please upload PDF, DOCX, TXT, JPG, PNG or WEBP.", tone: "border-rose-200 bg-rose-50 text-rose-950" },
+    UNSUPPORTED_DOCUMENT: { title: "Unsupported document", detail: "Please upload PDF, Word, TXT, JPG, PNG, WEBP, TIFF or HEIC.", tone: "border-rose-200 bg-rose-50 text-rose-950" },
   };
   const item = copy[state];
   const active = busy || state === "ANALYZING_DOCUMENT" || state === "UNDERSTANDING_PAPER" || state === "BUILDING_AI_DRAFT" || state === "PREPARING_REVIEW";
@@ -5278,7 +5280,7 @@ function FileUploadRow({ label, fileName, accept, onChange }: { label: string; f
           <FileText size={24} />
         </span>
         <span className="mt-4 text-lg font-black text-slate-950">{label}</span>
-        <span className="mt-2 text-sm font-bold text-[var(--muted-blue)]">PDF, DOCX, JPG, PNG or TXT</span>
+        <span className="mt-2 text-sm font-bold text-[var(--muted-blue)]">PDF, Word, JPG, PNG, WEBP, TIFF, HEIC or TXT</span>
         <span className="mt-4 rounded-full bg-slate-950 px-5 py-2 text-xs font-black text-white">Choose File</span>
         <input type="file" accept={accept} onChange={(event) => onChange(event.target.files?.[0] ?? null)} className="sr-only" />
       </label>

@@ -1,0 +1,27 @@
+{
+  "phase": 20,
+  "finalDecision": "NO",
+  "productionTouched": false,
+  "categories": {
+    "applicationSecurity": "PASS",
+    "postgresql": "BLOCKED — ENVIRONMENT",
+    "redis": "BLOCKED — ENVIRONMENT",
+    "workers": "BLOCKED — ENVIRONMENT",
+    "media": "BLOCKED — ENVIRONMENT",
+    "notifications": "BLOCKED — ENVIRONMENT",
+    "backupRestore": "BLOCKED — ENVIRONMENT",
+    "observability": "PARTIAL",
+    "migrationReplay": "PARTIAL",
+    "performance": "BLOCKED — ENVIRONMENT",
+    "smokeTest": "BLOCKED — ENVIRONMENT",
+    "failureRecovery": "BLOCKED — ENVIRONMENT"
+  },
+  "p0Blockers": [
+    "Redis/BullMQ",
+    "media provider",
+    "notification providers",
+    "backup/restore",
+    "production-like performance",
+    "complete smoke test"
+  ]
+}

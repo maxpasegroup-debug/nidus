@@ -6,6 +6,7 @@ import { emitDomainEvent } from "../event-engine/event-engine.service.js";
 type LaunchActor = {
   id: string;
   role: Role;
+  instituteId?: string | null;
   roleMetadata?: Record<string, unknown> | null;
 };
 
@@ -70,6 +71,9 @@ export const launchReadinessOsService = {
 
   async checklist(actor: LaunchActor) {
     requireLaunch(actor);
+    if (actor.instituteId) {
+      throw Object.assign(new Error("Launch readiness is unavailable until its operational sources have authoritative institution ownership"), { statusCode: 403 });
+    }
     const since = new Date();
     since.setDate(since.getDate() - 1);
     const [

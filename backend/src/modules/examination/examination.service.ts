@@ -1,9 +1,14 @@
 import { Prisma, Role } from "../../generated/prisma/client.js";
 import { prisma } from "../../config/prisma.js";
+import { validatePublishedQuestions } from "../tests/exam-publishing-gate.js";
+import { testsService } from "../tests/tests.service.js";
 
 type Requester = {
   id: string;
   role: Role;
+  instituteId?: string | null;
+  branchId?: string | null;
+  roleMetadata?: Record<string, unknown> | null;
 };
 
 export type QuestionBankPayload = {
@@ -52,6 +57,7 @@ export type ExamFromBankPayload = {
   questionSelection?: "MANUAL" | "RANDOM" | "HYBRID";
   questionIds?: string[];
   publishNow?: boolean;
+  approvalAttestation?: "TEACHER_REVIEW_CONFIRMED";
   publishAt?: string;
 };
 
@@ -71,7 +77,10 @@ function normalizeStatus(value?: string) {
 
 function normalizeQuestionType(value?: string) {
   const normalized = cleanText(value || "SINGLE_CHOICE").toUpperCase().replace(/\s+/g, "_");
-  return ["SINGLE_CHOICE", "MULTIPLE_CHOICE", "TRUE_FALSE"].includes(normalized) ? normalized : "SINGLE_CHOICE";
+  if (normalized !== "SINGLE_CHOICE") {
+    throw Object.assign(new Error("Only SINGLE_CHOICE questions are supported by this CBT path."), { statusCode: 400 });
+  }
+  return normalized;
 }
 
 function normalizeCorrectAnswer(value: string) {
@@ -90,6 +99,14 @@ function toQuestionBankData(payload: QuestionBankPayload, requesterId?: string) 
   if (!cleanText(payload.subCategory)) throw new Error("Sub category is required");
   if (!cleanText(payload.topic)) throw new Error("Topic is required");
 
+  const optionValues = [payload.optionA, payload.optionB, payload.optionC, payload.optionD].map((value) => cleanText(value));
+  if (optionValues.some((value) => !value)) throw Object.assign(new Error("All four answer options are required."), { statusCode: 400 });
+  if (new Set(optionValues).size !== optionValues.length) throw Object.assign(new Error("Answer options must be unique."), { statusCode: 400 });
+  const marks = parseNumber(payload.marks, 1);
+  const negativeMarks = parseNumber(payload.negativeMarks, 0);
+  if (!Number.isFinite(marks) || marks <= 0 || marks > 1000) throw Object.assign(new Error("Marks must be greater than 0 and no more than 1000."), { statusCode: 400 });
+  if (!Number.isFinite(negativeMarks) || negativeMarks < 0 || negativeMarks > 1000) throw Object.assign(new Error("Negative marks must be between 0 and 1000."), { statusCode: 400 });
+
   return {
     questionText: cleanText(payload.questionText),
     questionType: normalizeQuestionType(payload.questionType),
@@ -104,8 +121,8 @@ function toQuestionBankData(payload: QuestionBankPayload, requesterId?: string) 
     topic: cleanText(payload.topic),
     subTopic: cleanText(payload.subTopic),
     difficulty: normalizeDifficulty(payload.difficulty),
-    marks: parseNumber(payload.marks, 1),
-    negativeMarks: parseNumber(payload.negativeMarks, 0),
+    marks,
+    negativeMarks,
     status: normalizeStatus(payload.status),
     createdById: requesterId
   };
@@ -189,10 +206,56 @@ function testInclude() {
   };
 }
 
+function isManager(requester: Requester) {
+  return requester.role === Role.ADMIN || requester.role === Role.DIRECTOR || requester.role === Role.ACADEMIC_HEAD;
+}
+
+function questionScope(requester: Requester): Prisma.QuestionBankItemWhereInput {
+  if (requester.role === Role.TEACHER || requester.role === Role.PHYSICAL_TRAINER) return { createdById: requester.id };
+  if (requester.instituteId) return { OR: [{ createdById: requester.id }, { createdBy: { instituteId: requester.instituteId } }] };
+  return isManager(requester) ? {} : { id: "__NO_ACCESS__" };
+}
+
+async function assertQuestionAccess(requester: Requester, id: string) {
+  const question = await prisma.questionBankItem.findFirst({ where: { id, ...questionScope(requester) } });
+  if (!question) throw Object.assign(new Error("Question not found or access denied"), { statusCode: 404 });
+  return question;
+}
+
+async function accessibleTestIds(requester: Requester) {
+  if (isManager(requester)) {
+    const tests = await prisma.test.findMany({
+      where: requester.instituteId
+        ? { OR: [{ batch: { instituteId: requester.instituteId } }, { teacher: { instituteId: requester.instituteId } }] }
+        : {},
+      select: { id: true }
+    });
+    return tests.map((test) => test.id);
+  }
+  if (requester.role === Role.TEACHER || requester.role === Role.PHYSICAL_TRAINER) {
+    const assignments = await prisma.teacherBatchAssignment.findMany({
+      where: { teacherId: requester.id, status: "ACTIVE" },
+      select: { batchId: true, subject: true }
+    });
+    const tests = await prisma.test.findMany({
+      where: {
+        OR: [
+          { teacherId: requester.id },
+          ...assignments.map((assignment) => ({ batchId: assignment.batchId, subject: { equals: assignment.subject, mode: "insensitive" as const } }))
+        ]
+      },
+      select: { id: true }
+    });
+    return tests.map((test) => test.id);
+  }
+  return [];
+}
+
 export const examinationService = {
-  async questionBank(filters: QuestionBankFilters) {
+  async questionBank(requester: Requester, filters: QuestionBankFilters) {
     const where: Prisma.QuestionBankItemWhereInput = {
       AND: [
+        questionScope(requester),
         filters.search
           ? {
               OR: [
@@ -220,13 +283,16 @@ export const examinationService = {
 
   async createQuestion(requester: Requester, payload: QuestionBankPayload) {
     return prisma.questionBankItem.create({
-      data: toQuestionBankData(payload, requester.id),
+      data: { ...toQuestionBankData(payload, requester.id), status: "DRAFT" },
       include: { createdBy: { select: { id: true, name: true, email: true, role: true } } }
     });
   },
 
-  async updateQuestion(id: string, payload: Partial<QuestionBankPayload>) {
-    await this.getQuestion(id);
+  async updateQuestion(requester: Requester, id: string, payload: Partial<QuestionBankPayload>) {
+    await assertQuestionAccess(requester, id);
+    if (payload.status !== undefined && normalizeStatus(payload.status) === "ACTIVE") {
+      throw Object.assign(new Error("Use the explicit teacher approval action to activate a question."), { statusCode: 400 });
+    }
     const data: Prisma.QuestionBankItemUpdateInput = {};
     if (payload.questionText !== undefined) data.questionText = cleanText(payload.questionText);
     if (payload.questionType !== undefined) data.questionType = normalizeQuestionType(payload.questionType);
@@ -243,7 +309,7 @@ export const examinationService = {
     if (payload.difficulty !== undefined) data.difficulty = normalizeDifficulty(payload.difficulty);
     if (payload.marks !== undefined) data.marks = parseNumber(payload.marks, 1);
     if (payload.negativeMarks !== undefined) data.negativeMarks = parseNumber(payload.negativeMarks, 0);
-    if (payload.status !== undefined) data.status = normalizeStatus(payload.status);
+    data.status = "DRAFT";
 
     return prisma.questionBankItem.update({
       where: { id },
@@ -252,14 +318,35 @@ export const examinationService = {
     });
   },
 
-  async getQuestion(id: string) {
-    const question = await prisma.questionBankItem.findUnique({ where: { id } });
-    if (!question) throw new Error("Question not found");
-    return question;
+  async getQuestion(requester: Requester, id: string) {
+    return assertQuestionAccess(requester, id);
   },
 
-  async deleteQuestion(id: string) {
-    await this.getQuestion(id);
+  async approveQuestion(requester: Requester, id: string, attestation?: string) {
+    if (attestation !== "TEACHER_REVIEW_CONFIRMED") {
+      throw Object.assign(new Error("Explicit teacher review confirmation is required."), { statusCode: 400 });
+    }
+    const question = await assertQuestionAccess(requester, id);
+    validatePublishedQuestions([{
+      questionText: question.questionText,
+      optionA: question.optionA,
+      optionB: question.optionB,
+      optionC: question.optionC,
+      optionD: question.optionD,
+      correctAnswer: question.correctAnswer,
+      explanation: question.explanation,
+      marks: question.marks,
+      reviewStatus: "APPROVED",
+    }]);
+    return prisma.questionBankItem.update({
+      where: { id },
+      data: { status: "ACTIVE" },
+      include: { createdBy: { select: { id: true, name: true, email: true, role: true } } },
+    });
+  },
+
+  async deleteQuestion(requester: Requester, id: string) {
+    await assertQuestionAccess(requester, id);
     await prisma.questionBankItem.delete({ where: { id } });
     return { message: "Question deleted successfully" };
   },
@@ -267,7 +354,19 @@ export const examinationService = {
   async importQuestions(requester: Requester, input: { csvText?: string; items?: QuestionBankPayload[] }) {
     const rows = input.items?.length ? input.items : parseCsv(input.csvText ?? "").map(mapImportRow);
     if (!rows.length) throw new Error("No import rows found");
-    const validRows = rows.map((row) => toQuestionBankData(row, requester.id));
+    const validRows = rows.map((row) => ({ ...toQuestionBankData(row, requester.id), status: "DRAFT" }));
+    const fingerprints = validRows.map((row) => [row.questionText, row.optionA, row.optionB, row.optionC, row.optionD, row.correctAnswer].map((value) => value.trim().toLowerCase()).join("\u001f"));
+    if (new Set(fingerprints).size !== fingerprints.length) {
+      throw Object.assign(new Error("The import contains duplicate questions."), { statusCode: 409 });
+    }
+    const existing = await prisma.questionBankItem.findMany({
+      where: { createdById: requester.id, questionText: { in: validRows.map((row) => row.questionText) } },
+      select: { questionText: true, optionA: true, optionB: true, optionC: true, optionD: true, correctAnswer: true }
+    });
+    const existingFingerprints = new Set(existing.map((row) => [row.questionText, row.optionA, row.optionB, row.optionC, row.optionD, row.correctAnswer].map((value) => value.trim().toLowerCase()).join("\u001f")));
+    if (fingerprints.some((fingerprint) => existingFingerprints.has(fingerprint))) {
+      throw Object.assign(new Error("One or more questions already exist in this teacher's question bank."), { statusCode: 409 });
+    }
     const result = await prisma.questionBankItem.createMany({ data: validRows, skipDuplicates: true });
     return { imported: result.count };
   },
@@ -275,13 +374,17 @@ export const examinationService = {
   async createExamFromBank(requester: Requester, payload: ExamFromBankPayload) {
     if (!cleanText(payload.title)) throw new Error("Exam name is required");
     if (!cleanText(payload.examType)) throw new Error("Exam type is required");
+    if (payload.publishNow && payload.approvalAttestation !== "TEACHER_REVIEW_CONFIRMED") {
+      throw Object.assign(new Error("Teacher review confirmation is required before immediate publication."), { statusCode: 400 });
+    }
     const selection = payload.questionSelection ?? (payload.questionIds?.length ? "MANUAL" : "RANDOM");
     const totalQuestions = Math.max(1, Math.min(200, Math.floor(parseNumber(payload.totalQuestions, payload.questionIds?.length || 100))));
 
     const where: Prisma.QuestionBankItemWhereInput =
       selection === "MANUAL" && payload.questionIds?.length
-        ? { id: { in: payload.questionIds }, status: "ACTIVE" }
+        ? { id: { in: payload.questionIds }, status: "ACTIVE", ...questionScope(requester) }
         : {
+            ...questionScope(requester),
             status: "ACTIVE",
             category: payload.category || "Defence",
             subCategory: payload.examType,
@@ -309,7 +412,8 @@ export const examinationService = {
       marks: payload.marks ?? question.marks,
       negativeMarks: payload.negativeMarks ?? question.negativeMarks,
       difficultyLevel: question.difficulty,
-      topic: question.topic
+      topic: question.topic,
+      reviewStatus: "DRAFT"
     }));
 
     const totalMarks = questions.reduce((sum, question) => sum + question.marks, 0);
@@ -325,18 +429,15 @@ export const examinationService = {
         topic: cleanText(payload.topic),
         teacherId: requester.role === Role.TEACHER ? requester.id : undefined,
         publishAt: payload.publishAt ? new Date(payload.publishAt) : undefined,
-        status: payload.publishNow ? "PUBLISHED" : "DRAFT",
-        reviewedAt: payload.publishNow ? new Date() : undefined,
-        approvedAt: payload.publishNow ? new Date() : undefined,
-        approvedById: payload.publishNow ? requester.id : undefined,
+        status: "DRAFT",
         duration: Math.max(1, Math.floor(parseNumber(payload.duration, 60))),
         totalMarks,
         isMockTest: true,
-        isLive: Boolean(payload.publishNow)
+        isLive: false
     };
 
     if (batchIds.length <= 1) {
-      return prisma.test.create({
+      const created = await prisma.test.create({
         data: {
           ...baseData,
           batchId: batchIds[0] || undefined,
@@ -344,6 +445,9 @@ export const examinationService = {
         },
         include: testInclude()
       });
+      if (!payload.publishNow) return created;
+      await testsService.approve(requester, created.id, { questionIds: created.questions.map((question) => question.id), attestation: "TEACHER_REVIEW_CONFIRMED" });
+      return testsService.publishApproved(requester, created.id, { publishAt: payload.publishAt, batchId: batchIds[0] });
     }
 
     const created = await prisma.$transaction(
@@ -360,28 +464,25 @@ export const examinationService = {
       )
     );
 
+    if (payload.publishNow) {
+      await Promise.all(created.map(async (test) => {
+        await testsService.approve(requester, test.id, { questionIds: test.questions.map((question) => question.id), attestation: "TEACHER_REVIEW_CONFIRMED" });
+        await testsService.publishApproved(requester, test.id, { publishAt: payload.publishAt, batchId: test.batchId ?? undefined });
+      }));
+    }
     return { ...created[0], publishedCopies: created.length };
   },
 
   async publishExam(requester: Requester, id: string, input: { publishAt?: string; batchId?: string }) {
-    await prisma.test.findUniqueOrThrow({ where: { id } });
-    return prisma.test.update({
-      where: { id },
-      data: {
-        status: "PUBLISHED",
-        isLive: true,
-        batchId: cleanText(input.batchId) || undefined,
-        publishAt: input.publishAt ? new Date(input.publishAt) : undefined,
-        reviewedAt: new Date(),
-        approvedAt: new Date(),
-        approvedById: requester.id
-      },
-      include: testInclude()
-    });
+    const test = await testsService.details(requester, id);
+    if (test.status !== "APPROVED") {
+      throw Object.assign(new Error("Review and approve every question before publishing this exam."), { statusCode: 400 });
+    }
+    return testsService.publishApproved(requester, id, { publishAt: input.publishAt, batchId: cleanText(input.batchId) || undefined });
   },
 
-  async closeExam(id: string) {
-    await prisma.test.findUniqueOrThrow({ where: { id } });
+  async closeExam(requester: Requester, id: string) {
+    await testsService.details(requester, id);
     return prisma.test.update({
       where: { id },
       data: { status: "CLOSED", isLive: false },
@@ -389,15 +490,16 @@ export const examinationService = {
     });
   },
 
-  async deleteExam(id: string) {
-    await prisma.test.findUniqueOrThrow({ where: { id } });
+  async deleteExam(requester: Requester, id: string) {
+    await testsService.details(requester, id);
     await prisma.test.delete({ where: { id } });
     return { message: "Exam deleted successfully" };
   },
 
-  async results() {
+  async results(requester: Requester) {
+    const testIds = await accessibleTestIds(requester);
     return prisma.testAttempt.findMany({
-      where: { submittedAt: { not: null } },
+      where: { submittedAt: { not: null }, testId: { in: testIds } },
       orderBy: { submittedAt: "desc" },
       take: 100,
       include: {
@@ -407,11 +509,12 @@ export const examinationService = {
     });
   },
 
-  async analytics() {
+  async analytics(requester: Requester) {
+    const testIds = await accessibleTestIds(requester);
     const [tests, questions, attempts] = await Promise.all([
-      prisma.test.findMany({ include: { _count: { select: { questions: true, attempts: true } } } }),
-      prisma.questionBankItem.groupBy({ by: ["subCategory", "topic", "difficulty", "status"], _count: { _all: true } }),
-      prisma.testAttempt.findMany({ where: { submittedAt: { not: null } }, include: { test: true } })
+      prisma.test.findMany({ where: { id: { in: testIds } }, include: { _count: { select: { questions: true, attempts: true } } } }),
+      prisma.questionBankItem.groupBy({ where: questionScope(requester), by: ["subCategory", "topic", "difficulty", "status"], _count: { _all: true } }),
+      prisma.testAttempt.findMany({ where: { submittedAt: { not: null }, testId: { in: testIds } }, include: { test: true } })
     ]);
 
     const totalScore = attempts.reduce((sum, attempt) => sum + attempt.score, 0);

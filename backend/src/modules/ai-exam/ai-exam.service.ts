@@ -244,7 +244,7 @@ function toTestPayload(actor: Actor, draft: ExamDraft, batchId: string, publishA
     totalMarks: draft.totalMarks,
     isMockTest: true,
     isLive: true,
-    questions
+    questions: questions.map((question) => ({ ...question, reviewStatus: "APPROVED" }))
   };
 }
 
@@ -681,7 +681,11 @@ export const aiExamService = {
 
     const test = await testsService.publishDraft(
       { id: actor.id, role: actor.role },
-      toTestPayload(actor, examDraft, batchId, publishAt, optionalText(input.instructions))
+      {
+        ...toTestPayload(actor, examDraft, batchId, publishAt, optionalText(input.instructions)),
+        approvalAttestation: "TEACHER_REVIEW_CONFIRMED",
+        approvalReferenceId: approvedPublication.id,
+      }
     );
     await prisma.teacherExamRecord.create({
       data: {

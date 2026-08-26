@@ -66,6 +66,7 @@ export type ExamFromBankPayload = {
   questionSelection?: "MANUAL" | "RANDOM" | "HYBRID";
   questionIds?: string[];
   publishNow?: boolean;
+  approvalAttestation?: "TEACHER_REVIEW_CONFIRMED";
   publishAt?: string;
 };
 
@@ -126,12 +127,24 @@ export async function importQuestionBankCsv(csvText: string) {
 }
 
 export async function createExamFromBank(payload: ExamFromBankPayload) {
-  const response = await apiClient.post<{ exam: Test }>("/examination/exams/from-bank", payload);
+  const response = await apiClient.post<{ exam: Test }>("/examination/exams/from-bank", {
+    ...payload,
+    approvalAttestation: payload.publishNow ? "TEACHER_REVIEW_CONFIRMED" : undefined
+  });
   return response.data.exam;
 }
 
-export async function publishExam(id: string) {
-  const response = await apiClient.post<{ exam: Test }>(`/examination/exams/${id}/publish`, {});
+export async function publishExam(id: string, publishAt?: string) {
+  const details = await apiClient.get<{ test: Test }>(`/tests/${id}`);
+  const questionIds = details.data.test.questions?.map((question) => question.id) ?? [];
+  if (!questionIds.length) throw new Error("This exam has no questions to approve.");
+  if (details.data.test.status !== "APPROVED") {
+    await apiClient.post(`/tests/${id}/approve`, {
+      attestation: "TEACHER_REVIEW_CONFIRMED",
+      questionIds
+    });
+  }
+  const response = await apiClient.post<{ exam: Test }>(`/examination/exams/${id}/publish`, { publishAt });
   return response.data.exam;
 }
 

@@ -28,7 +28,6 @@ async function main() {
     dashboardTemplate: "CEO",
     designation: "CEO",
     department: "Executive Office",
-    accessPin: CEO_PIN,
     loginMobile: CEO_MOBILE,
     defaultPassword: false,
     defaultPin: false,

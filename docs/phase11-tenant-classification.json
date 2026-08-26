@@ -1,0 +1,2059 @@
+{
+  "phase": "11",
+  "generatedBy": "phase11-tenant-classification",
+  "policy": "Ambiguous historical ownership is never guessed. PENDING_REVIEW blocks multi-tenant certification.",
+  "source": "docs/phase10-tenant-ownership-audit.json",
+  "summary": {
+    "totalModels": 227,
+    "tenantOwned": 27,
+    "global": 3,
+    "derived": 99,
+    "pendingReview": 98,
+    "migrationRequiredUnknown": 98
+  },
+  "models": [
+    {
+      "entity": "User",
+      "classification": "TENANT_OWNED",
+      "ownershipBasis": "instituteId",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "SessionToken",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "PasswordReset",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "ParentStudentInvitation",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "ParentStudentLink",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "Otp",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "Course",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "Module",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "Lesson",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "Enrollment",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "Batch",
+      "classification": "TENANT_OWNED",
+      "ownershipBasis": "instituteId",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "BatchStudent",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "TeacherBatchAssignment",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "Test",
+      "classification": "TENANT_OWNED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "Question",
+      "classification": "TENANT_OWNED",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "QuestionVersion",
+      "classification": "TENANT_OWNED",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "QuestionBankItem",
+      "classification": "TENANT_OWNED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "TestAttempt",
+      "classification": "TENANT_OWNED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "CBTAnswerState",
+      "classification": "TENANT_OWNED",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "CBTIntegrityEvent",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "Answer",
+      "classification": "TENANT_OWNED",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "PsychometricTest",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "PsychometricQuestion",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "PsychometricAttempt",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "PsychometricReport",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "PsychometricAnswer",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AssessmentArenaAssessment",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AssessmentTraitMapping",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AssessmentDimensionMapping",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AssessmentQuestionBlueprint",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AssessmentTraitBlueprint",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AssessmentDimensionBlueprint",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AssessmentTrait",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AssessmentDimension",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AssessmentQuestion",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AssessmentQuestionOption",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AssessmentQuestionVersion",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AssessmentQuestionReview",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AssessmentReviewBoard",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AssessmentPilotRun",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AssessmentPilotResponse",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AssessmentQuestionExposure",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "AssessmentAttempt",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "AssessmentAttemptQuestion",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AssessmentAnswer",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AssessmentTraitScore",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AssessmentDimensionScore",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AssessmentIntegritySignal",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AssessmentRiskSignal",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AssessmentGrowthSnapshot",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "AssessmentRankPrediction",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "AssessmentReportSnapshot",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "TopRankUser",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "TopRankGateway",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "TopRankProgram",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "TopRankBatch",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "TopRankSession",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "TopRankStudentProfile",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "TopRankEnrollment",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "TopRankBatchAssignment",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "TopRankProgramAgreement",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "TopRankOrientationProgress",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "TopRankAssessment",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "TopRankAssessmentAnswer",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "TopRankAPR",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "TopRankMission",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "TopRankMissionTask",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "TopRankMissionCompletion",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "TopRankMissionCalendar",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "TopRankSignalSnapshot",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "TopRankReadinessScore",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "TopRankPerformanceTrend",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "TopRankGrowthTrend",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "TopRankRiskTrend",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "TopRankMentorFeedback",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "TopRankSignalWeightConfig",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AssessmentTraitLibraryItem",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AssessmentDimensionLibraryItem",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AssessmentTraitBandInterpretation",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AssessmentRiskInterpretation",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AssessmentReadinessInterpretation",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AssessmentSsbOlq",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AssessmentSsbOlqMapping",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AssessmentSsbOlqInterpretation",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "OLQScore",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "StudyPlan",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "PerformanceAnalytics",
+      "classification": "TENANT_OWNED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "RevisionSchedule",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "LiveClass",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "RecordedLecture",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "LectureProgress",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "LecturePlaybackEvent",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "Attendance",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "Timetable",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "Faculty",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "Classroom",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "Payroll",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "Announcement",
+      "classification": "TENANT_OWNED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "Hostel",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "Room",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "HostelAllocation",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "InOutEntry",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "HostelLeave",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "MessMenu",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "DisciplineRecord",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "ParadePerformance",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "Lead",
+      "classification": "TENANT_OWNED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "FollowUp",
+      "classification": "TENANT_OWNED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "Admission",
+      "classification": "TENANT_OWNED",
+      "ownershipBasis": "instituteId",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "CounsellingBooking",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "Referral",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "Payment",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "Subscription",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "FeeInstallment",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "Invoice",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "FeePlan",
+      "classification": "TENANT_OWNED",
+      "ownershipBasis": "instituteId",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "PaymentTransactionLog",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "ApprovalRequest",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "ScholarshipDiscount",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "FinanceDocument",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "Notification",
+      "classification": "TENANT_OWNED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "MessageThread",
+      "classification": "TENANT_OWNED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "Message",
+      "classification": "TENANT_OWNED",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "EmailLog",
+      "classification": "TENANT_OWNED",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "PushNotification",
+      "classification": "TENANT_OWNED",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "AIInterviewSession",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "AIInterviewQuestion",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "DoubtQuery",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "AIRecommendation",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "AITutorSession",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "AITutorMessage",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AITutorFeedback",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "AIResponseCache",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "LearningTopicInsight",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "RevisionQueueItem",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "CBTIntelligenceReport",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "ContentIngestionJob",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "GeneratedContentAsset",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "OfflineSyncEvent",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "LearningAnalyticsSnapshot",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "DailyIntelligenceIssue",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "ContentModerationItem",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "OfficerPotential",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "FitnessProfile",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "PTSchedule",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "PTAttendance",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "PhysicalEligibility",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "DailyFitnessLog",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "PYQCategory",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "PYQQuestion",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "CurrentAffair",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "CurrentAffairQuiz",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "QuizBattle",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "QuizBattleParticipant",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "Leaderboard",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "MediaFolder",
+      "classification": "TENANT_OWNED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "MediaFile",
+      "classification": "TENANT_OWNED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "Document",
+      "classification": "TENANT_OWNED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "AdminRole",
+      "classification": "GLOBAL",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Global classification retained from Phase 10; confirm against product policy before multi-tenant launch."
+    },
+    {
+      "entity": "Permission",
+      "classification": "GLOBAL",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Global classification retained from Phase 10; confirm against product policy before multi-tenant launch."
+    },
+    {
+      "entity": "RolePermission",
+      "classification": "GLOBAL",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Global classification retained from Phase 10; confirm against product policy before multi-tenant launch."
+    },
+    {
+      "entity": "UserRole",
+      "classification": "TENANT_OWNED",
+      "ownershipBasis": "instituteId",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "RoleActivity",
+      "classification": "TENANT_OWNED",
+      "ownershipBasis": "instituteId",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "SystemSetting",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AuditLog",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "QueueJobLog",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AIRequestLog",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "SalesBoosterCampaign",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "SalesBoosterMetricSnapshot",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "SalesBoosterAudienceContact",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "GuruQuest",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "GuruLesson",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "GuruLessonCompletion",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "GuruReflectionQuestion",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "GuruReflectionAnswer",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "GuruChallenge",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "GuruChallengeCompletion",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "GuruProgress",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "GuruAchievement",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "GuruUserAchievement",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "GuruCertificate",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "GuruUserCertificate",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "GuruDailyMission",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "GuruDailyMissionCompletion",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "GuruMentorNote",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "GuruReflectionInsight",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "GuruXpLedger",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "Branch",
+      "classification": "TENANT_OWNED",
+      "ownershipBasis": "instituteId",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "Institute",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "TeacherAttendanceRecord",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "TeacherAssignmentRecord",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "AssignmentSubmissionRecord",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "TeacherStudyMaterialRecord",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "TeacherExamRecord",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "ExamImportJob",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "ExamUpload",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "NdieImportJob",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "NdieSourceDocument",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "NdiePage",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "NdiePageAsset",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "NdieElement",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "NdieQuestionCandidate",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "NdieAnswerKeyCandidate",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "NdieSolutionCandidate",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "NdieReviewDecision",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "NdieRevision",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "NdieReplayRun",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "NdieQualityScore",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "NdieProviderRun",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "NdieQueueJob",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "TeacherCalendarLogRecord",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "TeacherSyllabusProgressRecord",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "NdpReview",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "NdpManualEntry",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "AcademicActivityAuditRecord",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "DirectorExpenseRecord",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "AiWorkflowRequest",
+      "classification": "TENANT_OWNED",
+      "ownershipBasis": "instituteId",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "AiWorkflowContext",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "AiWorkflowContextSource",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AiWorkflowDraft",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AiWorkflowDraftVersion",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AiWorkflowReview",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AiWorkflowApproval",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AiWorkflowFeedback",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    },
+    {
+      "entity": "AiWorkflowPublication",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AiWorkflowAuditEvent",
+      "classification": "PENDING_REVIEW",
+      "ownershipBasis": "none detected",
+      "evidenceStatus": "INSUFFICIENT",
+      "migrationRequired": "UNKNOWN",
+      "authorizationReviewRequired": true,
+      "notes": "No authoritative tenant ownership was inferred. Human/domain review is required before multi-institution certification."
+    },
+    {
+      "entity": "AcademicLeaveRequest",
+      "classification": "DERIVED",
+      "ownershipBasis": "user/parent relationship",
+      "evidenceStatus": "EVIDENCE_PRESENT",
+      "migrationRequired": false,
+      "authorizationReviewRequired": false,
+      "notes": "Classification retained from existing ownership evidence; route-level authorization remains independently required."
+    }
+  ]
+}

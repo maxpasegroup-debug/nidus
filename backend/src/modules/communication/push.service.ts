@@ -1,4 +1,5 @@
-import admin from "firebase-admin";
+import { cert, getApps, initializeApp } from "firebase-admin/app";
+import { getMessaging } from "firebase-admin/messaging";
 import { env } from "../../config/env.js";
 import { enqueueNotification, type NotificationJob } from "../../queues/notification.queue.js";
 import { logger } from "../../utils/logger.js";
@@ -6,10 +7,13 @@ import { logger } from "../../utils/logger.js";
 let firebaseReady = false;
 
 function initFirebase() {
-  if (firebaseReady || admin.apps.length) return firebaseReady;
+  if (firebaseReady || getApps().length) {
+    firebaseReady = true;
+    return true;
+  }
   if (!env.FIREBASE_PROJECT_ID || !env.FIREBASE_CLIENT_EMAIL || !env.FIREBASE_PRIVATE_KEY) return false;
-  admin.initializeApp({
-    credential: admin.credential.cert({
+  initializeApp({
+    credential: cert({
       projectId: env.FIREBASE_PROJECT_ID,
       clientEmail: env.FIREBASE_CLIENT_EMAIL,
       privateKey: env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n")
@@ -32,7 +36,7 @@ export const pushService = {
       return { provider: "FIREBASE", status: "SKIPPED_NO_FIREBASE" };
     }
 
-    await admin.messaging().send({
+    await getMessaging().send({
       topic: input.targetAudience,
       notification: { title: input.title, body: input.body }
     });

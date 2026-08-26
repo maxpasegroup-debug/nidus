@@ -2295,6 +2295,7 @@ export const NotificationScalarFieldEnum = {
   targetRole: 'targetRole',
   isRead: 'isRead',
   userId: 'userId',
+  instituteId: 'instituteId',
   createdAt: 'createdAt'
 } as const
 
@@ -2329,6 +2330,7 @@ export const EmailLogScalarFieldEnum = {
   recipient: 'recipient',
   subject: 'subject',
   status: 'status',
+  instituteId: 'instituteId',
   sentAt: 'sentAt'
 } as const
 
@@ -2341,6 +2343,7 @@ export const PushNotificationScalarFieldEnum = {
   body: 'body',
   targetAudience: 'targetAudience',
   status: 'status',
+  instituteId: 'instituteId',
   createdAt: 'createdAt'
 } as const
 
@@ -3599,6 +3602,7 @@ export const NdieQuestionCandidateScalarFieldEnum = {
   questionType: 'questionType',
   candidateJson: 'candidateJson',
   sourceMap: 'sourceMap',
+  sourceFingerprint: 'sourceFingerprint',
   confidence: 'confidence',
   status: 'status',
   reviewStatus: 'reviewStatus',
@@ -3613,6 +3617,7 @@ export type NdieQuestionCandidateScalarFieldEnum = (typeof NdieQuestionCandidate
 export const NdieAnswerKeyCandidateScalarFieldEnum = {
   id: 'id',
   importJobId: 'importJobId',
+  questionCandidateId: 'questionCandidateId',
   sourceDocumentId: 'sourceDocumentId',
   questionNumber: 'questionNumber',
   answerJson: 'answerJson',
@@ -3729,6 +3734,7 @@ export const NdieQueueJobScalarFieldEnum = {
   id: 'id',
   importJobId: 'importJobId',
   replayRunId: 'replayRunId',
+  idempotencyKey: 'idempotencyKey',
   jobType: 'jobType',
   stage: 'stage',
   state: 'state',

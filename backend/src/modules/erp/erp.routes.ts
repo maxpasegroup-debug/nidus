@@ -12,15 +12,18 @@ export const announcementsRouter = Router();
 
 const admin = [protect, allowRoles(Role.ADMIN, Role.DIRECTOR)];
 const staff = [protect, allowRoles(Role.ADMIN, Role.STUDENT)];
+const timetableRequiresOwnershipModel = (_req: unknown, res: { status: (code: number) => { json: (body: unknown) => void } }) => {
+  res.status(403).json({ message: "Timetable is temporarily unavailable until institution ownership is enforced" });
+};
 
 attendanceRouter.post("/mark", ...admin, [body("userId").notEmpty(), body("date").isISO8601(), body("status").isIn(["PRESENT", "ABSENT", "LATE"])], erpController.markAttendance);
 attendanceRouter.get("/student/:id", ...staff, erpController.studentAttendance);
 attendanceRouter.get("/class", ...admin, erpController.classAttendance);
 
-timetableRouter.get("/", protect, erpController.timetable);
-timetableRouter.post("/", ...admin, [body("title").notEmpty(), body("batch").notEmpty(), body("subject").notEmpty(), body("instructor").notEmpty(), body("startTime").isISO8601(), body("endTime").isISO8601(), body("classroom").notEmpty()], erpController.createTimetable);
-timetableRouter.put("/:id", ...admin, erpController.updateTimetable);
-timetableRouter.delete("/:id", ...admin, erpController.deleteTimetable);
+timetableRouter.get("/", protect, timetableRequiresOwnershipModel);
+timetableRouter.post("/", ...admin, timetableRequiresOwnershipModel);
+timetableRouter.put("/:id", ...admin, timetableRequiresOwnershipModel);
+timetableRouter.delete("/:id", ...admin, timetableRequiresOwnershipModel);
 
 facultyRouter.get("/", ...admin, erpController.faculty);
 facultyRouter.post("/", ...admin, [body("userId").notEmpty(), body("department").notEmpty(), body("designation").notEmpty(), body("joiningDate").isISO8601(), body("salary").isFloat({ min: 0 }), body("status").notEmpty()], erpController.createFaculty);

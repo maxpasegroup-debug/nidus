@@ -2,6 +2,7 @@ import type { Prisma } from "../../../generated/prisma/client.js";
 import { env } from "../../../config/env.js";
 import { prisma } from "../../../config/prisma.js";
 import { logger } from "../../../utils/logger.js";
+import { ndieQuestionSourceFingerprint } from "./question-fingerprint.js";
 import type { OptionProvider, QuestionProvider } from "../contracts/providers.js";
 import { createNdieContainer } from "../ndie.container.js";
 
@@ -146,15 +147,24 @@ export const ndieQuestionDetectorService = {
         questionType: question.questionType,
         candidateJson: candidateJson as Prisma.InputJsonValue,
         sourceMap: question.sourceMap as Prisma.InputJsonValue,
+        sourceFingerprint: ndieQuestionSourceFingerprint({
+          sourceElementIds: question.sourceElementIds,
+          sourceMap: question.sourceMap,
+          normalizedQuestionId: question.normalizedQuestion.questionId,
+          sectionId: question.normalizedQuestion.sectionId,
+          questionNumber: question.questionNumber,
+          text: question.text
+        }),
         confidence: Math.min(question.confidence, optionsByQuestion.get(question.questionNumber)?.confidence ?? 0.18),
         status: "PENDING_REVIEW",
         reviewStatus: "PENDING_REVIEW"
       };
     });
 
+    const uniqueCandidateRows = [...new Map(candidateRows.map((row) => [row.sourceFingerprint, row])).values()];
+
     await prisma.$transaction(async (tx) => {
-      await tx.ndieQuestionCandidate.deleteMany({ where: { importJobId, approvedQuestionId: null } });
-      if (candidateRows.length) await tx.ndieQuestionCandidate.createMany({ data: candidateRows });
+      if (uniqueCandidateRows.length) await tx.ndieQuestionCandidate.createMany({ data: uniqueCandidateRows, skipDuplicates: true });
 
       await tx.ndieProviderRun.create({
         data: {
@@ -205,10 +215,10 @@ export const ndieQuestionDetectorService = {
           status: "READY_FOR_ANSWER_ENGINE",
           currentCheckpoint: "READY_FOR_ANSWER_ENGINE",
           teacherSummary: {
-            questionCandidates: candidateRows.length,
+            questionCandidates: uniqueCandidateRows.length,
             optionProvider: optionProvider.id,
             assessment: questionResult.assessment.metrics,
-            pendingReview: candidateRows.filter((row) => Number(row.confidence ?? 0) < 0.8).length
+            pendingReview: uniqueCandidateRows.filter((row) => Number(row.confidence ?? 0) < 0.8).length
           } as Prisma.InputJsonValue
         }
       });
@@ -216,14 +226,14 @@ export const ndieQuestionDetectorService = {
 
     logger.info("NDIE assessment detection complete", {
       importId: importJobId,
-      questions: candidateRows.length,
+      questions: uniqueCandidateRows.length,
       questionTypes: questionResult.assessment.metrics.questionTypes,
       averageConfidence: questionResult.confidence
     });
     return {
       questionProvider: questionProvider.id,
       optionProvider: optionProvider.id,
-      questionsDetected: candidateRows.length,
+      questionsDetected: uniqueCandidateRows.length,
       optionsMapped: optionResult.optionsByQuestion.length,
       assessment: questionResult.assessment.metrics
     };
