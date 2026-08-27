@@ -1,0 +1,54 @@
+export type ReviewSeverity = "HIGH" | "MEDIUM" | "LOW";
+export type ReviewIssueState = "OPEN" | "RESOLVED" | "APPROVED_AS_IS";
+export type ReviewIssue = {
+  id: string;
+  type: string;
+  severity: ReviewSeverity;
+  state: ReviewIssueState;
+  approvable: boolean;
+  reason?: string;
+  decidedById?: string;
+  decidedAt?: string;
+};
+
+type StructuralQuestion = { questionText?: string; optionA?: string; optionB?: string; optionC?: string; optionD?: string; correctAnswer?: string; explanation?: string; marks?: number; negativeMarks?: number; sourcePageNumber?: number | null };
+
+const definitions = [
+  { id: "MISSING_QUESTION_TEXT", test: (q: StructuralQuestion) => !q.questionText?.trim(), severity: "HIGH", approvable: false },
+  { id: "MISSING_REQUIRED_OPTIONS", test: (q: StructuralQuestion) => ![q.optionA, q.optionB, q.optionC, q.optionD].every((value) => value?.trim()), severity: "HIGH", approvable: false },
+  { id: "INVALID_CORRECT_ANSWER", test: (q: StructuralQuestion) => !/^[A-D]$/.test(q.correctAnswer?.trim().toUpperCase() || ""), severity: "HIGH", approvable: false },
+  { id: "MISSING_EXPLANATION", test: (q: StructuralQuestion) => !q.explanation?.trim(), severity: "HIGH", approvable: false },
+  { id: "DUPLICATE_OPTIONS", test: (q: StructuralQuestion) => { const options = [q.optionA, q.optionB, q.optionC, q.optionD].map((value) => value?.trim()).filter(Boolean); return options.length === 4 && new Set(options).size !== 4; }, severity: "HIGH", approvable: false },
+  { id: "INVALID_MARKS", test: (q: StructuralQuestion) => !Number.isFinite(Number(q.marks)) || Number(q.marks) <= 0 || !Number.isFinite(Number(q.negativeMarks ?? 0)) || Number(q.negativeMarks ?? 0) < 0, severity: "HIGH", approvable: false },
+  { id: "SOURCE_COORDINATES_UNAVAILABLE", test: (q: StructuralQuestion) => !q.sourcePageNumber, severity: "LOW", approvable: true },
+] as const;
+
+export function deriveReviewIssues(question: StructuralQuestion, previous: ReviewIssue[] = []): ReviewIssue[] {
+  const previousById = new Map(previous.map((issue) => [issue.id, issue]));
+  return definitions.map((definition) => {
+    const prior = previousById.get(definition.id);
+    const detected = definition.test(question);
+    if (!detected) return { id: definition.id, type: definition.id, severity: definition.severity, approvable: definition.approvable, state: "RESOLVED" as const };
+    if (prior?.state === "APPROVED_AS_IS" && definition.approvable) return prior;
+    return { id: definition.id, type: definition.id, severity: definition.severity, approvable: definition.approvable, state: "OPEN" as const };
+  });
+}
+
+export function blockingIssues(issues: ReviewIssue[]) {
+  return issues.filter((issue) => issue.severity === "HIGH" && issue.state === "OPEN");
+}
+
+export function reviewReadiness(input: { lifecycle: string; actualQuestionCount: number; authoritativeQuestionCount?: number | null; actualMarksTotal: number; authoritativeMarks: number; unresolvedHighIssueCount: number }) {
+  const blockingReasons: string[] = [];
+  if (input.unresolvedHighIssueCount) blockingReasons.push(`${input.unresolvedHighIssueCount} blocking question issue(s) remain.`);
+  if (input.authoritativeQuestionCount !== input.actualQuestionCount) blockingReasons.push(`Authoritative count ${input.authoritativeQuestionCount ?? "not set"} does not match ${input.actualQuestionCount} persisted questions.`);
+  if (Math.abs(input.authoritativeMarks - input.actualMarksTotal) > 0.0001) blockingReasons.push(`Authoritative marks ${input.authoritativeMarks} do not match ${input.actualMarksTotal} persisted marks.`);
+  if (input.lifecycle !== "DRAFT") blockingReasons.push("Only a DRAFT can complete Build & Review.");
+  return { reviewStatus: blockingReasons.length ? "REVIEW_REQUIRED" as const : "READY" as const, blockingReasons };
+}
+
+export function calculateExamEnd(examStartsAt: string | Date, duration: number) {
+  const start = examStartsAt instanceof Date ? new Date(examStartsAt) : new Date(examStartsAt);
+  if (Number.isNaN(start.getTime()) || !Number.isInteger(duration) || duration <= 0) throw Object.assign(new Error("Valid examStartsAt and duration are required."), { statusCode: 400 });
+  return new Date(start.getTime() + duration * 60_000);
+}

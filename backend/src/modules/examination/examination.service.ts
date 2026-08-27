@@ -40,6 +40,7 @@ export type QuestionBankFilters = {
 };
 
 export type ExamFromBankPayload = {
+  testId?: string;
   title: string;
   description: string;
   examType: string;
@@ -420,6 +421,24 @@ export const examinationService = {
     const workflowNote = `Passing ${payload.passingPercentage ?? 50}%. Selection ${selection}. Randomization ${payload.randomization ? "enabled" : "disabled"}.`;
 
     const batchIds = Array.from(new Set([payload.batchId, ...(payload.batchIds ?? [])].filter((value): value is string => Boolean(cleanText(value)))));
+    if (payload.testId) {
+      if (batchIds.length > 1) throw Object.assign(new Error("A shared draft supports one batch only."), { statusCode: 400 });
+      const exam = await testsService.create(requester, {
+        testId: payload.testId,
+        title: cleanText(payload.title),
+        description: cleanText(payload.description, "NIDUS Academy CBT exam."),
+        examType: cleanText(payload.examType),
+        category: cleanText(payload.category, "Defence"),
+        subject: cleanText(payload.subject),
+        topic: cleanText(payload.topic),
+        batchId: batchIds[0],
+        duration: Math.max(1, Math.floor(parseNumber(payload.duration, 60))),
+        totalMarks,
+        isMockTest: true,
+        questions,
+      });
+      return { ...exam, testId: exam.id };
+    }
     const baseData = {
         title: cleanText(payload.title),
         description: `${cleanText(payload.description, "NIDUS Academy CBT exam.")}\n\n${workflowNote}`,
@@ -445,9 +464,10 @@ export const examinationService = {
         },
         include: testInclude()
       });
-      if (!payload.publishNow) return created;
+      if (!payload.publishNow) return { ...created, testId: created.id };
       await testsService.approve(requester, created.id, { questionIds: created.questions.map((question) => question.id), attestation: "TEACHER_REVIEW_CONFIRMED" });
-      return testsService.publishApproved(requester, created.id, { publishAt: payload.publishAt, batchId: batchIds[0] });
+      const exam = await testsService.publishApproved(requester, created.id, { publishAt: payload.publishAt, batchId: batchIds[0] });
+      return { ...exam, testId: exam.id };
     }
 
     const created = await prisma.$transaction(
@@ -470,7 +490,7 @@ export const examinationService = {
         await testsService.publishApproved(requester, test.id, { publishAt: payload.publishAt, batchId: test.batchId ?? undefined });
       }));
     }
-    return { ...created[0], publishedCopies: created.length };
+    return { ...created[0], testId: created[0].id, publishedCopies: created.length };
   },
 
   async publishExam(requester: Requester, id: string, input: { publishAt?: string; batchId?: string }) {

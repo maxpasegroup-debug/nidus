@@ -49,6 +49,7 @@ export type QuestionBankPayload = {
 };
 
 export type ExamFromBankPayload = {
+  testId?: string;
   title: string;
   description: string;
   examType: string;

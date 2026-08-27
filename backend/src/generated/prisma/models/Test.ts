@@ -29,11 +29,17 @@ export type AggregateTest = {
 export type TestAvgAggregateOutputType = {
   duration: number | null
   totalMarks: number | null
+  expectedQuestionCount: number | null
+  authoritativeQuestionCount: number | null
+  expectedTotalMarks: number | null
 }
 
 export type TestSumAggregateOutputType = {
   duration: number | null
   totalMarks: number | null
+  expectedQuestionCount: number | null
+  authoritativeQuestionCount: number | null
+  expectedTotalMarks: number | null
 }
 
 export type TestMinAggregateOutputType = {
@@ -47,12 +53,20 @@ export type TestMinAggregateOutputType = {
   batchId: string | null
   teacherId: string | null
   publishAt: Date | null
+  publishedAt: Date | null
+  releasedById: string | null
   status: string | null
+  lifecycle: string | null
+  examStartsAt: Date | null
+  examEndsAt: Date | null
   reviewedAt: Date | null
   approvedAt: Date | null
   approvedById: string | null
   duration: number | null
   totalMarks: number | null
+  expectedQuestionCount: number | null
+  authoritativeQuestionCount: number | null
+  expectedTotalMarks: number | null
   isMockTest: boolean | null
   isLive: boolean | null
   createdAt: Date | null
@@ -69,12 +83,20 @@ export type TestMaxAggregateOutputType = {
   batchId: string | null
   teacherId: string | null
   publishAt: Date | null
+  publishedAt: Date | null
+  releasedById: string | null
   status: string | null
+  lifecycle: string | null
+  examStartsAt: Date | null
+  examEndsAt: Date | null
   reviewedAt: Date | null
   approvedAt: Date | null
   approvedById: string | null
   duration: number | null
   totalMarks: number | null
+  expectedQuestionCount: number | null
+  authoritativeQuestionCount: number | null
+  expectedTotalMarks: number | null
   isMockTest: boolean | null
   isLive: boolean | null
   createdAt: Date | null
@@ -91,12 +113,20 @@ export type TestCountAggregateOutputType = {
   batchId: number
   teacherId: number
   publishAt: number
+  publishedAt: number
+  releasedById: number
   status: number
+  lifecycle: number
+  examStartsAt: number
+  examEndsAt: number
   reviewedAt: number
   approvedAt: number
   approvedById: number
   duration: number
   totalMarks: number
+  expectedQuestionCount: number
+  authoritativeQuestionCount: number
+  expectedTotalMarks: number
   isMockTest: number
   isLive: number
   createdAt: number
@@ -107,11 +137,17 @@ export type TestCountAggregateOutputType = {
 export type TestAvgAggregateInputType = {
   duration?: true
   totalMarks?: true
+  expectedQuestionCount?: true
+  authoritativeQuestionCount?: true
+  expectedTotalMarks?: true
 }
 
 export type TestSumAggregateInputType = {
   duration?: true
   totalMarks?: true
+  expectedQuestionCount?: true
+  authoritativeQuestionCount?: true
+  expectedTotalMarks?: true
 }
 
 export type TestMinAggregateInputType = {
@@ -125,12 +161,20 @@ export type TestMinAggregateInputType = {
   batchId?: true
   teacherId?: true
   publishAt?: true
+  publishedAt?: true
+  releasedById?: true
   status?: true
+  lifecycle?: true
+  examStartsAt?: true
+  examEndsAt?: true
   reviewedAt?: true
   approvedAt?: true
   approvedById?: true
   duration?: true
   totalMarks?: true
+  expectedQuestionCount?: true
+  authoritativeQuestionCount?: true
+  expectedTotalMarks?: true
   isMockTest?: true
   isLive?: true
   createdAt?: true
@@ -147,12 +191,20 @@ export type TestMaxAggregateInputType = {
   batchId?: true
   teacherId?: true
   publishAt?: true
+  publishedAt?: true
+  releasedById?: true
   status?: true
+  lifecycle?: true
+  examStartsAt?: true
+  examEndsAt?: true
   reviewedAt?: true
   approvedAt?: true
   approvedById?: true
   duration?: true
   totalMarks?: true
+  expectedQuestionCount?: true
+  authoritativeQuestionCount?: true
+  expectedTotalMarks?: true
   isMockTest?: true
   isLive?: true
   createdAt?: true
@@ -169,12 +221,20 @@ export type TestCountAggregateInputType = {
   batchId?: true
   teacherId?: true
   publishAt?: true
+  publishedAt?: true
+  releasedById?: true
   status?: true
+  lifecycle?: true
+  examStartsAt?: true
+  examEndsAt?: true
   reviewedAt?: true
   approvedAt?: true
   approvedById?: true
   duration?: true
   totalMarks?: true
+  expectedQuestionCount?: true
+  authoritativeQuestionCount?: true
+  expectedTotalMarks?: true
   isMockTest?: true
   isLive?: true
   createdAt?: true
@@ -278,12 +338,20 @@ export type TestGroupByOutputType = {
   batchId: string | null
   teacherId: string | null
   publishAt: Date | null
+  publishedAt: Date | null
+  releasedById: string | null
   status: string
+  lifecycle: string
+  examStartsAt: Date | null
+  examEndsAt: Date | null
   reviewedAt: Date | null
   approvedAt: Date | null
   approvedById: string | null
   duration: number
   totalMarks: number
+  expectedQuestionCount: number | null
+  authoritativeQuestionCount: number | null
+  expectedTotalMarks: number | null
   isMockTest: boolean
   isLive: boolean
   createdAt: Date
@@ -323,12 +391,20 @@ export type TestWhereInput = {
   batchId?: Prisma.StringNullableFilter<"Test"> | string | null
   teacherId?: Prisma.StringNullableFilter<"Test"> | string | null
   publishAt?: Prisma.DateTimeNullableFilter<"Test"> | Date | string | null
+  publishedAt?: Prisma.DateTimeNullableFilter<"Test"> | Date | string | null
+  releasedById?: Prisma.StringNullableFilter<"Test"> | string | null
   status?: Prisma.StringFilter<"Test"> | string
+  lifecycle?: Prisma.StringFilter<"Test"> | string
+  examStartsAt?: Prisma.DateTimeNullableFilter<"Test"> | Date | string | null
+  examEndsAt?: Prisma.DateTimeNullableFilter<"Test"> | Date | string | null
   reviewedAt?: Prisma.DateTimeNullableFilter<"Test"> | Date | string | null
   approvedAt?: Prisma.DateTimeNullableFilter<"Test"> | Date | string | null
   approvedById?: Prisma.StringNullableFilter<"Test"> | string | null
   duration?: Prisma.IntFilter<"Test"> | number
   totalMarks?: Prisma.FloatFilter<"Test"> | number
+  expectedQuestionCount?: Prisma.IntNullableFilter<"Test"> | number | null
+  authoritativeQuestionCount?: Prisma.IntNullableFilter<"Test"> | number | null
+  expectedTotalMarks?: Prisma.FloatNullableFilter<"Test"> | number | null
   isMockTest?: Prisma.BoolFilter<"Test"> | boolean
   isLive?: Prisma.BoolFilter<"Test"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Test"> | Date | string
@@ -351,12 +427,20 @@ export type TestOrderByWithRelationInput = {
   batchId?: Prisma.SortOrderInput | Prisma.SortOrder
   teacherId?: Prisma.SortOrderInput | Prisma.SortOrder
   publishAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  publishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  releasedById?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
+  lifecycle?: Prisma.SortOrder
+  examStartsAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  examEndsAt?: Prisma.SortOrderInput | Prisma.SortOrder
   reviewedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   approvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   approvedById?: Prisma.SortOrderInput | Prisma.SortOrder
   duration?: Prisma.SortOrder
   totalMarks?: Prisma.SortOrder
+  expectedQuestionCount?: Prisma.SortOrderInput | Prisma.SortOrder
+  authoritativeQuestionCount?: Prisma.SortOrderInput | Prisma.SortOrder
+  expectedTotalMarks?: Prisma.SortOrderInput | Prisma.SortOrder
   isMockTest?: Prisma.SortOrder
   isLive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -382,12 +466,20 @@ export type TestWhereUniqueInput = Prisma.AtLeast<{
   batchId?: Prisma.StringNullableFilter<"Test"> | string | null
   teacherId?: Prisma.StringNullableFilter<"Test"> | string | null
   publishAt?: Prisma.DateTimeNullableFilter<"Test"> | Date | string | null
+  publishedAt?: Prisma.DateTimeNullableFilter<"Test"> | Date | string | null
+  releasedById?: Prisma.StringNullableFilter<"Test"> | string | null
   status?: Prisma.StringFilter<"Test"> | string
+  lifecycle?: Prisma.StringFilter<"Test"> | string
+  examStartsAt?: Prisma.DateTimeNullableFilter<"Test"> | Date | string | null
+  examEndsAt?: Prisma.DateTimeNullableFilter<"Test"> | Date | string | null
   reviewedAt?: Prisma.DateTimeNullableFilter<"Test"> | Date | string | null
   approvedAt?: Prisma.DateTimeNullableFilter<"Test"> | Date | string | null
   approvedById?: Prisma.StringNullableFilter<"Test"> | string | null
   duration?: Prisma.IntFilter<"Test"> | number
   totalMarks?: Prisma.FloatFilter<"Test"> | number
+  expectedQuestionCount?: Prisma.IntNullableFilter<"Test"> | number | null
+  authoritativeQuestionCount?: Prisma.IntNullableFilter<"Test"> | number | null
+  expectedTotalMarks?: Prisma.FloatNullableFilter<"Test"> | number | null
   isMockTest?: Prisma.BoolFilter<"Test"> | boolean
   isLive?: Prisma.BoolFilter<"Test"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Test"> | Date | string
@@ -410,12 +502,20 @@ export type TestOrderByWithAggregationInput = {
   batchId?: Prisma.SortOrderInput | Prisma.SortOrder
   teacherId?: Prisma.SortOrderInput | Prisma.SortOrder
   publishAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  publishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  releasedById?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
+  lifecycle?: Prisma.SortOrder
+  examStartsAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  examEndsAt?: Prisma.SortOrderInput | Prisma.SortOrder
   reviewedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   approvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   approvedById?: Prisma.SortOrderInput | Prisma.SortOrder
   duration?: Prisma.SortOrder
   totalMarks?: Prisma.SortOrder
+  expectedQuestionCount?: Prisma.SortOrderInput | Prisma.SortOrder
+  authoritativeQuestionCount?: Prisma.SortOrderInput | Prisma.SortOrder
+  expectedTotalMarks?: Prisma.SortOrderInput | Prisma.SortOrder
   isMockTest?: Prisma.SortOrder
   isLive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -440,12 +540,20 @@ export type TestScalarWhereWithAggregatesInput = {
   batchId?: Prisma.StringNullableWithAggregatesFilter<"Test"> | string | null
   teacherId?: Prisma.StringNullableWithAggregatesFilter<"Test"> | string | null
   publishAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Test"> | Date | string | null
+  publishedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Test"> | Date | string | null
+  releasedById?: Prisma.StringNullableWithAggregatesFilter<"Test"> | string | null
   status?: Prisma.StringWithAggregatesFilter<"Test"> | string
+  lifecycle?: Prisma.StringWithAggregatesFilter<"Test"> | string
+  examStartsAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Test"> | Date | string | null
+  examEndsAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Test"> | Date | string | null
   reviewedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Test"> | Date | string | null
   approvedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Test"> | Date | string | null
   approvedById?: Prisma.StringNullableWithAggregatesFilter<"Test"> | string | null
   duration?: Prisma.IntWithAggregatesFilter<"Test"> | number
   totalMarks?: Prisma.FloatWithAggregatesFilter<"Test"> | number
+  expectedQuestionCount?: Prisma.IntNullableWithAggregatesFilter<"Test"> | number | null
+  authoritativeQuestionCount?: Prisma.IntNullableWithAggregatesFilter<"Test"> | number | null
+  expectedTotalMarks?: Prisma.FloatNullableWithAggregatesFilter<"Test"> | number | null
   isMockTest?: Prisma.BoolWithAggregatesFilter<"Test"> | boolean
   isLive?: Prisma.BoolWithAggregatesFilter<"Test"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Test"> | Date | string
@@ -460,11 +568,19 @@ export type TestCreateInput = {
   subject?: string | null
   topic?: string | null
   publishAt?: Date | string | null
+  publishedAt?: Date | string | null
+  releasedById?: string | null
   status?: string
+  lifecycle?: string
+  examStartsAt?: Date | string | null
+  examEndsAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
   duration: number
   totalMarks: number
+  expectedQuestionCount?: number | null
+  authoritativeQuestionCount?: number | null
+  expectedTotalMarks?: number | null
   isMockTest?: boolean
   isLive?: boolean
   createdAt?: Date | string
@@ -487,12 +603,20 @@ export type TestUncheckedCreateInput = {
   batchId?: string | null
   teacherId?: string | null
   publishAt?: Date | string | null
+  publishedAt?: Date | string | null
+  releasedById?: string | null
   status?: string
+  lifecycle?: string
+  examStartsAt?: Date | string | null
+  examEndsAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
   approvedById?: string | null
   duration: number
   totalMarks: number
+  expectedQuestionCount?: number | null
+  authoritativeQuestionCount?: number | null
+  expectedTotalMarks?: number | null
   isMockTest?: boolean
   isLive?: boolean
   createdAt?: Date | string
@@ -510,11 +634,19 @@ export type TestUpdateInput = {
   subject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  releasedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  lifecycle?: Prisma.StringFieldUpdateOperationsInput | string
+  examStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  examEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   totalMarks?: Prisma.FloatFieldUpdateOperationsInput | number
+  expectedQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authoritativeQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  expectedTotalMarks?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isMockTest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isLive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -537,12 +669,20 @@ export type TestUncheckedUpdateInput = {
   batchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teacherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  releasedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  lifecycle?: Prisma.StringFieldUpdateOperationsInput | string
+  examStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  examEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   totalMarks?: Prisma.FloatFieldUpdateOperationsInput | number
+  expectedQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authoritativeQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  expectedTotalMarks?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isMockTest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isLive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -562,12 +702,20 @@ export type TestCreateManyInput = {
   batchId?: string | null
   teacherId?: string | null
   publishAt?: Date | string | null
+  publishedAt?: Date | string | null
+  releasedById?: string | null
   status?: string
+  lifecycle?: string
+  examStartsAt?: Date | string | null
+  examEndsAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
   approvedById?: string | null
   duration: number
   totalMarks: number
+  expectedQuestionCount?: number | null
+  authoritativeQuestionCount?: number | null
+  expectedTotalMarks?: number | null
   isMockTest?: boolean
   isLive?: boolean
   createdAt?: Date | string
@@ -582,11 +730,19 @@ export type TestUpdateManyMutationInput = {
   subject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  releasedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  lifecycle?: Prisma.StringFieldUpdateOperationsInput | string
+  examStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  examEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   totalMarks?: Prisma.FloatFieldUpdateOperationsInput | number
+  expectedQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authoritativeQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  expectedTotalMarks?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isMockTest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isLive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -603,12 +759,20 @@ export type TestUncheckedUpdateManyInput = {
   batchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teacherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  releasedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  lifecycle?: Prisma.StringFieldUpdateOperationsInput | string
+  examStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  examEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   totalMarks?: Prisma.FloatFieldUpdateOperationsInput | number
+  expectedQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authoritativeQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  expectedTotalMarks?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isMockTest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isLive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -635,12 +799,20 @@ export type TestCountOrderByAggregateInput = {
   batchId?: Prisma.SortOrder
   teacherId?: Prisma.SortOrder
   publishAt?: Prisma.SortOrder
+  publishedAt?: Prisma.SortOrder
+  releasedById?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  lifecycle?: Prisma.SortOrder
+  examStartsAt?: Prisma.SortOrder
+  examEndsAt?: Prisma.SortOrder
   reviewedAt?: Prisma.SortOrder
   approvedAt?: Prisma.SortOrder
   approvedById?: Prisma.SortOrder
   duration?: Prisma.SortOrder
   totalMarks?: Prisma.SortOrder
+  expectedQuestionCount?: Prisma.SortOrder
+  authoritativeQuestionCount?: Prisma.SortOrder
+  expectedTotalMarks?: Prisma.SortOrder
   isMockTest?: Prisma.SortOrder
   isLive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -649,6 +821,9 @@ export type TestCountOrderByAggregateInput = {
 export type TestAvgOrderByAggregateInput = {
   duration?: Prisma.SortOrder
   totalMarks?: Prisma.SortOrder
+  expectedQuestionCount?: Prisma.SortOrder
+  authoritativeQuestionCount?: Prisma.SortOrder
+  expectedTotalMarks?: Prisma.SortOrder
 }
 
 export type TestMaxOrderByAggregateInput = {
@@ -662,12 +837,20 @@ export type TestMaxOrderByAggregateInput = {
   batchId?: Prisma.SortOrder
   teacherId?: Prisma.SortOrder
   publishAt?: Prisma.SortOrder
+  publishedAt?: Prisma.SortOrder
+  releasedById?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  lifecycle?: Prisma.SortOrder
+  examStartsAt?: Prisma.SortOrder
+  examEndsAt?: Prisma.SortOrder
   reviewedAt?: Prisma.SortOrder
   approvedAt?: Prisma.SortOrder
   approvedById?: Prisma.SortOrder
   duration?: Prisma.SortOrder
   totalMarks?: Prisma.SortOrder
+  expectedQuestionCount?: Prisma.SortOrder
+  authoritativeQuestionCount?: Prisma.SortOrder
+  expectedTotalMarks?: Prisma.SortOrder
   isMockTest?: Prisma.SortOrder
   isLive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -684,12 +867,20 @@ export type TestMinOrderByAggregateInput = {
   batchId?: Prisma.SortOrder
   teacherId?: Prisma.SortOrder
   publishAt?: Prisma.SortOrder
+  publishedAt?: Prisma.SortOrder
+  releasedById?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  lifecycle?: Prisma.SortOrder
+  examStartsAt?: Prisma.SortOrder
+  examEndsAt?: Prisma.SortOrder
   reviewedAt?: Prisma.SortOrder
   approvedAt?: Prisma.SortOrder
   approvedById?: Prisma.SortOrder
   duration?: Prisma.SortOrder
   totalMarks?: Prisma.SortOrder
+  expectedQuestionCount?: Prisma.SortOrder
+  authoritativeQuestionCount?: Prisma.SortOrder
+  expectedTotalMarks?: Prisma.SortOrder
   isMockTest?: Prisma.SortOrder
   isLive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -698,6 +889,9 @@ export type TestMinOrderByAggregateInput = {
 export type TestSumOrderByAggregateInput = {
   duration?: Prisma.SortOrder
   totalMarks?: Prisma.SortOrder
+  expectedQuestionCount?: Prisma.SortOrder
+  authoritativeQuestionCount?: Prisma.SortOrder
+  expectedTotalMarks?: Prisma.SortOrder
 }
 
 export type TestScalarRelationFilter = {
@@ -831,6 +1025,22 @@ export type TestUncheckedUpdateManyWithoutBatchNestedInput = {
   deleteMany?: Prisma.TestScalarWhereInput | Prisma.TestScalarWhereInput[]
 }
 
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
+export type NullableFloatFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
 export type TestCreateNestedOneWithoutQuestionsInput = {
   create?: Prisma.XOR<Prisma.TestCreateWithoutQuestionsInput, Prisma.TestUncheckedCreateWithoutQuestionsInput>
   connectOrCreate?: Prisma.TestCreateOrConnectWithoutQuestionsInput
@@ -882,11 +1092,19 @@ export type TestCreateWithoutTeacherInput = {
   subject?: string | null
   topic?: string | null
   publishAt?: Date | string | null
+  publishedAt?: Date | string | null
+  releasedById?: string | null
   status?: string
+  lifecycle?: string
+  examStartsAt?: Date | string | null
+  examEndsAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
   duration: number
   totalMarks: number
+  expectedQuestionCount?: number | null
+  authoritativeQuestionCount?: number | null
+  expectedTotalMarks?: number | null
   isMockTest?: boolean
   isLive?: boolean
   createdAt?: Date | string
@@ -907,12 +1125,20 @@ export type TestUncheckedCreateWithoutTeacherInput = {
   topic?: string | null
   batchId?: string | null
   publishAt?: Date | string | null
+  publishedAt?: Date | string | null
+  releasedById?: string | null
   status?: string
+  lifecycle?: string
+  examStartsAt?: Date | string | null
+  examEndsAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
   approvedById?: string | null
   duration: number
   totalMarks: number
+  expectedQuestionCount?: number | null
+  authoritativeQuestionCount?: number | null
+  expectedTotalMarks?: number | null
   isMockTest?: boolean
   isLive?: boolean
   createdAt?: Date | string
@@ -940,11 +1166,19 @@ export type TestCreateWithoutApprovedByInput = {
   subject?: string | null
   topic?: string | null
   publishAt?: Date | string | null
+  publishedAt?: Date | string | null
+  releasedById?: string | null
   status?: string
+  lifecycle?: string
+  examStartsAt?: Date | string | null
+  examEndsAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
   duration: number
   totalMarks: number
+  expectedQuestionCount?: number | null
+  authoritativeQuestionCount?: number | null
+  expectedTotalMarks?: number | null
   isMockTest?: boolean
   isLive?: boolean
   createdAt?: Date | string
@@ -966,11 +1200,19 @@ export type TestUncheckedCreateWithoutApprovedByInput = {
   batchId?: string | null
   teacherId?: string | null
   publishAt?: Date | string | null
+  publishedAt?: Date | string | null
+  releasedById?: string | null
   status?: string
+  lifecycle?: string
+  examStartsAt?: Date | string | null
+  examEndsAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
   duration: number
   totalMarks: number
+  expectedQuestionCount?: number | null
+  authoritativeQuestionCount?: number | null
+  expectedTotalMarks?: number | null
   isMockTest?: boolean
   isLive?: boolean
   createdAt?: Date | string
@@ -1019,12 +1261,20 @@ export type TestScalarWhereInput = {
   batchId?: Prisma.StringNullableFilter<"Test"> | string | null
   teacherId?: Prisma.StringNullableFilter<"Test"> | string | null
   publishAt?: Prisma.DateTimeNullableFilter<"Test"> | Date | string | null
+  publishedAt?: Prisma.DateTimeNullableFilter<"Test"> | Date | string | null
+  releasedById?: Prisma.StringNullableFilter<"Test"> | string | null
   status?: Prisma.StringFilter<"Test"> | string
+  lifecycle?: Prisma.StringFilter<"Test"> | string
+  examStartsAt?: Prisma.DateTimeNullableFilter<"Test"> | Date | string | null
+  examEndsAt?: Prisma.DateTimeNullableFilter<"Test"> | Date | string | null
   reviewedAt?: Prisma.DateTimeNullableFilter<"Test"> | Date | string | null
   approvedAt?: Prisma.DateTimeNullableFilter<"Test"> | Date | string | null
   approvedById?: Prisma.StringNullableFilter<"Test"> | string | null
   duration?: Prisma.IntFilter<"Test"> | number
   totalMarks?: Prisma.FloatFilter<"Test"> | number
+  expectedQuestionCount?: Prisma.IntNullableFilter<"Test"> | number | null
+  authoritativeQuestionCount?: Prisma.IntNullableFilter<"Test"> | number | null
+  expectedTotalMarks?: Prisma.FloatNullableFilter<"Test"> | number | null
   isMockTest?: Prisma.BoolFilter<"Test"> | boolean
   isLive?: Prisma.BoolFilter<"Test"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Test"> | Date | string
@@ -1055,11 +1305,19 @@ export type TestCreateWithoutBatchInput = {
   subject?: string | null
   topic?: string | null
   publishAt?: Date | string | null
+  publishedAt?: Date | string | null
+  releasedById?: string | null
   status?: string
+  lifecycle?: string
+  examStartsAt?: Date | string | null
+  examEndsAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
   duration: number
   totalMarks: number
+  expectedQuestionCount?: number | null
+  authoritativeQuestionCount?: number | null
+  expectedTotalMarks?: number | null
   isMockTest?: boolean
   isLive?: boolean
   createdAt?: Date | string
@@ -1080,12 +1338,20 @@ export type TestUncheckedCreateWithoutBatchInput = {
   topic?: string | null
   teacherId?: string | null
   publishAt?: Date | string | null
+  publishedAt?: Date | string | null
+  releasedById?: string | null
   status?: string
+  lifecycle?: string
+  examStartsAt?: Date | string | null
+  examEndsAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
   approvedById?: string | null
   duration: number
   totalMarks: number
+  expectedQuestionCount?: number | null
+  authoritativeQuestionCount?: number | null
+  expectedTotalMarks?: number | null
   isMockTest?: boolean
   isLive?: boolean
   createdAt?: Date | string
@@ -1129,11 +1395,19 @@ export type TestCreateWithoutQuestionsInput = {
   subject?: string | null
   topic?: string | null
   publishAt?: Date | string | null
+  publishedAt?: Date | string | null
+  releasedById?: string | null
   status?: string
+  lifecycle?: string
+  examStartsAt?: Date | string | null
+  examEndsAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
   duration: number
   totalMarks: number
+  expectedQuestionCount?: number | null
+  authoritativeQuestionCount?: number | null
+  expectedTotalMarks?: number | null
   isMockTest?: boolean
   isLive?: boolean
   createdAt?: Date | string
@@ -1155,12 +1429,20 @@ export type TestUncheckedCreateWithoutQuestionsInput = {
   batchId?: string | null
   teacherId?: string | null
   publishAt?: Date | string | null
+  publishedAt?: Date | string | null
+  releasedById?: string | null
   status?: string
+  lifecycle?: string
+  examStartsAt?: Date | string | null
+  examEndsAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
   approvedById?: string | null
   duration: number
   totalMarks: number
+  expectedQuestionCount?: number | null
+  authoritativeQuestionCount?: number | null
+  expectedTotalMarks?: number | null
   isMockTest?: boolean
   isLive?: boolean
   createdAt?: Date | string
@@ -1193,11 +1475,19 @@ export type TestUpdateWithoutQuestionsInput = {
   subject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  releasedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  lifecycle?: Prisma.StringFieldUpdateOperationsInput | string
+  examStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  examEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   totalMarks?: Prisma.FloatFieldUpdateOperationsInput | number
+  expectedQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authoritativeQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  expectedTotalMarks?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isMockTest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isLive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1219,12 +1509,20 @@ export type TestUncheckedUpdateWithoutQuestionsInput = {
   batchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teacherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  releasedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  lifecycle?: Prisma.StringFieldUpdateOperationsInput | string
+  examStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  examEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   totalMarks?: Prisma.FloatFieldUpdateOperationsInput | number
+  expectedQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authoritativeQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  expectedTotalMarks?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isMockTest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isLive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1241,11 +1539,19 @@ export type TestCreateWithoutQuestionVersionsInput = {
   subject?: string | null
   topic?: string | null
   publishAt?: Date | string | null
+  publishedAt?: Date | string | null
+  releasedById?: string | null
   status?: string
+  lifecycle?: string
+  examStartsAt?: Date | string | null
+  examEndsAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
   duration: number
   totalMarks: number
+  expectedQuestionCount?: number | null
+  authoritativeQuestionCount?: number | null
+  expectedTotalMarks?: number | null
   isMockTest?: boolean
   isLive?: boolean
   createdAt?: Date | string
@@ -1267,12 +1573,20 @@ export type TestUncheckedCreateWithoutQuestionVersionsInput = {
   batchId?: string | null
   teacherId?: string | null
   publishAt?: Date | string | null
+  publishedAt?: Date | string | null
+  releasedById?: string | null
   status?: string
+  lifecycle?: string
+  examStartsAt?: Date | string | null
+  examEndsAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
   approvedById?: string | null
   duration: number
   totalMarks: number
+  expectedQuestionCount?: number | null
+  authoritativeQuestionCount?: number | null
+  expectedTotalMarks?: number | null
   isMockTest?: boolean
   isLive?: boolean
   createdAt?: Date | string
@@ -1305,11 +1619,19 @@ export type TestUpdateWithoutQuestionVersionsInput = {
   subject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  releasedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  lifecycle?: Prisma.StringFieldUpdateOperationsInput | string
+  examStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  examEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   totalMarks?: Prisma.FloatFieldUpdateOperationsInput | number
+  expectedQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authoritativeQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  expectedTotalMarks?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isMockTest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isLive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1331,12 +1653,20 @@ export type TestUncheckedUpdateWithoutQuestionVersionsInput = {
   batchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teacherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  releasedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  lifecycle?: Prisma.StringFieldUpdateOperationsInput | string
+  examStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  examEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   totalMarks?: Prisma.FloatFieldUpdateOperationsInput | number
+  expectedQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authoritativeQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  expectedTotalMarks?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isMockTest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isLive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1353,11 +1683,19 @@ export type TestCreateWithoutAttemptsInput = {
   subject?: string | null
   topic?: string | null
   publishAt?: Date | string | null
+  publishedAt?: Date | string | null
+  releasedById?: string | null
   status?: string
+  lifecycle?: string
+  examStartsAt?: Date | string | null
+  examEndsAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
   duration: number
   totalMarks: number
+  expectedQuestionCount?: number | null
+  authoritativeQuestionCount?: number | null
+  expectedTotalMarks?: number | null
   isMockTest?: boolean
   isLive?: boolean
   createdAt?: Date | string
@@ -1379,12 +1717,20 @@ export type TestUncheckedCreateWithoutAttemptsInput = {
   batchId?: string | null
   teacherId?: string | null
   publishAt?: Date | string | null
+  publishedAt?: Date | string | null
+  releasedById?: string | null
   status?: string
+  lifecycle?: string
+  examStartsAt?: Date | string | null
+  examEndsAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
   approvedById?: string | null
   duration: number
   totalMarks: number
+  expectedQuestionCount?: number | null
+  authoritativeQuestionCount?: number | null
+  expectedTotalMarks?: number | null
   isMockTest?: boolean
   isLive?: boolean
   createdAt?: Date | string
@@ -1417,11 +1763,19 @@ export type TestUpdateWithoutAttemptsInput = {
   subject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  releasedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  lifecycle?: Prisma.StringFieldUpdateOperationsInput | string
+  examStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  examEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   totalMarks?: Prisma.FloatFieldUpdateOperationsInput | number
+  expectedQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authoritativeQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  expectedTotalMarks?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isMockTest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isLive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1443,12 +1797,20 @@ export type TestUncheckedUpdateWithoutAttemptsInput = {
   batchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teacherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  releasedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  lifecycle?: Prisma.StringFieldUpdateOperationsInput | string
+  examStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  examEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   totalMarks?: Prisma.FloatFieldUpdateOperationsInput | number
+  expectedQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authoritativeQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  expectedTotalMarks?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isMockTest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isLive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1466,12 +1828,20 @@ export type TestCreateManyTeacherInput = {
   topic?: string | null
   batchId?: string | null
   publishAt?: Date | string | null
+  publishedAt?: Date | string | null
+  releasedById?: string | null
   status?: string
+  lifecycle?: string
+  examStartsAt?: Date | string | null
+  examEndsAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
   approvedById?: string | null
   duration: number
   totalMarks: number
+  expectedQuestionCount?: number | null
+  authoritativeQuestionCount?: number | null
+  expectedTotalMarks?: number | null
   isMockTest?: boolean
   isLive?: boolean
   createdAt?: Date | string
@@ -1488,11 +1858,19 @@ export type TestCreateManyApprovedByInput = {
   batchId?: string | null
   teacherId?: string | null
   publishAt?: Date | string | null
+  publishedAt?: Date | string | null
+  releasedById?: string | null
   status?: string
+  lifecycle?: string
+  examStartsAt?: Date | string | null
+  examEndsAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
   duration: number
   totalMarks: number
+  expectedQuestionCount?: number | null
+  authoritativeQuestionCount?: number | null
+  expectedTotalMarks?: number | null
   isMockTest?: boolean
   isLive?: boolean
   createdAt?: Date | string
@@ -1507,11 +1885,19 @@ export type TestUpdateWithoutTeacherInput = {
   subject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  releasedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  lifecycle?: Prisma.StringFieldUpdateOperationsInput | string
+  examStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  examEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   totalMarks?: Prisma.FloatFieldUpdateOperationsInput | number
+  expectedQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authoritativeQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  expectedTotalMarks?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isMockTest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isLive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1532,12 +1918,20 @@ export type TestUncheckedUpdateWithoutTeacherInput = {
   topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   batchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  releasedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  lifecycle?: Prisma.StringFieldUpdateOperationsInput | string
+  examStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  examEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   totalMarks?: Prisma.FloatFieldUpdateOperationsInput | number
+  expectedQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authoritativeQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  expectedTotalMarks?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isMockTest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isLive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1556,12 +1950,20 @@ export type TestUncheckedUpdateManyWithoutTeacherInput = {
   topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   batchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  releasedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  lifecycle?: Prisma.StringFieldUpdateOperationsInput | string
+  examStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  examEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   totalMarks?: Prisma.FloatFieldUpdateOperationsInput | number
+  expectedQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authoritativeQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  expectedTotalMarks?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isMockTest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isLive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1576,11 +1978,19 @@ export type TestUpdateWithoutApprovedByInput = {
   subject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  releasedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  lifecycle?: Prisma.StringFieldUpdateOperationsInput | string
+  examStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  examEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   totalMarks?: Prisma.FloatFieldUpdateOperationsInput | number
+  expectedQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authoritativeQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  expectedTotalMarks?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isMockTest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isLive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1602,11 +2012,19 @@ export type TestUncheckedUpdateWithoutApprovedByInput = {
   batchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teacherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  releasedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  lifecycle?: Prisma.StringFieldUpdateOperationsInput | string
+  examStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  examEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   totalMarks?: Prisma.FloatFieldUpdateOperationsInput | number
+  expectedQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authoritativeQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  expectedTotalMarks?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isMockTest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isLive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1626,11 +2044,19 @@ export type TestUncheckedUpdateManyWithoutApprovedByInput = {
   batchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teacherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  releasedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  lifecycle?: Prisma.StringFieldUpdateOperationsInput | string
+  examStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  examEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   totalMarks?: Prisma.FloatFieldUpdateOperationsInput | number
+  expectedQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authoritativeQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  expectedTotalMarks?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isMockTest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isLive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1646,12 +2072,20 @@ export type TestCreateManyBatchInput = {
   topic?: string | null
   teacherId?: string | null
   publishAt?: Date | string | null
+  publishedAt?: Date | string | null
+  releasedById?: string | null
   status?: string
+  lifecycle?: string
+  examStartsAt?: Date | string | null
+  examEndsAt?: Date | string | null
   reviewedAt?: Date | string | null
   approvedAt?: Date | string | null
   approvedById?: string | null
   duration: number
   totalMarks: number
+  expectedQuestionCount?: number | null
+  authoritativeQuestionCount?: number | null
+  expectedTotalMarks?: number | null
   isMockTest?: boolean
   isLive?: boolean
   createdAt?: Date | string
@@ -1666,11 +2100,19 @@ export type TestUpdateWithoutBatchInput = {
   subject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  releasedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  lifecycle?: Prisma.StringFieldUpdateOperationsInput | string
+  examStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  examEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   totalMarks?: Prisma.FloatFieldUpdateOperationsInput | number
+  expectedQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authoritativeQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  expectedTotalMarks?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isMockTest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isLive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1691,12 +2133,20 @@ export type TestUncheckedUpdateWithoutBatchInput = {
   topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teacherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  releasedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  lifecycle?: Prisma.StringFieldUpdateOperationsInput | string
+  examStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  examEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   totalMarks?: Prisma.FloatFieldUpdateOperationsInput | number
+  expectedQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authoritativeQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  expectedTotalMarks?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isMockTest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isLive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1715,12 +2165,20 @@ export type TestUncheckedUpdateManyWithoutBatchInput = {
   topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teacherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  releasedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  lifecycle?: Prisma.StringFieldUpdateOperationsInput | string
+  examStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  examEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   totalMarks?: Prisma.FloatFieldUpdateOperationsInput | number
+  expectedQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authoritativeQuestionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  expectedTotalMarks?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isMockTest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isLive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1786,12 +2244,20 @@ export type TestSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   batchId?: boolean
   teacherId?: boolean
   publishAt?: boolean
+  publishedAt?: boolean
+  releasedById?: boolean
   status?: boolean
+  lifecycle?: boolean
+  examStartsAt?: boolean
+  examEndsAt?: boolean
   reviewedAt?: boolean
   approvedAt?: boolean
   approvedById?: boolean
   duration?: boolean
   totalMarks?: boolean
+  expectedQuestionCount?: boolean
+  authoritativeQuestionCount?: boolean
+  expectedTotalMarks?: boolean
   isMockTest?: boolean
   isLive?: boolean
   createdAt?: boolean
@@ -1815,12 +2281,20 @@ export type TestSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   batchId?: boolean
   teacherId?: boolean
   publishAt?: boolean
+  publishedAt?: boolean
+  releasedById?: boolean
   status?: boolean
+  lifecycle?: boolean
+  examStartsAt?: boolean
+  examEndsAt?: boolean
   reviewedAt?: boolean
   approvedAt?: boolean
   approvedById?: boolean
   duration?: boolean
   totalMarks?: boolean
+  expectedQuestionCount?: boolean
+  authoritativeQuestionCount?: boolean
+  expectedTotalMarks?: boolean
   isMockTest?: boolean
   isLive?: boolean
   createdAt?: boolean
@@ -1840,12 +2314,20 @@ export type TestSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   batchId?: boolean
   teacherId?: boolean
   publishAt?: boolean
+  publishedAt?: boolean
+  releasedById?: boolean
   status?: boolean
+  lifecycle?: boolean
+  examStartsAt?: boolean
+  examEndsAt?: boolean
   reviewedAt?: boolean
   approvedAt?: boolean
   approvedById?: boolean
   duration?: boolean
   totalMarks?: boolean
+  expectedQuestionCount?: boolean
+  authoritativeQuestionCount?: boolean
+  expectedTotalMarks?: boolean
   isMockTest?: boolean
   isLive?: boolean
   createdAt?: boolean
@@ -1865,18 +2347,26 @@ export type TestSelectScalar = {
   batchId?: boolean
   teacherId?: boolean
   publishAt?: boolean
+  publishedAt?: boolean
+  releasedById?: boolean
   status?: boolean
+  lifecycle?: boolean
+  examStartsAt?: boolean
+  examEndsAt?: boolean
   reviewedAt?: boolean
   approvedAt?: boolean
   approvedById?: boolean
   duration?: boolean
   totalMarks?: boolean
+  expectedQuestionCount?: boolean
+  authoritativeQuestionCount?: boolean
+  expectedTotalMarks?: boolean
   isMockTest?: boolean
   isLive?: boolean
   createdAt?: boolean
 }
 
-export type TestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "examType" | "category" | "subject" | "topic" | "batchId" | "teacherId" | "publishAt" | "status" | "reviewedAt" | "approvedAt" | "approvedById" | "duration" | "totalMarks" | "isMockTest" | "isLive" | "createdAt", ExtArgs["result"]["test"]>
+export type TestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "examType" | "category" | "subject" | "topic" | "batchId" | "teacherId" | "publishAt" | "publishedAt" | "releasedById" | "status" | "lifecycle" | "examStartsAt" | "examEndsAt" | "reviewedAt" | "approvedAt" | "approvedById" | "duration" | "totalMarks" | "expectedQuestionCount" | "authoritativeQuestionCount" | "expectedTotalMarks" | "isMockTest" | "isLive" | "createdAt", ExtArgs["result"]["test"]>
 export type TestInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   batch?: boolean | Prisma.Test$batchArgs<ExtArgs>
   teacher?: boolean | Prisma.Test$teacherArgs<ExtArgs>
@@ -1918,12 +2408,20 @@ export type $TestPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     batchId: string | null
     teacherId: string | null
     publishAt: Date | null
+    publishedAt: Date | null
+    releasedById: string | null
     status: string
+    lifecycle: string
+    examStartsAt: Date | null
+    examEndsAt: Date | null
     reviewedAt: Date | null
     approvedAt: Date | null
     approvedById: string | null
     duration: number
     totalMarks: number
+    expectedQuestionCount: number | null
+    authoritativeQuestionCount: number | null
+    expectedTotalMarks: number | null
     isMockTest: boolean
     isLive: boolean
     createdAt: Date
@@ -2366,12 +2864,20 @@ export interface TestFieldRefs {
   readonly batchId: Prisma.FieldRef<"Test", 'String'>
   readonly teacherId: Prisma.FieldRef<"Test", 'String'>
   readonly publishAt: Prisma.FieldRef<"Test", 'DateTime'>
+  readonly publishedAt: Prisma.FieldRef<"Test", 'DateTime'>
+  readonly releasedById: Prisma.FieldRef<"Test", 'String'>
   readonly status: Prisma.FieldRef<"Test", 'String'>
+  readonly lifecycle: Prisma.FieldRef<"Test", 'String'>
+  readonly examStartsAt: Prisma.FieldRef<"Test", 'DateTime'>
+  readonly examEndsAt: Prisma.FieldRef<"Test", 'DateTime'>
   readonly reviewedAt: Prisma.FieldRef<"Test", 'DateTime'>
   readonly approvedAt: Prisma.FieldRef<"Test", 'DateTime'>
   readonly approvedById: Prisma.FieldRef<"Test", 'String'>
   readonly duration: Prisma.FieldRef<"Test", 'Int'>
   readonly totalMarks: Prisma.FieldRef<"Test", 'Float'>
+  readonly expectedQuestionCount: Prisma.FieldRef<"Test", 'Int'>
+  readonly authoritativeQuestionCount: Prisma.FieldRef<"Test", 'Int'>
+  readonly expectedTotalMarks: Prisma.FieldRef<"Test", 'Float'>
   readonly isMockTest: Prisma.FieldRef<"Test", 'Boolean'>
   readonly isLive: Prisma.FieldRef<"Test", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Test", 'DateTime'>

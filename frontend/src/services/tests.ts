@@ -8,6 +8,7 @@ export type TestFilters = {
 };
 
 export type TestPayload = {
+  testId?: string;
   title: string;
   description: string;
   examType: string;

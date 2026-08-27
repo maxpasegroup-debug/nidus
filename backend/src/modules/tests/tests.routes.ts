@@ -9,6 +9,7 @@ export const testsRouter = Router();
 function testValidators(optional = false) {
   const maybe = (chain: ReturnType<typeof body>) => (optional ? chain.optional() : chain);
   return [
+    body("testId").optional({ nullable: true }).trim(),
     maybe(body("title")).trim().isLength({ min: 3 }).withMessage("Title must be at least 3 characters"),
     maybe(body("description")).trim().isLength({ min: 10 }).withMessage("Description must be at least 10 characters"),
     maybe(body("examType")).trim().notEmpty().withMessage("Exam type is required"),
@@ -18,9 +19,14 @@ function testValidators(optional = false) {
     body("batchId").optional({ nullable: true }).trim(),
     body("teacherId").optional({ nullable: true }).trim(),
     body("publishAt").optional({ nullable: true }).isISO8601(),
+    body("examStartsAt").optional({ nullable: true }).isISO8601(),
+    body("examEndsAt").optional({ nullable: true }).isISO8601(),
     body("status").optional({ nullable: true }).trim(),
     maybe(body("duration")).isInt({ min: 1 }).withMessage("Duration must be minutes"),
     maybe(body("totalMarks")).isFloat({ min: 1 }).withMessage("Total marks must be positive"),
+    body("expectedQuestionCount").optional({ nullable: true }).isInt({ min: 1 }),
+    body("authoritativeQuestionCount").optional({ nullable: true }).isInt({ min: 0 }),
+    body("expectedTotalMarks").optional({ nullable: true }).isFloat({ min: 1 }),
     body("isMockTest").optional().isBoolean(),
     body("isLive").optional().isBoolean()
   ];
@@ -48,6 +54,17 @@ testsRouter.post(
   ],
   testsController.generateDraft
 );
+testsRouter.patch(
+  "/:id/lifecycle",
+  protect,
+  allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER),
+  [
+    body("lifecycle").isIn(["DRAFT", "IN_REVIEW", "SCHEDULED", "LIVE", "CLOSED", "ARCHIVED"]),
+    body("examStartsAt").optional({ nullable: true }).isISO8601(),
+    body("examEndsAt").optional({ nullable: true }).isISO8601(),
+  ],
+  testsController.transitionLifecycle
+);
 testsRouter.post("/publish-draft", protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER), testValidators(), testsController.publishDraft);
 testsRouter.post(
   "/:id/approve",
@@ -63,7 +80,42 @@ testsRouter.post(
   [body("publishAt").optional({ nullable: true }).isISO8601(), body("batchId").optional({ nullable: true }).trim()],
   testsController.publishApproved
 );
+testsRouter.post(
+  "/:id/release",
+  protect,
+  allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER),
+  [body("action").isIn(["SAVE_DRAFT", "SCHEDULE", "PUBLISH_NOW"]), body("releaseAt").optional({ nullable: true }).isISO8601()],
+  testsController.release
+);
 testsRouter.get("/:id", protect, allowRoles(Role.STUDENT, Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER), testsController.details);
+testsRouter.get("/:id/review-summary", protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER), testsController.reviewSummary);
+testsRouter.post(
+  "/:id/questions/:questionId/issues/:issueId/approve-as-is",
+  protect,
+  allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER),
+  [body("reason").trim().notEmpty().withMessage("Approval reason is required")],
+  testsController.approveReviewIssue
+);
+testsRouter.post(
+  "/:id/review-reconcile",
+  protect,
+  allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER),
+  [body("count").optional().isBoolean(), body("marks").optional().isBoolean()],
+  testsController.reconcileReview
+);
+testsRouter.put(
+  "/:id/questions/:questionId",
+  protect,
+  allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER),
+  [
+    body("questionText").trim().notEmpty(),
+    body("optionA").trim().notEmpty(), body("optionB").trim().notEmpty(), body("optionC").trim().notEmpty(), body("optionD").trim().notEmpty(),
+    body("correctAnswer").isIn(["A", "B", "C", "D"]),
+    body("explanation").trim().notEmpty(), body("marks").isFloat({ min: 0.01 }), body("negativeMarks").isFloat({ min: 0 }),
+    body("difficultyLevel").trim().notEmpty(), body("topic").trim().notEmpty(), body("reviewStatus").optional().trim(), body("changeReason").optional().trim(),
+  ],
+  testsController.updateDraftQuestion
+);
 testsRouter.post("/", protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER), testValidators(), testsController.create);
 testsRouter.put("/:id", protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER), testValidators(true), testsController.update);
 testsRouter.delete("/:id", protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER), testsController.remove);

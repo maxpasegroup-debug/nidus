@@ -389,12 +389,20 @@ model Test {
   batchId     String?
   teacherId   String?
   publishAt   DateTime?
+  publishedAt DateTime?
+  releasedById String?
   status      String        @default("DRAFT")
+  lifecycle   String        @default("DRAFT")
+  examStartsAt DateTime?
+  examEndsAt   DateTime?
   reviewedAt  DateTime?
   approvedAt  DateTime?
   approvedById String?
   duration    Int
   totalMarks  Float
+  expectedQuestionCount Int?
+  authoritativeQuestionCount Int?
+  expectedTotalMarks Float?
   isMockTest  Boolean       @default(true)
   isLive      Boolean       @default(false)
   batch       Batch?        @relation(fields: [batchId], references: [id], onDelete: SetNull)
@@ -408,7 +416,10 @@ model Test {
   @@index([batchId])
   @@index([teacherId])
   @@index([status])
+  @@index([lifecycle])
   @@index([publishAt])
+  @@index([examStartsAt])
+  @@index([examEndsAt])
   @@index([subject])
 }
 
@@ -429,6 +440,7 @@ model Question {
   renderMode      String   @default("LEGACY_MCQ")
   aiConfidence    Float?
   reviewStatus    String   @default("DRAFT")
+  reviewIssues    Json?
   publishedVersion Int     @default(1)
   optionA         String
   optionB         String

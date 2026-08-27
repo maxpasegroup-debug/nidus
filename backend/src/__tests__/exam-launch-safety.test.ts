@@ -54,8 +54,9 @@ describe("NDA exam launch P0 safety", () => {
     const academy = read("src/modules/academy/academy.service.ts");
     expect(service).toContain('reviewStatus: "DRAFT"');
     expect(service).toContain('status: "DRAFT"');
-    expect(service).toContain('status: "APPROVED"');
-    expect(service).toContain('status: "PUBLISHED"');
+    expect(service).toContain('data: { reviewStatus: "APPROVED" }');
+    expect(service).toContain('lifecycle: "IN_REVIEW"');
+    expect(service).toContain("status: legacyExamStatus(lifecycle)");
     expect(service).toContain("approvalReferenceId");
     expect(controller).toContain("Direct draft publication is disabled");
     expect(routes).toContain('/:id/approve');
@@ -67,6 +68,9 @@ describe("NDA exam launch P0 safety", () => {
     expect(academy).toContain('reviewStatus: "DRAFT", testId: current.testId');
     expect(academy).toContain('status: "DRAFT"');
     expect(academy).toContain("approvedById: null");
+    expect(academy).toContain("const test = await testsService.create(user, { ...testPayload, testId: input.testId }, { reviewImport: examUploadIds.length > 0 })");
+    expect(academy).toContain('"EXAM_DRAFT_CREATED"');
+    expect(academy).not.toContain("const test = await testsService.publishDraft(user");
   });
 
   it("protects tenant ownership, answer keys and concurrent final submission", () => {
@@ -100,6 +104,17 @@ describe("NDA exam launch P0 safety", () => {
   it("ships non-destructive database defaults for draft-first exams", () => {
     const migration = read("prisma/migrations/20260824090000_harden_exam_launch_safety/migration.sql");
     expect(migration).toContain("SET DEFAULT 'DRAFT'");
+    expect(migration).not.toMatch(/DROP TABLE|TRUNCATE|DELETE FROM/i);
+  });
+
+  it("ships a non-destructive lifecycle and examination-window migration", () => {
+    const schema = read("prisma/schema.prisma");
+    const migration = read("prisma/migrations/20260827120000_add_exam_lifecycle_and_window/migration.sql");
+    expect(schema).toContain('lifecycle   String        @default("DRAFT")');
+    expect(schema).toContain("examStartsAt DateTime?");
+    expect(schema).toContain("examEndsAt   DateTime?");
+    expect(migration).toContain('ADD COLUMN "lifecycle"');
+    expect(migration).toContain('WHEN "status" = \'PUBLISHED\' AND "isLive" = true THEN \'LIVE\'');
     expect(migration).not.toMatch(/DROP TABLE|TRUNCATE|DELETE FROM/i);
   });
 });

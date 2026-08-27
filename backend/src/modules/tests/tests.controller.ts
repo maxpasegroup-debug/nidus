@@ -122,6 +122,48 @@ export const testsController = {
     }
   },
 
+  async release(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      assertValid(req);
+      const test = await testsService.release(requester(req), param(req, "id"), req.body);
+      res.json({ test, testId: test.id });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async updateDraftQuestion(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      assertValid(req);
+      const question = await testsService.updateDraftQuestion(requester(req), param(req, "id"), param(req, "questionId"), req.body);
+      res.json({ question });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async reviewSummary(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try { res.json({ review: await testsService.reviewSummary(requester(req), param(req, "id")) }); } catch (error) { next(error); }
+  },
+
+  async approveReviewIssue(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try { assertValid(req); res.json(await testsService.approveReviewIssue(requester(req), param(req, "id"), param(req, "questionId"), param(req, "issueId"), req.body.reason)); } catch (error) { next(error); }
+  },
+
+  async reconcileReview(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try { assertValid(req); res.json({ review: await testsService.reconcileReview(requester(req), param(req, "id"), req.body) }); } catch (error) { next(error); }
+  },
+
+  async transitionLifecycle(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      assertValid(req);
+      const test = await testsService.transitionLifecycle(requester(req), param(req, "id"), req.body);
+      res.json({ test });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async remove(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       const result = await testsService.remove(requester(req), param(req, "id"));

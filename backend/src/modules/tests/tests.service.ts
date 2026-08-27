@@ -4,8 +4,11 @@ import { logger } from "../../utils/logger.js";
 import { normalizeQuestionContentJson } from "../document-intelligence/question-content.schema.js";
 import { validateDraftQuestions, validatePublishableExam, validatePublishedQuestions } from "./exam-publishing-gate.js";
 import { calculateObjectiveScore } from "./exam-scoring.js";
+import { assertLifecycleTransition, examAvailability, isExamLifecycle, legacyExamStatus, lifecycleIsLive, parseExamWindow, validateScheduledRelease, type ExamLifecycle } from "./exam-lifecycle.js";
+import { blockingIssues, calculateExamEnd, deriveReviewIssues, reviewReadiness, type ReviewIssue } from "./exam-review.js";
 
 export type TestPayload = {
+  testId?: string;
   title: string;
   description: string;
   examType: string;
@@ -15,15 +18,20 @@ export type TestPayload = {
   batchId?: string;
   teacherId?: string;
   publishAt?: string;
+  examStartsAt?: string;
+  examEndsAt?: string;
   status?: string;
   duration: number;
   totalMarks: number;
+  expectedQuestionCount?: number;
+  authoritativeQuestionCount?: number;
+  expectedTotalMarks?: number;
   isMockTest?: boolean;
   isLive?: boolean;
   questions?: QuestionPayload[];
 };
 
-type QuestionPayload = {
+export type QuestionPayload = {
   questionText: string;
   questionImage?: string;
   visualReviewRequired?: boolean;
@@ -38,6 +46,7 @@ type QuestionPayload = {
   renderMode?: string;
   aiConfidence?: number;
   reviewStatus?: string;
+  reviewIssues?: Prisma.InputJsonValue;
   publishedVersion?: number;
   optionA: string;
   optionB: string;
@@ -94,6 +103,35 @@ type PublishDraftInput = TestPayload & {
   approvalReferenceId?: string;
 };
 
+type LifecycleInput = {
+  lifecycle: ExamLifecycle;
+  examStartsAt?: string | null;
+  examEndsAt?: string | null;
+};
+
+type ReleaseInput = {
+  action: "SAVE_DRAFT" | "SCHEDULE" | "PUBLISH_NOW";
+  releaseAt?: string;
+};
+
+export type DraftQuestionUpdate = QuestionPayload & {
+  changeReason?: string;
+};
+
+async function persistedReviewSummary(testId: string) {
+  const test = await prisma.test.findUnique({ where: { id: testId }, include: { questions: true } });
+  if (!test) throw Object.assign(new Error("Test not found"), { statusCode: 404 });
+  const actualQuestionCount = test.questions.length;
+  const actualMarksTotal = test.questions.reduce((sum, question) => sum + Number(question.marks), 0);
+  const questionIssues = test.questions.map((question) => ({
+    questionId: question.id,
+    issues: deriveReviewIssues(question, Array.isArray(question.reviewIssues) ? question.reviewIssues as unknown as ReviewIssue[] : []),
+  }));
+  const unresolvedHighIssueCount = questionIssues.reduce((sum, entry) => sum + blockingIssues(entry.issues).length, 0);
+  const readiness = reviewReadiness({ lifecycle: test.lifecycle, actualQuestionCount, authoritativeQuestionCount: test.authoritativeQuestionCount, actualMarksTotal, authoritativeMarks: Number(test.totalMarks), unresolvedHighIssueCount });
+  return { test, actualQuestionCount, actualMarksTotal, unresolvedHighIssueCount, questionIssues, ...readiness };
+}
+
 function persistedQuestionPayload(question: Prisma.QuestionGetPayload<object>): QuestionPayload {
   return {
     questionText: question.questionText,
@@ -110,6 +148,7 @@ function persistedQuestionPayload(question: Prisma.QuestionGetPayload<object>): 
     renderMode: question.renderMode,
     aiConfidence: question.aiConfidence ?? undefined,
     reviewStatus: question.reviewStatus,
+    reviewIssues: question.reviewIssues == null ? undefined : question.reviewIssues as Prisma.InputJsonValue,
     publishedVersion: question.publishedVersion,
     optionA: question.optionA,
     optionB: question.optionB,
@@ -175,6 +214,7 @@ function questionVersionData(question: VersionableQuestion, requester: Requester
       marks: question.marks,
       negativeMarks: question.negativeMarks,
       source: changeType,
+      reviewIssues: question.reviewIssues,
     },
   };
 }
@@ -202,12 +242,15 @@ const testInclude = {
   }
 };
 
-function attemptTiming(attempt: { startedAt: Date; submittedAt?: Date | null; test: { duration: number } }) {
+function attemptTiming(attempt: { startedAt: Date; submittedAt?: Date | null; test: { duration: number; examEndsAt?: Date | null } }) {
   const serverNow = new Date();
   const durationSeconds = Math.max(60, Number(attempt.test.duration || 0) * 60);
+  const durationExpiresAt = new Date(attempt.startedAt.getTime() + durationSeconds * 1000);
+  const expiresAt = attempt.test.examEndsAt && attempt.test.examEndsAt < durationExpiresAt
+    ? attempt.test.examEndsAt
+    : durationExpiresAt;
   const elapsedSeconds = Math.max(0, Math.floor((serverNow.getTime() - attempt.startedAt.getTime()) / 1000));
-  const remainingSeconds = Math.max(0, durationSeconds - elapsedSeconds);
-  const expiresAt = new Date(attempt.startedAt.getTime() + durationSeconds * 1000);
+  const remainingSeconds = Math.max(0, Math.floor((expiresAt.getTime() - serverNow.getTime()) / 1000));
   return {
     serverTime: serverNow.toISOString(),
     startedAt: attempt.startedAt.toISOString(),
@@ -352,12 +395,34 @@ function tenantTestWhere(requester: Requester): Prisma.TestWhereInput {
   return scopes.length ? { AND: scopes } : {};
 }
 
-function sanitizeTestForStudent<T extends { status: string; isLive: boolean; questions?: Array<Record<string, unknown>> }>(test: T): T {
-  if (test.status !== "PUBLISHED" || !test.isLive) {
+function studentExamAvailability(test: { lifecycle: string; examStartsAt?: Date | null; examEndsAt?: Date | null }) {
+  return examAvailability({
+    lifecycle: isExamLifecycle(test.lifecycle) ? test.lifecycle : "DRAFT",
+    examStartsAt: test.examStartsAt,
+    examEndsAt: test.examEndsAt,
+  });
+}
+
+function windowData(input: { examStartsAt?: string | null; examEndsAt?: string | null; duration?: number }, existing?: { examStartsAt?: Date | null; examEndsAt?: Date | null; duration?: number }) {
+  const startsAt = input.examStartsAt === undefined ? existing?.examStartsAt : input.examStartsAt;
+  const duration = input.duration ?? existing?.duration;
+  const endsAt = startsAt && duration ? calculateExamEnd(startsAt, duration) : input.examEndsAt === undefined ? existing?.examEndsAt : input.examEndsAt;
+  const window = parseExamWindow(startsAt, endsAt);
+  if (window.startsAt === null && window.endsAt === null) {
+    if (input.examStartsAt === undefined && input.examEndsAt === undefined) return {};
+    return { examStartsAt: null, examEndsAt: null };
+  }
+  return { examStartsAt: window.startsAt, examEndsAt: window.endsAt };
+}
+
+function sanitizeTestForStudent<T extends { lifecycle: string; examStartsAt?: Date | null; examEndsAt?: Date | null; questions?: Array<Record<string, unknown>> }>(test: T): T & { availability: "UPCOMING" | "AVAILABLE" | "EXPIRED" | "UNAVAILABLE" } {
+  const availability = studentExamAvailability(test);
+  if (availability !== "AVAILABLE") {
     throw Object.assign(new Error("This exam is not available to students."), { statusCode: 403 });
   }
   return {
     ...test,
+    availability,
     questions: test.questions?.map((question) => {
       const { correctAnswer: _correctAnswer, explanation: _explanation, ...safeQuestion } = question;
       return safeQuestion;
@@ -628,8 +693,8 @@ export const testsService = {
     const tests = await prisma.test.findMany({
       where: {
         batchId: { in: batchIds },
-        status: "PUBLISHED",
-        isLive: true
+        lifecycle: { in: ["SCHEDULED", "LIVE"] },
+        OR: [{ publishAt: null }, { publishAt: { lte: new Date() } }]
       },
       orderBy: [{ publishAt: "asc" }, { createdAt: "desc" }],
       include: {
@@ -638,10 +703,13 @@ export const testsService = {
       }
     });
 
-    return tests.map((test) => ({
-      ...test,
-      studentStatus: attemptByTest.get(test.id)?.submittedAt ? "SUBMITTED" : attemptByTest.has(test.id) ? "IN_PROGRESS" : "NOT_STARTED"
-    }));
+    return tests
+      .map((test) => ({
+        ...test,
+        availability: studentExamAvailability(test),
+        studentStatus: attemptByTest.get(test.id)?.submittedAt ? "SUBMITTED" : attemptByTest.has(test.id) ? "IN_PROGRESS" : "NOT_STARTED"
+      }))
+      .filter((test) => test.availability === "UPCOMING" || test.availability === "AVAILABLE" || test.availability === "EXPIRED");
   },
 
   async details(requester: Requester, id: string) {
@@ -657,15 +725,38 @@ export const testsService = {
       : test;
   },
 
-  async create(requester: Requester, payload: TestPayload) {
+  async create(requester: Requester, payload: TestPayload, options: { reviewImport?: boolean } = {}) {
+    if (payload.testId) {
+      const existing = await prisma.test.findUnique({ where: { id: payload.testId }, include: { _count: { select: { questions: true } } } });
+      if (!existing) throw Object.assign(new Error("Draft exam not found."), { statusCode: 404 });
+      await assertTestAccess(requester, existing);
+      if (existing.lifecycle !== "DRAFT") {
+        throw Object.assign(new Error("Only DRAFT exams can receive questions."), { statusCode: 409 });
+      }
+      if (existing._count.questions > 0) {
+        throw Object.assign(new Error("This draft already has questions. Explicit replacement is required before changing its creation method."), { statusCode: 409 });
+      }
+      const questionsForCreate = (payload.questions ?? []).map((question) => ({
+        ...question,
+        reviewStatus: "DRAFT",
+        reviewIssues: deriveReviewIssues(question),
+        contentJson: normalizeQuestionContentJson(question),
+      }));
+      if (!options.reviewImport) validateDraftQuestions(questionsForCreate);
+      return prisma.$transaction(async (tx) => {
+        if (questionsForCreate.length) await tx.question.createMany({ data: questionsForCreate.map((question) => ({ ...question, testId: existing.id })) });
+        return tx.test.findUniqueOrThrow({ where: { id: existing.id }, include: testInclude });
+      });
+    }
     await assertTeacherBatchSubjectAccess(requester, payload.batchId, payload.subject);
     await assertTeacherTenantAccess(requester, payload.teacherId);
     const questionsForCreate = (payload.questions ?? []).map((question) => ({
       ...question,
       reviewStatus: "DRAFT",
+      reviewIssues: deriveReviewIssues(question),
       contentJson: normalizeQuestionContentJson(question),
     }));
-    validateDraftQuestions(questionsForCreate);
+    if (!options.reviewImport) validateDraftQuestions(questionsForCreate);
     const test = await prisma.test.create({
       data: {
         title: payload.title,
@@ -680,8 +771,13 @@ export const testsService = {
           : payload.teacherId || requester.id,
         publishAt: payload.publishAt ? new Date(payload.publishAt) : undefined,
         status: "DRAFT",
+        lifecycle: "DRAFT",
+        ...windowData(payload),
         duration: payload.duration,
         totalMarks: payload.totalMarks,
+        expectedQuestionCount: payload.expectedQuestionCount,
+        authoritativeQuestionCount: payload.authoritativeQuestionCount ?? payload.expectedQuestionCount,
+        expectedTotalMarks: payload.expectedTotalMarks ?? payload.totalMarks,
         isMockTest: payload.isMockTest ?? true,
         isLive: false,
         questions: {
@@ -706,7 +802,7 @@ export const testsService = {
     if ((requester.role === Role.TEACHER || requester.role === Role.PHYSICAL_TRAINER) && payload.teacherId && payload.teacherId !== requester.id) {
       throw Object.assign(new Error("Teachers cannot transfer an exam to another teacher."), { statusCode: 403 });
     }
-    if (test.status === "PUBLISHED" || test.status === "CLOSED" || test.isLive) {
+    if (["LIVE", "CLOSED", "ARCHIVED"].includes(test.lifecycle)) {
       throw Object.assign(new Error("Published or closed exams are immutable."), { statusCode: 409 });
     }
     if (payload.status === "PUBLISHED" || payload.isLive === true) {
@@ -727,13 +823,175 @@ export const testsService = {
           ? undefined
           : payload.teacherId,
         publishAt: payload.publishAt ? new Date(payload.publishAt) : undefined,
+        ...windowData(payload, test),
         status: payload.status === undefined ? undefined : "DRAFT",
+        lifecycle: payload.status === undefined ? undefined : "DRAFT",
         duration: payload.duration,
         totalMarks: payload.totalMarks,
         isMockTest: payload.isMockTest,
         isLive: payload.isLive === undefined ? undefined : false
       },
       include: testInclude
+    });
+  },
+
+  async updateDraftQuestion(requester: Requester, testId: string, questionId: string, payload: DraftQuestionUpdate) {
+    const test = await prisma.test.findUnique({ where: { id: testId } });
+    if (!test) throw Object.assign(new Error("Test not found"), { statusCode: 404 });
+    await assertTestAccess(requester, test);
+    if (requester.role === Role.STUDENT) {
+      const now = new Date();
+      const released = test.lifecycle === "LIVE" || (test.lifecycle === "SCHEDULED" && (!test.publishAt || test.publishAt <= now));
+      if (!released) throw Object.assign(new Error("This exam has not been released yet."), { statusCode: 404 });
+    }
+    if (test.lifecycle !== "DRAFT") {
+      throw Object.assign(new Error("Only questions in a DRAFT exam can be edited."), { statusCode: 409 });
+    }
+    const current = await prisma.question.findFirst({ where: { id: questionId, testId } });
+    if (!current) throw Object.assign(new Error("Question not found in this exam."), { statusCode: 404 });
+
+    const next = {
+      ...persistedQuestionPayload(current),
+      ...payload,
+      correctAnswer: normalizeSelectedAnswer(payload.correctAnswer),
+      reviewStatus: payload.reviewStatus || "REVIEWED",
+      contentJson: normalizeQuestionContentJson(payload),
+      reviewIssues: deriveReviewIssues(payload, Array.isArray(current.reviewIssues) ? current.reviewIssues as unknown as ReviewIssue[] : []),
+    };
+    validateDraftQuestions([next]);
+    const updated = await prisma.$transaction(async (tx) => {
+      const latestVersion = await tx.questionVersion.aggregate({ where: { questionId }, _max: { version: true } });
+      const question = await tx.question.update({
+        where: { id: current.id },
+        data: { ...next, publishedVersion: (latestVersion._max.version || 0) + 1 },
+      });
+      await tx.questionVersion.create({
+        data: questionVersionData(
+          question as VersionableQuestion,
+          requester,
+          "DRAFT_EDITED",
+          payload.changeReason?.trim() || "Question edited during draft review."
+        ),
+      });
+      return question;
+    });
+    return updated;
+  },
+
+  async reviewSummary(requester: Requester, testId: string) {
+    const summary = await persistedReviewSummary(testId);
+    await assertTestAccess(requester, summary.test);
+    return summary;
+  },
+
+  async approveReviewIssue(requester: Requester, testId: string, questionId: string, issueId: string, reason: string) {
+    if (!reason?.trim()) throw Object.assign(new Error("An approval reason is required."), { statusCode: 400 });
+    const test = await prisma.test.findUnique({ where: { id: testId } });
+    if (!test) throw Object.assign(new Error("Test not found"), { statusCode: 404 });
+    await assertTestAccess(requester, test);
+    if (test.lifecycle !== "DRAFT") throw Object.assign(new Error("Only DRAFT review issues can be approved."), { statusCode: 409 });
+    const current = await prisma.question.findFirst({ where: { id: questionId, testId } });
+    if (!current) throw Object.assign(new Error("Question not found in this exam."), { statusCode: 404 });
+    const issues = deriveReviewIssues(current, Array.isArray(current.reviewIssues) ? current.reviewIssues as unknown as ReviewIssue[] : []);
+    const issue = issues.find((entry) => entry.id === issueId);
+    if (!issue || issue.state !== "OPEN") throw Object.assign(new Error("Open review issue not found."), { statusCode: 404 });
+    if (!issue.approvable || issue.severity === "HIGH") throw Object.assign(new Error("This structural issue must be resolved by editing the question."), { statusCode: 409 });
+    const decidedAt = new Date().toISOString();
+    const nextIssues = issues.map((entry) => entry.id === issueId ? { ...entry, state: "APPROVED_AS_IS" as const, reason: reason.trim(), decidedById: requester.id, decidedAt } : entry);
+    const version = await prisma.questionVersion.aggregate({ where: { questionId }, _max: { version: true } });
+    return prisma.$transaction(async (tx) => {
+      const question = await tx.question.update({ where: { id: questionId }, data: { reviewIssues: nextIssues, reviewStatus: "APPROVED_AS_IS", publishedVersion: (version._max.version || 0) + 1 } });
+      await tx.questionVersion.create({ data: questionVersionData(question as VersionableQuestion, requester, "ISSUE_APPROVED_AS_IS", `${issueId}: OPEN -> APPROVED_AS_IS. ${reason.trim()}`) });
+      return { question, issue: nextIssues.find((entry) => entry.id === issueId) };
+    });
+  },
+
+  async reconcileReview(requester: Requester, testId: string, input: { count?: boolean; marks?: boolean }) {
+    const summary = await persistedReviewSummary(testId);
+    await assertTestAccess(requester, summary.test);
+    if (summary.test.lifecycle !== "DRAFT") throw Object.assign(new Error("Only a DRAFT can be reconciled."), { statusCode: 409 });
+    if (!input.count && !input.marks) throw Object.assign(new Error("Choose count and/or marks to reconcile."), { statusCode: 400 });
+    await prisma.test.update({ where: { id: testId }, data: { authoritativeQuestionCount: input.count ? summary.actualQuestionCount : undefined, totalMarks: input.marks ? summary.actualMarksTotal : undefined, isLive: false, lifecycle: "DRAFT", status: "DRAFT" } });
+    return persistedReviewSummary(testId);
+  },
+
+  async release(requester: Requester, testId: string, input: ReleaseInput) {
+    const test = await prisma.test.findUnique({ where: { id: testId }, include: { questions: true } });
+    if (!test) throw Object.assign(new Error("Test not found"), { statusCode: 404 });
+    await assertTestAccess(requester, test);
+    await assertTeacherBatchSubjectAccess(requester, test.batchId ?? undefined, test.subject);
+
+    if (input.action === "SAVE_DRAFT") {
+      if (test.lifecycle !== "DRAFT") throw Object.assign(new Error(`This exam is already ${test.lifecycle}.`), { statusCode: 409 });
+      return test;
+    }
+    if (input.action === "SCHEDULE" && test.lifecycle === "SCHEDULED" && input.releaseAt && test.publishAt?.getTime() === new Date(input.releaseAt).getTime()) return test;
+    if (input.action === "PUBLISH_NOW" && test.lifecycle === "LIVE") return test;
+    if (test.lifecycle !== "DRAFT") throw Object.assign(new Error(`This exam is already ${test.lifecycle}. Refresh to see its current state.`), { statusCode: 409 });
+
+    const review = await persistedReviewSummary(testId);
+    if (review.reviewStatus !== "READY") throw Object.assign(new Error(`This exam needs review before it can be released. ${review.blockingReasons.join(" ")}`), { statusCode: 409 });
+    const window = parseExamWindow(test.examStartsAt, test.examEndsAt);
+    if (!window.startsAt || !window.endsAt) throw Object.assign(new Error("A valid examination window is required before release."), { statusCode: 400 });
+    const now = new Date();
+    let releaseAt = now;
+    let target: ExamLifecycle = "LIVE";
+    if (input.action === "SCHEDULE") {
+      releaseAt = new Date(input.releaseAt || "");
+      validateScheduledRelease(releaseAt, window.startsAt, window.endsAt, now);
+      target = "SCHEDULED";
+    } else if (now >= window.endsAt) {
+      throw Object.assign(new Error("This examination window has ended and cannot be published now."), { statusCode: 400 });
+    }
+
+    validatePublishableExam({ ...test, questions: test.questions.map((question) => ({ ...persistedQuestionPayload(question), reviewStatus: "APPROVED" })) });
+    return prisma.$transaction(async (tx) => {
+      const claimed = await tx.test.updateMany({
+        where: { id: testId, lifecycle: "DRAFT" },
+        data: { lifecycle: target, status: legacyExamStatus(target), isLive: lifecycleIsLive(target), publishAt: releaseAt, publishedAt: target === "LIVE" ? now : null, releasedById: requester.id, approvedAt: test.approvedAt || now, approvedById: test.approvedById || requester.id },
+      });
+      if (claimed.count !== 1) {
+        const current = await tx.test.findUniqueOrThrow({ where: { id: testId }, include: testInclude });
+        const equivalent = (target === "LIVE" && current.lifecycle === "LIVE") || (target === "SCHEDULED" && current.lifecycle === "SCHEDULED" && current.publishAt?.getTime() === releaseAt.getTime());
+        if (equivalent) return current;
+        throw Object.assign(new Error(`This exam is already ${current.lifecycle}. Refresh to see its current state.`), { statusCode: 409 });
+      }
+      await tx.question.updateMany({ where: { testId }, data: { reviewStatus: "APPROVED" } });
+      await tx.auditLog.create({ data: { userId: requester.id, action: target === "LIVE" ? "EXAM_PUBLISHED" : "EXAM_RELEASE_SCHEDULED", module: "EXAMS", description: `Test ${testId} -> ${target}; releaseAt=${releaseAt.toISOString()}` } });
+      return tx.test.findUniqueOrThrow({ where: { id: testId }, include: testInclude });
+    });
+  },
+
+  async transitionLifecycle(requester: Requester, id: string, input: LifecycleInput) {
+    const test = await prisma.test.findUnique({ where: { id } });
+    if (!test) throw Object.assign(new Error("Test not found"), { statusCode: 404 });
+    await assertTestAccess(requester, test);
+    if (!isExamLifecycle(input.lifecycle)) {
+      throw Object.assign(new Error("Invalid exam lifecycle."), { statusCode: 400 });
+    }
+    const current = isExamLifecycle(test.lifecycle) ? test.lifecycle : "DRAFT";
+    assertLifecycleTransition(current, input.lifecycle);
+    const window = windowData(input, test);
+    if (["SCHEDULED", "LIVE"].includes(input.lifecycle) && (!window.examStartsAt || !window.examEndsAt)) {
+      throw Object.assign(new Error("An examination window is required before scheduling or making an exam live."), { statusCode: 400 });
+    }
+    if (input.lifecycle === "IN_REVIEW") {
+      const questions = await prisma.question.findMany({ where: { testId: id } });
+      validateDraftQuestions(questions.map(persistedQuestionPayload));
+    }
+    if (input.lifecycle === "SCHEDULED" || input.lifecycle === "LIVE") {
+      const questions = await prisma.question.findMany({ where: { testId: id } });
+      validatePublishableExam({ ...test, questions: questions.map(persistedQuestionPayload) });
+    }
+    return prisma.test.update({
+      where: { id },
+      data: {
+        lifecycle: input.lifecycle,
+        status: legacyExamStatus(input.lifecycle),
+        isLive: lifecycleIsLive(input.lifecycle),
+        ...window,
+      },
+      include: testInclude,
     });
   },
 
@@ -822,6 +1080,7 @@ export const testsService = {
           : payload.teacherId || requester.id,
         publishAt: payload.publishAt ? new Date(payload.publishAt) : undefined,
         status: "PUBLISHED",
+        lifecycle: "LIVE",
         reviewedAt: new Date(),
         approvedAt: new Date(),
         approvedById: requester.id,
@@ -846,6 +1105,10 @@ export const testsService = {
     const test = await prisma.test.findUnique({ where: { id }, include: { questions: true } });
     if (!test) throw Object.assign(new Error("Test not found"), { statusCode: 404 });
     await assertTestAccess(requester, test);
+    const review = await persistedReviewSummary(id);
+    if (review.reviewStatus !== "READY") {
+      throw Object.assign(new Error(`Build & Review is not ready. ${review.blockingReasons.join(" ")}`), { statusCode: 409 });
+    }
     await assertTeacherBatchSubjectAccess(requester, test.batchId ?? undefined, test.subject);
     if (!test.questions.length) throw Object.assign(new Error("At least one question is required."), { statusCode: 400 });
     const requested = new Set(input.questionIds ?? []);
@@ -857,7 +1120,7 @@ export const testsService = {
       prisma.question.updateMany({ where: { testId: id, id: { in: [...requested] } }, data: { reviewStatus: "APPROVED" } }),
       prisma.test.update({
         where: { id },
-        data: { status: "APPROVED", isLive: false, reviewedAt: new Date(), approvedAt: new Date(), approvedById: requester.id }
+        data: { status: legacyExamStatus("IN_REVIEW"), lifecycle: "IN_REVIEW", isLive: false, reviewedAt: new Date(), approvedAt: new Date(), approvedById: requester.id }
       })
     ]);
     return this.details(requester, id);
@@ -869,15 +1132,17 @@ export const testsService = {
     await assertTestAccess(requester, test);
     const batchId = input.batchId || test.batchId || undefined;
     await assertTeacherBatchSubjectAccess(requester, batchId, test.subject);
-    if (test.status !== "APPROVED" || !test.approvedAt || !test.approvedById) {
+    if (test.lifecycle !== "IN_REVIEW" || !test.approvedAt || !test.approvedById) {
       throw Object.assign(new Error("This exam requires explicit teacher approval before publishing."), { statusCode: 400 });
     }
     validatePublishableExam({ ...test, questions: test.questions.map(persistedQuestionPayload) });
+    const lifecycle: ExamLifecycle = input.publishAt && new Date(input.publishAt) > new Date() ? "SCHEDULED" : "LIVE";
     return prisma.test.update({
       where: { id },
       data: {
-        status: "PUBLISHED",
-        isLive: true,
+        status: legacyExamStatus(lifecycle),
+        lifecycle,
+        isLive: lifecycleIsLive(lifecycle),
         batchId,
         publishAt: input.publishAt ? new Date(input.publishAt) : test.publishAt
       },
@@ -887,17 +1152,15 @@ export const testsService = {
 
   async start(userId: string, role: Role | undefined, testId: string) {
     const test = await this.details({ id: userId, role: role ?? Role.STUDENT }, testId);
-    if (test.status !== "PUBLISHED") {
+    if (test.lifecycle !== "LIVE" && test.lifecycle !== "SCHEDULED") {
       throw new Error("This test is not published for students yet.");
     }
-    if (test.publishAt && test.publishAt > new Date()) {
+    const availability = studentExamAvailability(test);
+    if (availability === "UPCOMING" || (test.publishAt && test.publishAt > new Date())) {
       throw new Error("This test will open at the scheduled time.");
     }
-    if (test.publishAt) {
-      const closesAt = new Date(test.publishAt.getTime() + test.duration * 60_000);
-      if (closesAt <= new Date()) {
-        throw new Error("This test window has closed.");
-      }
+    if (availability === "EXPIRED") {
+      throw new Error("This test window has closed.");
     }
 
     let attempt;

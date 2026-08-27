@@ -31,6 +31,7 @@ function questionValidators(optional = false) {
 }
 
 const examValidators = [
+  body("testId").optional({ nullable: true }).trim(),
   body("title").trim().isLength({ min: 3 }).withMessage("Exam name is required"),
   body("description").optional().trim(),
   body("examType").trim().notEmpty().withMessage("Exam type is required"),

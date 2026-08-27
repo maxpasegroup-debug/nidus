@@ -219,6 +219,7 @@ type DirectorExpenseInput = {
 };
 
 type ExamInput = {
+  testId?: string;
   batchId?: string;
   batchName?: string;
   subject?: string;
@@ -5201,22 +5202,21 @@ export const academyService = {
       duration: Number(input.durationMinutes || input.duration || generatedDraft.duration || 20),
       totalMarks: questions.reduce((sum, question) => sum + Number(question.marks || 1), 0),
       isMockTest: true,
-      isLive: true,
-      status: "PUBLISHED",
+      isLive: false,
+      status: "DRAFT",
       questions,
     };
-    const test = await testsService.publishDraft(user, {
-      ...testPayload,
-      approvalAttestation: "TEACHER_REVIEW_CONFIRMED",
-      approvalReferenceId: `academy:${user.id}:${new Date().toISOString()}`,
-    });
+    // Importing/reconstructing a paper creates a reviewable draft. Publishing
+    // remains an explicit later lifecycle action; students never receive a
+    // newly imported academy paper merely because its reconstruction succeeded.
+    const test = await testsService.create(user, { ...testPayload, testId: input.testId }, { reviewImport: examUploadIds.length > 0 });
     const id = randomUUID();
     const now = new Date();
     await prisma.$executeRaw`
       INSERT INTO "TeacherExamRecord"
       ("id", "batchId", "batchName", "testId", "subject", "course", "teacherId", "teacherName", "title", "topic", "questionCount", "durationMinutes", "difficulty", "instructions", "draft", "status", "approvedBy", "approvedAt", "createdAt", "updatedAt")
       VALUES
-      (${id}, ${input.batchId}, ${input.batchName || null}, ${test.id}, ${input.subject || null}, ${input.course || null}, ${user.id}, ${user.name || user.email || null}, ${input.title}, ${input.topic}, ${questions.length}, ${testPayload.duration}, ${input.difficulty || "MEDIUM"}, ${input.instructions || null}, ${JSON.stringify(generatedDraft)}::jsonb, ${input.status || "PUBLISHED"}, ${user.id}, ${now}, ${now}, ${now})
+      (${id}, ${input.batchId}, ${input.batchName || null}, ${test.id}, ${input.subject || null}, ${input.course || null}, ${user.id}, ${user.name || user.email || null}, ${input.title}, ${input.topic}, ${questions.length}, ${testPayload.duration}, ${input.difficulty || "MEDIUM"}, ${input.instructions || null}, ${JSON.stringify(generatedDraft)}::jsonb, 'DRAFT', NULL, NULL, ${now}, ${now})
     `;
     const rows = await prisma.$queryRaw<any[]>`
       SELECT * FROM "TeacherExamRecord" WHERE "id" = ${id} LIMIT 1
@@ -5235,8 +5235,8 @@ export const academyService = {
       visualFidelity,
     });
     const exam = (await attachExamStats(rows))[0];
-    await auditAcademicAction(user, "EXAM_PUBLISHED", "TeacherExamRecord", id, { ...exam, testId: test.id, examUploadIds: attachedExamUploadIds });
-    return { ok: true, exam, test };
+    await auditAcademicAction(user, "EXAM_DRAFT_CREATED", "TeacherExamRecord", id, { ...exam, testId: test.id, examUploadIds: attachedExamUploadIds });
+    return { ok: true, exam, test, testId: test.id };
   },
 
   async updateExam(user: Requester, examId: string, input: ExamInput) {
@@ -5357,7 +5357,7 @@ export const academyService = {
       questionIds: test.questions.map((question) => question.id),
       attestation: "TEACHER_REVIEW_CONFIRMED",
     });
-    await testsService.publishApproved(user, test.id, { batchId: exam.batchId });
+    await testsService.transitionLifecycle(user, test.id, { lifecycle: "LIVE" });
     return this.updateExam(user, examId, { status: "PUBLISHED" });
   },
 
