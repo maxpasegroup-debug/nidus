@@ -27,6 +27,18 @@ function requester(req: AuthenticatedRequest) {
 }
 
 export const testsController = {
+  async control(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      res.json(await testsService.controlList(requester(req), {
+        search: typeof req.query.search === "string" ? req.query.search : undefined,
+        status: typeof req.query.status === "string" ? req.query.status : undefined,
+        batchId: typeof req.query.batchId === "string" ? req.query.batchId : undefined,
+        page: typeof req.query.page === "string" ? Number(req.query.page) : undefined,
+        limit: typeof req.query.limit === "string" ? Number(req.query.limit) : undefined,
+      }));
+    } catch (error) { next(error); }
+  },
+
   async list(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       const tests = await testsService.list({

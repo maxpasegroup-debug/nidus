@@ -2,6 +2,7 @@ export const EXAM_LIFECYCLES = ["DRAFT", "IN_REVIEW", "SCHEDULED", "LIVE", "CLOS
 
 export type ExamLifecycle = (typeof EXAM_LIFECYCLES)[number];
 export type ExamAvailability = "UPCOMING" | "AVAILABLE" | "EXPIRED" | "UNAVAILABLE";
+export type ExamDisplayStatus = "DRAFT" | "IN_REVIEW" | "SCHEDULED" | "UPCOMING" | "LIVE" | "EXPIRED" | "CLOSED" | "ARCHIVED";
 
 const transitions: Record<ExamLifecycle, readonly ExamLifecycle[]> = {
   DRAFT: ["IN_REVIEW", "SCHEDULED", "LIVE"],
@@ -59,6 +60,22 @@ export function examAvailability(input: {
   if (now < input.examStartsAt) return "UPCOMING";
   if (now >= input.examEndsAt) return "EXPIRED";
   return "AVAILABLE";
+}
+
+export function examDisplayStatus(input: {
+  lifecycle: ExamLifecycle;
+  publishAt?: Date | null;
+  examStartsAt?: Date | null;
+  examEndsAt?: Date | null;
+  now?: Date;
+}): ExamDisplayStatus {
+  if (input.lifecycle === "ARCHIVED" || input.lifecycle === "CLOSED" || input.lifecycle === "DRAFT") return input.lifecycle;
+  if (input.lifecycle === "IN_REVIEW") return "IN_REVIEW";
+  const now = input.now ?? new Date();
+  if (input.lifecycle === "SCHEDULED" && input.publishAt && now < input.publishAt) return "SCHEDULED";
+  if (input.examEndsAt && now >= input.examEndsAt) return "EXPIRED";
+  if (input.examStartsAt && now < input.examStartsAt) return "UPCOMING";
+  return "LIVE";
 }
 
 export function validateScheduledRelease(releaseAt: Date, examStartsAt: Date, examEndsAt: Date, now = new Date()) {

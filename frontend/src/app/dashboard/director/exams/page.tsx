@@ -1,5 +1,6 @@
-import { SimpleExamStudio } from "@/components/teacher/simple-exam-studio";
+import { Suspense } from "react";
+import { DirectorExamsWorkspace } from "@/components/director/director-exams-workspace";
 
 export default function DirectorExamsPage() {
-  return <SimpleExamStudio />;
+  return <Suspense fallback={<main className="p-8 text-sm">Loading Exam Control…</main>}><DirectorExamsWorkspace /></Suspense>;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ChangeEvent } from "react";
+import { useEffect, useState, type ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { AlertTriangle, ArrowLeft, Check, FileText, Loader2, Plus, Upload } from "lucide-react";
 import { useAcademyBatches } from "@/hooks/use-academy";
@@ -17,11 +17,11 @@ type ReviewSummary = { actualQuestionCount: number; actualMarksTotal: number; un
 const emptyQuestion = (): Question => ({ questionText: "", optionA: "", optionB: "", optionC: "", optionD: "", correctAnswer: "", explanation: "", marks: 1, negativeMarks: 0, difficultyLevel: "MEDIUM", topic: "", reviewStatus: "NEEDS_REVIEW" });
 const fieldClass = "h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm focus:border-[#0b5d8f] focus:outline-none focus:ring-2 focus:ring-[#0b5d8f]/20";
 
-export function SimpleExamStudio() {
+export function SimpleExamStudio({ initialTestId = "", initialStage = "home" }: { initialTestId?: string; initialStage?: Stage }) {
   const router = useRouter();
   const { data: batches = [] } = useAcademyBatches({ status: "ACTIVE" }, true);
-  const [stage, setStage] = useState<Stage>("home");
-  const [draftId, setDraftId] = useState("");
+  const [stage, setStage] = useState<Stage>(initialStage);
+  const [draftId, setDraftId] = useState(initialTestId);
   const [title, setTitle] = useState(""); const [examType, setExamType] = useState("NDA"); const [subject, setSubject] = useState(""); const [topic, setTopic] = useState("");
   const [batchId, setBatchId] = useState(""); const [duration, setDuration] = useState(60); const [marks, setMarks] = useState(100); const [questionCount, setQuestionCount] = useState(25); const [note, setNote] = useState("");
   const [startDate, setStartDate] = useState(""); const [startTime, setStartTime] = useState("");
@@ -34,6 +34,20 @@ export function SimpleExamStudio() {
   const selectedBatch = batches.find((batch) => batch.id === batchId);
   const localStart = startDate && startTime ? new Date(`${startDate}T${startTime}:00${NIDUS_UTC_OFFSET}`) : null;
   const localEnd = localStart && !Number.isNaN(localStart.getTime()) ? new Date(localStart.getTime() + duration * 60_000) : null;
+
+  useEffect(() => {
+    if (!initialTestId) return;
+    let active = true;
+    void apiClient.get<{ test: ReviewSummary["test"] & { description?: string; examType?: string; batchId?: string; questions?: Question[]; expectedQuestionCount?: number } }>(`/tests/${initialTestId}`).then(async ({ data }) => {
+      if (!active) return; const test = data.test;
+      setTitle(test.title); setExamType(test.examType || "NDA"); setSubject(test.subject || ""); setTopic(test.topic || ""); setBatchId(test.batch?.id || test.batchId || ""); setDuration(test.duration); setMarks(test.totalMarks); setQuestionCount(test.expectedQuestionCount || test.authoritativeQuestionCount || test.questions?.length || 1); setNote(test.description || ""); setQuestions(test.questions || []);
+      if (test.examStartsAt) { const parts = new Intl.DateTimeFormat("en-CA", { timeZone: NIDUS_TIME_ZONE, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(new Date(test.examStartsAt)); const value = (name: string) => parts.find((part) => part.type === name)?.value || ""; setStartDate(`${value("year")}-${value("month")}-${value("day")}`); setStartTime(`${value("hour")}:${value("minute")}`); }
+      if (initialStage === "review" || initialStage === "release") { const latest = await refreshReview(initialTestId); if (active && initialStage === "release" && latest.reviewStatus !== "READY") setStage("review"); }
+    }).catch((cause) => active && setError(getApiErrorMessage(cause)));
+    return () => { active = false; };
+  // The route owns the resume identity; changing form state must not re-hydrate it.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialTestId, initialStage]);
 
   async function refreshReview(id = draftId) {
     const response = await apiClient.get<{ review: ReviewSummary }>(`/tests/${id}/review-summary`);

@@ -4,7 +4,7 @@ import { logger } from "../../utils/logger.js";
 import { normalizeQuestionContentJson } from "../document-intelligence/question-content.schema.js";
 import { validateDraftQuestions, validatePublishableExam, validatePublishedQuestions } from "./exam-publishing-gate.js";
 import { calculateObjectiveScore } from "./exam-scoring.js";
-import { assertLifecycleTransition, examAvailability, isExamLifecycle, legacyExamStatus, lifecycleIsLive, parseExamWindow, validateScheduledRelease, type ExamLifecycle } from "./exam-lifecycle.js";
+import { assertLifecycleTransition, examAvailability, examDisplayStatus, isExamLifecycle, legacyExamStatus, lifecycleIsLive, parseExamWindow, validateScheduledRelease, type ExamLifecycle } from "./exam-lifecycle.js";
 import { blockingIssues, calculateExamEnd, deriveReviewIssues, reviewReadiness, type ReviewIssue } from "./exam-review.js";
 
 export type TestPayload = {
@@ -638,6 +638,48 @@ function sanitizePendingResultAttempt<
 }
 
 export const testsService = {
+  async controlList(requester: Requester, filters: { search?: string; status?: string; batchId?: string; page?: number; limit?: number }) {
+    if (!isAcademicManager(requester)) throw Object.assign(new Error("Exam Control is available to academy management only."), { statusCode: 403 });
+    const rows = await prisma.test.findMany({
+      where: {
+        AND: [
+          tenantTestWhere(requester),
+          filters.batchId ? { batchId: filters.batchId } : {},
+          filters.search ? { OR: [
+            { title: { contains: filters.search, mode: "insensitive" } },
+            { subject: { contains: filters.search, mode: "insensitive" } },
+            { topic: { contains: filters.search, mode: "insensitive" } },
+            { batch: { name: { contains: filters.search, mode: "insensitive" } } },
+          ] } : {},
+        ],
+      },
+      orderBy: { createdAt: "desc" },
+      include: {
+        batch: { select: { id: true, name: true } },
+        teacher: { select: { id: true, name: true } },
+        questions: true,
+        _count: { select: { questions: true, attempts: true } },
+      },
+    });
+    const now = new Date();
+    const mapped = rows.map(({ questions, ...test }) => {
+      const displayStatus = examDisplayStatus({ lifecycle: isExamLifecycle(test.lifecycle) ? test.lifecycle : "DRAFT", publishAt: test.publishAt, examStartsAt: test.examStartsAt, examEndsAt: test.examEndsAt, now });
+      const actualMarks = questions.reduce((sum, question) => sum + Number(question.marks), 0);
+      const unresolved = questions.reduce((sum, question) => sum + blockingIssues(deriveReviewIssues(question, Array.isArray(question.reviewIssues) ? question.reviewIssues as unknown as ReviewIssue[] : [])).length, 0);
+      const readiness = reviewReadiness({ lifecycle: test.lifecycle, actualQuestionCount: questions.length, authoritativeQuestionCount: test.authoritativeQuestionCount, actualMarksTotal: actualMarks, authoritativeMarks: Number(test.totalMarks), unresolvedHighIssueCount: unresolved });
+      const essentialsComplete = Boolean(test.title && test.subject && test.batchId && test.duration > 0 && test.examStartsAt && test.examEndsAt);
+      const resumeStage = !essentialsComplete ? "essentials" : !questions.length ? "upload" : readiness.reviewStatus === "READY" ? "release" : "review";
+      return { ...test, displayStatus, reviewStatus: readiness.reviewStatus, authoritativeQuestionCount: questions.length, totalMarks: actualMarks || Number(test.totalMarks), resumeStage };
+    });
+    const selected = filters.status ? mapped.filter((test) => test.displayStatus === filters.status) : mapped;
+    const page = Math.max(1, filters.page ?? 1); const limit = Math.min(50, Math.max(1, filters.limit ?? 10)); const start = (page - 1) * limit;
+    return {
+      tests: selected.slice(start, start + limit),
+      kpis: { drafts: mapped.filter((test) => test.displayStatus === "DRAFT").length, scheduled: mapped.filter((test) => test.displayStatus === "SCHEDULED").length, live: mapped.filter((test) => test.displayStatus === "LIVE").length },
+      pagination: { page, limit, total: selected.length, pages: Math.max(1, Math.ceil(selected.length / limit)) },
+    };
+  },
+
   async list(requester: Requester, filters: { search?: string; examType?: string; topic?: string }) {
     const accessWhere = isAcademicManager(requester)
       ? tenantTestWhere(requester)

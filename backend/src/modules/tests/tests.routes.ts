@@ -33,6 +33,7 @@ function testValidators(optional = false) {
 }
 
 testsRouter.get("/", protect, allowRoles(Role.STUDENT, Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER), testsController.list);
+testsRouter.get("/control", protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD), testsController.control);
 testsRouter.get("/available", protect, allowRoles(Role.STUDENT, Role.ADMIN), testsController.available);
 testsRouter.get("/attempts/history", protect, allowRoles(Role.STUDENT, Role.ADMIN), testsController.history);
 testsRouter.get("/result/:attemptId", protect, allowRoles(Role.STUDENT, Role.ADMIN), testsController.result);
