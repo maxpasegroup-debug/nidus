@@ -4818,6 +4818,14 @@ export const academyService = {
     if (!["QUESTION_PAPER", "ANSWER_KEY", "EXPLANATION", "SUPPORTING_ASSET"].includes(sourceKind)) {
       throw Object.assign(new Error("Invalid exam upload source kind"), { statusCode: 400 });
     }
+    const examDocumentTypes = new Set([
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ]);
+    if (["QUESTION_PAPER", "ANSWER_KEY"].includes(sourceKind) && !examDocumentTypes.has(file.mimetype.toLowerCase())) {
+      throw Object.assign(new Error("Question papers and answer keys must be PDF or Word documents."), { statusCode: 415 });
+    }
     const uploadSecurity = ndieComplianceService.inspectUpload(file);
     if (uploadSecurity.quarantineReasons.length) {
       const message = uploadSecurity.passwordProtected

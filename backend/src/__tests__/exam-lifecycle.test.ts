@@ -75,6 +75,15 @@ describe("shared draft compatibility contract", () => {
     expect(academy).toContain("testId: input.testId");
     expect(academy).not.toContain("publishDraft(user, testPayload)");
   });
+
+  it("supports PDF question-paper and answer-key uploads through the existing secure import pipeline", () => {
+    const studio = read("../frontend/src/components/teacher/simple-exam-studio.tsx");
+    const academy = read("src/modules/academy/academy.service.ts");
+    expect(studio).toContain(".pdf,.doc,.docx");
+    expect(studio).toContain("Upload a PDF or Word document");
+    expect(academy).toContain('"application/pdf"');
+    expect(academy).toContain("Question papers and answer keys must be PDF or Word documents.");
+  });
 });
 
 describe("Director Exam Control contract", () => {
