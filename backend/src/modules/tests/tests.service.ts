@@ -775,15 +775,40 @@ export const testsService = {
       if (existing.lifecycle !== "DRAFT") {
         throw Object.assign(new Error("Only DRAFT exams can receive questions."), { statusCode: 409 });
       }
-      if (existing._count.questions > 0) {
-        throw Object.assign(new Error("This draft already has questions. Explicit replacement is required before changing its creation method."), { statusCode: 409 });
-      }
       const questionsForCreate = (payload.questions ?? []).map((question) => ({
         ...question,
         reviewStatus: "DRAFT",
         reviewIssues: deriveReviewIssues(question),
         contentJson: normalizeQuestionContentJson(question),
       }));
+      if (!questionsForCreate.length) {
+        await assertTeacherBatchSubjectAccess(requester, payload.batchId, payload.subject);
+        return prisma.test.update({
+          where: { id: existing.id },
+          data: {
+            title: payload.title,
+            description: payload.description,
+            examType: payload.examType,
+            category: payload.category,
+            subject: payload.subject,
+            topic: payload.topic,
+            batchId: payload.batchId,
+            ...windowData(payload, existing),
+            duration: payload.duration,
+            totalMarks: payload.totalMarks,
+            expectedQuestionCount: payload.expectedQuestionCount,
+            authoritativeQuestionCount: payload.authoritativeQuestionCount ?? payload.expectedQuestionCount,
+            expectedTotalMarks: payload.expectedTotalMarks ?? payload.totalMarks,
+            status: "DRAFT",
+            lifecycle: "DRAFT",
+            isLive: false,
+          },
+          include: testInclude,
+        });
+      }
+      if (existing._count.questions > 0) {
+        throw Object.assign(new Error("This draft already has questions. Explicit replacement is required before changing its creation method."), { statusCode: 409 });
+      }
       if (!options.reviewImport) validateDraftQuestions(questionsForCreate);
       return prisma.$transaction(async (tx) => {
         if (questionsForCreate.length) await tx.question.createMany({ data: questionsForCreate.map((question) => ({ ...question, testId: existing.id })) });

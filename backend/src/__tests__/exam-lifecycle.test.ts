@@ -102,3 +102,28 @@ describe("Director Exam Control contract", () => {
     expect(control).toContain("?resume=${test.id}&stage=${test.resumeStage}");
   });
 });
+
+describe("Create Exam Essentials validation contract", () => {
+  const read = (path: string) => readFileSync(join(process.cwd(), path), "utf8");
+
+  it("requires every Essentials field on the server even when client validation is bypassed", () => {
+    const routes = read("src/modules/tests/tests.routes.ts");
+    expect(routes).toContain('body("subject")'); expect(routes).toContain('withMessage("Subject is required")');
+    expect(routes).toContain('body("topic")'); expect(routes).toContain('withMessage("Topic is required")');
+    expect(routes).toContain('body("batchId")'); expect(routes).toContain('withMessage("Batch is required")');
+    expect(routes).toContain('body("examStartsAt")'); expect(routes).toContain("A valid exam start date and time are required");
+    expect(routes).toContain('body("expectedQuestionCount")'); expect(routes).toContain("whole number greater than zero");
+  });
+
+  it("blocks the client request and exposes inline accessible errors in visual order", () => {
+    const studio = read("../frontend/src/components/teacher/simple-exam-studio.tsx");
+    const validation = read("../frontend/src/lib/exam-essentials-validation.ts");
+    expect(validation).toContain('"title", "examType", "subject", "topic", "duration", "marks", "questionCount", "startDate", "startTime", "batchId"');
+    expect(validation).toContain("Number.isFinite(values.duration)");
+    expect(validation).toContain("Number.isInteger(values.questionCount)");
+    expect(studio).toContain("if (Object.keys(validation).length)");
+    expect(studio).toContain('aria-invalid={Boolean(error)}');
+    expect(studio).toContain("scrollIntoView");
+    expect(studio).toContain("if (busy) return");
+  });
+});
