@@ -71,7 +71,11 @@ const optionsBlockSchema = baseBlockSchema.extend({
   type: z.literal("options"),
   options: z.array(z.object({
     key: z.enum(["A", "B", "C", "D"]),
-    text: z.string().min(1),
+    // Imported drafts may preserve an option slot whose text could not be
+    // reconstructed. The publishing/review gate remains responsible for
+    // rejecting those blanks; accepting them here lets the director repair
+    // the draft instead of losing the import to a serialization error.
+    text: z.string(),
     latex: z.string().optional(),
     sourceReference: sourceReferenceSchema.optional(),
   }).strict()).length(4),
@@ -144,6 +148,7 @@ export function buildLegacyQuestionContent(question: {
   reviewStatus?: string;
 }): QuestionContent {
   const sourceReference = question.sourceDocumentId ? { documentId: question.sourceDocumentId } : undefined;
+  const correctOption = String(question.correctAnswer ?? "").trim().toUpperCase();
   const blocks: QuestionContent["blocks"] = [
     { id: blockId("paragraph", 0), type: "paragraph", text: question.questionText, sourceReference },
     ...(question.questionImage ? [{ id: blockId("image", 0), type: "image" as const, url: question.questionImage, assetRole: "QUESTION_IMAGE" as const, sourceReference }] : []),
@@ -166,7 +171,10 @@ export function buildLegacyQuestionContent(question: {
     questionType: "SINGLE_CHOICE",
     source: "LEGACY_MIGRATION",
     blocks,
-    answer: { type: "SINGLE_CHOICE", correctOption: question.correctAnswer },
+    answer: {
+      type: "SINGLE_CHOICE",
+      ...(/^[A-D]$/.test(correctOption) ? { correctOption } : {}),
+    },
     sourceReferences: sourceReference ? [sourceReference] : [],
     metadata: {
       topic: question.topic,
