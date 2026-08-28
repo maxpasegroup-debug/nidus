@@ -161,6 +161,7 @@
     "firebase-admin": "^14.3.0",
     "helmet": "latest",
     "ioredis": "^5.10.1",
+    "mammoth": "^1.12.1",
     "morgan": "^1.10.1",
     "multer": "^2.2.0",
     "nodemailer": "^9.0.5",
@@ -175,6 +176,7 @@
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "tesseract.js": "^7.0.0",
+    "word-extractor": "^1.0.4",
     "zod": "latest"
   },
   "devDependencies": {

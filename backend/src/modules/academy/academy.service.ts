@@ -11,7 +11,7 @@ import { callOpenAIJson } from "../ai-engine/openai.service.js";
 import { ndieAiReconstructionService, type NdieAiReconstructionInput } from "../ndie/ai-reconstruction/ai-reconstruction.service.js";
 import { ndieComplianceService } from "../ndie/security/compliance.service.js";
 import { DEFAULT_ACCOUNT_PIN } from "../auth/auth.v2.service.js";
-import { extractTextPdf, parseExamQuestions } from "./exam-document-extraction.js";
+import { extractTextDoc, extractTextDocx, extractTextPdf, parseExamQuestions } from "./exam-document-extraction.js";
 
 const db = prisma as any;
 
@@ -5037,23 +5037,30 @@ export const academyService = {
       throw Object.assign(new Error("Question paper is required."), { statusCode: 400 });
     }
     let extractedQuestions: ExamImportValidationQuestion[] | undefined;
-    let pdfEvidence: Record<string, unknown> | undefined;
-    if (questionPaper?.fileType === "application/pdf") {
+    let documentEvidence: Record<string, unknown> | undefined;
+    const questionPaperName = questionPaper?.originalName.toLowerCase();
+    const answerKeyName = answerKey?.originalName.toLowerCase();
+    const questionPaperIsPdf = questionPaperName?.endsWith(".pdf") || questionPaper?.fileType === "application/pdf";
+    const questionPaperIsDocx = questionPaperName?.endsWith(".docx");
+    const questionPaperIsDoc = questionPaperName?.endsWith(".doc");
+    if (questionPaper && (questionPaperIsPdf || questionPaperIsDocx || questionPaperIsDoc)) {
       const response = await fetch(signedMediaUrl(questionPaper.publicId, questionPaper.fileType));
       if (!response.ok) throw Object.assign(new Error("The question paper could not be read. Please upload it again."), { statusCode: 422 });
-      const paper = await extractTextPdf(Buffer.from(await response.arrayBuffer()));
+      const paperBuffer = Buffer.from(await response.arrayBuffer());
+      const paper = questionPaperIsPdf ? await extractTextPdf(paperBuffer) : questionPaperIsDocx ? await extractTextDocx(paperBuffer) : await extractTextDoc(paperBuffer);
       let keyPages: Awaited<ReturnType<typeof extractTextPdf>>["pages"] = [];
-      if (answerKey?.fileType === "application/pdf") {
+      if (answerKey && (answerKeyName?.endsWith(".pdf") || answerKeyName?.endsWith(".docx") || answerKeyName?.endsWith(".doc"))) {
         const keyResponse = await fetch(signedMediaUrl(answerKey.publicId, answerKey.fileType));
         if (!keyResponse.ok) throw Object.assign(new Error("The answer key could not be read. Please upload it again."), { statusCode: 422 });
-        keyPages = (await extractTextPdf(Buffer.from(await keyResponse.arrayBuffer()))).pages;
+        const keyBuffer = Buffer.from(await keyResponse.arrayBuffer());
+        keyPages = (answerKeyName.endsWith(".pdf") ? await extractTextPdf(keyBuffer) : answerKeyName.endsWith(".docx") ? await extractTextDocx(keyBuffer) : await extractTextDoc(keyBuffer)).pages;
       }
       extractedQuestions = parseExamQuestions(paper.pages, keyPages);
       if (!extractedQuestions.length) {
-        throw Object.assign(new Error("No recognizable questions were found in this PDF. Check the paper format and try again."), { statusCode: 422 });
+        throw Object.assign(new Error(`No recognizable multiple-choice questions were found in this ${questionPaperIsPdf ? "PDF" : questionPaperIsDocx ? "DOCX" : "DOC"}. Use numbered questions with labelled options A-D and try again.`), { statusCode: 422 });
       }
-      pdfEvidence = {
-        questionPaper: { name: questionPaper.originalName, pageCount: paper.pages.length, textCharacters: paper.textCharacters },
+      documentEvidence = {
+        questionPaper: { name: questionPaper.originalName, format: questionPaperIsPdf ? "PDF" : questionPaperIsDocx ? "DOCX" : "DOC", pageCount: questionPaperIsPdf ? paper.pages.length : null, textCharacters: paper.textCharacters },
         answerKey: answerKey ? { name: answerKey.originalName, pageCount: keyPages.length } : null,
         sourcePages: paper.pages.map((page) => page.pageNumber),
       };
@@ -5069,7 +5076,7 @@ export const academyService = {
       ...(extractedQuestions ? { questions: extractedQuestions } : {}),
       ndieOutputs: {
         ...input.ndieOutputs,
-        ...(pdfEvidence ? { pageReferences: pdfEvidence } : {}),
+        ...(documentEvidence ? { pageReferences: documentEvidence } : {}),
       },
     });
     if (importJobIds.length) {

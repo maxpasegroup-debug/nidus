@@ -2,7 +2,7 @@ import { describe, expect, it } from "@jest/globals";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { extractTextPdf, parseExamQuestions } from "../modules/academy/exam-document-extraction.js";
+import { extractTextDoc, extractTextDocx, extractTextPdf, parseExamQuestions } from "../modules/academy/exam-document-extraction.js";
 
 describe("exam upload PDF extraction", () => {
   it("reconstructs extracted PDF page text without guessing a missing answer", () => {
@@ -24,6 +24,11 @@ describe("exam upload PDF extraction", () => {
     expect(source).toContain("textCharacters < 20");
   });
 
+  it("rejects malformed DOCX files with an actionable error", async () => {
+    await expect(extractTextDocx(Buffer.from("not a docx"))).rejects.toThrow(/not a valid DOCX/i);
+    await expect(extractTextDoc(Buffer.from("not a doc"))).rejects.toThrow(/not a valid DOC/i);
+  });
+
   it("keeps question paper required and answer key optional across UI and reconstruction", () => {
     const studio = readFileSync(join(process.cwd(), "../frontend/src/components/teacher/simple-exam-studio.tsx"), "utf8");
     const service = readFileSync(join(process.cwd(), "src/modules/academy/academy.service.ts"), "utf8");
@@ -33,5 +38,7 @@ describe("exam upload PDF extraction", () => {
     expect(studio).toContain(".pdf,.doc,.docx");
     expect(service).toContain('if (uploadIds.length && !questionPaper)');
     expect(service).toContain('linkedUploadRows.find((row) => row.sourceKind === "ANSWER_KEY")');
+    expect(service).toContain("extractTextDocx");
+    expect(service).toContain("extractTextDoc(");
   });
 });
