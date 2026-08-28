@@ -1,12 +1,12 @@
 import { Prisma, Role } from "../../generated/prisma/client.js";
 import { prisma } from "../../config/prisma.js";
 import { logger } from "../../utils/logger.js";
-import { normalizeQuestionContentJson } from "../document-intelligence/question-content.schema.js";
-import { validateDraftQuestions, validatePublishableExam, validatePublishedQuestions } from "./exam-publishing-gate.js";
+import { normalizeQuestionContentJson, synchronizeEditableQuestionContentJson } from "../document-intelligence/question-content.schema.js";
+import { validateDraftQuestions, validateEditableDraftQuestions, validatePublishableExam, validatePublishedQuestions } from "./exam-publishing-gate.js";
 import { calculateObjectiveScore } from "./exam-scoring.js";
 import { assertLifecycleTransition, examAvailability, examDisplayStatus, isExamLifecycle, legacyExamStatus, lifecycleIsLive, parseExamWindow, validateScheduledRelease, type ExamDisplayStatus, type ExamLifecycle } from "./exam-lifecycle.js";
 import { CONTROL_STATUSES, controlDisplayStatusWhere, examControlAllowedActions } from "./exam-control.js";
-import { blockingIssues, calculateExamEnd, deriveReviewIssues, reviewReadiness, type ReviewIssue } from "./exam-review.js";
+import { blockingIssues, calculateExamEnd, deriveReviewIssues, reviewAnswerProgress, reviewReadiness, type ReviewIssue } from "./exam-review.js";
 
 export type TestPayload = {
   testId?: string;
@@ -115,7 +115,9 @@ type ReleaseInput = {
   releaseAt?: string;
 };
 
-export type DraftQuestionUpdate = QuestionPayload & {
+export type DraftQuestionUpdate = Omit<QuestionPayload, "correctAnswer" | "explanation"> & {
+  correctAnswer?: string;
+  explanation?: string;
   changeReason?: string;
 };
 
@@ -129,8 +131,9 @@ async function persistedReviewSummary(testId: string) {
     issues: deriveReviewIssues(question, Array.isArray(question.reviewIssues) ? question.reviewIssues as unknown as ReviewIssue[] : []),
   }));
   const unresolvedHighIssueCount = questionIssues.reduce((sum, entry) => sum + blockingIssues(entry.issues).length, 0);
+  const answerProgress = reviewAnswerProgress(test.questions);
   const readiness = reviewReadiness({ lifecycle: test.lifecycle, actualQuestionCount, authoritativeQuestionCount: test.authoritativeQuestionCount, actualMarksTotal, authoritativeMarks: Number(test.totalMarks), unresolvedHighIssueCount });
-  return { test, actualQuestionCount, actualMarksTotal, unresolvedHighIssueCount, questionIssues, ...readiness };
+  return { test, actualQuestionCount, actualMarksTotal, unresolvedHighIssueCount, ...answerProgress, questionIssues, ...readiness };
 }
 
 function persistedQuestionPayload(question: Prisma.QuestionGetPayload<object>): QuestionPayload {
@@ -170,6 +173,11 @@ function normalizeSelectedAnswer(value: unknown) {
     throw Object.assign(new Error("Selected answer must be A, B, C or D."), { statusCode: 400 });
   }
   return answer;
+}
+
+function normalizeDraftAnswer(value: unknown) {
+  const answer = typeof value === "string" ? value.trim().toUpperCase() : "";
+  return answer ? normalizeSelectedAnswer(answer) : "";
 }
 
 type VersionableQuestion = QuestionPayload & {
@@ -695,7 +703,6 @@ export const testsService = {
           (CASE WHEN BTRIM("questionText") = '' THEN 1 ELSE 0 END) +
           (CASE WHEN BTRIM("optionA") = '' OR BTRIM("optionB") = '' OR BTRIM("optionC") = '' OR BTRIM("optionD") = '' THEN 1 ELSE 0 END) +
           (CASE WHEN UPPER(BTRIM("correctAnswer")) NOT IN ('A','B','C','D') THEN 1 ELSE 0 END) +
-          (CASE WHEN BTRIM("explanation") = '' THEN 1 ELSE 0 END) +
           (CASE WHEN LOWER(BTRIM("optionA")) IN (LOWER(BTRIM("optionB")), LOWER(BTRIM("optionC")), LOWER(BTRIM("optionD"))) OR LOWER(BTRIM("optionB")) IN (LOWER(BTRIM("optionC")), LOWER(BTRIM("optionD"))) OR LOWER(BTRIM("optionC")) = LOWER(BTRIM("optionD")) THEN 1 ELSE 0 END) +
           (CASE WHEN "marks" <= 0 OR "negativeMarks" < 0 THEN 1 ELSE 0 END)
         ), 0)::bigint AS "blockingIssueCount"
@@ -970,15 +977,24 @@ export const testsService = {
     const current = await prisma.question.findFirst({ where: { id: questionId, testId } });
     if (!current) throw Object.assign(new Error("Question not found in this exam."), { statusCode: 404 });
 
-    const next = {
+    const { changeReason: _changeReason, ...editablePayload } = payload;
+    const candidate = {
       ...persistedQuestionPayload(current),
-      ...payload,
-      correctAnswer: normalizeSelectedAnswer(payload.correctAnswer),
-      reviewStatus: payload.reviewStatus || "REVIEWED",
-      contentJson: normalizeQuestionContentJson(payload),
-      reviewIssues: deriveReviewIssues(payload, Array.isArray(current.reviewIssues) ? current.reviewIssues as unknown as ReviewIssue[] : []),
+      ...editablePayload,
+      correctAnswer: payload.correctAnswer === undefined ? current.correctAnswer : normalizeDraftAnswer(payload.correctAnswer),
+      explanation: payload.explanation === undefined ? current.explanation : payload.explanation.trim(),
     };
-    validateDraftQuestions([next]);
+    validateEditableDraftQuestions([candidate]);
+    const reviewIssues = deriveReviewIssues(candidate, Array.isArray(current.reviewIssues) ? current.reviewIssues as unknown as ReviewIssue[] : []);
+    const reviewedCandidate = {
+      ...candidate,
+      reviewStatus: blockingIssues(reviewIssues).length ? "NEEDS_REVIEW" : "REVIEWED",
+      reviewIssues,
+    };
+    const next = {
+      ...reviewedCandidate,
+      contentJson: synchronizeEditableQuestionContentJson(reviewedCandidate),
+    };
     const updated = await prisma.$transaction(async (tx) => {
       const latestVersion = await tx.questionVersion.aggregate({ where: { questionId }, _max: { version: true } });
       const question = await tx.question.update({

@@ -3,6 +3,7 @@ import { body, query } from "express-validator";
 import { Role } from "../../generated/prisma/client.js";
 import { allowRoles, protect } from "../../middlewares/session.middleware.js";
 import { testsController } from "./tests.controller.js";
+import { draftQuestionValidators } from "./exam-draft-question.validation.js";
 
 export const testsRouter = Router();
 
@@ -114,13 +115,7 @@ testsRouter.put(
   "/:id/questions/:questionId",
   protect,
   allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER),
-  [
-    body("questionText").trim().notEmpty(),
-    body("optionA").trim().notEmpty(), body("optionB").trim().notEmpty(), body("optionC").trim().notEmpty(), body("optionD").trim().notEmpty(),
-    body("correctAnswer").isIn(["A", "B", "C", "D"]),
-    body("explanation").trim().notEmpty(), body("marks").isFloat({ min: 0.01 }), body("negativeMarks").isFloat({ min: 0 }),
-    body("difficultyLevel").trim().notEmpty(), body("topic").trim().notEmpty(), body("reviewStatus").optional().trim(), body("changeReason").optional().trim(),
-  ],
+  draftQuestionValidators(),
   testsController.updateDraftQuestion
 );
 testsRouter.post(

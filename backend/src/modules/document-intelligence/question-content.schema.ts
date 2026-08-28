@@ -199,3 +199,77 @@ export function normalizeQuestionContentJson(question: Parameters<typeof buildLe
   }
   return buildLegacyQuestionContent(question) as Prisma.InputJsonValue;
 }
+
+export function synchronizeEditableQuestionContentJson(question: Parameters<typeof buildLegacyQuestionContent>[0] & { contentJson?: unknown }): Prisma.InputJsonValue {
+  if (!question.contentJson) return buildLegacyQuestionContent(question) as Prisma.InputJsonValue;
+  const parsed = parseQuestionContentJson(question.contentJson);
+  if (!parsed.success) {
+    throw new Error(parsed.error.issues.map((issue) => `${issue.path.join(".") || "contentJson"}: ${issue.message}`).join("; "));
+  }
+  if (parsed.data.questionType !== "SINGLE_CHOICE") {
+    throw Object.assign(new Error("Only single-choice structured questions can be edited in this exam editor."), { statusCode: 400 });
+  }
+
+  const explanation = question.explanation?.trim() || "";
+  const correctOption = question.correctAnswer.trim().toUpperCase();
+  let paragraphUpdated = false;
+  let optionsUpdated = false;
+  let explanationUpdated = false;
+  const blocks: QuestionContent["blocks"] = [];
+
+  for (const block of parsed.data.blocks) {
+    if (block.type === "paragraph" && !paragraphUpdated) {
+      blocks.push({ ...block, text: question.questionText });
+      paragraphUpdated = true;
+    } else if (block.type === "options" && !optionsUpdated) {
+      blocks.push({
+        ...block,
+        options: [
+          { ...block.options[0], key: "A", text: question.optionA },
+          { ...block.options[1], key: "B", text: question.optionB },
+          { ...block.options[2], key: "C", text: question.optionC },
+          { ...block.options[3], key: "D", text: question.optionD },
+        ],
+      });
+      optionsUpdated = true;
+    } else if (block.type === "explanation") {
+      if (explanation && !explanationUpdated) {
+        blocks.push({ ...block, text: explanation });
+        explanationUpdated = true;
+      }
+    } else {
+      blocks.push(block);
+    }
+  }
+
+  if (!paragraphUpdated) blocks.unshift({ id: "paragraph-edit-1", type: "paragraph", text: question.questionText });
+  if (!optionsUpdated) blocks.push({
+    id: "options-edit-1",
+    type: "options",
+    options: [
+      { key: "A", text: question.optionA },
+      { key: "B", text: question.optionB },
+      { key: "C", text: question.optionC },
+      { key: "D", text: question.optionD },
+    ],
+  });
+  if (explanation && !explanationUpdated) blocks.push({ id: "explanation-edit-1", type: "explanation", text: explanation });
+
+  return questionContentSchema.parse({
+    ...parsed.data,
+    blocks,
+    answer: {
+      type: "SINGLE_CHOICE",
+      ...(/^[A-D]$/.test(correctOption) ? { correctOption } : {}),
+    },
+    metadata: {
+      ...parsed.data.metadata,
+      topic: question.topic,
+      difficulty: question.difficultyLevel,
+      marks: question.marks,
+      negativeMarks: question.negativeMarks,
+      aiConfidence: question.aiConfidence,
+      reviewStatus: question.reviewStatus,
+    },
+  }) as Prisma.InputJsonValue;
+}

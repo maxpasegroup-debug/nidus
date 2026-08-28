@@ -71,9 +71,6 @@ export function validatePublishedQuestions(questions: PublishableQuestion[]) {
     if (!/^[A-D]$/i.test(question.correctAnswer?.trim() || "")) {
       errors.push(`${label} has an invalid answer key.`);
     }
-    if (!question.explanation?.trim() || /^(explanation (will be reviewed|pending)|teacher reviewed answer)/i.test(question.explanation.trim())) {
-      errors.push(`${label} needs a reviewed answer explanation.`);
-    }
     if (question.visualReviewRequired && visualNotesRequireImage(question.visualReviewNotes) && !question.questionImage?.trim()) {
       errors.push(`${label} needs the exact diagram, table or graph image attached before publishing.`);
     }
@@ -111,7 +108,7 @@ export function validatePublishedQuestions(questions: PublishableQuestion[]) {
   }
 }
 
-export function validateDraftQuestions(questions: PublishableQuestion[]) {
+function validateDraftQuestionStructure(questions: PublishableQuestion[], requireCorrectAnswer: boolean) {
   const errors: string[] = [];
   const seen = new Set<string>();
   questions.forEach((question, index) => {
@@ -123,9 +120,28 @@ export function validateDraftQuestions(questions: PublishableQuestion[]) {
     if (text) seen.add(text);
     if (options.some((value) => !value)) errors.push(`${label} must contain four answer options.`);
     if (new Set(options.filter(Boolean)).size !== options.filter(Boolean).length) errors.push(`${label} contains duplicate answer options.`);
-    if (!/^[A-D]$/i.test(question.correctAnswer?.trim() || "")) errors.push(`${label} has an invalid answer key.`);
+    if (requireCorrectAnswer && !/^[A-D]$/i.test(question.correctAnswer?.trim() || "")) errors.push(`${label} has an invalid answer key.`);
     if (!Number.isFinite(Number(question.marks)) || Number(question.marks) <= 0 || Number(question.marks) > 1000) errors.push(`${label} has invalid marks.`);
     if (!Number.isFinite(Number(question.negativeMarks ?? 0)) || Number(question.negativeMarks ?? 0) < 0 || Number(question.negativeMarks ?? 0) > 1000) errors.push(`${label} has invalid negative marks.`);
   });
   if (errors.length) throw Object.assign(new Error(`Exam questions are invalid. ${errors.slice(0, 8).join(" ")}`), { statusCode: 400 });
+}
+
+/**
+ * Structural contract for saving an editable DRAFT question. A correct answer
+ * and explanation may be supplied later; text, four options and scoring must
+ * already be valid. Review readiness remains responsible for blocking release
+ * while the correct answer is unresolved.
+ */
+export function validateEditableDraftQuestions(questions: PublishableQuestion[]) {
+  validateDraftQuestionStructure(questions, false);
+}
+
+/**
+ * Stricter legacy/transition contract used where a completed answer key is
+ * still expected. Phase 2 can opt editable DRAFT saves into the contract above
+ * without weakening existing callers implicitly.
+ */
+export function validateDraftQuestions(questions: PublishableQuestion[]) {
+  validateDraftQuestionStructure(questions, true);
 }

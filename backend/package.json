@@ -137,6 +137,7 @@
     "test:infra": "tsx src/scripts/infra-verification.ts",
     "test:cbt": "tsx src/scripts/cbt-flow-verification.ts",
     "test:exam-launch-safety": "jest --runInBand src/__tests__/exam-launch-safety.test.ts",
+    "test:deferred-answer-workflow": "jest --runInBand src/__tests__/exam-draft-edit-contract.test.ts src/__tests__/question-content-import-draft.test.ts src/__tests__/exam-review.test.ts src/__tests__/exam-release.test.ts src/__tests__/exam-control-hardening.test.ts src/__tests__/exam-launch-safety.test.ts",
     "test:phase4-staging-e2e": "tsx src/scripts/phase4-staging-e2e.ts",
     "test:phase5-staging-load": "tsx src/scripts/phase5-staging-load.ts",
     "test:phase5-staging-safety": "tsx src/scripts/phase5-staging-safety.ts"

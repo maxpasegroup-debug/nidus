@@ -17,7 +17,10 @@ const definitions = [
   { id: "MISSING_QUESTION_TEXT", test: (q: StructuralQuestion) => !q.questionText?.trim(), severity: "HIGH", approvable: false },
   { id: "MISSING_REQUIRED_OPTIONS", test: (q: StructuralQuestion) => ![q.optionA, q.optionB, q.optionC, q.optionD].every((value) => value?.trim()), severity: "HIGH", approvable: false },
   { id: "INVALID_CORRECT_ANSWER", test: (q: StructuralQuestion) => !/^[A-D]$/.test(q.correctAnswer?.trim().toUpperCase() || ""), severity: "HIGH", approvable: false },
-  { id: "MISSING_EXPLANATION", test: (q: StructuralQuestion) => !q.explanation?.trim(), severity: "HIGH", approvable: false },
+  // Explanations enrich post-exam learning but are not required to score a
+  // single-choice question safely. Keep the omission visible without letting
+  // it block review readiness or release.
+  { id: "MISSING_EXPLANATION", test: (q: StructuralQuestion) => !q.explanation?.trim(), severity: "LOW", approvable: true },
   { id: "DUPLICATE_OPTIONS", test: (q: StructuralQuestion) => { const options = [q.optionA, q.optionB, q.optionC, q.optionD].map((value) => value?.trim()).filter(Boolean); return options.length === 4 && new Set(options).size !== 4; }, severity: "HIGH", approvable: false },
   { id: "INVALID_MARKS", test: (q: StructuralQuestion) => !Number.isFinite(Number(q.marks)) || Number(q.marks) <= 0 || !Number.isFinite(Number(q.negativeMarks ?? 0)) || Number(q.negativeMarks ?? 0) < 0, severity: "HIGH", approvable: false },
   { id: "SOURCE_COORDINATES_UNAVAILABLE", test: (q: StructuralQuestion) => !q.sourcePageNumber, severity: "LOW", approvable: true },
@@ -36,6 +39,15 @@ export function deriveReviewIssues(question: StructuralQuestion, previous: Revie
 
 export function blockingIssues(issues: ReviewIssue[]) {
   return issues.filter((issue) => issue.severity === "HIGH" && issue.state === "OPEN");
+}
+
+export function reviewAnswerProgress(questions: StructuralQuestion[]) {
+  const unresolvedAnswerCount = questions.filter((question) => !/^[A-D]$/.test(question.correctAnswer?.trim().toUpperCase() || "")).length;
+  return {
+    answeredQuestionCount: questions.length - unresolvedAnswerCount,
+    unresolvedAnswerCount,
+    missingExplanationCount: questions.filter((question) => !question.explanation?.trim()).length,
+  };
 }
 
 export function reviewReadiness(input: { lifecycle: string; actualQuestionCount: number; authoritativeQuestionCount?: number | null; actualMarksTotal: number; authoritativeMarks: number; unresolvedHighIssueCount: number }) {
