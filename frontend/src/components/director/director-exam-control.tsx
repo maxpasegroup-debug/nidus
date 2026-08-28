@@ -26,7 +26,10 @@ export function DirectorExamControl() {
   const query = useQuery({ queryKey: ["tests", "control", search, status, batchId, page], queryFn: async () => (await apiClient.get<Response>("/tests/control", { params: { search: search || undefined, status: status || undefined, batchId: batchId || undefined, page, limit: 10 } })).data });
   const transition = useMutation({ mutationFn: ({ id, lifecycle }: { id: string; lifecycle: string }) => apiClient.patch(`/tests/${id}/lifecycle`, { lifecycle }), onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tests", "control"] }) });
   const remove = useMutation({
-    mutationFn: (id: string) => apiClient.delete(`/tests/${id}`),
+    mutationFn: (id: string) => apiClient.delete(`/tests/${id}`, {
+      data: {},
+      headers: { "Content-Type": "application/json" },
+    }),
     onSuccess: async () => {
       await queryClient.refetchQueries({ queryKey: ["tests", "control"] });
     },
