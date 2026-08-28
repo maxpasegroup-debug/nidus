@@ -31,6 +31,32 @@ describe("exam upload PDF extraction", () => {
     expect(questions[3]).toMatchObject({ optionA: "0,0,1", optionB: "0,1,0", optionC: "1,1,0", optionD: "0,0,0", reviewStatus: "MISSING_ANSWER" });
   });
 
+  it("recognizes Word papers with one unlabeled option per paragraph", () => {
+    const text = [
+      "1. If the major axis of an ellipse is twice its minor axis, then its eccentricity is:",
+      "1/2",
+      "√2/2",
+      "√3/2",
+      "3/4",
+      "2. The equation of the ellipse whose vertices are (±6, 0) and foci are (±4, 0) is:",
+      "x²/36 + y²/20 = 1",
+      "x²/20 + y²/36 = 1",
+      "x²/36 + y²/16 = 1",
+      "x²/16 + y²/20 = 1",
+    ].join("\n");
+    const questions = parseExamQuestions([{ pageNumber: 1, text }]);
+
+    expect(questions).toHaveLength(2);
+    expect(questions[0]).toMatchObject({
+      questionText: expect.stringContaining("major axis"),
+      optionA: "1/2",
+      optionB: "√2/2",
+      optionC: "√3/2",
+      optionD: "3/4",
+      reviewStatus: "MISSING_ANSWER",
+    });
+  });
+
   it("rejects malformed PDFs and keeps an explicit scanned-PDF guard", async () => {
     await expect(extractTextPdf(Buffer.from("not a pdf"))).rejects.toThrow(/not a valid PDF/i);
     const source = readFileSync(join(process.cwd(), "src/modules/academy/exam-document-extraction.ts"), "utf8");

@@ -141,6 +141,15 @@ export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: Extra
       const start = starts[index];
       const chunk = page.text.slice(start.end, starts[index + 1]?.index ?? page.text.length).trim();
       const optionMatches = [...chunk.matchAll(/(?:^|\s|\()([A-D])[.)]\s*/gi)];
+      // Some Word papers use four unlabeled option paragraphs (one value per
+      // line) instead of explicit A-D prefixes. When no labels are present,
+      // treat the final four non-empty lines as the options and keep all
+      // preceding lines as the question text. This preserves the source
+      // faithfully without inventing answers.
+      const unlabeledLines = optionMatches.length === 0
+        ? chunk.split(/\r?\n+/).map((line) => line.trim()).filter(Boolean)
+        : [];
+      const unlabeledOptions = unlabeledLines.length >= 5 ? unlabeledLines.slice(-4) : [];
       const optionText = (letter: string) => {
         const optionIndex = optionMatches.findIndex((candidate) => candidate[1].toUpperCase() === letter);
         if (optionIndex < 0) return "";
@@ -153,9 +162,13 @@ export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: Extra
       const number = start.number;
       const inlineAnswer = chunk.match(/\bAnswer\s*[:\-]\s*([A-D])\b/i)?.[1]?.toUpperCase();
       const correctAnswer = key.get(number) || inlineAnswer;
-      const ownText = chunk.slice(0, optionMatches[0]?.index ?? chunk.length).trim();
+      const ownText = optionMatches.length > 0
+        ? chunk.slice(0, optionMatches[0]?.index ?? chunk.length).trim()
+        : (unlabeledOptions.length ? unlabeledLines.slice(0, -4).join(" ").trim() : chunk.trim());
       const questionText = [directions.get(number), ownText].filter(Boolean).join(" ");
-      const options = [optionText("A"), optionText("B"), optionText("C"), optionText("D")];
+      const options = optionMatches.length > 0
+        ? [optionText("A"), optionText("B"), optionText("C"), optionText("D")]
+        : unlabeledOptions;
       questions.push({ number, questionText, optionA: options[0], optionB: options[1], optionC: options[2], optionD: options[3], correctAnswer, sourcePageNumber: page.pageNumber, sourceReference: `Page ${page.pageNumber}`, reviewStatus: correctAnswer && options.every(Boolean) ? "READY" : options.some(Boolean) ? "MISSING_ANSWER" : "NEEDS_REVIEW" });
     }
   }
