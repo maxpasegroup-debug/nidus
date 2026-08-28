@@ -8,7 +8,7 @@ describe("Exam Control production hardening", () => {
   const now = new Date("2026-08-29T04:00:00.000Z");
 
   it("returns executable server-authoritative actions for every lifecycle shape", () => {
-    expect(examControlAllowedActions({ lifecycle: "DRAFT", displayStatus: "DRAFT", reviewStatus: "READY", attemptCount: 0, now })).toEqual(["VIEW", "CONTINUE_EDITING"]);
+    expect(examControlAllowedActions({ lifecycle: "DRAFT", displayStatus: "DRAFT", reviewStatus: "READY", attemptCount: 0, now })).toEqual(["VIEW", "CONTINUE_EDITING", "DELETE"]);
     expect(examControlAllowedActions({ lifecycle: "IN_REVIEW", displayStatus: "IN_REVIEW", reviewStatus: "REVIEW_REQUIRED", attemptCount: 0, now })).toEqual(["VIEW", "CONTINUE_REVIEW", "RETURN_TO_DRAFT"]);
     expect(examControlAllowedActions({ lifecycle: "SCHEDULED", displayStatus: "SCHEDULED", reviewStatus: "REVIEW_REQUIRED", attemptCount: 0, publishAt: new Date("2026-08-29T05:00:00.000Z"), now })).toEqual(["VIEW", "EDIT_RELEASE", "CANCEL_SCHEDULE"]);
     expect(examControlAllowedActions({ lifecycle: "SCHEDULED", displayStatus: "UPCOMING", reviewStatus: "REVIEW_REQUIRED", attemptCount: 0, publishAt: new Date("2026-08-29T03:00:00.000Z"), now })).toEqual(["VIEW", "CLOSE"]);

@@ -1144,7 +1144,10 @@ export const testsService = {
   },
 
   async remove(requester: Requester, id: string) {
-    await this.details(requester, id);
+    const existing = await this.details(requester, id);
+    if (existing.lifecycle !== "DRAFT") throw Object.assign(new Error("Only draft exams can be deleted. Archive released exams instead."), { statusCode: 409 });
+    const attempts = await prisma.testAttempt.count({ where: { testId: id } });
+    if (attempts > 0) throw Object.assign(new Error("This exam cannot be deleted because student attempts exist."), { statusCode: 409 });
     await prisma.test.delete({ where: { id } });
     return { message: "Test deleted successfully" };
   },

@@ -2,7 +2,7 @@ import type { Prisma } from "../../generated/prisma/client.js";
 import type { ExamDisplayStatus, ExamLifecycle } from "./exam-lifecycle.js";
 
 export const CONTROL_STATUSES = ["DRAFT", "IN_REVIEW", "SCHEDULED", "UPCOMING", "LIVE", "EXPIRED", "CLOSED", "ARCHIVED"] as const;
-export type ExamControlAction = "VIEW" | "CONTINUE_EDITING" | "CONTINUE_REVIEW" | "EDIT_RELEASE" | "RETURN_TO_DRAFT" | "CANCEL_SCHEDULE" | "RESULTS" | "CLOSE" | "ARCHIVE";
+export type ExamControlAction = "VIEW" | "CONTINUE_EDITING" | "CONTINUE_REVIEW" | "EDIT_RELEASE" | "RETURN_TO_DRAFT" | "CANCEL_SCHEDULE" | "RESULTS" | "CLOSE" | "ARCHIVE" | "DELETE";
 
 function releasedLifecycleWhere(now: Date): Prisma.TestWhereInput {
   return { OR: [{ lifecycle: "LIVE" }, { lifecycle: "SCHEDULED", OR: [{ publishAt: null }, { publishAt: { lte: now } }] }] };
@@ -19,7 +19,7 @@ export function controlDisplayStatusWhere(status: ExamDisplayStatus, now: Date):
 
 export function examControlAllowedActions(input: { lifecycle: ExamLifecycle; displayStatus: ExamDisplayStatus; reviewStatus: "READY" | "REVIEW_REQUIRED"; attemptCount: number; publishAt?: Date | null; now: Date }): ExamControlAction[] {
   const actions: ExamControlAction[] = ["VIEW"];
-  if (input.lifecycle === "DRAFT") return [...actions, "CONTINUE_EDITING"];
+  if (input.lifecycle === "DRAFT") return [...actions, "CONTINUE_EDITING", "DELETE"];
   if (input.lifecycle === "IN_REVIEW") return [...actions, "CONTINUE_REVIEW", "RETURN_TO_DRAFT"];
   if (input.lifecycle === "SCHEDULED" && input.publishAt && input.publishAt > input.now) return [...actions, "EDIT_RELEASE", "CANCEL_SCHEDULE"];
   if (input.lifecycle === "SCHEDULED" || input.lifecycle === "LIVE") {
