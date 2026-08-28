@@ -11,6 +11,7 @@ import { callOpenAIJson } from "../ai-engine/openai.service.js";
 import { ndieAiReconstructionService, type NdieAiReconstructionInput } from "../ndie/ai-reconstruction/ai-reconstruction.service.js";
 import { ndieComplianceService } from "../ndie/security/compliance.service.js";
 import { DEFAULT_ACCOUNT_PIN } from "../auth/auth.v2.service.js";
+import { extractTextPdf, parseExamQuestions } from "./exam-document-extraction.js";
 
 const db = prisma as any;
 
@@ -269,6 +270,7 @@ type ExamImportValidationQuestion = {
 };
 
 type ExamImportValidationInput = {
+  testId?: string;
   batchId?: string;
   subject?: string;
   topic?: string;
@@ -4823,7 +4825,8 @@ export const academyService = {
       "application/msword",
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     ]);
-    if (["QUESTION_PAPER", "ANSWER_KEY"].includes(sourceKind) && !examDocumentTypes.has(file.mimetype.toLowerCase())) {
+    const examDocumentExtension = /\.(pdf|doc|docx)$/i.test(file.originalname);
+    if (["QUESTION_PAPER", "ANSWER_KEY"].includes(sourceKind) && (!examDocumentExtension || !examDocumentTypes.has(file.mimetype.toLowerCase()))) {
       throw Object.assign(new Error("Question papers and answer keys must be PDF or Word documents."), { statusCode: 415 });
     }
     const uploadSecurity = ndieComplianceService.inspectUpload(file);
@@ -5009,16 +5012,52 @@ export const academyService = {
   async reconstructExamImport(user: Requester, input: ExamImportReconstructionInput) {
     if (input.batchId) await assertBatchAccess(user, input.batchId);
     if (input.batchId && input.subject) await assertBatchSubjectAccess(user, input.batchId, input.subject);
+    if (input.testId) {
+      const existing = await testsService.details(user, input.testId);
+      if (existing.lifecycle !== "DRAFT") {
+        throw Object.assign(new Error("Only a DRAFT exam can accept a reconstructed paper."), { statusCode: 409 });
+      }
+    }
     const explicitImportJobIds = normalizedIdList(input.importJobIds);
     const uploadIds = normalizedIdList(input.examUploadIds);
     const linkedUploadRows = uploadIds.length
-      ? await prisma.$queryRaw<Array<{ id: string; importJobId: string | null }>>`
-          SELECT "id", "importJobId"
+      ? await prisma.$queryRaw<Array<{ id: string; importJobId: string | null; sourceKind: string; fileType: string; publicId: string; originalName: string }>>`
+          SELECT "id", "importJobId", "sourceKind", "fileType", "publicId", "originalName"
           FROM "ExamUpload"
           WHERE "id" IN (${Prisma.join(uploadIds)})
             AND ("uploadedBy" = ${user.id} OR ${user.role} IN ('ADMIN', 'DIRECTOR', 'ACADEMIC_HEAD'))
         `
       : [];
+    if (uploadIds.length && linkedUploadRows.length !== uploadIds.length) {
+      throw Object.assign(new Error("One or more exam uploads were not found or are not accessible."), { statusCode: 404 });
+    }
+    const questionPaper = linkedUploadRows.find((row) => row.sourceKind === "QUESTION_PAPER");
+    const answerKey = linkedUploadRows.find((row) => row.sourceKind === "ANSWER_KEY");
+    if (uploadIds.length && !questionPaper) {
+      throw Object.assign(new Error("Question paper is required."), { statusCode: 400 });
+    }
+    let extractedQuestions: ExamImportValidationQuestion[] | undefined;
+    let pdfEvidence: Record<string, unknown> | undefined;
+    if (questionPaper?.fileType === "application/pdf") {
+      const response = await fetch(signedMediaUrl(questionPaper.publicId, questionPaper.fileType));
+      if (!response.ok) throw Object.assign(new Error("The question paper could not be read. Please upload it again."), { statusCode: 422 });
+      const paper = await extractTextPdf(Buffer.from(await response.arrayBuffer()));
+      let keyPages: Awaited<ReturnType<typeof extractTextPdf>>["pages"] = [];
+      if (answerKey?.fileType === "application/pdf") {
+        const keyResponse = await fetch(signedMediaUrl(answerKey.publicId, answerKey.fileType));
+        if (!keyResponse.ok) throw Object.assign(new Error("The answer key could not be read. Please upload it again."), { statusCode: 422 });
+        keyPages = (await extractTextPdf(Buffer.from(await keyResponse.arrayBuffer()))).pages;
+      }
+      extractedQuestions = parseExamQuestions(paper.pages, keyPages);
+      if (!extractedQuestions.length) {
+        throw Object.assign(new Error("No recognizable questions were found in this PDF. Check the paper format and try again."), { statusCode: 422 });
+      }
+      pdfEvidence = {
+        questionPaper: { name: questionPaper.originalName, pageCount: paper.pages.length, textCharacters: paper.textCharacters },
+        answerKey: answerKey ? { name: answerKey.originalName, pageCount: keyPages.length } : null,
+        sourcePages: paper.pages.map((page) => page.pageNumber),
+      };
+    }
     const importJobIds = Array.from(new Set([
       ...explicitImportJobIds,
       ...linkedUploadRows.map((row) => row.importJobId).filter((id): id is string => Boolean(id)),
@@ -5027,6 +5066,11 @@ export const academyService = {
       ...input,
       importJobIds,
       examUploadIds: uploadIds,
+      ...(extractedQuestions ? { questions: extractedQuestions } : {}),
+      ndieOutputs: {
+        ...input.ndieOutputs,
+        ...(pdfEvidence ? { pageReferences: pdfEvidence } : {}),
+      },
     });
     if (importJobIds.length) {
       await prisma.$executeRaw`

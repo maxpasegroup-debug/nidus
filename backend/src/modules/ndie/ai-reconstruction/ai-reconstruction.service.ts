@@ -17,6 +17,8 @@ type TeacherQuestionInput = {
   visualReviewNotes?: unknown;
   aiConfidence?: number;
   reviewStatus?: string;
+  sourcePageNumber?: number;
+  sourceReference?: string;
 };
 
 export type NdieAiReconstructionInput = {
@@ -193,8 +195,9 @@ function buildDeterministicDraft(input: NdieAiReconstructionInput): Professional
       linkedAssets,
       linkedAnswer: question.correctAnswer,
       linkedSolution: question.explanation,
+      sourcePage: question.sourcePageNumber,
+      sourceReference: question.sourceReference || (question.sourcePageNumber ? `Page ${question.sourcePageNumber}` : "Original paper"),
       recoveredFormula: formula ? cleanText(combined) : undefined,
-      sourceReference: "Original paper",
       originalCropRequired: needsReview,
       notes: [
         formula ? "Formula content preserved for review." : "",
