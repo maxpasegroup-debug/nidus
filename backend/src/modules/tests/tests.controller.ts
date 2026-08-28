@@ -186,6 +186,14 @@ export const testsController = {
     }
   },
 
+  async clearDraftQuestions(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      res.json(await testsService.clearDraftQuestions(requester(req), param(req, "id")));
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async start(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       assertValid(req);

@@ -123,6 +123,12 @@ testsRouter.put(
   ],
   testsController.updateDraftQuestion
 );
+testsRouter.post(
+  "/:id/questions/clear",
+  protect,
+  allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER),
+  testsController.clearDraftQuestions
+);
 testsRouter.post("/", protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER), testValidators(), testsController.create);
 testsRouter.put("/:id", protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER), testValidators(true), testsController.update);
 testsRouter.delete("/:id", protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER), testsController.remove);

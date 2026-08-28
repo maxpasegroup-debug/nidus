@@ -241,6 +241,7 @@ type ExamInput = {
 };
 
 type ExamUploadInput = {
+  testId?: string;
   batchId?: string;
   subject?: string;
   topic?: string;
@@ -4815,6 +4816,15 @@ export const academyService = {
   },
 
   async uploadExamSource(user: Requester, file: Express.Multer.File, input: ExamUploadInput) {
+    if (input.testId) {
+      const draft = await testsService.details(user, input.testId);
+      if (draft.lifecycle !== "DRAFT") {
+        throw Object.assign(new Error("Only a DRAFT exam can receive source documents."), { statusCode: 409 });
+      }
+      if (input.batchId && draft.batchId && input.batchId !== draft.batchId) {
+        throw Object.assign(new Error("The upload batch does not match this draft exam."), { statusCode: 409 });
+      }
+    }
     await assertBatchSubjectAccess(user, input.batchId, input.subject);
     const sourceKind = String(input.sourceKind || "QUESTION_PAPER").toUpperCase();
     if (!["QUESTION_PAPER", "ANSWER_KEY", "EXPLANATION", "SUPPORTING_ASSET"].includes(sourceKind)) {
@@ -4846,15 +4856,15 @@ export const academyService = {
     const now = new Date();
     await prisma.$executeRaw`
       INSERT INTO "ExamImportJob"
-      ("id", "batchId", "subject", "topic", "sourceKind", "originalName", "fileType", "fileSize", "cloudinaryUrl", "publicId", "documentClass", "pipeline", "status", "classification", "confidence", "reviewStatus", "manualReviewRequired", "uploadedBy", "createdAt", "updatedAt")
+      ("id", "testId", "batchId", "subject", "topic", "sourceKind", "originalName", "fileType", "fileSize", "cloudinaryUrl", "publicId", "documentClass", "pipeline", "status", "classification", "confidence", "reviewStatus", "manualReviewRequired", "uploadedBy", "createdAt", "updatedAt")
       VALUES
-      (${importJobId}, ${input.batchId || null}, ${input.subject || null}, ${input.topic || null}, ${sourceKind}, ${file.originalname}, ${uploadSecurity.mimeSniffed}, ${file.size}, ${result.secureUrl}, ${result.publicId}, ${classification.documentClass}, ${classification.pipeline}, 'CLASSIFIED', ${JSON.stringify({ ...classification.classification, uploadSecurity })}::jsonb, ${classification.confidence}, 'PENDING_REVIEW', true, ${user.id}, ${now}, ${now})
+      (${importJobId}, ${input.testId || null}, ${input.batchId || null}, ${input.subject || null}, ${input.topic || null}, ${sourceKind}, ${file.originalname}, ${uploadSecurity.mimeSniffed}, ${file.size}, ${result.secureUrl}, ${result.publicId}, ${classification.documentClass}, ${classification.pipeline}, 'CLASSIFIED', ${JSON.stringify({ ...classification.classification, uploadSecurity })}::jsonb, ${classification.confidence}, 'PENDING_REVIEW', true, ${user.id}, ${now}, ${now})
     `;
     await prisma.$executeRaw`
       INSERT INTO "ExamUpload"
-      ("id", "importJobId", "batchId", "subject", "topic", "sourceKind", "fileName", "originalName", "fileType", "fileSize", "cloudinaryUrl", "publicId", "documentClass", "pipeline", "classification", "extractionStatus", "extractionAudit", "manualReviewRequired", "manualReviewCompleted", "uploadedBy", "createdAt", "updatedAt")
+      ("id", "importJobId", "testId", "batchId", "subject", "topic", "sourceKind", "fileName", "originalName", "fileType", "fileSize", "cloudinaryUrl", "publicId", "documentClass", "pipeline", "classification", "extractionStatus", "extractionAudit", "manualReviewRequired", "manualReviewCompleted", "uploadedBy", "createdAt", "updatedAt")
       VALUES
-      (${id}, ${importJobId}, ${input.batchId || null}, ${input.subject || null}, ${input.topic || null}, ${sourceKind}, ${file.originalname.replace(/\s+/g, "-")}, ${file.originalname}, ${uploadSecurity.mimeSniffed}, ${file.size}, ${result.secureUrl}, ${result.publicId}, ${classification.documentClass}, ${classification.pipeline}, ${JSON.stringify({ ...classification.classification, uploadSecurity })}::jsonb, ${input.extractionStatus || "UPLOADED"}, ${extractionAudit ? JSON.stringify({ ...extractionAudit, importClassification: classification.classification, uploadSecurity }) : JSON.stringify({ importClassification: classification.classification, uploadSecurity })}::jsonb, true, false, ${user.id}, ${now}, ${now})
+      (${id}, ${importJobId}, ${input.testId || null}, ${input.batchId || null}, ${input.subject || null}, ${input.topic || null}, ${sourceKind}, ${file.originalname.replace(/\s+/g, "-")}, ${file.originalname}, ${uploadSecurity.mimeSniffed}, ${file.size}, ${result.secureUrl}, ${result.publicId}, ${classification.documentClass}, ${classification.pipeline}, ${JSON.stringify({ ...classification.classification, uploadSecurity })}::jsonb, ${input.extractionStatus || "UPLOADED"}, ${extractionAudit ? JSON.stringify({ ...extractionAudit, importClassification: classification.classification, uploadSecurity }) : JSON.stringify({ importClassification: classification.classification, uploadSecurity })}::jsonb, true, false, ${user.id}, ${now}, ${now})
     `;
     const rows = await prisma.$queryRaw<any[]>`
       SELECT * FROM "ExamUpload" WHERE "id" = ${id} LIMIT 1
@@ -5269,14 +5279,45 @@ export const academyService = {
     // remains an explicit later lifecycle action; students never receive a
     // newly imported academy paper merely because its reconstruction succeeded.
     const test = await testsService.create(user, { ...testPayload, testId: input.testId }, { reviewImport: examUploadIds.length > 0 });
-    const id = randomUUID();
+    // A retry/replacement for an existing shared draft must update its
+    // legacy TeacherExamRecord instead of creating a second list entry.
+    const existingExamRows = input.testId
+      ? await prisma.$queryRaw<Array<{ id: string }>>`
+          SELECT "id" FROM "TeacherExamRecord" WHERE "testId" = ${test.id} ORDER BY "createdAt" ASC LIMIT 1
+        `
+      : [];
+    const id = existingExamRows[0]?.id || randomUUID();
     const now = new Date();
-    await prisma.$executeRaw`
-      INSERT INTO "TeacherExamRecord"
-      ("id", "batchId", "batchName", "testId", "subject", "course", "teacherId", "teacherName", "title", "topic", "questionCount", "durationMinutes", "difficulty", "instructions", "draft", "status", "approvedBy", "approvedAt", "createdAt", "updatedAt")
-      VALUES
-      (${id}, ${input.batchId}, ${input.batchName || null}, ${test.id}, ${input.subject || null}, ${input.course || null}, ${user.id}, ${user.name || user.email || null}, ${input.title}, ${input.topic}, ${questions.length}, ${testPayload.duration}, ${input.difficulty || "MEDIUM"}, ${input.instructions || null}, ${JSON.stringify(generatedDraft)}::jsonb, 'DRAFT', NULL, NULL, ${now}, ${now})
-    `;
+    if (existingExamRows[0]) {
+      await prisma.$executeRaw`
+        UPDATE "TeacherExamRecord"
+        SET "batchId" = ${input.batchId},
+            "batchName" = ${input.batchName || null},
+            "subject" = ${input.subject || null},
+            "course" = ${input.course || null},
+            "teacherId" = ${user.id},
+            "teacherName" = ${user.name || user.email || null},
+            "title" = ${input.title},
+            "topic" = ${input.topic},
+            "questionCount" = ${questions.length},
+            "durationMinutes" = ${testPayload.duration},
+            "difficulty" = ${input.difficulty || "MEDIUM"},
+            "instructions" = ${input.instructions || null},
+            "draft" = ${JSON.stringify(generatedDraft)}::jsonb,
+            "status" = 'DRAFT',
+            "approvedBy" = NULL,
+            "approvedAt" = NULL,
+            "updatedAt" = ${now}
+        WHERE "id" = ${id}
+      `;
+    } else {
+      await prisma.$executeRaw`
+        INSERT INTO "TeacherExamRecord"
+        ("id", "batchId", "batchName", "testId", "subject", "course", "teacherId", "teacherName", "title", "topic", "questionCount", "durationMinutes", "difficulty", "instructions", "draft", "status", "approvedBy", "approvedAt", "createdAt", "updatedAt")
+        VALUES
+        (${id}, ${input.batchId}, ${input.batchName || null}, ${test.id}, ${input.subject || null}, ${input.course || null}, ${user.id}, ${user.name || user.email || null}, ${input.title}, ${input.topic}, ${questions.length}, ${testPayload.duration}, ${input.difficulty || "MEDIUM"}, ${input.instructions || null}, ${JSON.stringify(generatedDraft)}::jsonb, 'DRAFT', NULL, NULL, ${now}, ${now})
+      `;
+    }
     const rows = await prisma.$queryRaw<any[]>`
       SELECT * FROM "TeacherExamRecord" WHERE "id" = ${id} LIMIT 1
     `;
@@ -5294,7 +5335,7 @@ export const academyService = {
       visualFidelity,
     });
     const exam = (await attachExamStats(rows))[0];
-    await auditAcademicAction(user, "EXAM_DRAFT_CREATED", "TeacherExamRecord", id, { ...exam, testId: test.id, examUploadIds: attachedExamUploadIds });
+    await auditAcademicAction(user, existingExamRows[0] ? "EXAM_DRAFT_UPDATED" : "EXAM_DRAFT_CREATED", "TeacherExamRecord", id, { ...exam, testId: test.id, examUploadIds: attachedExamUploadIds });
     return { ok: true, exam, test, testId: test.id };
   },
 

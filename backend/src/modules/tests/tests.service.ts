@@ -1152,6 +1152,43 @@ export const testsService = {
     return { message: "Test deleted successfully" };
   },
 
+  /**
+   * Remove the current question set from an editable draft so a replacement
+   * paper can be imported deliberately. Essentials and the Test record are
+   * preserved; callers must explicitly invoke this endpoint before re-upload.
+   */
+  async clearDraftQuestions(requester: Requester, id: string) {
+    const existing = await prisma.test.findUnique({
+      where: { id },
+      include: { _count: { select: { questions: true } } },
+    });
+    if (!existing) throw Object.assign(new Error("Draft exam not found."), { statusCode: 404 });
+    await assertTestAccess(requester, existing);
+    if (existing.lifecycle !== "DRAFT") {
+      throw Object.assign(new Error("Only DRAFT exams can have questions replaced."), { statusCode: 409 });
+    }
+    const attempts = await prisma.testAttempt.count({ where: { testId: id } });
+    if (attempts > 0) {
+      throw Object.assign(new Error("This exam cannot replace questions because student attempts exist."), { statusCode: 409 });
+    }
+
+    const cleared = await prisma.$transaction(async (tx) => {
+      // QuestionVersion/answer-state relations cascade from Question. This
+      // keeps the replacement atomic and leaves the Test/Essentials intact.
+      await tx.question.deleteMany({ where: { testId: id } });
+      await tx.auditLog.create({
+        data: {
+          userId: requester.id,
+          action: "EXAM_QUESTIONS_CLEARED_FOR_REPLACEMENT",
+          module: "EXAMS",
+          description: `Test ${id} question set cleared for explicit paper replacement.`,
+        },
+      });
+      return tx.test.findUniqueOrThrow({ where: { id }, include: testInclude });
+    });
+    return { message: "Questions cleared. You can upload a replacement paper.", test: cleared, testId: id };
+  },
+
   async generateDraft(requester: Requester, input: DraftInput) {
     await assertTeacherBatchSubjectAccess(requester, input.batchId, input.subject);
     const prompt = input.prompt.trim();

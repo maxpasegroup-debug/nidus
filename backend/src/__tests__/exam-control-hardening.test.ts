@@ -44,4 +44,18 @@ describe("Exam Control production hardening", () => {
     expect(routes).toContain('query("limit").optional().isInt({ min: 1, max: 100 })');
     expect(routes).toContain('query("status").optional().isIn');
   });
+
+  it("exposes an explicit, draft-only question replacement contract", () => {
+    const service = readFileSync(join(process.cwd(), "src/modules/tests/tests.service.ts"), "utf8");
+    const controller = readFileSync(join(process.cwd(), "src/modules/tests/tests.controller.ts"), "utf8");
+    const routes = readFileSync(join(process.cwd(), "src/modules/tests/tests.routes.ts"), "utf8");
+    const studio = readFileSync(join(process.cwd(), "../frontend/src/components/teacher/simple-exam-studio.tsx"), "utf8");
+    expect(service).toContain("clearDraftQuestions");
+    expect(service).toContain("Only DRAFT exams can have questions replaced.");
+    expect(service).toContain("EXAM_QUESTIONS_CLEARED_FOR_REPLACEMENT");
+    expect(controller).toContain("testsService.clearDraftQuestions");
+    expect(routes).toContain('"/:id/questions/clear"');
+    expect(studio).toContain("Clear questions &amp; re-upload");
+    expect(studio).toContain("/questions/clear");
+  });
 });

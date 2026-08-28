@@ -345,6 +345,7 @@ export const academyController = {
         ? JSON.parse(req.body.classification || "null")
         : req.body.classification;
       res.status(201).json(await academyService.uploadExamSource(requester(req), req.file, {
+        testId: req.body.testId,
         batchId: req.body.batchId,
         subject: req.body.subject,
         topic: req.body.topic,
