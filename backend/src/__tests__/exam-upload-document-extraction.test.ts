@@ -17,6 +17,20 @@ describe("exam upload PDF extraction", () => {
     expect(parseExamQuestions(paper, key)[0]).toMatchObject({ correctAnswer: "B", reviewStatus: "READY" });
   });
 
+  it("recognizes compact DOCX numbering, joined base subscripts, and parenthesized lowercase options", () => {
+    const text = "1.Convert values (i) (1024)10 (ii) (69)10" +
+      "2.Convert to base 10 (i) (1101)2 (ii) (01101)2" +
+      "3.Find the value of 1101+111011" +
+      "4.If x is binary (a)0,0,1 (b)0,1,0 (c)1,1,0 (d)0,0,0";
+
+    const questions = parseExamQuestions([{ pageNumber: 1, text }]);
+
+    expect(questions).toHaveLength(4);
+    expect(questions.map((question) => question.number)).toEqual([1, 2, 3, 4]);
+    expect(questions[0]).toMatchObject({ questionText: expect.stringContaining("Convert values"), reviewStatus: "NEEDS_REVIEW" });
+    expect(questions[3]).toMatchObject({ optionA: "0,0,1", optionB: "0,1,0", optionC: "1,1,0", optionD: "0,0,0", reviewStatus: "MISSING_ANSWER" });
+  });
+
   it("rejects malformed PDFs and keeps an explicit scanned-PDF guard", async () => {
     await expect(extractTextPdf(Buffer.from("not a pdf"))).rejects.toThrow(/not a valid PDF/i);
     const source = readFileSync(join(process.cwd(), "src/modules/academy/exam-document-extraction.ts"), "utf8");

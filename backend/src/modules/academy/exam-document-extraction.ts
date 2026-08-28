@@ -106,24 +106,57 @@ function answerMap(text: string) {
 export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: ExtractedPdf["pages"] = []): ExtractedExamQuestion[] {
   const key = answerMap(keyPages.map((page) => page.text).join("\n"));
   const questions: ExtractedExamQuestion[] = [];
+  let expectedNumber = 1;
   for (const page of pages) {
-    const starts = [...page.text.matchAll(/(?:^|\s)(\d{1,3})[.)]\s+/g)];
+    const directions = new Map<number, string>();
+    for (const direction of page.text.matchAll(/Direction for questions\s+(\d+)\s+to\s+(\d+)\s*:\s*(.*?)Then\s+\1\./gi)) {
+      directions.set(Number(direction[1]), `Direction for questions ${direction[1]} to ${direction[2]}: ${direction[3].trim()}`);
+    }
+    // Word extraction commonly joins a base/subscript to the following
+    // question (for example `...10` + `2.Convert` becomes `...102.Convert`).
+    // Select the sequential suffix instead of treating the whole run as 102.
+    const candidates = [...page.text.matchAll(/(\d{1,4})\.\s*(?=\S)/g)].map((match) => ({
+      rawNumber: match[1],
+      matchIndex: match.index ?? 0,
+      end: (match.index ?? 0) + match[0].length,
+    }));
+    const starts: Array<{ index: number; end: number; number: number }> = [];
+    let candidateCursor = 0;
+    while (candidateCursor < candidates.length) {
+      const expected = String(expectedNumber);
+      const nextExpected = String(expectedNumber + 1);
+      const nextBoundary = candidates.findIndex((candidate, candidateIndex) => candidateIndex >= candidateCursor && candidate.rawNumber.endsWith(nextExpected));
+      const windowEnd = nextBoundary < 0 ? candidates.length : nextBoundary;
+      const exactIndex = candidates.findIndex((candidate, candidateIndex) => candidateIndex >= candidateCursor && candidateIndex < windowEnd && candidate.rawNumber === expected);
+      const suffixIndex = candidates.findIndex((candidate, candidateIndex) => candidateIndex >= candidateCursor && candidateIndex < windowEnd && candidate.rawNumber.endsWith(expected));
+      const selectedIndex = exactIndex >= 0 ? exactIndex : suffixIndex;
+      if (selectedIndex < 0) break;
+      const selected = candidates[selectedIndex];
+      const prefixLength = selected.rawNumber.length - expected.length;
+      starts.push({ index: selected.matchIndex + prefixLength, end: selected.end, number: expectedNumber });
+      expectedNumber += 1;
+      candidateCursor = selectedIndex + 1;
+    }
     for (let index = 0; index < starts.length; index += 1) {
-      const match = starts[index];
-      const chunk = page.text.slice((match.index ?? 0) + match[0].length, starts[index + 1]?.index ?? page.text.length).trim();
-      const optionMatches = [...chunk.matchAll(/(?:^|\s)([A-D])[.)]\s+/g)];
-      if (optionMatches.length < 2) continue;
+      const start = starts[index];
+      const chunk = page.text.slice(start.end, starts[index + 1]?.index ?? page.text.length).trim();
+      const optionMatches = [...chunk.matchAll(/(?:^|\s|\()([A-D])[.)]\s*/gi)];
       const optionText = (letter: string) => {
         const optionIndex = optionMatches.findIndex((candidate) => candidate[1].toUpperCase() === letter);
         if (optionIndex < 0) return "";
         const option = optionMatches[optionIndex];
-        return chunk.slice((option.index ?? 0) + option[0].length, optionMatches[optionIndex + 1]?.index ?? chunk.length).replace(/\s+Answer\s*[:\-].*$/i, "").trim();
+        return chunk.slice((option.index ?? 0) + option[0].length, optionMatches[optionIndex + 1]?.index ?? chunk.length)
+          .replace(/\s+Answer\s*[:\-].*$/i, "")
+          .replace(/Direction for questions\s+\d+\s+to\s+\d+\s*:.*$/i, "")
+          .trim();
       };
-      const number = Number(match[1]);
+      const number = start.number;
       const inlineAnswer = chunk.match(/\bAnswer\s*[:\-]\s*([A-D])\b/i)?.[1]?.toUpperCase();
       const correctAnswer = key.get(number) || inlineAnswer;
-      const questionText = chunk.slice(0, optionMatches[0].index).trim();
-      questions.push({ number, questionText, optionA: optionText("A"), optionB: optionText("B"), optionC: optionText("C"), optionD: optionText("D"), correctAnswer, sourcePageNumber: page.pageNumber, sourceReference: `Page ${page.pageNumber}`, reviewStatus: correctAnswer ? "READY" : "MISSING_ANSWER" });
+      const ownText = chunk.slice(0, optionMatches[0]?.index ?? chunk.length).trim();
+      const questionText = [directions.get(number), ownText].filter(Boolean).join(" ");
+      const options = [optionText("A"), optionText("B"), optionText("C"), optionText("D")];
+      questions.push({ number, questionText, optionA: options[0], optionB: options[1], optionC: options[2], optionD: options[3], correctAnswer, sourcePageNumber: page.pageNumber, sourceReference: `Page ${page.pageNumber}`, reviewStatus: correctAnswer && options.every(Boolean) ? "READY" : options.some(Boolean) ? "MISSING_ANSWER" : "NEEDS_REVIEW" });
     }
   }
   return questions;
