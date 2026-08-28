@@ -28,7 +28,7 @@ export function DirectorExamControl() {
   const remove = useMutation({
     mutationFn: (id: string) => apiClient.delete(`/tests/${id}`),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["tests", "control"] });
+      await queryClient.refetchQueries({ queryKey: ["tests", "control"] });
     },
   });
   const clear = () => { setSearch(""); setStatus(""); setBatchId(""); setPage(1); };
@@ -46,7 +46,8 @@ export function DirectorExamControl() {
       <footer className="mt-0 flex items-center justify-between rounded-b-2xl border-x border-b border-[var(--gold-border)] bg-white px-5 py-3 text-sm font-medium text-[var(--muted-blue)]"><span>Showing {(page - 1) * 10 + 1}–{Math.min(page * 10, query.data.pagination.total)} of {query.data.pagination.total} exams</span><div className="flex gap-2"><button aria-label="Previous page" disabled={page <= 1} onClick={() => setPage((p) => p - 1)} className="rounded-xl border border-[var(--border)] bg-white p-2 disabled:opacity-40"><ChevronLeft size={16}/></button><span className="grid min-w-9 place-items-center rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)] px-3 font-black">{page}</span><button aria-label="Next page" disabled={page >= query.data.pagination.pages} onClick={() => setPage((p) => p + 1)} className="rounded-xl border border-[var(--border)] bg-white p-2 disabled:opacity-40"><ChevronRight size={16}/></button></div></footer>
     </> : <div className="mt-6 rounded-xl border border-stone-200 bg-white p-10 text-center shadow-sm"><h2 className="font-bold">{search || status || batchId ? "No exams match these filters." : "No exams yet."}</h2><p className="mt-1 text-sm text-slate-500">{search || status || batchId ? "Try clearing one or more filters." : "Create your first exam to get started."}</p>{search || status || batchId ? <button onClick={clear} className="mt-4 font-bold text-[#0b5d8f]">Clear filters</button> : <Link href="/dashboard/director/exams?create=1" className="mt-4 inline-flex rounded-xl border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-4 py-2 text-sm font-black text-[var(--navy)] shadow-[0_14px_34px_rgba(185,145,63,0.24)]">Create Exam</Link>}</div>}
     {transition.isError ? <p role="alert" className="mt-3 text-sm text-red-700">{getApiErrorMessage(transition.error)}</p> : null}
-    {remove.isError ? <p role="alert" className="mt-3 text-sm text-red-700">{getApiErrorMessage(remove.error)}</p> : null}
+    {remove.isPending ? <p role="status" className="mt-3 text-sm text-[var(--muted-blue)]">Deleting exam…</p> : null}
+    {remove.isError ? <p role="alert" className="mt-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">Unable to delete this exam: {getApiErrorMessage(remove.error)}</p> : null}
   </main>;
 }
 
