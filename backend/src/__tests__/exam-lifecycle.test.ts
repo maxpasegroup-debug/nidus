@@ -80,7 +80,7 @@ describe("shared draft compatibility contract", () => {
     const studio = read("../frontend/src/components/teacher/simple-exam-studio.tsx");
     const academy = read("src/modules/academy/academy.service.ts");
     expect(studio).toContain(".pdf,.doc,.docx");
-    expect(studio).toContain("Upload a PDF or Word document");
+    expect(studio).toContain("Supported: PDF, DOC, DOCX");
     expect(academy).toContain('"application/pdf"');
     expect(academy).toContain("Question papers and answer keys must be PDF or Word documents.");
   });

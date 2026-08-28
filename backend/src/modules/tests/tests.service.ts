@@ -4,7 +4,8 @@ import { logger } from "../../utils/logger.js";
 import { normalizeQuestionContentJson } from "../document-intelligence/question-content.schema.js";
 import { validateDraftQuestions, validatePublishableExam, validatePublishedQuestions } from "./exam-publishing-gate.js";
 import { calculateObjectiveScore } from "./exam-scoring.js";
-import { assertLifecycleTransition, examAvailability, examDisplayStatus, isExamLifecycle, legacyExamStatus, lifecycleIsLive, parseExamWindow, validateScheduledRelease, type ExamLifecycle } from "./exam-lifecycle.js";
+import { assertLifecycleTransition, examAvailability, examDisplayStatus, isExamLifecycle, legacyExamStatus, lifecycleIsLive, parseExamWindow, validateScheduledRelease, type ExamDisplayStatus, type ExamLifecycle } from "./exam-lifecycle.js";
+import { CONTROL_STATUSES, controlDisplayStatusWhere, examControlAllowedActions } from "./exam-control.js";
 import { blockingIssues, calculateExamEnd, deriveReviewIssues, reviewReadiness, type ReviewIssue } from "./exam-review.js";
 
 export type TestPayload = {
@@ -385,15 +386,23 @@ async function assertTestAccess(requester: Requester, test: { batchId?: string |
 }
 
 function tenantTestWhere(requester: Requester): Prisma.TestWhereInput {
-  const scopes: Prisma.TestWhereInput[] = [];
-  if (requester.instituteId) {
-    scopes.push({ OR: [{ batch: { instituteId: requester.instituteId } }, { teacher: { instituteId: requester.instituteId } }] });
-  }
-  if (requester.branchId) {
-    scopes.push({ OR: [{ batch: { branchId: requester.branchId } }, { teacher: { branchId: requester.branchId } }] });
-  }
-  return scopes.length ? { AND: scopes } : {};
+  if (!requester.instituteId && !requester.branchId) return {};
+  const batchScope = {
+    ...(requester.instituteId ? { instituteId: requester.instituteId } : {}),
+    ...(requester.branchId ? { branchId: requester.branchId } : {}),
+  };
+  const ownerScope = {
+    ...(requester.instituteId ? { instituteId: requester.instituteId } : {}),
+    ...(requester.branchId ? { branchId: requester.branchId } : {}),
+  };
+  return {
+    OR: [
+      { batchId: { not: null }, batch: { is: batchScope } },
+      { batchId: null, teacher: { is: ownerScope } },
+    ],
+  };
 }
+
 
 function studentExamAvailability(test: { lifecycle: string; examStartsAt?: Date | null; examEndsAt?: Date | null }) {
   return examAvailability({
@@ -640,43 +649,87 @@ function sanitizePendingResultAttempt<
 export const testsService = {
   async controlList(requester: Requester, filters: { search?: string; status?: string; batchId?: string; page?: number; limit?: number }) {
     if (!isAcademicManager(requester)) throw Object.assign(new Error("Exam Control is available to academy management only."), { statusCode: 403 });
-    const rows = await prisma.test.findMany({
-      where: {
-        AND: [
-          tenantTestWhere(requester),
-          filters.batchId ? { batchId: filters.batchId } : {},
-          filters.search ? { OR: [
-            { title: { contains: filters.search, mode: "insensitive" } },
-            { subject: { contains: filters.search, mode: "insensitive" } },
-            { topic: { contains: filters.search, mode: "insensitive" } },
-            { batch: { name: { contains: filters.search, mode: "insensitive" } } },
-          ] } : {},
-        ],
-      },
-      orderBy: { createdAt: "desc" },
-      include: {
-        batch: { select: { id: true, name: true } },
-        teacher: { select: { id: true, name: true } },
-        questions: true,
-        _count: { select: { questions: true, attempts: true } },
-      },
-    });
     const now = new Date();
-    const mapped = rows.map(({ questions, ...test }) => {
+    const page = filters.page ?? 1;
+    const limit = filters.limit ?? 10;
+    const search = filters.search?.trim();
+    const baseWhere: Prisma.TestWhereInput = { AND: [
+      tenantTestWhere(requester),
+      filters.batchId ? { batchId: filters.batchId } : {},
+      search ? { OR: [
+        { title: { contains: search, mode: "insensitive" } },
+        { subject: { contains: search, mode: "insensitive" } },
+        { topic: { contains: search, mode: "insensitive" } },
+        { batch: { name: { contains: search, mode: "insensitive" } } },
+      ] } : {},
+    ] };
+    const status = filters.status && (CONTROL_STATUSES as readonly string[]).includes(filters.status) ? filters.status as ExamDisplayStatus : undefined;
+    const selectedWhere: Prisma.TestWhereInput = status ? { AND: [baseWhere, controlDisplayStatusWhere(status, now)] } : baseWhere;
+    const [total, rows, drafts, scheduled, live] = await Promise.all([
+      prisma.test.count({ where: selectedWhere }),
+      prisma.test.findMany({
+        where: selectedWhere,
+        skip: (page - 1) * limit,
+        take: limit,
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        select: {
+          id: true, title: true, subject: true, topic: true, lifecycle: true, publishAt: true, publishedAt: true,
+          examStartsAt: true, examEndsAt: true, duration: true, totalMarks: true, expectedQuestionCount: true,
+          authoritativeQuestionCount: true, batchId: true, createdAt: true,
+          batch: { select: { id: true, name: true } },
+          teacher: { select: { id: true, name: true, role: true } },
+          _count: { select: { questions: true, attempts: true } },
+        },
+      }),
+      prisma.test.count({ where: { AND: [baseWhere, controlDisplayStatusWhere("DRAFT", now)] } }),
+      prisma.test.count({ where: { AND: [baseWhere, controlDisplayStatusWhere("SCHEDULED", now)] } }),
+      prisma.test.count({ where: { AND: [baseWhere, controlDisplayStatusWhere("LIVE", now)] } }),
+    ]);
+    const ids = rows.map((row) => row.id);
+    const aggregates = ids.length ? await prisma.$queryRaw<Array<{ testId: string; questionCount: bigint; marksTotal: number; blockingIssueCount: bigint }>>`
+      SELECT
+        "testId",
+        COUNT(*)::bigint AS "questionCount",
+        COALESCE(SUM("marks"), 0)::double precision AS "marksTotal",
+        COALESCE(SUM(
+          (CASE WHEN BTRIM("questionText") = '' THEN 1 ELSE 0 END) +
+          (CASE WHEN BTRIM("optionA") = '' OR BTRIM("optionB") = '' OR BTRIM("optionC") = '' OR BTRIM("optionD") = '' THEN 1 ELSE 0 END) +
+          (CASE WHEN UPPER(BTRIM("correctAnswer")) NOT IN ('A','B','C','D') THEN 1 ELSE 0 END) +
+          (CASE WHEN BTRIM("explanation") = '' THEN 1 ELSE 0 END) +
+          (CASE WHEN LOWER(BTRIM("optionA")) IN (LOWER(BTRIM("optionB")), LOWER(BTRIM("optionC")), LOWER(BTRIM("optionD"))) OR LOWER(BTRIM("optionB")) IN (LOWER(BTRIM("optionC")), LOWER(BTRIM("optionD"))) OR LOWER(BTRIM("optionC")) = LOWER(BTRIM("optionD")) THEN 1 ELSE 0 END) +
+          (CASE WHEN "marks" <= 0 OR "negativeMarks" < 0 THEN 1 ELSE 0 END)
+        ), 0)::bigint AS "blockingIssueCount"
+      FROM "Question"
+      WHERE "testId" IN (${Prisma.join(ids)})
+      GROUP BY "testId"
+    ` : [];
+    const aggregateByTest = new Map(aggregates.map((aggregate) => [aggregate.testId, aggregate]));
+    const tests = rows.map(({ _count, ...test }) => {
+      const aggregate = aggregateByTest.get(test.id);
+      const questionCount = Number(aggregate?.questionCount ?? 0);
+      const marksTotal = Number(aggregate?.marksTotal ?? 0);
+      const blockingIssueCount = Number(aggregate?.blockingIssueCount ?? 0);
       const displayStatus = examDisplayStatus({ lifecycle: isExamLifecycle(test.lifecycle) ? test.lifecycle : "DRAFT", publishAt: test.publishAt, examStartsAt: test.examStartsAt, examEndsAt: test.examEndsAt, now });
-      const actualMarks = questions.reduce((sum, question) => sum + Number(question.marks), 0);
-      const unresolved = questions.reduce((sum, question) => sum + blockingIssues(deriveReviewIssues(question, Array.isArray(question.reviewIssues) ? question.reviewIssues as unknown as ReviewIssue[] : [])).length, 0);
-      const readiness = reviewReadiness({ lifecycle: test.lifecycle, actualQuestionCount: questions.length, authoritativeQuestionCount: test.authoritativeQuestionCount, actualMarksTotal: actualMarks, authoritativeMarks: Number(test.totalMarks), unresolvedHighIssueCount: unresolved });
-      const essentialsComplete = Boolean(test.title && test.subject && test.batchId && test.duration > 0 && test.examStartsAt && test.examEndsAt);
-      const resumeStage = !essentialsComplete ? "essentials" : !questions.length ? "upload" : readiness.reviewStatus === "READY" ? "release" : "review";
-      return { ...test, displayStatus, reviewStatus: readiness.reviewStatus, authoritativeQuestionCount: questions.length, totalMarks: actualMarks || Number(test.totalMarks), resumeStage };
+      const readiness = reviewReadiness({ lifecycle: test.lifecycle, actualQuestionCount: questionCount, authoritativeQuestionCount: test.authoritativeQuestionCount, actualMarksTotal: marksTotal, authoritativeMarks: Number(test.totalMarks), unresolvedHighIssueCount: blockingIssueCount });
+      const essentialsComplete = Boolean(test.title && test.subject && test.topic && test.batchId && test.duration > 0 && Number(test.totalMarks) > 0 && (test.expectedQuestionCount ?? 0) > 0 && test.examStartsAt && test.examEndsAt);
+      const resumeStage = !essentialsComplete ? "essentials" : !questionCount ? "upload" : readiness.reviewStatus === "READY" ? "release" : "review";
+      const lifecycle = isExamLifecycle(test.lifecycle) ? test.lifecycle : "DRAFT";
+      return {
+        ...test,
+        teacher: test.teacher ? { id: test.teacher.id, name: test.teacher.name, role: test.teacher.role } : null,
+        displayStatus,
+        reviewStatus: readiness.reviewStatus,
+        authoritativeQuestionCount: questionCount,
+        totalMarks: marksTotal || Number(test.totalMarks),
+        resumeStage,
+        allowedActions: examControlAllowedActions({ lifecycle, displayStatus, reviewStatus: readiness.reviewStatus, attemptCount: _count.attempts, publishAt: test.publishAt, now }),
+      };
     });
-    const selected = filters.status ? mapped.filter((test) => test.displayStatus === filters.status) : mapped;
-    const page = Math.max(1, filters.page ?? 1); const limit = Math.min(50, Math.max(1, filters.limit ?? 10)); const start = (page - 1) * limit;
     return {
-      tests: selected.slice(start, start + limit),
-      kpis: { drafts: mapped.filter((test) => test.displayStatus === "DRAFT").length, scheduled: mapped.filter((test) => test.displayStatus === "SCHEDULED").length, live: mapped.filter((test) => test.displayStatus === "LIVE").length },
-      pagination: { page, limit, total: selected.length, pages: Math.max(1, Math.ceil(selected.length / limit)) },
+      tests,
+      kpis: { drafts, scheduled, live },
+      pagination: { page, limit, total, pages: Math.max(1, Math.ceil(total / limit)) },
+      serverNow: now.toISOString(),
     };
   },
 
@@ -994,6 +1047,23 @@ export const testsService = {
     }
     if (input.action === "SCHEDULE" && test.lifecycle === "SCHEDULED" && input.releaseAt && test.publishAt?.getTime() === new Date(input.releaseAt).getTime()) return test;
     if (input.action === "PUBLISH_NOW" && test.lifecycle === "LIVE") return test;
+    if (input.action === "SCHEDULE" && test.lifecycle === "SCHEDULED" && test.publishAt && test.publishAt > new Date()) {
+      const now = new Date();
+      const releaseAt = new Date(input.releaseAt || "");
+      const window = parseExamWindow(test.examStartsAt, test.examEndsAt);
+      if (!window.startsAt || !window.endsAt) throw Object.assign(new Error("A valid examination window is required before release."), { statusCode: 400 });
+      validateScheduledRelease(releaseAt, window.startsAt, window.endsAt, now);
+      const review = await persistedReviewSummary(testId);
+      const readiness = reviewReadiness({ lifecycle: "DRAFT", actualQuestionCount: review.actualQuestionCount, authoritativeQuestionCount: review.test.authoritativeQuestionCount, actualMarksTotal: review.actualMarksTotal, authoritativeMarks: Number(review.test.totalMarks), unresolvedHighIssueCount: review.unresolvedHighIssueCount });
+      if (readiness.reviewStatus !== "READY") throw Object.assign(new Error(`This exam needs review before its schedule can change. ${readiness.blockingReasons.join(" ")}`), { statusCode: 409 });
+      validatePublishableExam({ ...test, questions: test.questions.map((question) => ({ ...persistedQuestionPayload(question), reviewStatus: "APPROVED" })) });
+      return prisma.$transaction(async (tx) => {
+        const changed = await tx.test.updateMany({ where: { id: testId, lifecycle: "SCHEDULED", publishAt: test.publishAt }, data: { publishAt: releaseAt, releasedById: requester.id } });
+        if (changed.count !== 1) throw Object.assign(new Error("The release schedule changed in another session. Refresh and try again."), { statusCode: 409 });
+        await tx.auditLog.create({ data: { userId: requester.id, action: "EXAM_RELEASE_RESCHEDULED", module: "EXAMS", description: `Test ${testId} releaseAt=${releaseAt.toISOString()}` } });
+        return tx.test.findUniqueOrThrow({ where: { id: testId }, include: testInclude });
+      });
+    }
     if (test.lifecycle !== "DRAFT") throw Object.assign(new Error(`This exam is already ${test.lifecycle}. Refresh to see its current state.`), { statusCode: 409 });
 
     const review = await persistedReviewSummary(testId);
@@ -1030,12 +1100,23 @@ export const testsService = {
   },
 
   async transitionLifecycle(requester: Requester, id: string, input: LifecycleInput) {
-    const test = await prisma.test.findUnique({ where: { id } });
+    let test = await prisma.test.findUnique({ where: { id } });
     if (!test) throw Object.assign(new Error("Test not found"), { statusCode: 404 });
     await assertTestAccess(requester, test);
     if (!isExamLifecycle(input.lifecycle)) {
       throw Object.assign(new Error("Invalid exam lifecycle."), { statusCode: 400 });
     }
+    const now = new Date();
+    if (input.lifecycle === "CLOSED" && test.lifecycle === "SCHEDULED" && (!test.publishAt || test.publishAt <= now)) {
+      test = await prisma.$transaction(async (tx) => {
+        await tx.test.updateMany({
+          where: { id, lifecycle: "SCHEDULED", OR: [{ publishAt: null }, { publishAt: { lte: now } }] },
+          data: { lifecycle: "LIVE", status: legacyExamStatus("LIVE"), isLive: true, publishedAt: test?.publishedAt || now },
+        });
+        return tx.test.findUniqueOrThrow({ where: { id } });
+      });
+    }
+    if (test.lifecycle === input.lifecycle) return prisma.test.findUniqueOrThrow({ where: { id }, include: testInclude });
     const current = isExamLifecycle(test.lifecycle) ? test.lifecycle : "DRAFT";
     assertLifecycleTransition(current, input.lifecycle);
     const window = windowData(input, test);

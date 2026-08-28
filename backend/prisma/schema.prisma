@@ -421,6 +421,10 @@ model Test {
   @@index([examStartsAt])
   @@index([examEndsAt])
   @@index([subject])
+  @@index([batchId, createdAt])
+  @@index([lifecycle, publishAt])
+  @@index([lifecycle, examStartsAt])
+  @@index([lifecycle, examEndsAt])
 }
 
 model Question {

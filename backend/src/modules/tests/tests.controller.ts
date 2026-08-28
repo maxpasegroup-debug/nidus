@@ -6,7 +6,7 @@ import { testsService } from "./tests.service.js";
 function assertValid(req: Request) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    throw new Error(errors.array().map((error) => error.msg).join(", "));
+    throw Object.assign(new Error(errors.array().map((error) => error.msg).join(", ")), { statusCode: 400, details: errors.array() });
   }
 }
 
@@ -29,6 +29,7 @@ function requester(req: AuthenticatedRequest) {
 export const testsController = {
   async control(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
+      assertValid(req);
       res.json(await testsService.controlList(requester(req), {
         search: typeof req.query.search === "string" ? req.query.search : undefined,
         status: typeof req.query.status === "string" ? req.query.status : undefined,

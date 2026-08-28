@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { body } from "express-validator";
+import { body, query } from "express-validator";
 import { Role } from "../../generated/prisma/client.js";
 import { allowRoles, protect } from "../../middlewares/session.middleware.js";
 import { testsController } from "./tests.controller.js";
@@ -33,7 +33,13 @@ function testValidators(optional = false) {
 }
 
 testsRouter.get("/", protect, allowRoles(Role.STUDENT, Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER), testsController.list);
-testsRouter.get("/control", protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD), testsController.control);
+testsRouter.get("/control", protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD), [
+  query("page").optional().isInt({ min: 1 }).withMessage("Page must be an integer greater than zero."),
+  query("limit").optional().isInt({ min: 1, max: 100 }).withMessage("Limit must be an integer between 1 and 100."),
+  query("status").optional().isIn(["DRAFT", "IN_REVIEW", "SCHEDULED", "UPCOMING", "LIVE", "EXPIRED", "CLOSED", "ARCHIVED"]).withMessage("Invalid Exam Control status."),
+  query("search").optional().trim().isLength({ max: 120 }).withMessage("Search must be 120 characters or fewer."),
+  query("batchId").optional().trim().isLength({ min: 1, max: 128 }).matches(/^[A-Za-z0-9_-]+$/).withMessage("Invalid batch id."),
+], testsController.control);
 testsRouter.get("/available", protect, allowRoles(Role.STUDENT, Role.ADMIN), testsController.available);
 testsRouter.get("/attempts/history", protect, allowRoles(Role.STUDENT, Role.ADMIN), testsController.history);
 testsRouter.get("/result/:attemptId", protect, allowRoles(Role.STUDENT, Role.ADMIN), testsController.result);
