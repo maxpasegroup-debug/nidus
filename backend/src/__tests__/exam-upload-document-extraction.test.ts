@@ -31,6 +31,30 @@ describe("exam upload PDF extraction", () => {
     expect(questions[3]).toMatchObject({ optionA: "0,0,1", optionB: "0,1,0", optionC: "1,1,0", optionD: "0,0,0", reviewStatus: "MISSING_ANSWER" });
   });
 
+  it("recognizes closing-parenthesis question numbering from Word papers", () => {
+    const text = [
+      "1) If the major axis of an ellipse is 3 times its minor axis, its eccentricity is:",
+      "(a) √8/2(b) 3/2",
+      "(c) √8/3(d) 3/4",
+      "2) The focal distance of a point on the parabola y² = 12x is 4. What is the abscissa of the point?",
+      "(a) 1(b) -1",
+      "(c) 3/2(d) -2",
+    ].join("\n");
+
+    const questions = parseExamQuestions([{ pageNumber: 1, text }]);
+
+    expect(questions).toHaveLength(2);
+    expect(questions[0]).toMatchObject({
+      number: 1,
+      questionText: expect.stringContaining("major axis"),
+      optionA: "√8/2",
+      optionB: "3/2",
+      optionC: "√8/3",
+      optionD: "3/4",
+    });
+    expect(questions[1]).toMatchObject({ number: 2, optionA: "1", optionB: "-1", optionC: "3/2", optionD: "-2" });
+  });
+
   it("recognizes Word papers with one unlabeled option per paragraph", () => {
     const text = [
       "1. If the major axis of an ellipse is twice its minor axis, then its eccentricity is:",
@@ -57,6 +81,51 @@ describe("exam upload PDF extraction", () => {
     });
   });
 
+  it("recognizes Q/Question labels, parenthesized numbering, colon options, and safe answer-key formats", () => {
+    const paper = [
+      "Q1: Which value is prime?",
+      "A: 2",
+      "B: 4",
+      "C: 6",
+      "D: 8",
+      "Question 2)",
+      "(a) Mercury",
+      "(b) Venus",
+      "(c) Earth",
+      "(d) Mars",
+      "(3) Which expression contains (1024)10 but is not a new question?",
+      "A. one",
+      "B. two",
+      "C. three",
+      "D. four",
+    ].join("\n");
+    const key = [{ pageNumber: 1, text: "Q1: B\nAnswer 2: C\n3-B" }];
+    const questions = parseExamQuestions([{ pageNumber: 1, text: paper }], key);
+
+    expect(questions).toHaveLength(3);
+    expect(questions.map((question) => question.number)).toEqual([1, 2, 3]);
+    expect(questions[0]).toMatchObject({ optionA: "2", optionB: "4", optionC: "6", optionD: "8", correctAnswer: "B" });
+    expect(questions[1]).toMatchObject({ optionA: "Mercury", optionB: "Venus", optionC: "Earth", optionD: "Mars", correctAnswer: "C" });
+    expect(questions[2]).toMatchObject({ correctAnswer: "B" });
+  });
+
+  it("preserves explicit marks and leaves explanations optional", () => {
+    const questions = parseExamQuestions([{ pageNumber: 2, text: "1. Select the answer. (a) A (b) B (c) C (d) D\n2 marks" }]);
+    expect(questions[0]).toMatchObject({ marks: 2, correctAnswer: undefined });
+  });
+
+  it("standardizes a ten-question conic-sections style paper", () => {
+    const text = Array.from({ length: 10 }, (_, index) => [
+      `${index + 1}) Conic sections question ${index + 1}?`,
+      `(a) Option ${index + 1}A\t(b) Option ${index + 1}B`,
+      `(c) Option ${index + 1}C\t(d) Option ${index + 1}D`,
+    ]).flat().join("\n");
+    const questions = parseExamQuestions([{ pageNumber: 1, text }]);
+    expect(questions).toHaveLength(10);
+    expect(questions.map((question) => question.number)).toEqual(Array.from({ length: 10 }, (_, index) => index + 1));
+    expect(questions.every((question) => question.optionA && question.optionB && question.optionC && question.optionD)).toBe(true);
+  });
+
   it("rejects malformed PDFs and keeps an explicit scanned-PDF guard", async () => {
     await expect(extractTextPdf(Buffer.from("not a pdf"))).rejects.toThrow(/not a valid PDF/i);
     const source = readFileSync(join(process.cwd(), "src/modules/academy/exam-document-extraction.ts"), "utf8");
@@ -80,5 +149,9 @@ describe("exam upload PDF extraction", () => {
     expect(service).toContain('linkedUploadRows.find((row) => row.sourceKind === "ANSWER_KEY")');
     expect(service).toContain("extractTextDocx");
     expect(service).toContain("extractTextDoc(");
+    expect(service).toContain('standardizationMode: "DETERMINISTIC"');
+    const reconstruction = readFileSync(join(process.cwd(), "src/modules/ndie/ai-reconstruction/ai-reconstruction.service.ts"), "utf8");
+    expect(reconstruction).toContain('standardizationMode?: "DETERMINISTIC" | "AI_ALLOWED"');
+    expect(reconstruction).toContain('input.standardizationMode !== "DETERMINISTIC"');
   });
 });

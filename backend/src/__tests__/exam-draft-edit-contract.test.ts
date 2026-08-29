@@ -106,4 +106,11 @@ describe("editable DRAFT question contract", () => {
     expect(studio).toContain("questionEditErrors");
     expect(studio).toContain('role="alert"');
   });
+
+  it("uses plain-language copy for review issues", () => {
+    const studio = readFileSync(join(process.cwd(), "../frontend/src/components/teacher/simple-exam-studio.tsx"), "utf8");
+    expect(studio).toContain("Correct answer is missing");
+    expect(studio).toContain("Explanation is missing");
+    expect(studio).toContain("Source location is missing");
+  });
 });

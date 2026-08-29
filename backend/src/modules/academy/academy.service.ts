@@ -264,6 +264,9 @@ type ExamImportValidationQuestion = {
   optionD?: string;
   correctAnswer?: string;
   explanation?: string;
+  marks?: number;
+  sourcePageNumber?: number;
+  sourceReference?: string;
   visualReviewRequired?: boolean;
   visualReviewNotes?: unknown;
   aiConfidence?: number;
@@ -5067,7 +5070,21 @@ export const academyService = {
       }
       extractedQuestions = parseExamQuestions(paper.pages, keyPages);
       if (!extractedQuestions.length) {
-        throw Object.assign(new Error(`No recognizable multiple-choice questions were found in this ${questionPaperIsPdf ? "PDF" : questionPaperIsDocx ? "DOCX" : "DOC"}. Use numbered questions with labelled options A-D and try again.`), { statusCode: 422 });
+        // Keep readable but non-standard documents in the draft as an explicit
+        // review placeholder. This avoids silently discarding source content
+        // while keeping the deterministic parser honest (it never guesses a
+        // question, option, or answer).
+        extractedQuestions = [{
+          number: 1,
+          questionText: "Document content requires review. No standard multiple-choice question structure was detected.",
+          optionA: "",
+          optionB: "",
+          optionC: "",
+          optionD: "",
+          sourcePageNumber: paper.pages[0]?.pageNumber || 1,
+          sourceReference: `Page ${paper.pages[0]?.pageNumber || 1}`,
+          reviewStatus: "NEEDS_REVIEW",
+        }];
       }
       documentEvidence = {
         questionPaper: { name: questionPaper.originalName, format: questionPaperIsPdf ? "PDF" : questionPaperIsDocx ? "DOCX" : "DOC", pageCount: questionPaperIsPdf ? paper.pages.length : null, textCharacters: paper.textCharacters },
@@ -5081,6 +5098,7 @@ export const academyService = {
     ])).slice(0, 25);
     const result = await ndieAiReconstructionService.reconstruct({
       ...input,
+      standardizationMode: "DETERMINISTIC",
       importJobIds,
       examUploadIds: uploadIds,
       ...(extractedQuestions ? { questions: extractedQuestions } : {}),

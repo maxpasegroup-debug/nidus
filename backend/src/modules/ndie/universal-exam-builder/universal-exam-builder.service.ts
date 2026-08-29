@@ -7,6 +7,7 @@ type UniversalQuestionInput = {
   optionD?: string;
   correctAnswer?: string;
   explanation?: string;
+  marks?: number;
   visualReviewRequired?: boolean;
   visualReviewNotes?: unknown;
   aiConfidence?: number;
@@ -67,6 +68,7 @@ type ReviewStatus = "READY" | "NEEDS_REVIEW" | "MISSING_OPTION" | "MISSING_FORMU
 type ProfessionalQuestion = {
   number: number;
   questionText: string;
+  marks: number;
   options: Array<{ label: string; text: string }>;
   questionType: UniversalQuestionType;
   draftConfidence: number;
@@ -296,6 +298,7 @@ export const ndieUniversalExamBuilderService = {
       return {
         number,
         questionText: cleanText(question.questionText) || "Question content preserved for teacher review.",
+        marks: typeof question.marks === "number" && Number.isFinite(question.marks) && question.marks > 0 ? question.marks : 1,
         options,
         questionType,
         draftConfidence: confidence,
@@ -326,6 +329,7 @@ export const ndieUniversalExamBuilderService = {
       questions.push({
         number: 1,
         questionText: `${input.subject || "Exam"} document preserved. NIDUS AI created a review draft from the original source.`,
+        marks: 1,
         options: [],
         questionType: "MIXED_EXAM",
         draftConfidence: 0.3,

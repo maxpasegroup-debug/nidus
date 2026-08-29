@@ -57,8 +57,9 @@ export function SimpleExamStudio({ initialTestId = "", initialStage = "home" }: 
 
   async function refreshReview(id = draftId) {
     const response = await apiClient.get<{ review: ReviewSummary }>(`/tests/${id}/review-summary`);
-    setReview(response.data.review);
-    return response.data.review;
+    const readableReview = withReadableIssueLabels(response.data.review);
+    setReview(readableReview);
+    return readableReview;
   }
 
   async function saveEssentials() {
@@ -111,7 +112,7 @@ export function SimpleExamStudio({ initialTestId = "", initialStage = "home" }: 
       const parsed = extracted.map((item) => {
         const options = Array.isArray(item.options) ? item.options as Array<{ label?: string; text?: string }> : [];
         const option = (label: string) => options.find((entry) => entry.label?.toUpperCase() === label)?.text || "";
-        return { ...emptyQuestion(), questionText: String(item.questionText || item.text || ""), optionA: option("A"), optionB: option("B"), optionC: option("C"), optionD: option("D"), correctAnswer: String(item.linkedAnswer || "").toUpperCase(), explanation: String(item.linkedSolution || ""), topic: topic || subject, reviewStatus: String(item.reviewStatus || "NEEDS_REVIEW"), sourcePageNumber: typeof item.sourcePageNumber === "number" ? item.sourcePageNumber : typeof item.sourcePage === "number" ? item.sourcePage : undefined };
+        return { ...emptyQuestion(), questionText: String(item.questionText || item.text || ""), optionA: option("A"), optionB: option("B"), optionC: option("C"), optionD: option("D"), correctAnswer: String(item.linkedAnswer || "").toUpperCase(), explanation: String(item.linkedSolution || ""), marks: typeof item.marks === "number" && Number.isFinite(item.marks) && item.marks > 0 ? item.marks : 1, topic: topic || subject, reviewStatus: String(item.reviewStatus || "NEEDS_REVIEW"), sourcePageNumber: typeof item.sourcePageNumber === "number" ? item.sourcePageNumber : typeof item.sourcePage === "number" ? item.sourcePage : undefined };
       });
       if (!parsed.length) throw new Error("No questions were reconstructed.");
       const saved = await apiClient.post<{ test: { questions?: Question[] } }>("/academy/exams", { testId: draftId, title, topic: topic || subject, subject, batchId, durationMinutes: duration, manualPaperReview: true, examUploadIds: uploads.map((upload) => upload.id), draft: { manualPaperReview: true, questions: parsed } });
@@ -162,7 +163,7 @@ export function SimpleExamStudio({ initialTestId = "", initialStage = "home" }: 
   }
   async function reconcile(kind: "count" | "marks") {
     setBusy(true); setError("");
-    try { const response = await apiClient.post<{ review: ReviewSummary }>(`/tests/${draftId}/review-reconcile`, { [kind]: true }); setReview(response.data.review); } catch (cause) { setError(getApiErrorMessage(cause)); } finally { setBusy(false); }
+    try { const response = await apiClient.post<{ review: ReviewSummary }>(`/tests/${draftId}/review-reconcile`, { [kind]: true }); setReview(withReadableIssueLabels(response.data.review)); } catch (cause) { setError(getApiErrorMessage(cause)); } finally { setBusy(false); }
   }
   async function enterRelease() {
     setBusy(true); setError("");
@@ -224,6 +225,65 @@ function mapEssentialBackendError(message: string): EssentialErrors {
   if (normalized.includes("exam start")) { errors.startDate = message; errors.startTime = message; }
   if (normalized.includes("batch")) errors.batchId = message;
   return errors;
+}
+
+/**
+ * Translate internal review issue codes into plain language for Directors.
+ * Severity and lifecycle enforcement remain backend-owned; this is presentation only.
+ */
+function reviewIssueCopy(issue: ReviewIssue) {
+  switch (issue.id || issue.type) {
+    case "INVALID_CORRECT_ANSWER":
+      return {
+        title: "Correct answer is missing",
+        detail: "Select the correct option before releasing this exam.",
+      };
+    case "MISSING_EXPLANATION":
+      return {
+        title: "Explanation is missing (optional)",
+        detail: "Optional. Add an explanation now or continue without one.",
+      };
+    case "SOURCE_COORDINATES_UNAVAILABLE":
+      return {
+        title: "Source location is missing (optional)",
+        detail: "The imported file did not include a page or location. This is optional.",
+      };
+    case "MISSING_REQUIRED_OPTIONS":
+      return {
+        title: "Answer options are missing",
+        detail: "Add options A, B, C and D before releasing this exam.",
+      };
+    case "MISSING_QUESTION_TEXT":
+      return {
+        title: "Question text is missing",
+        detail: "Add the question text before releasing this exam.",
+      };
+    case "DUPLICATE_OPTIONS":
+      return {
+        title: "Answer options are duplicated",
+        detail: "Make all answer options different before releasing this exam.",
+      };
+    case "INVALID_MARKS":
+      return {
+        title: "Marks are invalid",
+        detail: "Enter valid positive marks before releasing this exam.",
+      };
+    default:
+      return {
+        title: "Question needs review",
+        detail: issue.severity === "HIGH" ? "Fix this before releasing the exam." : "Optional review item.",
+      };
+  }
+}
+
+function withReadableIssueLabels(review: ReviewSummary): ReviewSummary {
+  return {
+    ...review,
+    questionIssues: review.questionIssues.map((entry) => ({
+      ...entry,
+      issues: entry.issues.map((issue) => ({ ...issue, type: reviewIssueCopy(issue).title })),
+    })),
+  };
 }
 
 type BatchOption = { id: string; name: string };

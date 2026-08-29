@@ -13,6 +13,7 @@ type TeacherQuestionInput = {
   optionD?: string;
   correctAnswer?: string;
   explanation?: string;
+  marks?: number;
   visualReviewRequired?: boolean;
   visualReviewNotes?: unknown;
   aiConfidence?: number;
@@ -22,6 +23,8 @@ type TeacherQuestionInput = {
 };
 
 export type NdieAiReconstructionInput = {
+  /** Deterministic document standardization is opt-in for upload reconstruction. */
+  standardizationMode?: "DETERMINISTIC" | "AI_ALLOWED";
   batchId?: string;
   subject?: string;
   topic?: string;
@@ -60,6 +63,7 @@ export type NdieAiReconstructionInput = {
 type ProfessionalQuestion = {
   number: number;
   questionText: string;
+  marks?: number;
   options: Array<{ label: string; text: string }>;
   questionType: string;
   draftConfidence: number;
@@ -183,6 +187,7 @@ function buildDeterministicDraft(input: NdieAiReconstructionInput): Professional
     return {
       number,
       questionText: /[?.:]$/.test(text) ? text : `${text}?`,
+      marks: typeof question.marks === "number" && Number.isFinite(question.marks) && question.marks > 0 ? question.marks : 1,
       options: [
         { label: "A", text: cleanText(question.optionA) || "Option A requires review" },
         { label: "B", text: cleanText(question.optionB) || "Option B requires review" },
@@ -297,6 +302,7 @@ export function buildAiReconstructionPrompt(input: NdieAiReconstructionInput) {
 
 export const ndieAiReconstructionService = {
   shouldReconstruct(input: NdieAiReconstructionInput) {
+    if (input.standardizationMode === "DETERMINISTIC") return false;
     const threshold = typeof input.confidenceThreshold === "number" ? input.confidenceThreshold : 0.82;
     return confidenceFromInput(input) < threshold || Number(input.draft?.needsReview ?? 0) > 0;
   },
@@ -318,7 +324,9 @@ export const ndieAiReconstructionService = {
     const promptChecksum = checksum(`${instructions}\n${promptInput}`);
     const initialConfidence = confidenceFromInput(input);
     const shouldUseAi = this.shouldReconstruct(input);
-    let mode: NdieAiReconstructionResult["mode"] = shouldUseAi ? "AI_RECONSTRUCTION" : "NDIE_PRIMARY";
+    const aiAllowed = input.standardizationMode !== "DETERMINISTIC";
+    const effectiveShouldUseAi = aiAllowed && shouldUseAi;
+    let mode: NdieAiReconstructionResult["mode"] = effectiveShouldUseAi ? "AI_RECONSTRUCTION" : "NDIE_PRIMARY";
     let provider = route.selectedProvider?.id || "ai.rule-based";
     let aiPayload = {
       draft: ndieDraft,
@@ -327,12 +335,12 @@ export const ndieAiReconstructionService = {
       providerDiagnostics: {
         selectedProvider: provider,
         fallbackChain: providerChain,
-        rule: shouldUseAi ? "low-confidence-ai-reconstruction" : "ndie-primary-draft"
+        rule: effectiveShouldUseAi ? "low-confidence-ai-reconstruction" : aiAllowed ? "ndie-primary-draft" : "deterministic-standardization"
       }
     };
-    if (shouldUseAi && /openai/i.test(provider)) {
+    if (effectiveShouldUseAi && /openai/i.test(provider)) {
       aiPayload = await callOpenAIJson<typeof aiPayload>(instructions, promptInput, aiPayload);
-    } else if (shouldUseAi && provider !== "ai.rule-based") {
+    } else if (effectiveShouldUseAi && provider !== "ai.rule-based") {
       mode = "NDIE_FALLBACK";
     }
     const responseChecksum = checksum(aiPayload);
