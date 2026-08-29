@@ -2,7 +2,7 @@ import { describe, expect, it } from "@jest/globals";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { extractTextDoc, extractTextDocx, extractTextPdf, parseExamQuestions } from "../modules/academy/exam-document-extraction.js";
+import { extractTextDoc, extractTextDocx, extractTextPdf, parseExamQuestions, renderOfficeMathFragment } from "../modules/academy/exam-document-extraction.js";
 
 describe("exam upload PDF extraction", () => {
   it("reconstructs extracted PDF page text without guessing a missing answer", () => {
@@ -124,6 +124,11 @@ describe("exam upload PDF extraction", () => {
     expect(questions).toHaveLength(10);
     expect(questions.map((question) => question.number)).toEqual(Array.from({ length: 10 }, (_, index) => index + 1));
     expect(questions.every((question) => question.optionA && question.optionB && question.optionC && question.optionD)).toBe(true);
+  });
+
+  it("renders common Office Math matrix and superscript structures", () => {
+    expect(renderOfficeMathFragment("<m:d><m:dPr><m:begChr m:val=\"[\"/><m:endChr m:val=\"]\"/></m:dPr><m:e><m:m><m:mr><m:e><m:r><m:t>2</m:t></m:r></m:e><m:e><m:r><m:t>3</m:t></m:r></m:e></m:mr><m:mr><m:e><m:r><m:t>1</m:t></m:r></m:e><m:e><m:r><m:t>4</m:t></m:r></m:e></m:mr></m:m></m:e></m:d>")).toBe("[2 3; 1 4]");
+    expect(renderOfficeMathFragment("<m:sSup><m:e><m:r><m:t>x</m:t></m:r></m:e><m:sup><m:r><m:t>2</m:t></m:r></m:sup></m:sSup>")).toBe("x^2");
   });
 
   it("rejects malformed PDFs and keeps an explicit scanned-PDF guard", async () => {

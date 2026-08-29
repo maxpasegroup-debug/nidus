@@ -77,6 +77,43 @@ function decodeXml(value: string) {
     .replace(/&#x([0-9a-f]+);/gi, (_, code) => String.fromCodePoint(parseInt(code, 16)));
 }
 
+function mathChild(body: string, tag: string) {
+  return body.match(new RegExp(`<m:${tag}\\b[^>]*>([\\s\\S]*?)<\\/m:${tag}>`))?.[1] || "";
+}
+
+export function renderOfficeMathFragment(fragment: string): string {
+  let value = fragment;
+  value = value.replace(/<m:d\b[^>]*>([\s\S]*?)<\/m:d>/g, (_, body: string) => {
+    const properties = body.match(/<m:dPr\b[^>]*>([\s\S]*?)<\/m:dPr>/)?.[1] || "";
+    const begin = decodeXml(properties.match(/<m:begChr\b[^>]*m:val="([^"]*)"/i)?.[1] || "(");
+    const end = decodeXml(properties.match(/<m:endChr\b[^>]*m:val="([^"]*)"/i)?.[1] || ")");
+    const matrix = body.match(/<m:m\b[^>]*>[\s\S]*?<\/m:m>/)?.[0];
+    if (matrix) return `${begin}${renderOfficeMathFragment(matrix)}${end}`;
+    const elements = Array.from(body.matchAll(/<m:e\b[^>]*>([\s\S]*?)<\/m:e>/g)).map((match) => renderOfficeMathFragment(match[1]));
+    return `${begin}${elements.join(" ")}${end}`;
+  });
+  value = value.replace(/<m:m\b[^>]*>([\s\S]*?)<\/m:m>/g, (_, body: string) => {
+    const rows = Array.from(body.matchAll(/<m:mr\b[^>]*>([\s\S]*?)<\/m:mr>/g)).map((row) => {
+      const cells = Array.from(row[1].matchAll(/<m:e\b[^>]*>([\s\S]*?)<\/m:e>/g)).map((cell) => renderOfficeMathFragment(cell[1]));
+      return cells.join(" ");
+    });
+    return rows.join("; ");
+  });
+  value = value.replace(/<m:f\b[^>]*>([\s\S]*?)<\/m:f>/g, (_, body: string) => {
+    const numerator = renderOfficeMathFragment(mathChild(body, "num"));
+    const denominator = renderOfficeMathFragment(mathChild(body, "den"));
+    return `(${numerator})/(${denominator})`;
+  });
+  value = value.replace(/<m:rad\b[^>]*>([\s\S]*?)<\/m:rad>/g, (_, body: string) => `√(${renderOfficeMathFragment(mathChild(body, "e"))})`);
+  value = value.replace(/<m:sSup\b[^>]*>([\s\S]*?)<\/m:sSup>/g, (_, body: string) => `${renderOfficeMathFragment(mathChild(body, "e"))}^${renderOfficeMathFragment(mathChild(body, "sup"))}`);
+  value = value.replace(/<m:sSub\b[^>]*>([\s\S]*?)<\/m:sSub>/g, (_, body: string) => `${renderOfficeMathFragment(mathChild(body, "e"))}_${renderOfficeMathFragment(mathChild(body, "sub"))}`);
+  value = value.replace(/<m:func\b[^>]*>([\s\S]*?)<\/m:func>/g, (_, body: string) => `${renderOfficeMathFragment(mathChild(body, "fName"))}${renderOfficeMathFragment(mathChild(body, "e"))}`);
+  value = value.replace(/<m:fName\b[^>]*>([\s\S]*?)<\/m:fName>/g, (_, body: string) => renderOfficeMathFragment(body));
+  value = value.replace(/<m:r\b[^>]*>([\s\S]*?)<\/m:r>/g, (_, body: string) => renderOfficeMathFragment(body));
+  value = value.replace(/<m:t\b[^>]*>([\s\S]*?)<\/m:t>/g, (_, text: string) => decodeXml(text));
+  return value.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+}
+
 /**
  * Mammoth intentionally prioritizes readable prose and may omit Office Math
  * runs. Read the document XML as a small, dependency-light supplement so
@@ -90,10 +127,7 @@ async function extractDocxXmlParagraphs(buffer: Buffer) {
     const zip = await jszip.loadAsync(buffer);
     const entry = zip.file("word/document.xml");
     if (!entry) return "";
-    const xml = (await entry.async("string")).replace(/<m:rad\b[^>]*>([\s\S]*?)<\/m:rad>/g, (_, body: string) => {
-      const radicand = Array.from(body.matchAll(/<m:t\b[^>]*>([\s\S]*?)<\/m:t>/g)).map((token) => decodeXml(token[1])).join("");
-      return `<w:t>√(${radicand})</w:t>`;
-    });
+    const xml = (await entry.async("string")).replace(/<m:oMath\b[^>]*>([\s\S]*?)<\/m:oMath>/g, (_, body: string) => `<w:t>${renderOfficeMathFragment(body)}</w:t>`);
     const paragraphs: string[] = [];
     for (const paragraph of xml.matchAll(/<w:p\b[^>]*>[\s\S]*?<\/w:p>/g)) {
       const tokens: string[] = [];
