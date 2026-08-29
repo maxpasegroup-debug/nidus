@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Check, Copy, Expand, FileText, ImageIcon, Maximize2, Minus, Plus, X } from "lucide-react";
-import { NidusMathText } from "@/components/exam/nidus-math-renderer";
+import { NidusMathText, NidusRichSegments, type NidusRichSegment } from "@/components/exam/nidus-math-renderer";
 import type { Question } from "@/types/test";
 
 type SourceReference = {
@@ -23,9 +23,10 @@ type RichBlock = {
   graphType?: string;
   rows?: string[][];
   labels?: string[];
-  options?: Array<{ key?: string; text?: string; latex?: string }>;
+  options?: Array<{ key?: string; text?: string; latex?: string; segments?: NidusRichSegment[] }>;
   sourceReference?: SourceReference;
   confidence?: number;
+  segments?: NidusRichSegment[];
 };
 
 type RichContent = {
@@ -38,6 +39,7 @@ type StudentOption = {
   key: string;
   text: string;
   latex?: string;
+  segments?: NidusRichSegment[];
 };
 
 const legacyOptions = ["A", "B", "C", "D"] as const;
@@ -56,7 +58,8 @@ function optionBlocks(question: Question, content: RichContent): StudentOption[]
     return richOptions.map((option) => ({
       key: String(option.key || "").toUpperCase(),
       text: String(option.text || ""),
-      latex: option.latex
+      latex: option.latex,
+      segments: option.segments
     })).filter((option) => option.key);
   }
   return legacyOptions.map((key) => ({
@@ -137,7 +140,7 @@ function AssetViewer({ url, alt, caption }: { url: string; alt?: string; caption
 
 function RenderBlock({ block }: { block: RichBlock }) {
   const key = block.id || `${block.type}-${block.text || block.url || ""}`;
-  if (block.type === "paragraph") return <p key={key} className="text-lg font-semibold leading-8 text-[#071d36]"><NidusMathText text={block.text} /></p>;
+  if (block.type === "paragraph") return <p key={key} className="text-lg font-semibold leading-8 text-[#071d36]">{block.segments?.length ? <NidusRichSegments segments={block.segments} /> : <NidusMathText text={block.text} />}</p>;
   if (block.type === "formula") {
     const latex = block.latex || block.text || "";
     return (
@@ -261,7 +264,7 @@ export function RichStudentQuestionRenderer({
                   {selected ? <Check size={14} /> : option.key}
                 </span>
                 <span className="leading-6">
-                  {option.latex ? <NidusMathText text={`$${option.latex}$`} /> : <NidusMathText text={option.text} />}
+                  {option.segments?.length ? <NidusRichSegments segments={option.segments} /> : option.latex ? <NidusMathText text={`$${option.latex}$`} /> : <NidusMathText text={option.text} />}
                 </span>
               </button>
             );

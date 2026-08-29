@@ -27,9 +27,47 @@ const baseBlockSchema = z.object({
   reviewStatus: z.enum(["AUTO_APPROVED", "APPROVED", "NEEDS_REVIEW", "MANUAL_CORRECTION_REQUIRED"]).optional(),
 }).strict();
 
+/**
+ * Version-1 inline content contract.  Math is explicit data, never inferred
+ * by a consumer from an arbitrary text string.  The sourceText is retained so
+ * later extractors can improve normalization without losing the source.
+ */
+export const mathOriginSchema = z.enum(["OMML", "EXPLICIT_LATEX", "UNICODE", "NORMALIZED_SOURCE", "MANUAL"]);
+export const mathConversionWarningSchema = z.object({
+  code: z.string().min(1),
+  message: z.string().min(1),
+  severity: z.enum(["LOW", "MEDIUM", "HIGH"]),
+}).strict();
+export type MathConversionWarning = z.infer<typeof mathConversionWarningSchema>;
+const mathBoundingBoxSchema = z.object({
+  page: z.number().int().positive(),
+  x: z.number().min(0).max(1),
+  y: z.number().min(0).max(1),
+  width: z.number().min(0).max(1),
+  height: z.number().min(0).max(1),
+}).strict();
+const safeSegmentText = z.string().refine((value) => !/<\/?[a-z][^>]*>/i.test(value), "HTML markup is not allowed in canonical content segments");
+export const richSegmentSchema = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("text"), text: safeSegmentText }).strict(),
+  z.object({
+    type: z.literal("math"),
+    latex: z.string().min(1).refine((value) => !/<\/?[a-z][^>]*>/i.test(value), "HTML markup is not allowed in canonical content segments"),
+    sourceText: safeSegmentText.optional(),
+    confidence: z.number().min(0).max(1).optional(),
+    origin: mathOriginSchema.optional(),
+    warnings: z.array(mathConversionWarningSchema).optional(),
+    boundingBox: mathBoundingBoxSchema.optional(),
+  }).strict(),
+]);
+
+export type RichSegment = z.infer<typeof richSegmentSchema>;
+
+const richSegmentsSchema = z.array(richSegmentSchema).min(1);
+
 const paragraphBlockSchema = baseBlockSchema.extend({
   type: z.literal("paragraph"),
   text: z.string().min(1),
+  segments: richSegmentsSchema.optional(),
 });
 
 const formulaBlockSchema = baseBlockSchema.extend({
@@ -77,6 +115,7 @@ const optionsBlockSchema = baseBlockSchema.extend({
     // the draft instead of losing the import to a serialization error.
     text: z.string(),
     latex: z.string().optional(),
+    segments: richSegmentsSchema.optional(),
     sourceReference: sourceReferenceSchema.optional(),
   }).strict()).length(4),
 });
@@ -85,6 +124,7 @@ const explanationBlockSchema = baseBlockSchema.extend({
   type: z.literal("explanation"),
   text: z.string().min(1),
   latex: z.string().optional(),
+  segments: richSegmentsSchema.optional(),
 });
 
 export const questionContentBlockSchema = z.discriminatedUnion("type", [
@@ -126,6 +166,65 @@ export const questionContentSchema = z.object({
 
 export type QuestionContent = z.infer<typeof questionContentSchema>;
 
+export type MathSegmentHint = {
+  sourceText: string;
+  /** Internal match token used by extractors; never exposed in the segment. */
+  matchText?: string;
+  latex: string;
+  origin?: z.infer<typeof mathOriginSchema>;
+  confidence?: number;
+  warnings?: MathConversionWarning[];
+  boundingBox?: z.infer<typeof mathBoundingBoxSchema>;
+};
+
+const explicitMathPattern = /(\$\$[\s\S]+?\$\$|\\\[[\s\S]+?\\\]|\\\([\s\S]+?\\\)|\$[^$\n]+?\$)/g;
+
+function stripMathDelimiters(value: string) {
+  if (value.startsWith("$$") && value.endsWith("$$")) return value.slice(2, -2).trim();
+  if (value.startsWith("\\[") && value.endsWith("\\]")) return value.slice(2, -2).trim();
+  if (value.startsWith("\\(") && value.endsWith("\\)")) return value.slice(2, -2).trim();
+  if (value.startsWith("$") && value.endsWith("$")) return value.slice(1, -1).trim();
+  return value.trim();
+}
+
+/** Build segments only from explicit delimiters or trusted extractor hints. */
+export function buildRichSegments(value: string, hints: MathSegmentHint[] = []): RichSegment[] {
+  const source = String(value ?? "");
+  const trusted = hints.filter((hint) => hint.sourceText && hint.latex);
+  const tokens: Array<{ start: number; end: number; segment: RichSegment }> = [];
+  for (const match of source.matchAll(explicitMathPattern)) {
+    const raw = match[0];
+    const start = match.index ?? 0;
+    tokens.push({ start, end: start + raw.length, segment: { type: "math", latex: stripMathDelimiters(raw), sourceText: raw, origin: "EXPLICIT_LATEX" } });
+  }
+  for (const hint of trusted) {
+    const matchText = hint.matchText || hint.sourceText;
+    let cursor = 0;
+    while (cursor < source.length) {
+      const start = source.indexOf(matchText, cursor);
+      if (start < 0) break;
+      tokens.push({ start, end: start + matchText.length, segment: { type: "math", latex: hint.latex, sourceText: hint.sourceText, origin: hint.origin, confidence: hint.confidence, warnings: hint.warnings, boundingBox: hint.boundingBox } });
+      cursor = start + matchText.length;
+    }
+  }
+  const ordered = tokens.filter((token, index) => tokens.findIndex((candidate) => candidate.start === token.start && candidate.end === token.end) === index).sort((a, b) => a.start - b.start || a.end - b.end);
+  const segments: RichSegment[] = [];
+  let cursor = 0;
+  for (const token of ordered) {
+    if (token.start < cursor) continue;
+    if (token.start > cursor) segments.push({ type: "text", text: source.slice(cursor, token.start) });
+    segments.push(token.segment);
+    cursor = token.end;
+  }
+  if (cursor < source.length || !segments.length) segments.push({ type: "text", text: source.slice(cursor) });
+  return segments;
+}
+
+function structuredSegments(value: string, hints: MathSegmentHint[] = []) {
+  const segments = buildRichSegments(value, hints);
+  return segments.some((segment) => segment.type === "math") ? segments : undefined;
+}
+
 function blockId(prefix: string, index: number) {
   return `${prefix}-${index + 1}`;
 }
@@ -146,30 +245,40 @@ export function buildLegacyQuestionContent(question: {
   sourceDocumentId?: string;
   aiConfidence?: number;
   reviewStatus?: string;
+  mathSegments?: {
+    question?: MathSegmentHint[];
+    optionA?: MathSegmentHint[];
+    optionB?: MathSegmentHint[];
+    optionC?: MathSegmentHint[];
+    optionD?: MathSegmentHint[];
+    explanation?: MathSegmentHint[];
+  };
+  contentSource?: "TEACHER_IMPORT" | "AI_IMPORT" | "LEGACY_MIGRATION" | "MANUAL_ENTRY";
 }): QuestionContent {
   const sourceReference = question.sourceDocumentId ? { documentId: question.sourceDocumentId } : undefined;
   const correctOption = String(question.correctAnswer ?? "").trim().toUpperCase();
+  const math = question.mathSegments;
   const blocks: QuestionContent["blocks"] = [
-    { id: blockId("paragraph", 0), type: "paragraph", text: question.questionText, sourceReference },
+    { id: blockId("paragraph", 0), type: "paragraph", text: question.questionText, ...(structuredSegments(question.questionText, math?.question) ? { segments: structuredSegments(question.questionText, math?.question) } : {}), sourceReference },
     ...(question.questionImage ? [{ id: blockId("image", 0), type: "image" as const, url: question.questionImage, assetRole: "QUESTION_IMAGE" as const, sourceReference }] : []),
     {
       id: blockId("options", 0),
       type: "options",
       options: [
-        { key: "A", text: question.optionA },
-        { key: "B", text: question.optionB },
-        { key: "C", text: question.optionC },
-        { key: "D", text: question.optionD },
+        { key: "A", text: question.optionA, ...(structuredSegments(question.optionA, math?.optionA) ? { segments: structuredSegments(question.optionA, math?.optionA) } : {}) },
+        { key: "B", text: question.optionB, ...(structuredSegments(question.optionB, math?.optionB) ? { segments: structuredSegments(question.optionB, math?.optionB) } : {}) },
+        { key: "C", text: question.optionC, ...(structuredSegments(question.optionC, math?.optionC) ? { segments: structuredSegments(question.optionC, math?.optionC) } : {}) },
+        { key: "D", text: question.optionD, ...(structuredSegments(question.optionD, math?.optionD) ? { segments: structuredSegments(question.optionD, math?.optionD) } : {}) },
       ],
     },
-    ...(question.explanation?.trim() ? [{ id: blockId("explanation", 0), type: "explanation" as const, text: question.explanation }] : []),
+    ...(question.explanation?.trim() ? [{ id: blockId("explanation", 0), type: "explanation" as const, text: question.explanation, ...(structuredSegments(question.explanation, math?.explanation) ? { segments: structuredSegments(question.explanation, math?.explanation) } : {}) }] : []),
   ];
 
   return questionContentSchema.parse({
     schemaVersion: 1,
     format: NIDUS_QUESTION_CONTENT_FORMAT,
     questionType: "SINGLE_CHOICE",
-    source: "LEGACY_MIGRATION",
+    source: question.contentSource || "LEGACY_MIGRATION",
     blocks,
     answer: {
       type: "SINGLE_CHOICE",
@@ -219,22 +328,24 @@ export function synchronizeEditableQuestionContentJson(question: Parameters<type
 
   for (const block of parsed.data.blocks) {
     if (block.type === "paragraph" && !paragraphUpdated) {
-      blocks.push({ ...block, text: question.questionText });
+      const segments = question.questionText === block.text ? block.segments : structuredSegments(question.questionText, question.mathSegments?.question);
+      blocks.push({ ...block, text: question.questionText, ...(segments ? { segments } : {}) });
       paragraphUpdated = true;
     } else if (block.type === "options" && !optionsUpdated) {
       blocks.push({
         ...block,
         options: [
-          { ...block.options[0], key: "A", text: question.optionA },
-          { ...block.options[1], key: "B", text: question.optionB },
-          { ...block.options[2], key: "C", text: question.optionC },
-          { ...block.options[3], key: "D", text: question.optionD },
+          { ...block.options[0], key: "A", text: question.optionA, ...(question.optionA === block.options[0].text ? (block.options[0].segments ? { segments: block.options[0].segments } : {}) : (structuredSegments(question.optionA, question.mathSegments?.optionA) ? { segments: structuredSegments(question.optionA, question.mathSegments?.optionA) } : {})) },
+          { ...block.options[1], key: "B", text: question.optionB, ...(question.optionB === block.options[1].text ? (block.options[1].segments ? { segments: block.options[1].segments } : {}) : (structuredSegments(question.optionB, question.mathSegments?.optionB) ? { segments: structuredSegments(question.optionB, question.mathSegments?.optionB) } : {})) },
+          { ...block.options[2], key: "C", text: question.optionC, ...(question.optionC === block.options[2].text ? (block.options[2].segments ? { segments: block.options[2].segments } : {}) : (structuredSegments(question.optionC, question.mathSegments?.optionC) ? { segments: structuredSegments(question.optionC, question.mathSegments?.optionC) } : {})) },
+          { ...block.options[3], key: "D", text: question.optionD, ...(question.optionD === block.options[3].text ? (block.options[3].segments ? { segments: block.options[3].segments } : {}) : (structuredSegments(question.optionD, question.mathSegments?.optionD) ? { segments: structuredSegments(question.optionD, question.mathSegments?.optionD) } : {})) },
         ],
       });
       optionsUpdated = true;
     } else if (block.type === "explanation") {
       if (explanation && !explanationUpdated) {
-        blocks.push({ ...block, text: explanation });
+        const segments = explanation === block.text ? block.segments : structuredSegments(explanation, question.mathSegments?.explanation);
+        blocks.push({ ...block, text: explanation, ...(segments ? { segments } : {}) });
         explanationUpdated = true;
       }
     } else {
@@ -242,18 +353,18 @@ export function synchronizeEditableQuestionContentJson(question: Parameters<type
     }
   }
 
-  if (!paragraphUpdated) blocks.unshift({ id: "paragraph-edit-1", type: "paragraph", text: question.questionText });
+  if (!paragraphUpdated) blocks.unshift({ id: "paragraph-edit-1", type: "paragraph", text: question.questionText, ...(structuredSegments(question.questionText, question.mathSegments?.question) ? { segments: structuredSegments(question.questionText, question.mathSegments?.question) } : {}) });
   if (!optionsUpdated) blocks.push({
     id: "options-edit-1",
     type: "options",
     options: [
-      { key: "A", text: question.optionA },
-      { key: "B", text: question.optionB },
-      { key: "C", text: question.optionC },
-      { key: "D", text: question.optionD },
+      { key: "A", text: question.optionA, ...(structuredSegments(question.optionA, question.mathSegments?.optionA) ? { segments: structuredSegments(question.optionA, question.mathSegments?.optionA) } : {}) },
+      { key: "B", text: question.optionB, ...(structuredSegments(question.optionB, question.mathSegments?.optionB) ? { segments: structuredSegments(question.optionB, question.mathSegments?.optionB) } : {}) },
+      { key: "C", text: question.optionC, ...(structuredSegments(question.optionC, question.mathSegments?.optionC) ? { segments: structuredSegments(question.optionC, question.mathSegments?.optionC) } : {}) },
+      { key: "D", text: question.optionD, ...(structuredSegments(question.optionD, question.mathSegments?.optionD) ? { segments: structuredSegments(question.optionD, question.mathSegments?.optionD) } : {}) },
     ],
   });
-  if (explanation && !explanationUpdated) blocks.push({ id: "explanation-edit-1", type: "explanation", text: explanation });
+  if (explanation && !explanationUpdated) blocks.push({ id: "explanation-edit-1", type: "explanation", text: explanation, ...(structuredSegments(explanation, question.mathSegments?.explanation) ? { segments: structuredSegments(explanation, question.mathSegments?.explanation) } : {}) });
 
   return questionContentSchema.parse({
     ...parsed.data,

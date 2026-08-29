@@ -13,6 +13,7 @@ type UniversalQuestionInput = {
   aiConfidence?: number;
   reviewStatus?: string;
   boundingBoxes?: unknown;
+  contentJson?: unknown;
 };
 
 export type UniversalExamBuilderInput = {
@@ -84,6 +85,7 @@ type ProfessionalQuestion = {
   missingItems: Array<"Option" | "Formula" | "Diagram" | "Answer" | "Solution">;
   originalCropRequired: boolean;
   notes: string[];
+  contentJson?: unknown;
 };
 
 type QualityLabel = "High" | "Medium" | "Needs Review";
@@ -322,6 +324,7 @@ export const ndieUniversalExamBuilderService = {
           visual ? "Visual asset preserved with source reference." : "",
           missingItems.length ? `Needs review: ${missingItems.join(", ")}` : "",
         ].filter(Boolean),
+        ...(question.contentJson ? { contentJson: question.contentJson } : {}),
       };
     });
 

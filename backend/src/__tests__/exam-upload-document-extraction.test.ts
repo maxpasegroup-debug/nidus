@@ -2,9 +2,139 @@ import { describe, expect, it } from "@jest/globals";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { extractTextDoc, extractTextDocx, extractTextPdf, parseExamQuestions, renderOfficeMathFragment } from "../modules/academy/exam-document-extraction.js";
+import { extractTextDoc, extractTextDocx, extractTextPdf, parseExamQuestions, renderOfficeMathFragment, convertOfficeMathFragment } from "../modules/academy/exam-document-extraction.js";
+import { analyzePdfPage } from "../modules/academy/pdf-layout-analysis.js";
+import { reconstructPdfMath } from "../modules/academy/pdf-math-reconstruction.js";
+import { decodePdfTextItem } from "../modules/academy/pdf-text-decoding.js";
+import { buildLegacyQuestionContent, parseQuestionContentJson } from "../modules/document-intelligence/question-content.schema.js";
 
 describe("exam upload PDF extraction", () => {
+  it("preserves mathematical Unicode while classifying suspect font glyphs", () => {
+    expect(decodePdfTextItem("x² + π ≤ θ")).toMatchObject({ normalizedText: "x² + π ≤ θ", encodingStatus: "TEXT_LAYER_OK" });
+    const privateGlyph = decodePdfTextItem("x");
+    expect(privateGlyph).toMatchObject({ normalizedText: "x", encodingStatus: "GLYPH_ENCODING_SUSPECT" });
+    expect(privateGlyph.warnings).toEqual(expect.arrayContaining([expect.objectContaining({ code: "PDF_PRIVATE_USE_GLYPH_NEEDS_REVIEW" })]));
+    expect(decodePdfTextItem("x�").warnings).toEqual(expect.arrayContaining([expect.objectContaining({ code: "PDF_GLYPH_ENCODING_NEEDS_REVIEW" })]));
+    expect(decodePdfTextItem("sin²;€").encodingStatus).toBe("GLYPH_ENCODING_SUSPECT");
+  });
+
+  it("keeps positioned PDF geometry and reconstructs clear scripts conservatively", () => {
+    const superscript = reconstructPdfMath([
+      { text: "x", pageNumber: 1, x: 10, y: 100, width: 8, height: 10, order: 0 },
+      { text: "2", pageNumber: 1, x: 18, y: 106, width: 4, height: 5, order: 1 },
+    ], 100, 120);
+    expect(superscript).toEqual(expect.arrayContaining([
+      expect.objectContaining({ latex: "x^{2}", origin: "NORMALIZED_SOURCE", confidence: 0.94, boundingBox: expect.objectContaining({ page: 1 }) }),
+    ]));
+
+    const subscript = reconstructPdfMath([
+      { text: "x", pageNumber: 1, x: 10, y: 100, width: 8, height: 10, order: 0 },
+      { text: "1", pageNumber: 1, x: 18, y: 95, width: 4, height: 5, order: 1 },
+    ], 100, 120);
+    expect(subscript).toEqual(expect.arrayContaining([expect.objectContaining({ latex: "x_{1}" })]));
+
+    expect(reconstructPdfMath([{ text: "2 x 4 boards", pageNumber: 1, x: 0, y: 0, width: 60, height: 10 }])).toHaveLength(0);
+  });
+
+  it("does not drop the argument after a compact function script", () => {
+    expect(reconstructPdfMath([{ text: "sin²θ", pageNumber: 1, x: 10, y: 100, width: 30, height: 10 }])).toEqual(expect.arrayContaining([expect.objectContaining({ latex: "\\sin^{2} \\theta", sourceText: "sin²θ" })]));
+    expect(reconstructPdfMath([{ text: "log₂x", pageNumber: 1, x: 10, y: 100, width: 24, height: 10 }])).toEqual(expect.arrayContaining([expect.objectContaining({ latex: "\\log_{2} x", sourceText: "log₂x" })]));
+  });
+
+  it("reconstructs only geometry-backed stacked fractions", () => {
+    const regions = reconstructPdfMath([
+      { text: "a", pageNumber: 1, x: 20, y: 110, width: 8, height: 10 },
+      { text: "────", pageNumber: 1, x: 18, y: 100, width: 20, height: 2 },
+      { text: "b", pageNumber: 1, x: 20, y: 86, width: 8, height: 10 },
+    ], 100, 140);
+    expect(regions).toEqual(expect.arrayContaining([expect.objectContaining({ latex: "\\frac{a}{b}", confidence: 0.93 })]));
+  });
+
+  it("recursively nests a fraction contained in another denominator", () => {
+    const regions = reconstructPdfMath([
+      { text: "1", pageNumber: 1, x: 30, y: 130, width: 8, height: 10 },
+      { text: "────", pageNumber: 1, x: 25, y: 120, width: 20, height: 2 },
+      { text: "x+1", pageNumber: 1, x: 30, y: 110, width: 20, height: 10 },
+      { text: "───", pageNumber: 1, x: 30, y: 100, width: 15, height: 2 },
+      { text: "y", pageNumber: 1, x: 34, y: 88, width: 8, height: 10 },
+    ], 100, 150);
+    expect(regions).toEqual(expect.arrayContaining([expect.objectContaining({ latex: "\\frac{1}{\\frac{x+1}{y}}" })]));
+  });
+
+  it("associates bounds with large PDF operators", () => {
+    const regions = reconstructPdfMath([
+      { text: "∫", pageNumber: 1, x: 10, y: 100, width: 8, height: 20 },
+      { text: "0", pageNumber: 1, x: 12, y: 88, width: 4, height: 5 },
+      { text: "π", pageNumber: 1, x: 12, y: 126, width: 5, height: 5 },
+      { text: "sin x dx", pageNumber: 1, x: 22, y: 100, width: 35, height: 10 },
+    ], 100, 150);
+    expect(regions).toEqual(expect.arrayContaining([expect.objectContaining({ latex: "\\int_{0}^{\\pi} sin x dx" })]));
+  });
+
+  it("reconstructs limits and clearly aligned equation rows", () => {
+    const limit = reconstructPdfMath([
+      { text: "lim", pageNumber: 1, x: 10, y: 100, width: 15, height: 12 },
+      { text: "x→0", pageNumber: 1, x: 11, y: 86, width: 18, height: 5 },
+      { text: "sin x", pageNumber: 1, x: 30, y: 100, width: 20, height: 10 },
+    ]);
+    expect(limit).toEqual(expect.arrayContaining([expect.objectContaining({ latex: "\\lim_{x\\to0} sin x" })]));
+
+    const aligned = reconstructPdfMath([
+      { text: "x + y = 5", pageNumber: 1, x: 10, y: 100, width: 45, height: 10 },
+      { text: "x - y = 1", pageNumber: 1, x: 10, y: 85, width: 45, height: 10 },
+    ]);
+    expect(aligned).toEqual(expect.arrayContaining([expect.objectContaining({ latex: "\\begin{aligned}x + y = 5 \\\\ x - y = 1\\end{aligned}" })]));
+  });
+
+  it("reconstructs delimited matrix and determinant rows from aligned geometry", () => {
+    const matrix = reconstructPdfMath([
+      { text: "[", pageNumber: 1, x: 10, y: 100, width: 4, height: 10 }, { text: "1  2", pageNumber: 1, x: 16, y: 100, width: 20, height: 10 }, { text: "]", pageNumber: 1, x: 38, y: 100, width: 4, height: 10 },
+      { text: "[", pageNumber: 1, x: 10, y: 85, width: 4, height: 10 }, { text: "3  4", pageNumber: 1, x: 16, y: 85, width: 20, height: 10 }, { text: "]", pageNumber: 1, x: 38, y: 85, width: 4, height: 10 },
+    ], 100, 120);
+    expect(matrix).toEqual(expect.arrayContaining([expect.objectContaining({ latex: "\\begin{bmatrix}1 & 2 \\\\ 3 & 4\\end{bmatrix}" })]));
+
+    const determinant = reconstructPdfMath([
+      { text: "|", pageNumber: 1, x: 10, y: 100, width: 4, height: 10 }, { text: "a  b", pageNumber: 1, x: 16, y: 100, width: 20, height: 10 }, { text: "|", pageNumber: 1, x: 38, y: 100, width: 4, height: 10 },
+      { text: "|", pageNumber: 1, x: 10, y: 85, width: 4, height: 10 }, { text: "c  d", pageNumber: 1, x: 16, y: 85, width: 20, height: 10 }, { text: "|", pageNumber: 1, x: 38, y: 85, width: 4, height: 10 },
+    ], 100, 120);
+    expect(determinant).toEqual(expect.arrayContaining([expect.objectContaining({ latex: "\\begin{vmatrix}a & b \\\\ c & d\\end{vmatrix}" })]));
+  });
+
+  it("preserves uncertain PDF math as a reviewable source hint", () => {
+    const regions = reconstructPdfMath([{ text: "∫ ?", pageNumber: 1, x: 5, y: 5, width: 15, height: 10 }]);
+    expect(regions[0]).toMatchObject({ sourceText: "∫ ?", confidence: 0.55, warnings: [expect.objectContaining({ code: "MATH_EXPRESSION_NEEDS_REVIEW", severity: "HIGH" })] });
+  });
+
+  it("feeds PDF math hints into canonical question content", () => {
+    const page = {
+      pageNumber: 1,
+      text: "1. If x² = 16, find x. A. 4 B. 8 C. 16 D. 2",
+      mathSegments: [{ sourceText: "x²", matchText: "x²", latex: "x^{2}", origin: "NORMALIZED_SOURCE" as const, confidence: 0.92, boundingBox: { page: 1, x: 0.1, y: 0.1, width: 0.1, height: 0.05 } }],
+    };
+    const questions = parseExamQuestions([page]);
+    const paragraph = (questions[0].contentJson as { blocks: Array<{ type: string; segments?: Array<{ type: string; latex?: string; origin?: string }> }> }).blocks.find((block) => block.type === "paragraph");
+    expect(paragraph?.segments).toEqual(expect.arrayContaining([expect.objectContaining({ type: "math", latex: "x^{2}", origin: "NORMALIZED_SOURCE" })]));
+  });
+
+  it("retains page-local line ordering and extraction statistics", () => {
+    const analysis = analyzePdfPage([
+      { text: "bottom", pageNumber: 1, x: 0, y: 10, width: 20, height: 10, order: 1 },
+      { text: "top", pageNumber: 1, x: 0, y: 30, width: 20, height: 10, order: 0 },
+    ], 100, 100);
+    expect(analysis.text).toBe("top\nbottom");
+    expect(analysis.mathRegionsDetected).toBe(0);
+  });
+
+  it("keeps an isolated PDF superscript in reading order with its base", () => {
+    const analysis = analyzePdfPage([
+      { text: "x", pageNumber: 1, x: 10, y: 100, width: 8, height: 10, order: 0 },
+      { text: "2", pageNumber: 1, x: 18, y: 106, width: 4, height: 5, order: 1 },
+    ], 100, 120);
+    expect(analysis.text).toBe("x 2");
+    expect(analysis.mathSegments).toEqual(expect.arrayContaining([expect.objectContaining({ latex: "x^{2}" })]));
+  });
+
+
   it("reconstructs extracted PDF page text without guessing a missing answer", () => {
     const questions = parseExamQuestions([{ pageNumber: 1, text: "1. What is the capital of India? A. Mumbai B. Delhi C. Chennai D. Kolkata" }]);
     expect(questions).toHaveLength(1);
@@ -127,8 +257,34 @@ describe("exam upload PDF extraction", () => {
   });
 
   it("renders common Office Math matrix and superscript structures", () => {
-    expect(renderOfficeMathFragment("<m:d><m:dPr><m:begChr m:val=\"[\"/><m:endChr m:val=\"]\"/></m:dPr><m:e><m:m><m:mr><m:e><m:r><m:t>2</m:t></m:r></m:e><m:e><m:r><m:t>3</m:t></m:r></m:e></m:mr><m:mr><m:e><m:r><m:t>1</m:t></m:r></m:e><m:e><m:r><m:t>4</m:t></m:r></m:e></m:mr></m:m></m:e></m:d>")).toBe("[2 3; 1 4]");
-    expect(renderOfficeMathFragment("<m:sSup><m:e><m:r><m:t>x</m:t></m:r></m:e><m:sup><m:r><m:t>2</m:t></m:r></m:sup></m:sSup>")).toBe("x^2");
+    expect(renderOfficeMathFragment("<m:d><m:dPr><m:begChr m:val=\"[\"/><m:endChr m:val=\"]\"/></m:dPr><m:e><m:m><m:mr><m:e><m:r><m:t>2</m:t></m:r></m:e><m:e><m:r><m:t>3</m:t></m:r></m:e></m:mr><m:mr><m:e><m:r><m:t>1</m:t></m:r></m:e><m:e><m:r><m:t>4</m:t></m:r></m:e></m:mr></m:m></m:e></m:d>")).toBe("\\begin{bmatrix}2 & 3 \\\\ 1 & 4\\end{bmatrix}");
+    expect(renderOfficeMathFragment("<m:sSup><m:e><m:r><m:t>x</m:t></m:r></m:e><m:sup><m:r><m:t>2</m:t></m:r></m:sup></m:sSup>")).toBe("{x}^{2}");
+  });
+
+  it("converts nested OMML structures recursively without regex substitution", () => {
+    const fragment = "<m:f><m:num><m:sSup><m:e><m:r><m:t>x</m:t></m:r></m:e><m:sup><m:r><m:t>2</m:t></m:r></m:sup></m:sSup><m:rad><m:e><m:r><m:t>y</m:t></m:r></m:e></m:rad></m:num><m:den><m:func><m:fName><m:r><m:t>log</m:t></m:r></m:fName><m:e><m:sSub><m:e><m:r><m:t>z</m:t></m:r></m:e><m:sub><m:r><m:t>2</m:t></m:r></m:sub></m:sSub></m:e></m:func></m:den></m:f>";
+    expect(convertOfficeMathFragment(fragment)).toMatchObject({ latex: "\\frac{{x}^{2}\\sqrt{y}}{\\log {z}_{2}}", confidence: 1 });
+  });
+
+  it("converts roots, bounded n-ary operators, accents, and unicode operators", () => {
+    expect(renderOfficeMathFragment("<m:rad><m:deg><m:r><m:t>3</m:t></m:r></m:deg><m:e><m:r><m:t>x</m:t></m:r></m:e></m:rad>")).toBe("\\sqrt[3]{x}");
+    expect(renderOfficeMathFragment("<m:nary><m:naryPr><m:chr m:val=\"∑\"/></m:naryPr><m:sub><m:r><m:t>i=1</m:t></m:r></m:sub><m:sup><m:r><m:t>n</m:t></m:r></m:sup><m:e><m:sSup><m:e><m:r><m:t>i</m:t></m:r></m:e><m:sup><m:r><m:t>2</m:t></m:r></m:sup></m:sSup></m:e></m:nary>")).toBe("\\sum_{i=1}^{n} {i}^{2}");
+    expect(renderOfficeMathFragment("<m:acc><m:accPr><m:chr m:val=\"^\"/></m:accPr><m:e><m:r><m:t>x</m:t></m:r></m:e></m:acc>")).toBe("\\hat{x}");
+    expect(renderOfficeMathFragment("<m:r><m:t>π ≤ θ → ∞</m:t></m:r>")).toBe("\\pi \\le \\theta \\to \\infty");
+  });
+
+  it("preserves an unsupported OMML node as readable output with a warning", () => {
+    const result = convertOfficeMathFragment("<m:unknown><m:r><m:t>x</m:t></m:r></m:unknown>");
+    expect(result.latex).toContain("x");
+    expect(result.confidence).toBeLessThan(1);
+    expect(result.warnings?.[0]).toMatchObject({ code: "UNSUPPORTED_OMML_ELEMENT" });
+  });
+
+  it("attaches OMML conversion results to canonical question content", () => {
+    const payload = Buffer.from(JSON.stringify({ sourceText: "x2", latex: "{x}^{2}", confidence: 1 }), "utf8").toString("base64");
+    const questions = parseExamQuestions([{ pageNumber: 1, text: `1. If [[NIDUS_OMML:${payload}]] = 4? A. 2 B. 4 C. 8 D. 16` }]);
+    const paragraph = (questions[0].contentJson as { blocks: Array<{ type: string; segments?: Array<{ type: string; latex?: string; origin?: string }> }> }).blocks.find((block) => block.type === "paragraph");
+    expect(paragraph?.segments).toEqual(expect.arrayContaining([expect.objectContaining({ type: "math", latex: "{x}^{2}", origin: "OMML" })]));
   });
 
   it("rejects malformed PDFs and keeps an explicit scanned-PDF guard", async () => {
@@ -158,5 +314,60 @@ describe("exam upload PDF extraction", () => {
     const reconstruction = readFileSync(join(process.cwd(), "src/modules/ndie/ai-reconstruction/ai-reconstruction.service.ts"), "utf8");
     expect(reconstruction).toContain('standardizationMode?: "DETERMINISTIC" | "AI_ALLOWED"');
     expect(reconstruction).toContain('input.standardizationMode !== "DETERMINISTIC"');
+  });
+
+  it("creates and validates canonical mixed text/math content without guessing", () => {
+    const content = buildLegacyQuestionContent({
+      questionText: "If $x^2 = 16$, find x.",
+      optionA: "$\\frac{x+1}{x-1}$",
+      optionB: "4",
+      optionC: "8",
+      optionD: "16",
+      correctAnswer: "A",
+      explanation: "Using $x^2=16$ gives x=4.",
+      contentSource: "TEACHER_IMPORT",
+    });
+    expect(content.schemaVersion).toBe(1);
+    const paragraph = content.blocks.find((block) => block.type === "paragraph");
+    expect(paragraph && paragraph.type === "paragraph" ? paragraph.segments : undefined).toEqual([
+      { type: "text", text: "If " },
+      { type: "math", latex: "x^2 = 16", sourceText: "$x^2 = 16$", origin: "EXPLICIT_LATEX" },
+      { type: "text", text: ", find x." },
+    ]);
+    const options = content.blocks.find((block) => block.type === "options");
+    expect(options && options.type === "options" ? options.options[0].segments : undefined).toEqual([
+      { type: "math", latex: "\\frac{x+1}{x-1}", sourceText: "$\\frac{x+1}{x-1}$", origin: "EXPLICIT_LATEX" },
+    ]);
+    expect(parseQuestionContentJson(content).success).toBe(true);
+  });
+
+  it("round-trips canonical math content while keeping legacy fields", () => {
+    const content = buildLegacyQuestionContent({
+      questionText: "Matrix $\\begin{bmatrix}1&2\\\\3&4\\end{bmatrix}$",
+      optionA: "one", optionB: "two", optionC: "three", optionD: "four", correctAnswer: "B",
+    });
+    const parsed = parseQuestionContentJson(JSON.parse(JSON.stringify(content)));
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      const paragraph = parsed.data.blocks.find((block) => block.type === "paragraph");
+      expect(paragraph && paragraph.type === "paragraph" ? paragraph.segments?.[1] : undefined).toMatchObject({ type: "math", latex: "\\begin{bmatrix}1&2\\\\3&4\\end{bmatrix}" });
+    }
+  });
+
+  it("rejects malformed or executable canonical segments", () => {
+    const result = parseQuestionContentJson({
+      schemaVersion: 1,
+      format: "NIDUS_QUESTION_CONTENT_V1",
+      questionType: "SINGLE_CHOICE",
+      source: "TEACHER_IMPORT",
+      blocks: [
+        { id: "p-1", type: "paragraph", text: "safe", segments: [{ type: "math", latex: "" }] },
+        { id: "o-1", type: "options", options: [
+          { key: "A", text: "<script>alert(1)</script>" }, { key: "B", text: "b" }, { key: "C", text: "c" }, { key: "D", text: "d" },
+        ] },
+      ],
+      answer: { type: "SINGLE_CHOICE" },
+    });
+    expect(result.success).toBe(false);
   });
 });

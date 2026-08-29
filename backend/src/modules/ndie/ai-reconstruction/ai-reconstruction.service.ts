@@ -20,6 +20,7 @@ type TeacherQuestionInput = {
   reviewStatus?: string;
   sourcePageNumber?: number;
   sourceReference?: string;
+  contentJson?: unknown;
 };
 
 export type NdieAiReconstructionInput = {
@@ -79,6 +80,7 @@ type ProfessionalQuestion = {
   missingItems?: Array<"Option" | "Formula" | "Diagram" | "Answer" | "Solution">;
   originalCropRequired: boolean;
   notes: string[];
+  contentJson?: unknown;
 };
 
 type ProfessionalDraft = {
@@ -208,8 +210,9 @@ function buildDeterministicDraft(input: NdieAiReconstructionInput): Professional
         formula ? "Formula content preserved for review." : "",
         visual ? "Visual content linked to original source." : "",
         missingAnswer ? "Answer key needs teacher confirmation." : ""
-      ].filter(Boolean)
-    };
+       ].filter(Boolean),
+       ...(question.contentJson ? { contentJson: question.contentJson } : {})
+      };
   });
   if (!questions.length) {
     questions.push({

@@ -1,3 +1,8 @@
+import { buildLegacyQuestionContent, type MathConversionWarning, type MathSegmentHint } from "../document-intelligence/question-content.schema.js";
+import { analyzePdfPage } from "./pdf-layout-analysis.js";
+import type { PdfGlyphRun } from "./pdf-math-reconstruction.js";
+import { decodePdfTextItem } from "./pdf-text-decoding.js";
+
 type PdfJsModule = typeof import("pdfjs-dist/legacy/build/pdf.mjs");
 type MammothModule = typeof import("mammoth");
 type JsZipModule = typeof import("jszip");
@@ -22,6 +27,7 @@ export type ExtractedExamQuestion = {
   sourcePageNumber: number;
   sourceReference: string;
   reviewStatus: "READY" | "MISSING_ANSWER" | "NEEDS_REVIEW";
+  contentJson?: unknown;
 };
 
 export type NormalizedDocumentBlock = {
@@ -34,14 +40,21 @@ export type NormalizedDocumentPage = {
   pageNumber: number;
   text: string;
   blocks?: NormalizedDocumentBlock[];
+  glyphs?: PdfGlyphRun[];
+  mathSegments?: MathSegmentHint[];
+  mathStats?: { mathRegionsDetected: number; mathRegionsCanonicalized: number; mathRegionsReviewRequired: number; totalTextItems: number; suspectTextItems: number; privateUseGlyphs: number; replacementCharacters: number; encodingWarnings: number };
+  encodingStatus?: "TEXT_LAYER_OK" | "GLYPH_ENCODING_SUSPECT" | "MATH_LAYOUT_AMBIGUOUS" | "VISUAL_ONLY_CONTENT";
 };
 
 export type ExtractedPdf = { pages: NormalizedDocumentPage[]; textCharacters: number };
 export type ExtractedDocument = ExtractedPdf;
 
-function normalizeDocumentText(value: string) {
+function normalizeDocumentText(value: string, form: "NFKC" | "NFC" = "NFKC") {
   return value
-    .normalize("NFKC")
+    // PDF math relies on compatibility glyphs (², ₁, √, …) as evidence.
+    // Preserve those glyphs for positioned PDF text while retaining the
+    // historical NFKC normalization for DOC/DOCX prose.
+    .normalize(form)
     .replace(/\r\n?/g, "\n")
     .replace(/[\u00a0\u2007\u202f]/g, " ")
     .replace(/ +/g, " ")
@@ -61,8 +74,8 @@ function blocksFromText(text: string): NormalizedDocumentBlock[] {
     }));
 }
 
-function normalizedPage(pageNumber: number, rawText: string, blocks?: NormalizedDocumentBlock[]) {
-  const text = normalizeDocumentText(rawText);
+function normalizedPage(pageNumber: number, rawText: string, blocks?: NormalizedDocumentBlock[], normalizationForm: "NFKC" | "NFC" = "NFKC") {
+  const text = normalizeDocumentText(rawText, normalizationForm);
   return { pageNumber, text, blocks: blocks ?? blocksFromText(text) };
 }
 
@@ -77,41 +90,71 @@ function decodeXml(value: string) {
     .replace(/&#x([0-9a-f]+);/gi, (_, code) => String.fromCodePoint(parseInt(code, 16)));
 }
 
-function mathChild(body: string, tag: string) {
-  return body.match(new RegExp(`<m:${tag}\\b[^>]*>([\\s\\S]*?)<\\/m:${tag}>`))?.[1] || "";
+type OmmlNode = { name: string; attrs: Record<string, string>; children: OmmlNode[]; text?: string };
+export type MathConversionResult = { latex: string; sourceText?: string; confidence: number; warnings?: MathConversionWarning[] };
+const emptyOmmlNode = (): OmmlNode => ({ name: "#empty", attrs: {}, children: [] });
+
+const mathSymbolMap: Record<string, string> = { "π": "\\pi", "θ": "\\theta", "α": "\\alpha", "β": "\\beta", "γ": "\\gamma", "δ": "\\delta", "Δ": "\\Delta", "λ": "\\lambda", "μ": "\\mu", "σ": "\\sigma", "Σ": "\\Sigma", "Ω": "\\Omega", "∞": "\\infty", "≤": "\\le", "≥": "\\ge", "≠": "\\ne", "≈": "\\approx", "±": "\\pm", "∈": "\\in", "∉": "\\notin", "∪": "\\cup", "∩": "\\cap", "→": "\\to", "←": "\\leftarrow", "⇒": "\\Rightarrow", "⇔": "\\Leftrightarrow", "×": "\\times", "÷": "\\div", "−": "-" };
+const accentMap: Record<string, string> = { "¯": "\\bar", "‾": "\\bar", "^": "\\hat", "⃗": "\\vec", "~": "\\tilde", "˙": "\\dot", "¨": "\\ddot" };
+
+const unicodeMathSymbolMap: Record<string, string> = {
+  "\u03c0": "\\pi", "\u03b8": "\\theta", "\u03b1": "\\alpha", "\u03b2": "\\beta", "\u03b3": "\\gamma", "\u03b4": "\\delta", "\u0394": "\\Delta", "\u03bb": "\\lambda", "\u03bc": "\\mu", "\u03c3": "\\sigma", "\u03a3": "\\Sigma", "\u03a9": "\\Omega", "\u221e": "\\infty", "\u2264": "\\le", "\u2265": "\\ge", "\u2260": "\\ne", "\u2248": "\\approx", "\u00b1": "\\pm", "\u2208": "\\in", "\u2209": "\\notin", "\u222a": "\\cup", "\u2229": "\\cap", "\u2192": "\\to", "\u2190": "\\leftarrow", "\u21d2": "\\Rightarrow", "\u21d4": "\\Leftrightarrow", "\u00d7": "\\times", "\u00f7": "\\div", "\u2212": "-"
+};
+
+function parseOmmlXml(xml: string): OmmlNode[] {
+  const roots: OmmlNode[] = [], stack: OmmlNode[] = [], attrPattern = /([:\w-]+)=(?:"([^"]*)"|'([^']*)')/g;
+  for (const token of xml.matchAll(/<[^>]+>|[^<]+/g)) {
+    const raw = token[0];
+    if (!raw.startsWith("<")) { if (stack.length) stack[stack.length - 1].children.push({ name: "#text", attrs: {}, children: [], text: decodeXml(raw) }); continue; }
+    if (/^<\/?[!?]/.test(raw)) continue;
+    if (/^<\//.test(raw)) { stack.pop(); continue; }
+    const selfClosing = /\/\s*>$/.test(raw), match = raw.match(/^<\s*([^\s/>]+)/); if (!match) continue;
+    const attrs: Record<string, string> = {}; for (const attr of raw.matchAll(attrPattern)) attrs[attr[1]] = decodeXml(attr[2] ?? attr[3] ?? "");
+    const node: OmmlNode = { name: match[1], attrs, children: [] }; if (stack.length) stack[stack.length - 1].children.push(node); else roots.push(node); if (!selfClosing) stack.push(node);
+  }
+  return roots;
 }
 
+function child(node: OmmlNode, name: string) { return node.children.find((item) => item.name === name); }
+function children(node: OmmlNode, name: string) { return node.children.filter((item) => item.name === name); }
+function textOf(node: OmmlNode): string { return node.name === "#text" ? node.text || "" : node.children.map(textOf).join(""); }
+function normalizeMathText(value: string) { return Array.from(value).map((symbol) => unicodeMathSymbolMap[symbol] || mathSymbolMap[symbol] || symbol).join("").replace(/\s+/g, " ").trim(); }
+function group(value: string) { return `{${value || "\\text{?}"}}`; }
+function combine(results: MathConversionResult[]): MathConversionResult { const warnings = results.flatMap((result) => result.warnings || []); return { latex: results.map((result) => result.latex).join(""), sourceText: results.map((result) => result.sourceText || "").join(""), confidence: results.length ? Math.min(...results.map((result) => result.confidence)) : 1, ...(warnings.length ? { warnings } : {}) }; }
+function warning(code: string, message: string, severity: MathConversionWarning["severity"] = "MEDIUM"): MathConversionWarning { return { code, message, severity }; }
+
+export function convertOmmlNode(node: OmmlNode): MathConversionResult {
+  if (node.name === "#text") return { latex: normalizeMathText(node.text || ""), sourceText: node.text || "", confidence: 1 };
+  const convert = (item?: OmmlNode): MathConversionResult => item ? convertOmmlNode(item) : { latex: "", sourceText: "", confidence: 0.4, warnings: [warning("MISSING_OMML_CHILD", "An expected equation component is missing.", "HIGH")] };
+  const all = () => combine(node.children.filter((item) => item.name !== "m:rPr" && item.name !== "m:ctrlPr" && !item.name.startsWith("w:") && !item.name.endsWith("Pr")).map(convertOmmlNode));
+  switch (node.name) {
+    case "m:t": return { latex: normalizeMathText(textOf(node)), sourceText: textOf(node), confidence: 1 };
+    case "m:r": case "m:e": case "m:num": case "m:den": case "m:sub": case "m:sup": case "m:deg": case "m:lim": case "m:arg": return all();
+    case "m:f": { const n = convert(child(node, "m:num")), d = convert(child(node, "m:den")); return { ...combine([n, d]), latex: `\\frac${group(n.latex)}${group(d.latex)}` }; }
+    case "m:sSup": { const b = convert(child(node, "m:e")), s = convert(child(node, "m:sup")); return { ...combine([b, s]), latex: `${group(b.latex)}^${group(s.latex)}` }; }
+    case "m:sSub": { const b = convert(child(node, "m:e")), s = convert(child(node, "m:sub")); return { ...combine([b, s]), latex: `${group(b.latex)}_${group(s.latex)}` }; }
+    case "m:sSubSup": { const b = convert(child(node, "m:e")), sub = convert(child(node, "m:sub")), sup = convert(child(node, "m:sup")); return { ...combine([b, sub, sup]), latex: `${group(b.latex)}_${group(sub.latex)}^${group(sup.latex)}` }; }
+    case "m:rad": { const d = child(node, "m:deg"), e = convert(child(node, "m:e")), candidateDegree = d ? convert(d) : undefined, degree = candidateDegree?.latex.trim() ? candidateDegree : undefined; return { ...combine(degree ? [degree, e] : [e]), latex: degree ? `\\sqrt[${degree.latex}]${group(e.latex)}` : `\\sqrt${group(e.latex)}` }; }
+    case "m:fName": { const name = textOf(node).trim(), known = ["sin", "cos", "tan", "cot", "sec", "csc", "log", "ln", "lim", "max", "min"].includes(name.toLowerCase()); return { latex: known ? `\\${name.toLowerCase()} ` : `\\operatorname{${name}} `, sourceText: name, confidence: 1 }; }
+    case "m:func": { const fn = convert(child(node, "m:fName")), arg = convert(child(node, "m:e")); return { ...combine([fn, arg]), latex: `${fn.latex}${arg.latex}` }; }
+    case "m:nary": { const props = child(node, "m:naryPr"), chr = child(props || emptyOmmlNode(), "m:chr")?.attrs["m:val"] || "∑", operator = ({ "∫": "\\int", "∑": "\\sum", "∏": "\\prod", "∮": "\\oint" } as Record<string, string>)[chr] || `\\operatorname{${chr}}`, sub = child(node, "m:sub"), sup = child(node, "m:sup"), e = convert(child(node, "m:e")), sr = sub ? convert(sub) : undefined, ur = sup ? convert(sup) : undefined; return { ...combine([...(sr ? [sr] : []), ...(ur ? [ur] : []), e]), latex: `${operator}${sr ? `_${group(sr.latex)}` : ""}${ur ? `^${group(ur.latex)}` : ""} ${e.latex}` }; }
+    case "m:limLow": { const b = convert(child(node, "m:e")), s = convert(child(node, "m:lim") || child(node, "m:sub")); return { ...combine([b, s]), latex: `${group(b.latex)}_${group(s.latex)}` }; }
+    case "m:limUpp": { const b = convert(child(node, "m:e")), s = convert(child(node, "m:lim") || child(node, "m:sup")); return { ...combine([b, s]), latex: `${group(b.latex)}^${group(s.latex)}` }; }
+    case "m:mc": return all();
+    case "m:m": { const rows = children(node, "m:mr").map((row) => { const cells = children(row, "m:e").length ? children(row, "m:e") : children(row, "m:mc"); return cells.map((cell) => convert(cell).latex).join(" & "); }).join(" \\\\ "); return { latex: `\\begin{matrix}${rows}\\end{matrix}`, sourceText: textOf(node), confidence: 1 }; }
+    case "m:eqArr": { const rows = children(node, "m:e").map((row) => convert(row).latex).join(" \\\\ "); return { latex: `\\begin{aligned}${rows}\\end{aligned}`, sourceText: textOf(node), confidence: 1 }; }
+    case "m:d": { const props = child(node, "m:dPr"), begin = child(props || emptyOmmlNode(), "m:begChr")?.attrs["m:val"] || "(", end = child(props || emptyOmmlNode(), "m:endChr")?.attrs["m:val"] || ")", body = child(node, "m:e"), inner = convert(body), matrix = body && child(body, "m:m"); if (matrix && begin === "[" && end === "]") return { ...inner, latex: inner.latex.replace(/^\\begin\{matrix\}/, "\\begin{bmatrix}").replace(/\\end\{matrix\}$/, "\\end{bmatrix}") }; if (matrix && begin === "|" && end === "|") return { ...inner, latex: inner.latex.replace(/^\\begin\{matrix\}/, "\\begin{vmatrix}").replace(/\\end\{matrix\}$/, "\\end{vmatrix}") }; if (matrix && begin === "{" && end === "}") return { ...inner, latex: inner.latex.replace(/^\\begin\{matrix\}/, "\\begin{cases}").replace(/\\end\{matrix\}$/, "\\end{cases}") }; return { ...inner, latex: `\\left${begin === "{" ? "\\{" : begin}${inner.latex}\\right${end === "}" ? "\\}" : end}` }; }
+    case "m:bar": { const b = convert(child(node, "m:e")); return { ...b, latex: `\\bar${group(b.latex)}` }; }
+    case "m:acc": { const b = convert(child(node, "m:e")), chr = child(child(node, "m:accPr") || emptyOmmlNode(), "m:chr")?.attrs["m:val"] || "^", op = accentMap[chr]; return { ...b, latex: op ? `${op}${group(b.latex)}` : `\\operatorname{${chr}}${group(b.latex)}`, ...(op ? {} : { confidence: 0.6, warnings: [warning("UNSUPPORTED_OMML_ACCENT", "This equation accent needs review.")] }) }; }
+    case "m:groupChr": { const b = convert(child(node, "m:e")), chr = child(child(node, "m:groupChrPr") || emptyOmmlNode(), "m:chr")?.attrs["m:val"] || "", op = chr === "⏞" ? "\\overbrace" : chr === "⏟" ? "\\underbrace" : "\\overline"; return { ...b, latex: `${op}${group(b.latex)}` }; }
+    default: { const fallback = all(), readable = fallback.sourceText || textOf(node), issue = warning("UNSUPPORTED_OMML_ELEMENT", `Unsupported Office Math element ${node.name} was preserved for review.`); return { latex: fallback.latex || normalizeMathText(readable), sourceText: readable, confidence: Math.min(fallback.confidence, 0.7), warnings: [...(fallback.warnings || []), issue] }; }
+  }
+}
+
+export function convertOfficeMathFragment(fragment: string): MathConversionResult { const result = combine(parseOmmlXml(fragment).map(convertOmmlNode)); return { ...result, latex: result.latex.trim(), sourceText: result.sourceText?.trim() }; }
+
 export function renderOfficeMathFragment(fragment: string): string {
-  let value = fragment;
-  value = value.replace(/<m:d\b[^>]*>([\s\S]*?)<\/m:d>/g, (_, body: string) => {
-    const properties = body.match(/<m:dPr\b[^>]*>([\s\S]*?)<\/m:dPr>/)?.[1] || "";
-    const begin = decodeXml(properties.match(/<m:begChr\b[^>]*m:val="([^"]*)"/i)?.[1] || "(");
-    const end = decodeXml(properties.match(/<m:endChr\b[^>]*m:val="([^"]*)"/i)?.[1] || ")");
-    const matrix = body.match(/<m:m\b[^>]*>[\s\S]*?<\/m:m>/)?.[0];
-    if (matrix) return `${begin}${renderOfficeMathFragment(matrix)}${end}`;
-    const elements = Array.from(body.matchAll(/<m:e\b[^>]*>([\s\S]*?)<\/m:e>/g)).map((match) => renderOfficeMathFragment(match[1]));
-    return `${begin}${elements.join(" ")}${end}`;
-  });
-  value = value.replace(/<m:m\b[^>]*>([\s\S]*?)<\/m:m>/g, (_, body: string) => {
-    const rows = Array.from(body.matchAll(/<m:mr\b[^>]*>([\s\S]*?)<\/m:mr>/g)).map((row) => {
-      const cells = Array.from(row[1].matchAll(/<m:e\b[^>]*>([\s\S]*?)<\/m:e>/g)).map((cell) => renderOfficeMathFragment(cell[1]));
-      return cells.join(" ");
-    });
-    return rows.join("; ");
-  });
-  value = value.replace(/<m:f\b[^>]*>([\s\S]*?)<\/m:f>/g, (_, body: string) => {
-    const numerator = renderOfficeMathFragment(mathChild(body, "num"));
-    const denominator = renderOfficeMathFragment(mathChild(body, "den"));
-    return `(${numerator})/(${denominator})`;
-  });
-  value = value.replace(/<m:rad\b[^>]*>([\s\S]*?)<\/m:rad>/g, (_, body: string) => `√(${renderOfficeMathFragment(mathChild(body, "e"))})`);
-  value = value.replace(/<m:sSup\b[^>]*>([\s\S]*?)<\/m:sSup>/g, (_, body: string) => `${renderOfficeMathFragment(mathChild(body, "e"))}^${renderOfficeMathFragment(mathChild(body, "sup"))}`);
-  value = value.replace(/<m:sSub\b[^>]*>([\s\S]*?)<\/m:sSub>/g, (_, body: string) => `${renderOfficeMathFragment(mathChild(body, "e"))}_${renderOfficeMathFragment(mathChild(body, "sub"))}`);
-  value = value.replace(/<m:func\b[^>]*>([\s\S]*?)<\/m:func>/g, (_, body: string) => `${renderOfficeMathFragment(mathChild(body, "fName"))}${renderOfficeMathFragment(mathChild(body, "e"))}`);
-  value = value.replace(/<m:fName\b[^>]*>([\s\S]*?)<\/m:fName>/g, (_, body: string) => renderOfficeMathFragment(body));
-  value = value.replace(/<m:r\b[^>]*>([\s\S]*?)<\/m:r>/g, (_, body: string) => renderOfficeMathFragment(body));
-  value = value.replace(/<m:t\b[^>]*>([\s\S]*?)<\/m:t>/g, (_, text: string) => decodeXml(text));
-  return value.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+  return convertOfficeMathFragment(fragment).latex;
 }
 
 /**
@@ -127,7 +170,13 @@ async function extractDocxXmlParagraphs(buffer: Buffer) {
     const zip = await jszip.loadAsync(buffer);
     const entry = zip.file("word/document.xml");
     if (!entry) return "";
-    const xml = (await entry.async("string")).replace(/<m:oMath\b[^>]*>([\s\S]*?)<\/m:oMath>/g, (_, body: string) => `<w:t>${renderOfficeMathFragment(body)}</w:t>`);
+    const xml = (await entry.async("string")).replace(/<m:oMath\b[^>]*>([\s\S]*?)<\/m:oMath>/g, (_, body: string) => {
+      const converted = convertOfficeMathFragment(body);
+      // Keep an internal, lossless marker until question parsing so the
+      // canonical adapter can distinguish OMML math from ordinary text.
+      const encoded = Buffer.from(JSON.stringify(converted), "utf8").toString("base64");
+      return `<w:t>[[NIDUS_OMML:${encoded}]]</w:t>`;
+    });
     const paragraphs: string[] = [];
     for (const paragraph of xml.matchAll(/<w:p\b[^>]*>[\s\S]*?<\/w:p>/g)) {
       const tokens: string[] = [];
@@ -158,24 +207,52 @@ export async function extractTextPdf(buffer: Buffer): Promise<ExtractedPdf> {
     for (let pageNumber = 1; pageNumber <= document.numPages; pageNumber += 1) {
       const page = await document.getPage(pageNumber);
       const content = await page.getTextContent();
-      const positioned = content.items
-        .map((item, order) => {
+      const viewport = page.getViewport({ scale: 1 });
+      const glyphs = content.items
+        .map((item, order): PdfGlyphRun | null => {
           if (!("str" in item) || !item.str) return null;
-          const transform = "transform" in item && Array.isArray(item.transform) ? item.transform : [];
-          return { text: item.str, x: Number(transform[4] ?? 0), y: Number(transform[5] ?? 0), order };
+          const transform = "transform" in item && Array.isArray(item.transform) ? Array.from(item.transform) : [];
+          const height = Number(("height" in item ? item.height : 0) || 0);
+          const fontSize = transform.length >= 2
+            ? Math.hypot(Number(transform[0] ?? 0), Number(transform[1] ?? 0)) || height
+            : height;
+          const decoded = decodePdfTextItem(item.str);
+          return {
+            text: decoded.normalizedText,
+            rawText: decoded.rawText,
+            normalizedText: decoded.normalizedText,
+            pageNumber,
+            x: Number(transform[4] ?? 0),
+            y: Number(transform[5] ?? 0),
+            width: Number(("width" in item ? item.width : 0) || 0),
+            height: height || fontSize || 10,
+            fontSize: fontSize || undefined,
+            fontName: "fontName" in item ? String(item.fontName || "") : undefined,
+            transform,
+            order,
+            sourceOrder: order,
+            encodingStatus: decoded.encodingStatus,
+            warnings: decoded.warnings,
+          };
         })
-        .filter((item): item is { text: string; x: number; y: number; order: number } => Boolean(item));
-      const lines: Array<{ y: number; items: typeof positioned }> = [];
-      for (const item of positioned) {
-        const line = lines.find((candidate) => Math.abs(candidate.y - item.y) <= 3);
-        if (line) line.items.push(item);
-        else lines.push({ y: item.y, items: [item] });
-      }
-      const text = lines
-        .sort((a, b) => b.y - a.y)
-        .map((line) => line.items.sort((a, b) => a.x - b.x || a.order - b.order).map((item) => item.text).join(" "))
-        .join("\n");
-      pages.push(normalizedPage(pageNumber, text));
+        .filter((item): item is PdfGlyphRun => Boolean(item));
+      const analysis = analyzePdfPage(glyphs, viewport.width, viewport.height);
+      pages.push({
+        ...normalizedPage(pageNumber, analysis.text, analysis.lines.map((line, order) => ({ type: "line", text: line.text, order })), "NFC"),
+        glyphs,
+        mathSegments: analysis.mathSegments,
+        mathStats: {
+          mathRegionsDetected: analysis.mathRegionsDetected,
+          mathRegionsCanonicalized: analysis.mathRegionsCanonicalized,
+          mathRegionsReviewRequired: analysis.mathRegionsReviewRequired,
+          totalTextItems: analysis.totalTextItems,
+          suspectTextItems: analysis.suspectTextItems,
+          privateUseGlyphs: analysis.privateUseGlyphs,
+          replacementCharacters: analysis.replacementCharacters,
+          encodingWarnings: analysis.encodingWarnings,
+        },
+        encodingStatus: analysis.encodingStatus,
+      });
     }
     const textCharacters = pages.reduce((sum, page) => sum + page.text.replace(/\s/g, "").length, 0);
     if (textCharacters < 20) {
@@ -194,9 +271,16 @@ export async function extractTextDocx(buffer: Buffer): Promise<ExtractedDocument
   }
   try {
     const mammoth = await loadMammoth();
-    const result = await mammoth.extractRawText({ buffer });
+    let mammothText = "";
+    try {
+      const result = await mammoth.extractRawText({ buffer });
+      mammothText = result.value;
+    } catch {
+      // The XML supplement below is sufficient for text/OMML extraction even
+      // when a malformed optional DOCX part makes Mammoth reject the package.
+    }
     const xmlText = await extractDocxXmlParagraphs(buffer);
-    const text = normalizeDocumentText(xmlText || result.value);
+    const text = normalizeDocumentText(xmlText || mammothText);
     const textCharacters = text.replace(/\s/g, "").length;
     if (textCharacters < 20) {
       throw Object.assign(new Error("This DOCX does not contain enough readable text. Please upload a document containing editable question text."), { statusCode: 422, code: "DOCX_TEXT_UNAVAILABLE" });
@@ -235,6 +319,53 @@ function answerMap(text: string) {
   const answers = new Map<number, string>();
   for (const match of text.matchAll(/(?:^|[\s|,;])(?:answer\s*(?:for\s*)?)?(?:question\s*|q\s*)?(\d{1,3})\s*[.)\-:]?\s*(?:answer\s*[:\-]?\s*)?([A-D])\b/gi)) answers.set(Number(match[1]), match[2].toUpperCase());
   return answers;
+}
+
+const ommlMarkerPattern = /\[\[NIDUS_OMML:([A-Za-z0-9+/=]+)\]\]/g;
+
+function normalizeOmmlLatex(value: string) {
+  const trimmed = value.trim();
+  const matrix = trimmed.match(/^\[([^\[\]]*(?:;[^\[\]]+)+)\]$/);
+  if (matrix) return `\\begin{bmatrix}${matrix[1].split(";").map((row) => row.trim().split(/\s+/).join(" & ")).join("\\\\")}\\end{bmatrix}`;
+  const determinant = trimmed.match(/^\|([^|]+(?:;[^|]+)+)\|$/);
+  if (determinant) return `\\begin{vmatrix}${determinant[1].split(";").map((row) => row.trim().split(/\s+/).join(" & ")).join("\\\\")}\\end{vmatrix}`;
+  const fraction = trimmed.match(/^\(([^()]*)\)\/\(([^()]*)\)$/);
+  if (fraction) return `\\frac{${fraction[1]}}{${fraction[2]}}`;
+  const root = trimmed.match(/^(?:√|âˆš)\(([^()]*)\)$/);
+  if (root) return `\\sqrt{${root[1]}}`;
+  return trimmed;
+}
+
+function materializeOmml(value: string): { text: string; hints: MathSegmentHint[] } {
+  const hints: MathSegmentHint[] = [];
+  const text = value.replace(ommlMarkerPattern, (_, encoded: string) => {
+    try {
+      const payload = JSON.parse(Buffer.from(encoded, "base64").toString("utf8")) as { sourceText?: string; latex?: string; confidence?: number; warnings?: MathConversionWarning[] };
+      const sourceText = payload.sourceText || payload.latex || "";
+      hints.push({ sourceText, latex: payload.latex || normalizeOmmlLatex(sourceText), origin: "OMML", confidence: payload.confidence ?? 1, warnings: payload.warnings });
+      return sourceText;
+    } catch {
+      return "";
+    }
+  });
+  return { text, hints };
+}
+
+/**
+ * Merge the explicit OMML markers and page-local PDF math regions into the
+ * same hint stream consumed by the canonical content adapter. PDF hints are
+ * only attached when their source token is actually present in the parsed
+ * question/option text; this prevents unrelated nearby glyphs leaking into a
+ * different question.
+ */
+function materializeCombined(value: string, pdfHints: MathSegmentHint[] = []) {
+  const materialized = materializeOmml(value);
+  const normalized = materialized.text;
+  const hints = pdfHints.filter((hint) => {
+    const token = hint.matchText || hint.sourceText;
+    return Boolean(token && normalized.includes(token));
+  });
+  return { text: normalized, hints: [...materialized.hints, ...hints] };
 }
 
 export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: ExtractedPdf["pages"] = []): ExtractedExamQuestion[] {
@@ -333,9 +464,39 @@ export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: Extra
       const options = optionMatches.length > 0
         ? [optionText("A"), optionText("B"), optionText("C"), optionText("D")]
         : unlabeledOptions;
+      const questionMaterialized = materializeCombined(questionText, page.mathSegments);
+      const optionMaterialized = options.map((option) => materializeCombined(option, page.mathSegments));
       const optionsComplete = options.length === 4 && options.every(Boolean);
       const reviewStatus = optionsComplete ? (correctAnswer ? "READY" : "MISSING_ANSWER") : "NEEDS_REVIEW";
-      questions.push({ number, questionText, optionA: options[0] || "", optionB: options[1] || "", optionC: options[2] || "", optionD: options[3] || "", correctAnswer, marks, sourcePageNumber: page.pageNumber, sourceReference: `Page ${page.pageNumber}`, reviewStatus });
+      const question = {
+        number,
+        questionText: questionMaterialized.text,
+        optionA: optionMaterialized[0]?.text || "",
+        optionB: optionMaterialized[1]?.text || "",
+        optionC: optionMaterialized[2]?.text || "",
+        optionD: optionMaterialized[3]?.text || "",
+        correctAnswer,
+        marks,
+        sourcePageNumber: page.pageNumber,
+        sourceReference: `Page ${page.pageNumber}`,
+        reviewStatus,
+      } as const;
+      questions.push({
+        ...question,
+        contentJson: buildLegacyQuestionContent({
+        ...question,
+        questionText: question.questionText || "Question text requires review.",
+        correctAnswer: correctAnswer || "",
+          mathSegments: {
+            question: questionMaterialized.hints,
+            optionA: optionMaterialized[0]?.hints,
+            optionB: optionMaterialized[1]?.hints,
+            optionC: optionMaterialized[2]?.hints,
+            optionD: optionMaterialized[3]?.hints,
+          },
+          contentSource: "TEACHER_IMPORT",
+        }),
+      });
     }
   }
   return questions;
