@@ -127,10 +127,24 @@ const explanationBlockSchema = baseBlockSchema.extend({
   segments: richSegmentsSchema.optional(),
 });
 
+// Visual evidence extracted from a source document. The URL is optional while
+// an import is pending storage; retaining the page/box still lets Build &
+// Review explain exactly which source region needs confirmation.
+const visualBlockSchema = baseBlockSchema.extend({
+  type: z.literal("visual"),
+  assetId: z.string().min(1),
+  assetUrl: z.string().url().optional(),
+  assetRole: z.enum(["DIAGRAM", "GRAPH", "FIGURE", "TABLE", "EQUATION_IMAGE", "UNKNOWN_VISUAL"]).default("UNKNOWN_VISUAL"),
+  pageNumber: z.number().int().positive(),
+  boundingBox: mathBoundingBoxSchema,
+  reviewRequired: z.boolean().default(false),
+});
+
 export const questionContentBlockSchema = z.discriminatedUnion("type", [
   paragraphBlockSchema,
   formulaBlockSchema,
   imageBlockSchema,
+  visualBlockSchema,
   tableBlockSchema,
   diagramBlockSchema,
   graphBlockSchema,
@@ -253,14 +267,37 @@ export function buildLegacyQuestionContent(question: {
     optionD?: MathSegmentHint[];
     explanation?: MathSegmentHint[];
   };
+  visualAssets?: Array<{
+    id: string;
+    assetUrl?: string;
+    sourceType: "DIAGRAM" | "GRAPH" | "FIGURE" | "TABLE" | "EQUATION_IMAGE" | "UNKNOWN_VISUAL";
+    pageNumber: number;
+    boundingBox: { page: number; x: number; y: number; width: number; height: number };
+    confidence?: number;
+    reviewRequired?: boolean;
+    sourceReference?: string;
+  }>;
   contentSource?: "TEACHER_IMPORT" | "AI_IMPORT" | "LEGACY_MIGRATION" | "MANUAL_ENTRY";
 }): QuestionContent {
   const sourceReference = question.sourceDocumentId ? { documentId: question.sourceDocumentId } : undefined;
   const correctOption = String(question.correctAnswer ?? "").trim().toUpperCase();
   const math = question.mathSegments;
+  const visualAssets = question.visualAssets || [];
   const blocks: QuestionContent["blocks"] = [
     { id: blockId("paragraph", 0), type: "paragraph", text: question.questionText, ...(structuredSegments(question.questionText, math?.question) ? { segments: structuredSegments(question.questionText, math?.question) } : {}), sourceReference },
     ...(question.questionImage ? [{ id: blockId("image", 0), type: "image" as const, url: question.questionImage, assetRole: "QUESTION_IMAGE" as const, sourceReference }] : []),
+    ...visualAssets.map((asset, index) => ({
+      id: blockId("visual", index),
+      type: "visual" as const,
+      assetId: asset.id,
+      ...(asset.assetUrl ? { assetUrl: asset.assetUrl } : {}),
+      assetRole: asset.sourceType,
+      pageNumber: asset.pageNumber,
+      boundingBox: asset.boundingBox,
+      ...(asset.sourceReference ? { sourceReference: { ...sourceReference, note: asset.sourceReference } } : sourceReference ? { sourceReference } : {}),
+      confidence: asset.confidence,
+      reviewRequired: Boolean(asset.reviewRequired),
+    })),
     {
       id: blockId("options", 0),
       type: "options",

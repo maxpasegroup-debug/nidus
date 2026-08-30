@@ -48,6 +48,31 @@ describe("exam review authority", () => {
     expect(deriveReviewIssues({ ...complete, sourcePageNumber: null }).find((item) => item.id === "SOURCE_COORDINATES_UNAVAILABLE")).toMatchObject({ severity: "LOW", state: "OPEN", approvable: true });
   });
 
+  it("blocks a referenced visual until an image-backed asset is confirmed", () => {
+    const issue = deriveReviewIssues({
+      ...complete,
+      visualReviewRequired: true,
+      visualReviewNotes: ["This question refers to a visual source that could not be assigned safely."],
+      contentJson: { blocks: [{ type: "visual", assetId: "visual-1", pageNumber: 1 }] },
+    }).find((item) => item.id === "MISSING_REQUIRED_VISUAL");
+    expect(issue).toMatchObject({ severity: "HIGH", state: "OPEN", approvable: false });
+    const resolved = deriveReviewIssues({
+      ...complete,
+      visualReviewRequired: true,
+      visualReviewNotes: ["Visual source attached."],
+      contentJson: { blocks: [{ type: "visual", assetId: "visual-1", assetUrl: "https://cdn.example.test/visual.jpg", pageNumber: 1 }] },
+    }).find((item) => item.id === "MISSING_REQUIRED_VISUAL");
+    expect(resolved?.state).toBe("RESOLVED");
+  });
+
+  it("blocks visual crops that still carry an association review flag", () => {
+    const issue = deriveReviewIssues({
+      ...complete,
+      contentJson: { blocks: [{ type: "visual", assetId: "visual-1", assetUrl: "https://cdn.example.test/visual.jpg", pageNumber: 1, reviewRequired: true }] },
+    }).find((item) => item.id === "VISUAL_SOURCE_NEEDS_REVIEW");
+    expect(issue).toMatchObject({ severity: "HIGH", state: "OPEN", approvable: false });
+  });
+
   it("derives end time from start and duration, including cross-day", () => {
     expect(calculateExamEnd("2026-08-29T09:00:00+05:30", 60).toISOString()).toBe("2026-08-29T04:30:00.000Z");
     expect(calculateExamEnd("2026-08-29T23:30:00+05:30", 120).toISOString()).toBe("2026-08-29T20:00:00.000Z");

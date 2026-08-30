@@ -21,6 +21,7 @@ type TeacherQuestionInput = {
   sourcePageNumber?: number;
   sourceReference?: string;
   contentJson?: unknown;
+  visualAssets?: unknown;
 };
 
 export type NdieAiReconstructionInput = {
@@ -81,6 +82,8 @@ type ProfessionalQuestion = {
   originalCropRequired: boolean;
   notes: string[];
   contentJson?: unknown;
+  visualReviewRequired?: boolean;
+  visualReviewNotes?: unknown;
 };
 
 type ProfessionalDraft = {
@@ -211,7 +214,8 @@ function buildDeterministicDraft(input: NdieAiReconstructionInput): Professional
         visual ? "Visual content linked to original source." : "",
         missingAnswer ? "Answer key needs teacher confirmation." : ""
        ].filter(Boolean),
-       ...(question.contentJson ? { contentJson: question.contentJson } : {})
+      ...(question.contentJson ? { contentJson: question.contentJson } : {}),
+      ...(question.visualReviewRequired ? { visualReviewRequired: true, visualReviewNotes: question.visualReviewNotes } : {})
       };
   });
   if (!questions.length) {

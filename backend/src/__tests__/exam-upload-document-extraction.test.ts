@@ -6,9 +6,72 @@ import { extractTextDoc, extractTextDocx, extractTextPdf, parseExamQuestions, re
 import { analyzePdfPage } from "../modules/academy/pdf-layout-analysis.js";
 import { reconstructPdfMath } from "../modules/academy/pdf-math-reconstruction.js";
 import { decodePdfTextItem } from "../modules/academy/pdf-text-decoding.js";
+import { detectPdfVisualRegions, questionRequiresVisual, renderPdfVisualCrops, visualStats } from "../modules/academy/pdf-visual-analysis.js";
 import { buildLegacyQuestionContent, parseQuestionContentJson } from "../modules/document-intelligence/question-content.schema.js";
 
 describe("exam upload PDF extraction", () => {
+  it("detects embedded visual operators with normalized source evidence", () => {
+    const regions = detectPdfVisualRegions({
+      pageNumber: 2,
+      pageWidth: 600,
+      pageHeight: 800,
+      sourceText: "Refer to the figure below.",
+      ops: { transform: 1, paintImageXObject: 2 },
+      operatorList: { fnArray: [1, 2], argsArray: [[240, 0, 0, 160, 120, 420], ["img"]] },
+    });
+    expect(regions).toHaveLength(1);
+    expect(regions[0]).toMatchObject({ pageNumber: 2, sourceType: "DIAGRAM", reviewRequired: false, confidence: 0.9, sourceReference: "Page 2" });
+    expect(regions[0].boundingBox).toEqual(expect.objectContaining({ page: 2, x: 0.2, y: 0.275, width: 0.4, height: 0.2 }));
+    expect(visualStats(regions)).toMatchObject({ candidateVisualRegions: 1, unassignedVisualRegions: 1, visualCropsGenerated: 0 });
+  });
+
+  it("filters decorative full-width header visuals and flags visual dependencies", () => {
+    const regions = detectPdfVisualRegions({ pageNumber: 1, pageWidth: 600, pageHeight: 800, sourceText: "logo header", ops: { paintImageXObject: 3 }, operatorList: { fnArray: [3], argsArray: [["logo"]] } });
+    expect(regions).toHaveLength(0);
+    expect(questionRequiresVisual("Refer to the diagram below to answer.")).toBe(true);
+    expect(questionRequiresVisual("What is 2 + 2?")).toBe(false);
+  });
+
+  it("retains path-heavy vector figures as reviewable visual evidence", () => {
+    const regions = detectPdfVisualRegions({
+      pageNumber: 1,
+      pageWidth: 600,
+      pageHeight: 800,
+      sourceText: "Refer to the graph below.",
+      ops: { constructPath: 4 },
+      operatorList: {
+        fnArray: [4, 4, 4, 4],
+        argsArray: [
+          [[2], [120, 500, 260, 500]],
+          [[2], [120, 500, 120, 350]],
+          [[2], [120, 350, 260, 350]],
+          [[2], [260, 350, 260, 500]],
+        ],
+      },
+    });
+    expect(regions).toEqual(expect.arrayContaining([expect.objectContaining({ sourceType: "GRAPH", reviewRequired: true })]));
+    expect(regions[0]?.boundingBox).toEqual(expect.objectContaining({ page: 1, x: 0.2, width: expect.closeTo(0.2333, 3) }));
+  });
+
+  it("renders bounded visual crops from one page raster", async () => {
+    const page = {
+      getViewport: () => ({ width: 120, height: 160 }),
+      render: () => ({ promise: Promise.resolve() }),
+    };
+    const regions = await renderPdfVisualCrops(page, [{
+      id: "visual-1",
+      pageNumber: 1,
+      boundingBox: { page: 1, x: 0.2, y: 0.25, width: 0.4, height: 0.3 },
+      sourceType: "FIGURE",
+      confidence: 0.9,
+      reviewRequired: false,
+    }]);
+    expect(regions).toHaveLength(1);
+    expect(regions[0].mimeType).toBe("image/jpeg");
+    expect(regions[0].buffer.length).toBeGreaterThan(0);
+    expect(regions[0].width).toBeGreaterThan(0);
+    expect(regions[0].height).toBeGreaterThan(0);
+  });
   it("preserves mathematical Unicode while classifying suspect font glyphs", () => {
     expect(decodePdfTextItem("x² + π ≤ θ")).toMatchObject({ normalizedText: "x² + π ≤ θ", encodingStatus: "TEXT_LAYER_OK" });
     const privateGlyph = decodePdfTextItem("x");
@@ -139,6 +202,13 @@ describe("exam upload PDF extraction", () => {
     const questions = parseExamQuestions([{ pageNumber: 1, text: "1. What is the capital of India? A. Mumbai B. Delhi C. Chennai D. Kolkata" }]);
     expect(questions).toHaveLength(1);
     expect(questions[0]).toMatchObject({ number: 1, correctAnswer: undefined, sourcePageNumber: 1, reviewStatus: "MISSING_ANSWER" });
+  });
+
+  it("associates a page visual with the only question on that page", () => {
+    const regions = detectPdfVisualRegions({ pageNumber: 1, pageWidth: 600, pageHeight: 800, sourceText: "Refer to the diagram below.", ops: { paintImageXObject: 2 }, operatorList: { fnArray: [2], argsArray: [["diagram"]] } });
+    const questions = parseExamQuestions([{ pageNumber: 1, text: "1. Refer to the diagram below. A. One B. Two C. Three D. Four", visualRegions: regions }]);
+    expect(questions[0]).toMatchObject({ visualReviewRequired: true, visualAssets: [expect.objectContaining({ sourceType: "DIAGRAM", pageNumber: 1 })] });
+    expect((questions[0].contentJson as { blocks: Array<{ type: string }> }).blocks.some((block) => block.type === "visual")).toBe(true);
   });
 
   it("uses an optional answer-key document when supplied", () => {
@@ -352,6 +422,17 @@ describe("exam upload PDF extraction", () => {
       const paragraph = parsed.data.blocks.find((block) => block.type === "paragraph");
       expect(paragraph && paragraph.type === "paragraph" ? paragraph.segments?.[1] : undefined).toMatchObject({ type: "math", latex: "\\begin{bmatrix}1&2\\\\3&4\\end{bmatrix}" });
     }
+  });
+
+  it("keeps visual source evidence as a canonical review block", () => {
+    const content = buildLegacyQuestionContent({
+      questionText: "Refer to the figure below.",
+      optionA: "1", optionB: "2", optionC: "3", optionD: "4", correctAnswer: "A",
+      visualAssets: [{ id: "pdf-1-visual-1", sourceType: "DIAGRAM", pageNumber: 1, boundingBox: { page: 1, x: 0.2, y: 0.3, width: 0.4, height: 0.2 }, confidence: 0.9, reviewRequired: true, sourceReference: "Page 1" }],
+    });
+    const visual = content.blocks.find((block) => block.type === "visual");
+    expect(visual).toMatchObject({ type: "visual", assetId: "pdf-1-visual-1", assetRole: "DIAGRAM", pageNumber: 1, reviewRequired: true });
+    expect(parseQuestionContentJson(content).success).toBe(true);
   });
 
   it("rejects malformed or executable canonical segments", () => {

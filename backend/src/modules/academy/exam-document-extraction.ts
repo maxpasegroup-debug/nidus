@@ -2,6 +2,7 @@ import { buildLegacyQuestionContent, type MathConversionWarning, type MathSegmen
 import { analyzePdfPage } from "./pdf-layout-analysis.js";
 import type { PdfGlyphRun } from "./pdf-math-reconstruction.js";
 import { decodePdfTextItem } from "./pdf-text-decoding.js";
+import { detectPdfVisualRegions, questionRequiresVisual, renderPdfVisualCrops, visualStats, type PdfVisualRegion, type PdfVisualStats } from "./pdf-visual-analysis.js";
 
 type PdfJsModule = typeof import("pdfjs-dist/legacy/build/pdf.mjs");
 type MammothModule = typeof import("mammoth");
@@ -28,6 +29,9 @@ export type ExtractedExamQuestion = {
   sourceReference: string;
   reviewStatus: "READY" | "MISSING_ANSWER" | "NEEDS_REVIEW";
   contentJson?: unknown;
+  visualAssets?: PdfVisualRegion[];
+  visualReviewRequired?: boolean;
+  visualReviewNotes?: string[];
 };
 
 export type NormalizedDocumentBlock = {
@@ -44,9 +48,11 @@ export type NormalizedDocumentPage = {
   mathSegments?: MathSegmentHint[];
   mathStats?: { mathRegionsDetected: number; mathRegionsCanonicalized: number; mathRegionsReviewRequired: number; totalTextItems: number; suspectTextItems: number; privateUseGlyphs: number; replacementCharacters: number; encodingWarnings: number };
   encodingStatus?: "TEXT_LAYER_OK" | "GLYPH_ENCODING_SUSPECT" | "MATH_LAYOUT_AMBIGUOUS" | "VISUAL_ONLY_CONTENT";
+  visualRegions?: PdfVisualRegion[];
+  visualStats?: PdfVisualStats;
 };
 
-export type ExtractedPdf = { pages: NormalizedDocumentPage[]; textCharacters: number };
+export type ExtractedPdf = { pages: NormalizedDocumentPage[]; textCharacters: number; visualStats?: PdfVisualStats };
 export type ExtractedDocument = ExtractedPdf;
 
 function normalizeDocumentText(value: string, form: "NFKC" | "NFC" = "NFKC") {
@@ -237,6 +243,46 @@ export async function extractTextPdf(buffer: Buffer): Promise<ExtractedPdf> {
         })
         .filter((item): item is PdfGlyphRun => Boolean(item));
       const analysis = analyzePdfPage(glyphs, viewport.width, viewport.height);
+      let visualRegions: PdfVisualRegion[] = [];
+      try {
+        const operatorList = await page.getOperatorList();
+        visualRegions = detectPdfVisualRegions({
+          pageNumber,
+          pageWidth: viewport.width,
+          pageHeight: viewport.height,
+          operatorList,
+          ops: pdfjs.OPS as unknown as Record<string, number>,
+          sourceText: analysis.text,
+        });
+      } catch {
+        // PDF.js can expose text while denying operator/image access for a
+        // malformed page. Text extraction must remain usable; review metadata
+        // is added by the question parser when the text references a visual.
+        visualRegions = [];
+      }
+      if (visualRegions.length) {
+        try {
+          const crops = await renderPdfVisualCrops(page, visualRegions);
+          visualRegions = visualRegions.map((region, index) => ({
+            ...region,
+            ...(crops[index] ? {
+              cropBuffer: crops[index].buffer,
+              cropMimeType: crops[index].mimeType,
+              cropWidth: crops[index].width,
+              cropHeight: crops[index].height,
+            } : {}),
+          }));
+        } catch (error) {
+          // A page may expose image operators but fail raster rendering. Keep
+          // the evidence box and force review rather than dropping the visual.
+          const message = error instanceof Error ? error.message : "PDF visual crop could not be rendered.";
+          visualRegions = visualRegions.map((region) => ({
+            ...region,
+            reviewRequired: true,
+            warnings: [...(region.warnings || []), message],
+          }));
+        }
+      }
       pages.push({
         ...normalizedPage(pageNumber, analysis.text, analysis.lines.map((line, order) => ({ type: "line", text: line.text, order })), "NFC"),
         glyphs,
@@ -252,13 +298,16 @@ export async function extractTextPdf(buffer: Buffer): Promise<ExtractedPdf> {
           encodingWarnings: analysis.encodingWarnings,
         },
         encodingStatus: analysis.encodingStatus,
+        visualRegions,
+        visualStats: visualStats(visualRegions),
       });
     }
     const textCharacters = pages.reduce((sum, page) => sum + page.text.replace(/\s/g, "").length, 0);
     if (textCharacters < 20) {
       throw Object.assign(new Error("This PDF appears to contain scanned images without readable text. Please upload a text-based PDF, DOC, or DOCX file."), { statusCode: 422, code: "SCANNED_PDF_UNSUPPORTED" });
     }
-    return { pages, textCharacters };
+    const regions = pages.flatMap((page) => page.visualRegions || []);
+    return { pages, textCharacters, visualStats: visualStats(regions) };
   } catch (error) {
     if (error && typeof error === "object" && "statusCode" in error) throw error;
     throw pdfError(error);
@@ -468,6 +517,18 @@ export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: Extra
       const optionMaterialized = options.map((option) => materializeCombined(option, page.mathSegments));
       const optionsComplete = options.length === 4 && options.every(Boolean);
       const reviewStatus = optionsComplete ? (correctAnswer ? "READY" : "MISSING_ANSWER") : "NEEDS_REVIEW";
+      const visualReferences = questionRequiresVisual(questionText);
+      // A page with one detected question is the only case where page-local
+      // visual ownership is unambiguous without a full layout model. On pages
+      // containing multiple questions, retain the candidates at page level and
+      // require review rather than attaching a figure to the wrong question.
+      const pageVisuals = page.visualRegions || [];
+      const associatedVisuals = starts.length === 1 ? pageVisuals : [];
+      const visualReviewNotes = visualReferences && !associatedVisuals.length
+        ? ["This question refers to a visual source that could not be assigned safely. Review the original paper."]
+        : associatedVisuals.filter((asset) => asset.reviewRequired).length
+          ? ["Visual source bounds or association need review before release."]
+          : [];
       const question = {
         number,
         questionText: questionMaterialized.text,
@@ -480,6 +541,8 @@ export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: Extra
         sourcePageNumber: page.pageNumber,
         sourceReference: `Page ${page.pageNumber}`,
         reviewStatus,
+        ...(associatedVisuals.length ? { visualAssets: associatedVisuals } : {}),
+        ...(visualReferences || visualReviewNotes.length ? { visualReviewRequired: Boolean(visualReferences || visualReviewNotes.length), visualReviewNotes } : {}),
       } as const;
       questions.push({
         ...question,
@@ -494,6 +557,16 @@ export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: Extra
             optionC: optionMaterialized[2]?.hints,
             optionD: optionMaterialized[3]?.hints,
           },
+          visualAssets: question.visualAssets?.map((asset) => ({
+            id: asset.id,
+            assetUrl: asset.assetUrl,
+            sourceType: asset.sourceType,
+            pageNumber: asset.pageNumber,
+            boundingBox: asset.boundingBox,
+            confidence: asset.confidence,
+            reviewRequired: asset.reviewRequired,
+            sourceReference: asset.sourceReference,
+          })),
           contentSource: "TEACHER_IMPORT",
         }),
       });

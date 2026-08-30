@@ -173,6 +173,9 @@ type RichBlock = {
   latex?: string;
   displayMode?: boolean;
   url?: string;
+  assetUrl?: string;
+  pageNumber?: number;
+  reviewRequired?: boolean;
   alt?: string;
   caption?: string;
   description?: string;
@@ -211,6 +214,12 @@ export function NidusQuestionContent({ content, fallbackText, imageUrl }: { cont
             // eslint-disable-next-line @next/next/no-img-element
             <img key={key} src={block.url} alt={block.alt || ""} className="max-h-64 w-auto rounded border border-[#071d36]/10 object-contain" />
           ) : null;
+        }
+        if (block.type === "visual") {
+          return block.assetUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img key={key} src={block.assetUrl} alt={block.alt || "Question visual"} className="max-h-64 w-auto max-w-full rounded border border-[#071d36]/10 object-contain" />
+          ) : <p key={key} className="rounded border border-amber-200 bg-amber-50 p-3 text-sm font-semibold text-amber-900">Visual source from page {block.pageNumber || "?"} is preserved for review.</p>;
         }
         if (block.type === "table" && Array.isArray(block.rows)) {
           return (

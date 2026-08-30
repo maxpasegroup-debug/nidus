@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { Prisma, Role } from "../../generated/prisma/client.js";
 import { prisma } from "../../config/prisma.js";
 import { deleteCloudinaryAsset, signedMediaUrl, uploadBufferToCloudinary } from "../../config/cloudinary.js";
+import { ndieAssetStorageProvider } from "../ndie/storage/storage-provider.js";
 import { enqueuePDF } from "../../queues/pdf.queue.js";
 import { testsService, type TestPayload } from "../tests/tests.service.js";
 import { validatePublishedQuestions } from "../tests/exam-publishing-gate.js";
@@ -12,6 +13,7 @@ import { ndieAiReconstructionService, type NdieAiReconstructionInput } from "../
 import { ndieComplianceService } from "../ndie/security/compliance.service.js";
 import { DEFAULT_ACCOUNT_PIN } from "../auth/auth.v2.service.js";
 import { extractTextDoc, extractTextDocx, extractTextPdf, parseExamQuestions } from "./exam-document-extraction.js";
+import type { PdfVisualRegion } from "./pdf-visual-analysis.js";
 
 const db = prisma as any;
 
@@ -271,6 +273,7 @@ type ExamImportValidationQuestion = {
   visualReviewNotes?: unknown;
   aiConfidence?: number;
   reviewStatus?: string;
+  visualAssets?: unknown;
 };
 
 type ExamImportValidationInput = {
@@ -859,6 +862,39 @@ function withSignedExamUploadUrls<T extends Record<string, any>>(rows: T[]) {
       return { ...row, signedUrl: row.cloudinaryUrl };
     }
   });
+}
+
+/** Persist bounded PDF visual crops through the existing NDIE asset provider.
+ * A storage failure never discards source evidence: the region remains in the
+ * canonical content without a URL and is marked for director review. */
+async function persistPdfVisualRegions(regions: PdfVisualRegion[], testId?: string) {
+  return Promise.all(regions.map(async (region) => {
+    if (!region.cropBuffer || region.assetUrl) return region;
+    try {
+      const stored = await ndieAssetStorageProvider.uploadPageImage({
+        buffer: region.cropBuffer,
+        fileName: `${region.id}.jpg`,
+        folder: `nidus/exams/visuals/${testId || "unassigned"}`,
+        mimeType: "image/jpeg",
+      });
+      return {
+        ...region,
+        assetUrl: stored.secureUrl,
+        sourceReference: region.sourceReference || stored.publicId,
+        cropMimeType: "image/jpeg" as const,
+        cropWidth: region.cropWidth || undefined,
+        cropHeight: region.cropHeight || undefined,
+        cropBuffer: undefined,
+      };
+    } catch (error) {
+      return {
+        ...region,
+        reviewRequired: true,
+        warnings: [...(region.warnings || []), error instanceof Error ? error.message : "Visual crop storage is unavailable."],
+        cropBuffer: undefined,
+      };
+    }
+  }));
 }
 
 async function auditAcademicAction(user: Requester, action: string, entityType: string, entityId: string | null, payload: Record<string, unknown>) {
@@ -5061,6 +5097,16 @@ export const academyService = {
       if (!response.ok) throw Object.assign(new Error("The question paper could not be read. Please upload it again."), { statusCode: 422 });
       const paperBuffer = Buffer.from(await response.arrayBuffer());
       const paper = questionPaperIsPdf ? await extractTextPdf(paperBuffer) : questionPaperIsDocx ? await extractTextDocx(paperBuffer) : await extractTextDoc(paperBuffer);
+      if (questionPaperIsPdf) {
+        const regions = await persistPdfVisualRegions(paper.pages.flatMap((page) => page.visualRegions || []), input.testId);
+        const byId = new Map(regions.map((region) => [region.id, region]));
+        paper.pages = paper.pages.map((page) => ({
+          ...page,
+          visualRegions: page.visualRegions?.map((region) => byId.get(region.id) || region),
+          visualStats: page.visualStats ? { ...page.visualStats, visualCropsGenerated: regions.filter((region) => Boolean(region.assetUrl)).length } : page.visualStats,
+        }));
+        paper.visualStats = paper.visualStats ? { ...paper.visualStats, visualCropsGenerated: regions.filter((region) => Boolean(region.assetUrl)).length } : paper.visualStats;
+      }
       let keyPages: Awaited<ReturnType<typeof extractTextPdf>>["pages"] = [];
       if (answerKey && (answerKeyName?.endsWith(".pdf") || answerKeyName?.endsWith(".docx") || answerKeyName?.endsWith(".doc"))) {
         const keyResponse = await fetch(signedMediaUrl(answerKey.publicId, answerKey.fileType));
@@ -5069,6 +5115,21 @@ export const academyService = {
         keyPages = (answerKeyName.endsWith(".pdf") ? await extractTextPdf(keyBuffer) : answerKeyName.endsWith(".docx") ? await extractTextDocx(keyBuffer) : await extractTextDoc(keyBuffer)).pages;
       }
       extractedQuestions = parseExamQuestions(paper.pages, keyPages);
+      // Association is decided by the deterministic question parser. Keep
+      // the development metrics honest after that pass so callers can see
+      // which detected regions were actually attached to a question.
+      if (paper.visualStats) {
+        const attachedVisualCount = extractedQuestions.reduce((count, question) => count + (Array.isArray(question.visualAssets) ? question.visualAssets.length : 0), 0);
+        paper.visualStats = {
+          ...paper.visualStats,
+          visualRegionsAttached: attachedVisualCount,
+          unassignedVisualRegions: Math.max(0, paper.visualStats.candidateVisualRegions - attachedVisualCount),
+          visualRegionsReviewRequired: Math.max(
+            paper.visualStats.visualRegionsReviewRequired,
+            extractedQuestions.filter((question) => question.visualReviewRequired).length,
+          ),
+        };
+      }
       if (!extractedQuestions.length) {
         // Keep readable but non-standard documents in the draft as an explicit
         // review placeholder. This avoids silently discarding source content
@@ -5090,6 +5151,8 @@ export const academyService = {
         questionPaper: { name: questionPaper.originalName, format: questionPaperIsPdf ? "PDF" : questionPaperIsDocx ? "DOCX" : "DOC", pageCount: questionPaperIsPdf ? paper.pages.length : null, textCharacters: paper.textCharacters },
         answerKey: answerKey ? { name: answerKey.originalName, pageCount: keyPages.length } : null,
         sourcePages: paper.pages.map((page) => page.pageNumber),
+        visualStats: paper.visualStats || { candidateVisualRegions: 0, visualRegionsAttached: 0, visualRegionsReviewRequired: 0, unassignedVisualRegions: 0, visualCropsGenerated: 0 },
+        visualRegions: paper.pages.flatMap((page) => (page.visualRegions || []).map(({ cropBuffer: _cropBuffer, ...region }) => region)),
       };
     }
     const importJobIds = Array.from(new Set([
@@ -5105,6 +5168,8 @@ export const academyService = {
       ndieOutputs: {
         ...input.ndieOutputs,
         ...(documentEvidence ? { pageReferences: documentEvidence } : {}),
+        ...(documentEvidence ? { visual: { stats: documentEvidence.visualStats, regions: documentEvidence.visualRegions } } : {}),
+        ...(documentEvidence ? { originalPageAssets: documentEvidence.visualRegions } : {}),
       },
     });
     if (importJobIds.length) {

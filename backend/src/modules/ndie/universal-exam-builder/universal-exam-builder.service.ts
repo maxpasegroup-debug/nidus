@@ -14,6 +14,7 @@ type UniversalQuestionInput = {
   reviewStatus?: string;
   boundingBoxes?: unknown;
   contentJson?: unknown;
+  visualAssets?: unknown;
 };
 
 export type UniversalExamBuilderInput = {
@@ -86,6 +87,8 @@ type ProfessionalQuestion = {
   originalCropRequired: boolean;
   notes: string[];
   contentJson?: unknown;
+  visualReviewRequired?: boolean;
+  visualReviewNotes?: unknown;
 };
 
 type QualityLabel = "High" | "Medium" | "Needs Review";
@@ -325,6 +328,7 @@ export const ndieUniversalExamBuilderService = {
           missingItems.length ? `Needs review: ${missingItems.join(", ")}` : "",
         ].filter(Boolean),
         ...(question.contentJson ? { contentJson: question.contentJson } : {}),
+        ...(question.visualReviewRequired ? { visualReviewRequired: true, visualReviewNotes: question.visualReviewNotes } : {}),
       };
     });
 

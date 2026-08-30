@@ -17,6 +17,12 @@ type RichBlock = {
   latex?: string;
   displayMode?: boolean;
   url?: string;
+  assetUrl?: string;
+  assetId?: string;
+  assetRole?: string;
+  pageNumber?: number;
+  boundingBox?: SourceReference["coordinates"];
+  reviewRequired?: boolean;
   alt?: string;
   caption?: string;
   description?: string;
@@ -160,6 +166,10 @@ function RenderBlock({ block }: { block: RichBlock }) {
     );
   }
   if (block.type === "image" && block.url) return <AssetViewer key={key} url={block.url} alt={block.alt} caption={block.caption} />;
+  if (block.type === "visual") {
+    if (block.assetUrl) return <AssetViewer key={key} url={block.assetUrl} alt={block.alt || "Question visual"} caption={block.caption} />;
+    return <div key={key} className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm font-semibold text-amber-900" role="note"><p className="font-black">Visual source needs review</p><p className="mt-1">The original visual from page {block.pageNumber || "?"} was preserved for review but is not available as a preview yet.</p></div>;
+  }
   if (block.type === "diagram" || block.type === "graph") {
     return (
       <div key={key} className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm font-semibold leading-6 text-amber-950">

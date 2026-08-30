@@ -28,6 +28,7 @@ export type NidusQuestionContentBlock =
   | (BaseBlock & { type: "paragraph"; text: string })
   | (BaseBlock & { type: "formula"; latex: string; text?: string; displayMode?: boolean })
   | (BaseBlock & { type: "image"; url: string; alt?: string; caption?: string; assetRole?: "QUESTION_IMAGE" | "DIAGRAM" | "GRAPH" | "CHART" | "TABLE_IMAGE" | "TEACHER_ATTACHED_VISUAL" })
+  | (BaseBlock & { type: "visual"; assetId: string; assetUrl?: string; assetRole?: "DIAGRAM" | "GRAPH" | "FIGURE" | "TABLE" | "EQUATION_IMAGE" | "UNKNOWN_VISUAL"; pageNumber: number; boundingBox: NidusCoordinateBox; reviewRequired?: boolean })
   | (BaseBlock & { type: "table"; rows: string[][]; caption?: string })
   | (BaseBlock & { type: "diagram"; url?: string; description: string; labels?: string[] })
   | (BaseBlock & { type: "graph"; url?: string; description: string; graphType?: string })

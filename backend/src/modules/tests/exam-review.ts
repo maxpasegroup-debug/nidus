@@ -11,12 +11,40 @@ export type ReviewIssue = {
   decidedAt?: string;
 };
 
-type StructuralQuestion = { questionText?: string; optionA?: string; optionB?: string; optionC?: string; optionD?: string; correctAnswer?: string; explanation?: string; marks?: number; negativeMarks?: number; sourcePageNumber?: number | null };
+type StructuralQuestion = { questionText?: string; questionImage?: string | null; visualReviewRequired?: boolean; visualReviewNotes?: unknown; contentJson?: unknown; optionA?: string; optionB?: string; optionC?: string; optionD?: string; correctAnswer?: string; explanation?: string; marks?: number; negativeMarks?: number; sourcePageNumber?: number | null };
+
+function hasRenderableVisual(question: StructuralQuestion) {
+  if (!question.contentJson || typeof question.contentJson !== "object" || Array.isArray(question.contentJson)) return false;
+  const blocks = (question.contentJson as { blocks?: unknown }).blocks;
+  return Array.isArray(blocks) && blocks.some((block) => {
+    if (!block || typeof block !== "object" || Array.isArray(block)) return false;
+    const item = block as { type?: unknown; assetUrl?: unknown; url?: unknown };
+    return (item.type === "visual" || item.type === "image") && Boolean(String(item.assetUrl || item.url || "").trim());
+  });
+}
+
+function visualNeedsAttachment(question: StructuralQuestion) {
+  if (!question.visualReviewRequired || hasRenderableVisual(question) || question.questionImage?.trim()) return false;
+  if (!Array.isArray(question.visualReviewNotes)) return true;
+  return question.visualReviewNotes.some((note) => /visual|diagram|graph|table|figure|image/i.test(String(note || "")));
+}
+
+function visualNeedsReview(question: StructuralQuestion) {
+  if (!question.contentJson || typeof question.contentJson !== "object" || Array.isArray(question.contentJson)) return false;
+  const blocks = (question.contentJson as { blocks?: unknown }).blocks;
+  return Array.isArray(blocks) && blocks.some((block) => {
+    if (!block || typeof block !== "object" || Array.isArray(block)) return false;
+    const item = block as { type?: unknown; reviewRequired?: unknown };
+    return item.type === "visual" && item.reviewRequired === true;
+  });
+}
 
 const definitions = [
   { id: "MISSING_QUESTION_TEXT", test: (q: StructuralQuestion) => !q.questionText?.trim(), severity: "HIGH", approvable: false },
   { id: "MISSING_REQUIRED_OPTIONS", test: (q: StructuralQuestion) => ![q.optionA, q.optionB, q.optionC, q.optionD].every((value) => value?.trim()), severity: "HIGH", approvable: false },
   { id: "INVALID_CORRECT_ANSWER", test: (q: StructuralQuestion) => !/^[A-D]$/.test(q.correctAnswer?.trim().toUpperCase() || ""), severity: "HIGH", approvable: false },
+  { id: "MISSING_REQUIRED_VISUAL", test: visualNeedsAttachment, severity: "HIGH", approvable: false },
+  { id: "VISUAL_SOURCE_NEEDS_REVIEW", test: visualNeedsReview, severity: "HIGH", approvable: false },
   // Explanations enrich post-exam learning but are not required to score a
   // single-choice question safely. Keep the omission visible without letting
   // it block review readiness or release.
