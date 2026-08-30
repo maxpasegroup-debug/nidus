@@ -129,9 +129,17 @@ function parseOmmlXml(xml: string): OmmlNode[] {
 function child(node: OmmlNode, name: string) { return node.children.find((item) => item.name === name); }
 function children(node: OmmlNode, name: string) { return node.children.filter((item) => item.name === name); }
 function textOf(node: OmmlNode): string { return node.name === "#text" ? node.text || "" : node.children.map(textOf).join(""); }
-function normalizeMathText(value: string) { return Array.from(value).map((symbol) => unicodeMathSymbolMap[symbol] || mathSymbolMap[symbol] || symbol).join("").replace(/\s+/g, " ").trim(); }
+/** Join LaTeX tokens without allowing a control word to consume the next identifier. */
+export function joinLatexFragments(fragments: string[]) {
+  return fragments.reduce((joined, fragment) => {
+    if (!joined || !fragment) return joined + fragment;
+    return /\\[A-Za-z]+$/.test(joined) && /^[A-Za-z]/.test(fragment) ? `${joined} ${fragment}` : joined + fragment;
+  }, "");
+}
+
+function normalizeMathText(value: string) { return joinLatexFragments(Array.from(value).map((symbol) => unicodeMathSymbolMap[symbol] || mathSymbolMap[symbol] || symbol)).replace(/\s+/g, " ").trim(); }
 function group(value: string) { return `{${value || "\\text{?}"}}`; }
-function combine(results: MathConversionResult[]): MathConversionResult { const warnings = results.flatMap((result) => result.warnings || []); return { latex: results.map((result) => result.latex).join(""), sourceText: results.map((result) => result.sourceText || "").join(""), confidence: results.length ? Math.min(...results.map((result) => result.confidence)) : 1, ...(warnings.length ? { warnings } : {}) }; }
+function combine(results: MathConversionResult[]): MathConversionResult { const warnings = results.flatMap((result) => result.warnings || []); return { latex: joinLatexFragments(results.map((result) => result.latex)), sourceText: results.map((result) => result.sourceText || "").join(""), confidence: results.length ? Math.min(...results.map((result) => result.confidence)) : 1, ...(warnings.length ? { warnings } : {}) }; }
 function warning(code: string, message: string, severity: MathConversionWarning["severity"] = "MEDIUM"): MathConversionWarning { return { code, message, severity }; }
 
 export function convertOmmlNode(node: OmmlNode): MathConversionResult {
@@ -154,7 +162,7 @@ export function convertOmmlNode(node: OmmlNode): MathConversionResult {
     case "m:mc": return all();
     case "m:m": { const rows = children(node, "m:mr").map((row) => { const cells = children(row, "m:e").length ? children(row, "m:e") : children(row, "m:mc"); return cells.map((cell) => convert(cell).latex).join(" & "); }).join(" \\\\ "); return { latex: `\\begin{matrix}${rows}\\end{matrix}`, sourceText: textOf(node), confidence: 1 }; }
     case "m:eqArr": { const rows = children(node, "m:e").map((row) => convert(row).latex).join(" \\\\ "); return { latex: `\\begin{aligned}${rows}\\end{aligned}`, sourceText: textOf(node), confidence: 1 }; }
-    case "m:d": { const props = child(node, "m:dPr"), begin = child(props || emptyOmmlNode(), "m:begChr")?.attrs["m:val"] || "(", end = child(props || emptyOmmlNode(), "m:endChr")?.attrs["m:val"] || ")", body = child(node, "m:e"), inner = convert(body), matrix = body && child(body, "m:m"); if (matrix && begin === "[" && end === "]") return { ...inner, latex: inner.latex.replace(/^\\begin\{matrix\}/, "\\begin{bmatrix}").replace(/\\end\{matrix\}$/, "\\end{bmatrix}") }; if (matrix && begin === "|" && end === "|") return { ...inner, latex: inner.latex.replace(/^\\begin\{matrix\}/, "\\begin{vmatrix}").replace(/\\end\{matrix\}$/, "\\end{vmatrix}") }; if (matrix && begin === "{" && end === "}") return { ...inner, latex: inner.latex.replace(/^\\begin\{matrix\}/, "\\begin{cases}").replace(/\\end\{matrix\}$/, "\\end{cases}") }; return { ...inner, latex: `\\left${begin === "{" ? "\\{" : begin}${inner.latex}\\right${end === "}" ? "\\}" : end}` }; }
+    case "m:d": { const props = child(node, "m:dPr"), begin = child(props || emptyOmmlNode(), "m:begChr")?.attrs["m:val"] || "(", end = child(props || emptyOmmlNode(), "m:endChr")?.attrs["m:val"] || ")", separator = child(props || emptyOmmlNode(), "m:sepChr")?.attrs["m:val"] || "", bodies = children(node, "m:e"), body = bodies[0], convertedBodies = (bodies.length ? bodies : [emptyOmmlNode()]).map(convert), innerBase = combine(convertedBodies), inner = { ...innerBase, latex: convertedBodies.map((item) => item.latex).join(separator), sourceText: convertedBodies.map((item) => item.sourceText || "").join(separator) }, matrix = body && child(body, "m:m"); if (matrix && begin === "[" && end === "]") return { ...inner, latex: inner.latex.replace(/^\\begin\{matrix\}/, "\\begin{bmatrix}").replace(/\\end\{matrix\}$/, "\\end{bmatrix}") }; if (matrix && begin === "|" && end === "|") return { ...inner, latex: inner.latex.replace(/^\\begin\{matrix\}/, "\\begin{vmatrix}").replace(/\\end\{matrix\}$/, "\\end{vmatrix}") }; if (matrix && begin === "{" && end === "}") return { ...inner, latex: inner.latex.replace(/^\\begin\{matrix\}/, "\\begin{cases}").replace(/\\end\{matrix\}$/, "\\end{cases}") }; return { ...inner, latex: `\\left${begin === "{" ? "\\{" : begin}${inner.latex}\\right${end === "}" ? "\\}" : end}` }; }
     case "m:bar": { const b = convert(child(node, "m:e")); return { ...b, latex: `\\bar${group(b.latex)}` }; }
     case "m:acc": { const b = convert(child(node, "m:e")), chr = child(child(node, "m:accPr") || emptyOmmlNode(), "m:chr")?.attrs["m:val"] || "^", op = accentMap[chr]; return { ...b, latex: op ? `${op}${group(b.latex)}` : `\\operatorname{${chr}}${group(b.latex)}`, ...(op ? {} : { confidence: 0.6, warnings: [warning("UNSUPPORTED_OMML_ACCENT", "This equation accent needs review.")] }) }; }
     case "m:groupChr": { const b = convert(child(node, "m:e")), chr = child(child(node, "m:groupChrPr") || emptyOmmlNode(), "m:chr")?.attrs["m:val"] || "", op = chr === "⏞" ? "\\overbrace" : chr === "⏟" ? "\\underbrace" : "\\overline"; return { ...b, latex: `${op}${group(b.latex)}` }; }
@@ -166,6 +174,26 @@ export function convertOfficeMathFragment(fragment: string): MathConversionResul
 
 export function renderOfficeMathFragment(fragment: string): string {
   return convertOfficeMathFragment(fragment).latex;
+}
+
+function exposeQuestionNumberFromOmml(value: string) {
+  return value.replace(/\[\[NIDUS_OMML:([A-Za-z0-9+/=]+)\]\]/g, (marker, encoded: string) => {
+    try {
+      const result = JSON.parse(Buffer.from(encoded, "base64").toString("utf8")) as MathConversionResult;
+      const match = String(result.sourceText || "").match(/^(\d{1,4}\s*[.)])\s*(.+)$/s);
+      if (!match) return marker;
+      const prefixLength = match[1].length;
+      const remainder: MathConversionResult = {
+        ...result,
+        sourceText: String(result.sourceText).slice(prefixLength).trimStart(),
+        latex: String(result.latex || "").replace(/^\s*\d{1,4}\s*[.)]\s*/, ""),
+      };
+      const payload = Buffer.from(JSON.stringify(remainder), "utf8").toString("base64");
+      return `${match[1]}[[NIDUS_OMML:${payload}]]`;
+    } catch {
+      return marker;
+    }
+  });
 }
 
 /**
@@ -528,8 +556,12 @@ export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: Extra
   const questions: ExtractedExamQuestion[] = [];
   let expectedNumber = 1;
   for (const page of pages) {
+    // Word can place the question number inside an OMML equation (for example
+    // `47.A=...`). Expose only that numeric prefix before boundary scanning;
+    // the remaining equation stays encoded as canonical OMML content.
+    const pageText = exposeQuestionNumberFromOmml(page.text);
     const directions = new Map<number, string>();
-    for (const direction of page.text.matchAll(/Direction for questions\s+(\d+)\s+to\s+(\d+)\s*:\s*(.*?)Then\s+\1\./gi)) {
+    for (const direction of pageText.matchAll(/Direction for questions\s+(\d+)\s+to\s+(\d+)\s*:\s*(.*?)Then\s+\1\./gi)) {
       directions.set(Number(direction[1]), `Direction for questions ${direction[1]} to ${direction[2]}: ${direction[3].trim()}`);
     }
     // Word extraction commonly joins a base/subscript to the following
@@ -539,34 +571,34 @@ export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: Extra
     // parenthesis must be followed by whitespace, which prevents mathematical
     // groups such as `(1024)10` from being mistaken for a new question while
     // preserving compact `...102.Convert` Word extraction.
-    const candidates: Array<{ rawNumber: string; matchIndex: number; startIndex: number; end: number; lineStart: boolean; explicitLabel?: boolean }> = [...page.text.matchAll(/(\d{1,4})\s*(?:\.(?=\s*\S)|\)(?=\s+\S))\s*/g)].map((match) => {
+    const candidates: Array<{ rawNumber: string; matchIndex: number; startIndex: number; end: number; lineStart: boolean; explicitLabel?: boolean }> = [...pageText.matchAll(/(\d{1,4})\s*(?:\.(?=\s*\S)|\)(?=\s+\S))\s*/g)].map((match) => {
       const matchIndex = match.index ?? 0;
       return {
         rawNumber: match[1],
         matchIndex,
         startIndex: matchIndex,
         end: matchIndex + match[0].length,
-        lineStart: matchIndex === 0 || page.text[matchIndex - 1] === "\n" || page.text[matchIndex - 1] === "\r",
+        lineStart: matchIndex === 0 || pageText[matchIndex - 1] === "\n" || pageText[matchIndex - 1] === "\r",
       };
     });
-    for (const match of page.text.matchAll(/(?:^|[\r\n])\s*(?:question\s*|q\s*\.?\s*)(\d{1,4})\s*[.):\-]?\s*(?=\S)/gi)) {
+    for (const match of pageText.matchAll(/(?:^|[\r\n])\s*(?:question\s*|q\s*\.?\s*)(\d{1,4})\s*[.):\-]?\s*(?=\S)/gi)) {
       const rawNumber = match[1];
       const numberOffset = (match[0].indexOf(rawNumber));
       const matchIndex = (match.index ?? 0) + numberOffset;
       candidates.push({ rawNumber, matchIndex, startIndex: match.index ?? 0, end: (match.index ?? 0) + match[0].length, lineStart: true, explicitLabel: true });
     }
-    for (const match of page.text.matchAll(/(?:^|[\r\n]|\s)\((\d{1,4})\)\s+(?=\S)/g)) {
+    for (const match of pageText.matchAll(/(?:^|[\r\n]|\s)\((\d{1,4})\)\s+(?=\S)/g)) {
       const rawNumber = match[1];
       const numberOffset = match[0].indexOf(rawNumber);
       const matchIndex = (match.index ?? 0) + numberOffset;
       const startIndex = (match.index ?? 0) + match[0].indexOf("(");
-      candidates.push({ rawNumber, matchIndex, startIndex, end: (match.index ?? 0) + match[0].length, lineStart: startIndex === 0 || page.text[startIndex - 1] === "\n" || page.text[startIndex - 1] === "\r", explicitLabel: true });
+      candidates.push({ rawNumber, matchIndex, startIndex, end: (match.index ?? 0) + match[0].length, lineStart: startIndex === 0 || pageText[startIndex - 1] === "\n" || pageText[startIndex - 1] === "\r", explicitLabel: true });
     }
     // A minority of exported papers omit punctuation after the question
     // number (`9 The roots...`). Restrict this fallback to a physical line
     // start and an alphabetic stem so numbers inside formulas/options are not
     // promoted to question boundaries.
-    for (const match of page.text.matchAll(/(?:^|[\r\n])\s*(\d{1,4})\s+(?=[A-Z][A-Za-z])/g)) {
+    for (const match of pageText.matchAll(/(?:^|[\r\n])\s*(\d{1,4})\s+(?=[A-Z][A-Za-z])/g)) {
       const rawNumber = match[1];
       const numberOffset = match[0].indexOf(rawNumber);
       const matchIndex = (match.index ?? 0) + numberOffset;
@@ -606,7 +638,7 @@ export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: Extra
     }
     for (let index = 0; index < starts.length; index += 1) {
       const start = starts[index];
-      const chunk = page.text.slice(start.end, starts[index + 1]?.index ?? page.text.length).trim();
+      const chunk = pageText.slice(start.end, starts[index + 1]?.index ?? pageText.length).trim();
       // Prefer option labels at physical line boundaries. Broad whitespace
       // matching mistakes prose such as `Assertion (A):` for Option A and can
       // leak question text into the options. Inline labels remain supported
@@ -635,7 +667,11 @@ export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: Extra
       const unlabeledLines = optionMatches.length === 0
         ? chunk.split(/\r?\n+/).map((line) => line.trim()).filter(Boolean)
         : [];
-      const unlabeledOptions = unlabeledLines.length >= 5 ? unlabeledLines.slice(-4) : [];
+      // Numbered statements inside a stem (1., 2., 3., 4.) are source
+      // content, not unlabeled A-D choices. Preserve the whole bounded region
+      // and let structural review report the absent answer options.
+      const numberedStemLines = unlabeledLines.filter((line) => /^\d{1,2}[.)]\s*\S/.test(line)).length;
+      const unlabeledOptions = unlabeledLines.length >= 5 && numberedStemLines < 2 ? unlabeledLines.slice(-4) : [];
       const optionText = (letter: string) => {
         if (letter === "A" && inferredOptionA) return inferredOptionA;
         const optionIndex = optionMatches.findIndex((candidate) => candidate[1].toUpperCase() === letter);
@@ -720,6 +756,7 @@ export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: Extra
           ocrReviewNotes: question.ocrReviewNotes,
           ocrConfidence: question.ocrConfidence,
           contentSource: "TEACHER_IMPORT",
+          sourceQuestionNumber: number,
         }),
       });
     }

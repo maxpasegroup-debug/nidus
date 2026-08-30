@@ -181,6 +181,7 @@ export const questionContentSchema = z.object({
       z.number().min(0).max(1).optional(),
     ),
     reviewStatus: z.string().optional(),
+    sourceQuestionNumber: z.number().int().positive().optional(),
   }).passthrough().default({}),
 }).strict();
 
@@ -287,6 +288,7 @@ export function buildLegacyQuestionContent(question: {
   ocrReviewNotes?: string[];
   ocrConfidence?: number | null;
   contentSource?: "TEACHER_IMPORT" | "AI_IMPORT" | "LEGACY_MIGRATION" | "MANUAL_ENTRY";
+  sourceQuestionNumber?: number;
 }): QuestionContent {
   const sourceReference = question.sourceDocumentId ? { documentId: question.sourceDocumentId } : undefined;
   const correctOption = String(question.correctAnswer ?? "").trim().toUpperCase();
@@ -338,6 +340,7 @@ export function buildLegacyQuestionContent(question: {
       negativeMarks: question.negativeMarks,
       aiConfidence: question.aiConfidence,
       reviewStatus: question.reviewStatus,
+      sourceQuestionNumber: question.sourceQuestionNumber,
       ...(question.ocrReviewRequired ? { ocrReviewRequired: true } : {}),
       ...(question.ocrReviewNotes?.length ? { ocrReviewNotes: question.ocrReviewNotes } : {}),
       ...(question.ocrConfidence != null ? { ocrConfidence: question.ocrConfidence } : {}),

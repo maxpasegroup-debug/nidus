@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import JSZip from "jszip";
 
-import { extractDocxXmlParagraphs, extractTextDoc, extractTextDocx, extractTextPdf, parseExamQuestions, renderOfficeMathFragment, convertOfficeMathFragment } from "../modules/academy/exam-document-extraction.js";
+import { extractDocxXmlParagraphs, extractTextDoc, extractTextDocx, extractTextPdf, parseExamQuestions, renderOfficeMathFragment, convertOfficeMathFragment, joinLatexFragments } from "../modules/academy/exam-document-extraction.js";
 import { analyzePdfPage } from "../modules/academy/pdf-layout-analysis.js";
 import { reconstructPdfMath } from "../modules/academy/pdf-math-reconstruction.js";
 import { decodePdfTextItem } from "../modules/academy/pdf-text-decoding.js";
@@ -331,6 +331,42 @@ describe("exam upload PDF extraction", () => {
     expect(questions[2]).toMatchObject({ optionA: "A4", optionD: "D4" });
   });
 
+  it("preserves a confirmed question whose options are incomplete", () => {
+    const questions = parseExamQuestions([{ pageNumber: 1, text: [
+      "Q30. Complete question", "A. A30", "B. B30", "C. C30", "D. D30",
+      "Q31. Confirmed but incomplete question", "A. only one option",
+      "Q32. Next complete question", "A. A32", "B. B32", "C. C32", "D. D32",
+    ].join("\n") }]);
+    expect(questions.map((question) => question.number)).toEqual([30, 31, 32]);
+    expect(questions[1]).toMatchObject({ questionText: "Confirmed but incomplete question", optionA: "only one option", optionB: "", reviewStatus: "NEEDS_REVIEW" });
+    expect(questions[2]).toMatchObject({ number: 32, optionA: "A32", optionD: "D32" });
+  });
+
+  it("does not reinterpret numbered stem statements as unlabeled options", () => {
+    const questions = parseExamQuestions([{ pageNumber: 1, text: [
+      "Q1. Consider these relations:",
+      "10. relation one", "11. relation two", "12. relation three", "13. relation four",
+      "Which relations are not functions?",
+      "Q2. Next question", "A. A2", "B. B2", "C. C2", "D. D2",
+    ].join("\n") }]);
+    expect(questions).toHaveLength(2);
+    expect(questions[0]).toMatchObject({ number: 1, optionA: "", optionB: "", optionC: "", optionD: "", reviewStatus: "NEEDS_REVIEW" });
+    expect(questions[0].questionText).toContain("Which relations are not functions?");
+    expect(questions[1]).toMatchObject({ number: 2, optionA: "A2" });
+  });
+
+  it("exposes a question number embedded at the start of an OMML marker", () => {
+    const payload = Buffer.from(JSON.stringify({ sourceText: "47.A={-1,2,5,8}", latex: "47.A=\\left\\{-1,2,5,8\\right\\}", confidence: 1 }), "utf8").toString("base64");
+    const questions = parseExamQuestions([{ pageNumber: 1, text: [
+      "Q46. Previous? A. a B. b C. c D. d",
+      `[[NIDUS_OMML:${payload}]] is a set.`, "(a) 2", "(b) 3", "(c) 4", "(d) 5",
+      "Q48. Next? A. a B. b C. c D. d",
+    ].join("\n") }]);
+    expect(questions.map((question) => question.number)).toEqual([46, 47, 48]);
+    expect(questions[1].questionText).toContain("A={-1,2,5,8}");
+    expect((questions[1].contentJson as { metadata?: { sourceQuestionNumber?: number } }).metadata?.sourceQuestionNumber).toBe(47);
+  });
+
   it("recovers an omitted visual A label before explicit B-D without misreading Assertion (A)", () => {
     const questions = parseExamQuestions([{ pageNumber: 1, text: [
       "1. Assertion (A): The statement is true.",
@@ -384,6 +420,19 @@ describe("exam upload PDF extraction", () => {
   it("renders common Office Math matrix and superscript structures", () => {
     expect(renderOfficeMathFragment("<m:d><m:dPr><m:begChr m:val=\"[\"/><m:endChr m:val=\"]\"/></m:dPr><m:e><m:m><m:mr><m:e><m:r><m:t>2</m:t></m:r></m:e><m:e><m:r><m:t>3</m:t></m:r></m:e></m:mr><m:mr><m:e><m:r><m:t>1</m:t></m:r></m:e><m:e><m:r><m:t>4</m:t></m:r></m:e></m:mr></m:m></m:e></m:d>")).toBe("\\begin{bmatrix}2 & 3 \\\\ 1 & 4\\end{bmatrix}");
     expect(renderOfficeMathFragment("<m:sSup><m:e><m:r><m:t>x</m:t></m:r></m:e><m:sup><m:r><m:t>2</m:t></m:r></m:sup></m:sSup>")).toBe("{x}^{2}");
+  });
+
+  it("joins LaTeX control words without consuming following identifiers", () => {
+    expect(joinLatexFragments(["R", "\\to", "R"])).toBe("R\\to R");
+    expect(joinLatexFragments(["x", "\\in", "A"])).toBe("x\\in A");
+    expect(joinLatexFragments(["\\sin", "x"])).toBe("\\sin x");
+    expect(joinLatexFragments(["\\theta", "x"])).toBe("\\theta x");
+    expect(joinLatexFragments(["x^2", "_1", "+", "\\frac{x}{y}", "\\sqrt{x}", "\\log_2 x", "\\begin{bmatrix}1&2\\\\3&4\\end{bmatrix}"])).toBe("x^2_1+\\frac{x}{y}\\sqrt{x}\\log_2 x\\begin{bmatrix}1&2\\\\3&4\\end{bmatrix}");
+  });
+
+  it("preserves comma-separated OMML delimiter elements", () => {
+    const set = renderOfficeMathFragment('<m:d><m:dPr><m:begChr m:val="{"/><m:sepChr m:val=","/><m:endChr m:val="}"/></m:dPr><m:e><m:r><m:t>1</m:t></m:r></m:e><m:e><m:r><m:t>2</m:t></m:r></m:e><m:e><m:r><m:t>3</m:t></m:r></m:e><m:e><m:r><m:t>4</m:t></m:r></m:e></m:d>');
+    expect(set).toBe("\\left\\{1,2,3,4\\right\\}");
   });
 
   it("converts nested OMML structures recursively without regex substitution", () => {

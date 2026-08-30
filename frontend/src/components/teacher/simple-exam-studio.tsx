@@ -14,7 +14,7 @@ type Stage = "home" | "essentials" | "upload" | "review" | "release";
 type UploadRecord = { id: string; importJobId?: string | null; originalName?: string; fileType?: string; fileSize?: number };
 type Question = { id?: string; questionText: string; optionA: string; optionB: string; optionC: string; optionD: string; correctAnswer: string; explanation: string; marks: number; negativeMarks: number; difficultyLevel: string; topic: string; reviewStatus: string; sourcePageNumber?: number; contentJson?: unknown; visualReviewRequired?: boolean; visualReviewNotes?: unknown; ocrReviewRequired?: boolean; ocrReviewNotes?: unknown; ocrConfidence?: number | null };
 type ReviewIssue = { id: string; type: string; severity: "HIGH" | "MEDIUM" | "LOW"; state: "OPEN" | "RESOLVED" | "APPROVED_AS_IS"; approvable: boolean; reason?: string };
-type ReviewSummary = { actualQuestionCount: number; actualMarksTotal: number; unresolvedHighIssueCount: number; unresolvedAnswerCount: number; answeredQuestionCount: number; missingExplanationCount: number; reviewStatus: "READY" | "REVIEW_REQUIRED"; blockingReasons: string[]; test: { id: string; title: string; subject?: string; topic?: string; duration: number; totalMarks: number; lifecycle: string; publishAt?: string; examStartsAt?: string; examEndsAt?: string; expectedQuestionCount?: number; authoritativeQuestionCount?: number; expectedTotalMarks?: number; batch?: { id: string; name: string } }; questionIssues: Array<{ questionId: string; issues: ReviewIssue[] }> };
+type ReviewSummary = { actualQuestionCount: number; actualMarksTotal: number; unresolvedHighIssueCount: number; structurallyCompleteQuestionCount?: number; questionsNeedingStructuralReview?: number; unresolvedAnswerCount: number; answeredQuestionCount: number; missingExplanationCount: number; reviewStatus: "READY" | "REVIEW_REQUIRED"; blockingReasons: string[]; test: { id: string; title: string; subject?: string; topic?: string; duration: number; totalMarks: number; lifecycle: string; publishAt?: string; examStartsAt?: string; examEndsAt?: string; expectedQuestionCount?: number; authoritativeQuestionCount?: number; expectedTotalMarks?: number; batch?: { id: string; name: string } }; questionIssues: Array<{ questionId: string; issues: ReviewIssue[] }> };
 
 const emptyQuestion = (): Question => ({ questionText: "", optionA: "", optionB: "", optionC: "", optionD: "", correctAnswer: "", explanation: "", marks: 1, negativeMarks: 0, difficultyLevel: "MEDIUM", topic: "", reviewStatus: "NEEDS_REVIEW" });
 const fieldClass = "h-12 rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-semibold text-[var(--navy)] outline-none transition focus:border-[var(--gold)] focus:ring-2 focus:ring-[var(--gold)]/15";
@@ -163,6 +163,10 @@ export function SimpleExamStudio({ initialTestId = "", initialStage = "home" }: 
     try { await apiClient.post(`/tests/${draftId}/questions/${questionId}/issues/${issueId}/approve-as-is`, { reason }); await refreshReview(); } catch (cause) { setError(getApiErrorMessage(cause)); } finally { setBusy(false); }
   }
   async function reconcile(kind: "count" | "marks") {
+    if (kind === "count" && review?.test.authoritativeQuestionCount && review.test.authoritativeQuestionCount > review.actualQuestionCount) {
+      const confirmed = window.confirm("One source question may be incomplete or missing. Review the extraction before changing the authoritative question count. Confirm only if the source itself contains fewer questions.");
+      if (!confirmed) return;
+    }
     setBusy(true); setError("");
     try { const response = await apiClient.post<{ review: ReviewSummary }>(`/tests/${draftId}/review-reconcile`, { [kind]: true }); setReview(withReadableIssueLabels(response.data.review)); } catch (cause) { setError(getApiErrorMessage(cause)); } finally { setBusy(false); }
   }

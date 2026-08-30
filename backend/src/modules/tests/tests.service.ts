@@ -136,9 +136,12 @@ async function persistedReviewSummary(testId: string) {
     issues: deriveReviewIssues(question, Array.isArray(question.reviewIssues) ? question.reviewIssues as unknown as ReviewIssue[] : []),
   }));
   const unresolvedHighIssueCount = questionIssues.reduce((sum, entry) => sum + blockingIssues(entry.issues).length, 0);
+  const structuralIssueIds = new Set(["MISSING_QUESTION_TEXT", "MISSING_REQUIRED_OPTIONS", "DUPLICATE_OPTIONS"]);
+  const questionsNeedingStructuralReview = questionIssues.filter((entry) => entry.issues.some((issue) => structuralIssueIds.has(issue.id) && issue.state === "OPEN")).length;
+  const structurallyCompleteQuestionCount = actualQuestionCount - questionsNeedingStructuralReview;
   const answerProgress = reviewAnswerProgress(test.questions);
   const readiness = reviewReadiness({ lifecycle: test.lifecycle, actualQuestionCount, authoritativeQuestionCount: test.authoritativeQuestionCount, actualMarksTotal, authoritativeMarks: Number(test.totalMarks), unresolvedHighIssueCount });
-  return { test, actualQuestionCount, actualMarksTotal, unresolvedHighIssueCount, ...answerProgress, questionIssues, ...readiness };
+  return { test, actualQuestionCount, actualMarksTotal, unresolvedHighIssueCount, structurallyCompleteQuestionCount, questionsNeedingStructuralReview, ...answerProgress, questionIssues, ...readiness };
 }
 
 function persistedQuestionPayload(question: Prisma.QuestionGetPayload<object>): QuestionPayload {
