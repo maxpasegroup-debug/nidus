@@ -8,7 +8,7 @@ import { analyzePdfPage } from "../modules/academy/pdf-layout-analysis.js";
 import { reconstructPdfMath } from "../modules/academy/pdf-math-reconstruction.js";
 import { decodePdfTextItem } from "../modules/academy/pdf-text-decoding.js";
 import { detectPdfVisualRegions, questionRequiresVisual, renderPdfVisualCrops, visualStats } from "../modules/academy/pdf-visual-analysis.js";
-import { buildLegacyQuestionContent, parseQuestionContentJson } from "../modules/document-intelligence/question-content.schema.js";
+import { buildLegacyQuestionContent, parseQuestionContentJson, synchronizeEditableQuestionContentJson } from "../modules/document-intelligence/question-content.schema.js";
 
 describe("exam upload PDF extraction", () => {
   it("detects embedded visual operators with normalized source evidence", () => {
@@ -477,6 +477,24 @@ describe("exam upload PDF extraction", () => {
       const paragraph = parsed.data.blocks.find((block) => block.type === "paragraph");
       expect(paragraph && paragraph.type === "paragraph" ? paragraph.segments?.[1] : undefined).toMatchObject({ type: "math", latex: "\\begin{bmatrix}1&2\\\\3&4\\end{bmatrix}" });
     }
+  });
+
+  it("normalizes legacy null AI confidence when saving a Director question edit", () => {
+    const content = buildLegacyQuestionContent({
+      questionText: "Which option is correct?",
+      optionA: "one", optionB: "two", optionC: "three", optionD: "four", correctAnswer: "",
+    }) as unknown as { metadata: Record<string, unknown> };
+    content.metadata.aiConfidence = null;
+
+    const parsed = parseQuestionContentJson(content);
+    expect(parsed.success).toBe(true);
+    if (parsed.success) expect(parsed.data.metadata.aiConfidence).toBeUndefined();
+
+    expect(() => synchronizeEditableQuestionContentJson({
+      questionText: "Which option is correct?",
+      optionA: "one", optionB: "two", optionC: "three", optionD: "four", correctAnswer: "C",
+      explanation: "", marks: 1, negativeMarks: 0, contentJson: content,
+    })).not.toThrow();
   });
 
   it("keeps visual source evidence as a canonical review block", () => {

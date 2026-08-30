@@ -173,7 +173,13 @@ export const questionContentSchema = z.object({
     negativeMarks: z.number().optional(),
     importJobId: z.string().nullable().optional(),
     uploadId: z.string().nullable().optional(),
-    aiConfidence: z.number().min(0).max(1).optional(),
+    // Historical/imported questions may persist an unknown confidence as
+    // JSON null. Treat that as absent rather than making an otherwise valid
+    // Director edit impossible to save.
+    aiConfidence: z.preprocess(
+      (value) => value === null ? undefined : value,
+      z.number().min(0).max(1).optional(),
+    ),
     reviewStatus: z.string().optional(),
   }).passthrough().default({}),
 }).strict();
