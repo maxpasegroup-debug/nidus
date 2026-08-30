@@ -563,7 +563,27 @@ function materializeOmml(value: string): { text: string; hints: MathSegmentHint[
 function materializeCombined(value: string, pdfHints: MathSegmentHint[] = []) {
   const materialized = materializeOmml(value);
   const normalized = materialized.text;
-  const deterministicHints = deterministicUnicodeMathHints(normalized);
+  const protectedRanges = materialized.hints.flatMap((hint) => {
+    const token = hint.matchText || hint.sourceText;
+    const ranges: Array<{ start: number; end: number }> = [];
+    let cursor = 0;
+    while (token && cursor < normalized.length) {
+      const start = normalized.indexOf(token, cursor);
+      if (start < 0) break;
+      ranges.push({ start, end: start + token.length });
+      cursor = start + token.length;
+    }
+    return ranges;
+  });
+  // Native Office Math is stronger evidence than a derived Unicode pattern.
+  // Do not let a compact expression such as log₈16 overlap and replace an
+  // adjacent OMML fraction whose compatibility text happens to be "16".
+  const deterministicHints = deterministicUnicodeMathHints(normalized).filter((hint) => {
+    const token = hint.matchText || hint.sourceText;
+    const start = normalized.indexOf(token);
+    const end = start + token.length;
+    return start < 0 || !protectedRanges.some((range) => start < range.end && end > range.start);
+  });
   const hints = pdfHints.filter((hint) => {
     const token = hint.matchText || hint.sourceText;
     return Boolean(token && normalized.includes(token));

@@ -362,6 +362,22 @@ describe("exam upload PDF extraction", () => {
     ]));
   });
 
+  it("keeps a native Word fraction authoritative when it follows a Unicode logarithm base", () => {
+    const equation = Buffer.from(JSON.stringify({
+      sourceText: "16=23",
+      latex: "\\frac{1}{6}=\\frac{2}{3}",
+      confidence: 1,
+    }), "utf8").toString("base64");
+    const [question] = parseExamQuestions([{ pageNumber: 1, text: `5. If log₈ m+log₈[[NIDUS_OMML:${equation}]] then m is equal to A. 24 B. 18 C. 12 D. 4` }]);
+    const paragraph = (question.contentJson as { blocks: Array<{ type: string; segments?: Array<{ type: string; latex?: string }> }> }).blocks.find((block) => block.type === "paragraph");
+    expect(paragraph?.segments).toEqual(expect.arrayContaining([
+      expect.objectContaining({ type: "math", latex: "\\frac{1}{6}=\\frac{2}{3}" }),
+    ]));
+    expect(paragraph?.segments).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({ type: "math", latex: "\\log_{8}16" }),
+    ]));
+  });
+
   it("preserves a confirmed question whose options are incomplete", () => {
     const questions = parseExamQuestions([{ pageNumber: 1, text: [
       "Q30. Complete question", "A. A30", "B. B30", "C. C30", "D. D30",
