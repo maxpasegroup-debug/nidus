@@ -321,6 +321,16 @@ describe("exam upload PDF extraction", () => {
     expect(questions[0].optionD).not.toContain("Second question");
   });
 
+  it("accepts spaced-dot numbering and preserves source numbers across a small gap", () => {
+    const questions = parseExamQuestions([{ pageNumber: 1, text: [
+      "1 . First? (a) A1 (b) B1 (c) C1 (d) D1",
+      "2 . Second? (a) A2 (b) B2 (c) C2 (d) D2",
+      "4 . Fourth after an omitted source number? (a) A4 (b) B4 (c) C4 (d) D4",
+    ].join("\n") }]);
+    expect(questions.map((question) => question.number)).toEqual([1, 2, 4]);
+    expect(questions[2]).toMatchObject({ optionA: "A4", optionD: "D4" });
+  });
+
   it("recovers an omitted visual A label before explicit B-D without misreading Assertion (A)", () => {
     const questions = parseExamQuestions([{ pageNumber: 1, text: [
       "1. Assertion (A): The statement is true.",
@@ -346,7 +356,7 @@ describe("exam upload PDF extraction", () => {
     zip.file("word/_rels/document.xml.rels", '<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering" Target="numbering.xml"/></Relationships>');
     zip.file("word/numbering.xml", '<w:numbering xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:abstractNum w:abstractNumId="1"><w:lvl w:ilvl="0"><w:start w:val="1"/><w:numFmt w:val="decimal"/><w:lvlText w:val="%1."/></w:lvl></w:abstractNum><w:num w:numId="4"><w:abstractNumId w:val="1"/></w:num></w:numbering>');
     zip.file("word/document.xml", '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:pPr><w:numPr><w:ilvl w:val="0"/><w:numId w:val="4"/></w:numPr></w:pPr><w:r><w:t>First question?</w:t></w:r></w:p><w:p><w:r><w:t>alpha</w:t><w:br/><w:t>B. beta</w:t><w:br/><w:t>C. gamma</w:t><w:br/><w:t>D. delta</w:t></w:r></w:p><w:p><w:pPr><w:numPr><w:ilvl w:val="0"/><w:numId w:val="4"/></w:numPr></w:pPr><w:r><w:t>Second question?</w:t></w:r></w:p><w:p><w:r><w:t>A. one</w:t><w:br/><w:t>B. two</w:t><w:br/><w:t>C. three</w:t><w:br/><w:t>D. four</w:t></w:r></w:p></w:body></w:document>');
-    const text = await extractDocxXmlParagraphs(await zip.generateAsync({ type: "nodebuffer" }));
+    const text = await extractDocxXmlParagraphs(await zip.generateAsync({ type: "nodebuffer" }), JSZip as never);
     const questions = parseExamQuestions([{ pageNumber: 1, text }]);
     expect(text).toContain("1. First question?");
     expect(questions).toHaveLength(2);
@@ -405,7 +415,7 @@ describe("exam upload PDF extraction", () => {
   it("rejects malformed PDFs and keeps an explicit scanned-PDF guard", async () => {
     await expect(extractTextPdf(Buffer.from("not a pdf"))).rejects.toThrow(/not a valid PDF/i);
     const source = readFileSync(join(process.cwd(), "src/modules/academy/exam-document-extraction.ts"), "utf8");
-    expect(source).toContain("scanned images without readable text");
+    expect(source).toContain("no usable text layer");
     expect(source).toContain("textCharacters < 20");
   });
 

@@ -174,9 +174,9 @@ export function renderOfficeMathFragment(fragment: string): string {
  * m:t math text remains in the normalized representation. This is not an XML
  * renderer: unsupported drawing/image content is left for review.
  */
-export async function extractDocxXmlParagraphs(buffer: Buffer) {
+export async function extractDocxXmlParagraphs(buffer: Buffer, jszipOverride?: JsZipModule) {
   try {
-    const module = await loadJsZip();
+    const module = jszipOverride ?? await loadJsZip();
     const jszip = (module as unknown as { default?: JsZipModule }).default ?? module;
     const zip = await jszip.loadAsync(buffer);
     const entry = zip.file("word/document.xml");
@@ -539,7 +539,7 @@ export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: Extra
     // parenthesis must be followed by whitespace, which prevents mathematical
     // groups such as `(1024)10` from being mistaken for a new question while
     // preserving compact `...102.Convert` Word extraction.
-    const candidates: Array<{ rawNumber: string; matchIndex: number; startIndex: number; end: number; lineStart: boolean; explicitLabel?: boolean }> = [...page.text.matchAll(/(\d{1,4})(?:\.(?=\s*\S)|\)(?=\s+\S))\s*/g)].map((match) => {
+    const candidates: Array<{ rawNumber: string; matchIndex: number; startIndex: number; end: number; lineStart: boolean; explicitLabel?: boolean }> = [...page.text.matchAll(/(\d{1,4})\s*(?:\.(?=\s*\S)|\)(?=\s+\S))\s*/g)].map((match) => {
       const matchIndex = match.index ?? 0;
       return {
         rawNumber: match[1],
@@ -562,6 +562,16 @@ export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: Extra
       const startIndex = (match.index ?? 0) + match[0].indexOf("(");
       candidates.push({ rawNumber, matchIndex, startIndex, end: (match.index ?? 0) + match[0].length, lineStart: startIndex === 0 || page.text[startIndex - 1] === "\n" || page.text[startIndex - 1] === "\r", explicitLabel: true });
     }
+    // A minority of exported papers omit punctuation after the question
+    // number (`9 The roots...`). Restrict this fallback to a physical line
+    // start and an alphabetic stem so numbers inside formulas/options are not
+    // promoted to question boundaries.
+    for (const match of page.text.matchAll(/(?:^|[\r\n])\s*(\d{1,4})\s+(?=[A-Z][A-Za-z])/g)) {
+      const rawNumber = match[1];
+      const numberOffset = match[0].indexOf(rawNumber);
+      const matchIndex = (match.index ?? 0) + numberOffset;
+      candidates.push({ rawNumber, matchIndex, startIndex: match.index ?? 0, end: (match.index ?? 0) + match[0].length, lineStart: true });
+    }
     const dedupedCandidates = Array.from(new Map(candidates.map((candidate) => [`${candidate.matchIndex}:${candidate.rawNumber}`, candidate])).values())
       .sort((a, b) => a.matchIndex - b.matchIndex);
     if (questions.length === 0 && expectedNumber === 1 && !dedupedCandidates.some((candidate) => candidate.rawNumber === "1")) {
@@ -580,12 +590,18 @@ export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: Extra
       const suffixIndex = lineStartSuffixIndex >= 0
         ? lineStartSuffixIndex
         : dedupedCandidates.findIndex((candidate, candidateIndex) => candidateIndex >= candidateCursor && candidate.rawNumber.endsWith(expected));
-      const selectedIndex = exactIndex >= 0 ? exactIndex : suffixIndex;
+      const gapIndex = dedupedCandidates.findIndex((candidate, candidateIndex) => {
+        const value = Number(candidate.rawNumber);
+        return candidateIndex >= candidateCursor && candidate.lineStart && value > expectedNumber && value <= expectedNumber + 5;
+      });
+      const selectedIndex = exactIndex >= 0 ? exactIndex : suffixIndex >= 0 ? suffixIndex : gapIndex;
       if (selectedIndex < 0) break;
       const selected = dedupedCandidates[selectedIndex];
-      const prefixLength = selected.rawNumber.length - expected.length;
-      starts.push({ index: selected.startIndex + prefixLength, end: selected.end, number: expectedNumber });
-      expectedNumber += 1;
+      const isGap = exactIndex < 0 && suffixIndex < 0;
+      const selectedNumber = isGap ? Number(selected.rawNumber) : expectedNumber;
+      const prefixLength = isGap ? 0 : selected.rawNumber.length - expected.length;
+      starts.push({ index: selected.startIndex + prefixLength, end: selected.end, number: selectedNumber });
+      expectedNumber = selectedNumber + 1;
       candidateCursor = selectedIndex + 1;
     }
     for (let index = 0; index < starts.length; index += 1) {
