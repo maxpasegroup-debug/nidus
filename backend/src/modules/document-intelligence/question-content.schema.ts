@@ -32,7 +32,7 @@ const baseBlockSchema = z.object({
  * by a consumer from an arbitrary text string.  The sourceText is retained so
  * later extractors can improve normalization without losing the source.
  */
-export const mathOriginSchema = z.enum(["OMML", "EXPLICIT_LATEX", "UNICODE", "NORMALIZED_SOURCE", "MANUAL"]);
+export const mathOriginSchema = z.enum(["OMML", "EXPLICIT_LATEX", "UNICODE", "NORMALIZED_SOURCE", "OCR", "MANUAL"]);
 export const mathConversionWarningSchema = z.object({
   code: z.string().min(1),
   message: z.string().min(1),
@@ -277,6 +277,9 @@ export function buildLegacyQuestionContent(question: {
     reviewRequired?: boolean;
     sourceReference?: string;
   }>;
+  ocrReviewRequired?: boolean;
+  ocrReviewNotes?: string[];
+  ocrConfidence?: number | null;
   contentSource?: "TEACHER_IMPORT" | "AI_IMPORT" | "LEGACY_MIGRATION" | "MANUAL_ENTRY";
 }): QuestionContent {
   const sourceReference = question.sourceDocumentId ? { documentId: question.sourceDocumentId } : undefined;
@@ -329,6 +332,9 @@ export function buildLegacyQuestionContent(question: {
       negativeMarks: question.negativeMarks,
       aiConfidence: question.aiConfidence,
       reviewStatus: question.reviewStatus,
+      ...(question.ocrReviewRequired ? { ocrReviewRequired: true } : {}),
+      ...(question.ocrReviewNotes?.length ? { ocrReviewNotes: question.ocrReviewNotes } : {}),
+      ...(question.ocrConfidence != null ? { ocrConfidence: question.ocrConfidence } : {}),
     },
   });
 }
@@ -418,6 +424,9 @@ export function synchronizeEditableQuestionContentJson(question: Parameters<type
       negativeMarks: question.negativeMarks,
       aiConfidence: question.aiConfidence,
       reviewStatus: question.reviewStatus,
+      ...(question.ocrReviewRequired ? { ocrReviewRequired: true } : {}),
+      ...(question.ocrReviewNotes?.length ? { ocrReviewNotes: question.ocrReviewNotes } : {}),
+      ...(question.ocrConfidence != null ? { ocrConfidence: question.ocrConfidence } : {}),
     },
   }) as Prisma.InputJsonValue;
 }

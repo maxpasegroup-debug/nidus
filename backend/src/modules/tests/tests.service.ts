@@ -37,6 +37,11 @@ export type QuestionPayload = {
   questionImage?: string;
   visualReviewRequired?: boolean;
   visualReviewNotes?: Prisma.InputJsonValue;
+  /** OCR diagnostics live in canonical content metadata; these fields are
+   * accepted at the boundary but never written as ad-hoc Prisma columns. */
+  ocrReviewRequired?: boolean;
+  ocrReviewNotes?: string[];
+  ocrConfidence?: number | null;
   contentJson?: Prisma.InputJsonValue;
   sourceDocumentId?: string;
   sourcePageNumber?: number;
@@ -835,12 +840,14 @@ export const testsService = {
       if (existing.lifecycle !== "DRAFT") {
         throw Object.assign(new Error("Only DRAFT exams can receive questions."), { statusCode: 409 });
       }
-      const questionsForCreate = (payload.questions ?? []).map((question) => ({
-        ...question,
+      const questionsForCreate = (payload.questions ?? []).map((question) => {
+        const { ocrReviewRequired: _ocrReviewRequired, ocrReviewNotes: _ocrReviewNotes, ocrConfidence: _ocrConfidence, ...persistable } = question;
+        return {
+        ...persistable,
         reviewStatus: "DRAFT",
         reviewIssues: deriveReviewIssues(question),
         contentJson: normalizeQuestionContentJson(question),
-      }));
+      }; });
       if (!questionsForCreate.length) {
         await assertTeacherBatchSubjectAccess(requester, payload.batchId, payload.subject);
         return prisma.test.update({
@@ -877,12 +884,14 @@ export const testsService = {
     }
     await assertTeacherBatchSubjectAccess(requester, payload.batchId, payload.subject);
     await assertTeacherTenantAccess(requester, payload.teacherId);
-    const questionsForCreate = (payload.questions ?? []).map((question) => ({
-      ...question,
+    const questionsForCreate = (payload.questions ?? []).map((question) => {
+      const { ocrReviewRequired: _ocrReviewRequired, ocrReviewNotes: _ocrReviewNotes, ocrConfidence: _ocrConfidence, ...persistable } = question;
+      return {
+      ...persistable,
       reviewStatus: "DRAFT",
       reviewIssues: deriveReviewIssues(question),
       contentJson: normalizeQuestionContentJson(question),
-    }));
+    }; });
     if (!options.reviewImport) validateDraftQuestions(questionsForCreate);
     const test = await prisma.test.create({
       data: {
@@ -977,7 +986,7 @@ export const testsService = {
     const current = await prisma.question.findFirst({ where: { id: questionId, testId } });
     if (!current) throw Object.assign(new Error("Question not found in this exam."), { statusCode: 404 });
 
-    const { changeReason: _changeReason, ...editablePayload } = payload;
+    const { changeReason: _changeReason, ocrReviewRequired: _ocrReviewRequired, ocrReviewNotes: _ocrReviewNotes, ocrConfidence: _ocrConfidence, ...editablePayload } = payload;
     const candidate = {
       ...persistedQuestionPayload(current),
       ...editablePayload,

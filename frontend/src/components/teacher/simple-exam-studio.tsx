@@ -12,7 +12,7 @@ const NIDUS_TIME_ZONE = "Asia/Kolkata";
 const NIDUS_UTC_OFFSET = "+05:30";
 type Stage = "home" | "essentials" | "upload" | "review" | "release";
 type UploadRecord = { id: string; importJobId?: string | null; originalName?: string; fileType?: string; fileSize?: number };
-type Question = { id?: string; questionText: string; optionA: string; optionB: string; optionC: string; optionD: string; correctAnswer: string; explanation: string; marks: number; negativeMarks: number; difficultyLevel: string; topic: string; reviewStatus: string; sourcePageNumber?: number; contentJson?: unknown; visualReviewRequired?: boolean; visualReviewNotes?: unknown };
+type Question = { id?: string; questionText: string; optionA: string; optionB: string; optionC: string; optionD: string; correctAnswer: string; explanation: string; marks: number; negativeMarks: number; difficultyLevel: string; topic: string; reviewStatus: string; sourcePageNumber?: number; contentJson?: unknown; visualReviewRequired?: boolean; visualReviewNotes?: unknown; ocrReviewRequired?: boolean; ocrReviewNotes?: unknown; ocrConfidence?: number | null };
 type ReviewIssue = { id: string; type: string; severity: "HIGH" | "MEDIUM" | "LOW"; state: "OPEN" | "RESOLVED" | "APPROVED_AS_IS"; approvable: boolean; reason?: string };
 type ReviewSummary = { actualQuestionCount: number; actualMarksTotal: number; unresolvedHighIssueCount: number; unresolvedAnswerCount: number; answeredQuestionCount: number; missingExplanationCount: number; reviewStatus: "READY" | "REVIEW_REQUIRED"; blockingReasons: string[]; test: { id: string; title: string; subject?: string; topic?: string; duration: number; totalMarks: number; lifecycle: string; publishAt?: string; examStartsAt?: string; examEndsAt?: string; expectedQuestionCount?: number; authoritativeQuestionCount?: number; expectedTotalMarks?: number; batch?: { id: string; name: string } }; questionIssues: Array<{ questionId: string; issues: ReviewIssue[] }> };
 
@@ -113,7 +113,7 @@ export function SimpleExamStudio({ initialTestId = "", initialStage = "home" }: 
       const parsed = extracted.map((item) => {
         const options = Array.isArray(item.options) ? item.options as Array<{ label?: string; text?: string }> : [];
         const option = (label: string) => options.find((entry) => entry.label?.toUpperCase() === label)?.text || "";
-        return { ...emptyQuestion(), questionText: String(item.questionText || item.text || ""), optionA: option("A"), optionB: option("B"), optionC: option("C"), optionD: option("D"), correctAnswer: String(item.linkedAnswer || "").toUpperCase(), explanation: String(item.linkedSolution || ""), marks: typeof item.marks === "number" && Number.isFinite(item.marks) && item.marks > 0 ? item.marks : 1, topic: topic || subject, reviewStatus: String(item.reviewStatus || "NEEDS_REVIEW"), sourcePageNumber: typeof item.sourcePageNumber === "number" ? item.sourcePageNumber : typeof item.sourcePage === "number" ? item.sourcePage : undefined, contentJson: item.contentJson, visualReviewRequired: Boolean(item.visualReviewRequired), visualReviewNotes: item.visualReviewNotes };
+        return { ...emptyQuestion(), questionText: String(item.questionText || item.text || ""), optionA: option("A"), optionB: option("B"), optionC: option("C"), optionD: option("D"), correctAnswer: String(item.linkedAnswer || "").toUpperCase(), explanation: String(item.linkedSolution || ""), marks: typeof item.marks === "number" && Number.isFinite(item.marks) && item.marks > 0 ? item.marks : 1, topic: topic || subject, reviewStatus: String(item.reviewStatus || "NEEDS_REVIEW"), sourcePageNumber: typeof item.sourcePageNumber === "number" ? item.sourcePageNumber : typeof item.sourcePage === "number" ? item.sourcePage : undefined, contentJson: item.contentJson, visualReviewRequired: Boolean(item.visualReviewRequired), visualReviewNotes: item.visualReviewNotes, ocrReviewRequired: Boolean(item.ocrReviewRequired), ocrReviewNotes: item.ocrReviewNotes, ocrConfidence: typeof item.ocrConfidence === "number" ? item.ocrConfidence : null };
       });
       if (!parsed.length) throw new Error("No questions were reconstructed.");
       const saved = await apiClient.post<{ test: { questions?: Question[] } }>("/academy/exams", { testId: draftId, title, topic: topic || subject, subject, batchId, durationMinutes: duration, manualPaperReview: true, examUploadIds: uploads.map((upload) => upload.id), draft: { manualPaperReview: true, questions: parsed } });
@@ -279,6 +279,12 @@ function reviewIssueCopy(issue: ReviewIssue) {
         title: "Visual attachment needs review",
         detail: "Confirm that the attached diagram, graph, table, or figure belongs to this question before releasing.",
       };
+    case "OCR_TEXT_NEEDS_REVIEW":
+      return { title: "Scanned text needs review", detail: "Some text was read from a scanned page. Check it against the original paper before releasing." };
+    case "MATH_OCR_NEEDS_REVIEW":
+      return { title: "Mathematical expression needs review", detail: "A formula was read from a scanned page. Confirm the symbols and values before releasing." };
+    case "OCR_REGION_UNREADABLE":
+      return { title: "Scanned page could not be read", detail: "Upload a clearer scan or enter the affected question manually before releasing." };
     default:
       return {
         title: "Question needs review",

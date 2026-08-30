@@ -13,6 +13,15 @@ export type ReviewIssue = {
 
 type StructuralQuestion = { questionText?: string; questionImage?: string | null; visualReviewRequired?: boolean; visualReviewNotes?: unknown; contentJson?: unknown; optionA?: string; optionB?: string; optionC?: string; optionD?: string; correctAnswer?: string; explanation?: string; marks?: number; negativeMarks?: number; sourcePageNumber?: number | null };
 
+function ocrReviewNotes(question: StructuralQuestion) {
+  if (!question.contentJson || typeof question.contentJson !== "object" || Array.isArray(question.contentJson)) return [] as string[];
+  const metadata = (question.contentJson as { metadata?: unknown }).metadata;
+  if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) return [] as string[];
+  const item = metadata as { ocrReviewRequired?: unknown; ocrReviewNotes?: unknown };
+  if (!item.ocrReviewRequired) return [] as string[];
+  return Array.isArray(item.ocrReviewNotes) ? item.ocrReviewNotes.map(String) : ["OCR_TEXT_NEEDS_REVIEW"];
+}
+
 function hasRenderableVisual(question: StructuralQuestion) {
   if (!question.contentJson || typeof question.contentJson !== "object" || Array.isArray(question.contentJson)) return false;
   const blocks = (question.contentJson as { blocks?: unknown }).blocks;
@@ -45,6 +54,9 @@ const definitions = [
   { id: "INVALID_CORRECT_ANSWER", test: (q: StructuralQuestion) => !/^[A-D]$/.test(q.correctAnswer?.trim().toUpperCase() || ""), severity: "HIGH", approvable: false },
   { id: "MISSING_REQUIRED_VISUAL", test: visualNeedsAttachment, severity: "HIGH", approvable: false },
   { id: "VISUAL_SOURCE_NEEDS_REVIEW", test: visualNeedsReview, severity: "HIGH", approvable: false },
+  { id: "OCR_TEXT_NEEDS_REVIEW", test: (q: StructuralQuestion) => ocrReviewNotes(q).includes("OCR_TEXT_NEEDS_REVIEW"), severity: "HIGH", approvable: false },
+  { id: "MATH_OCR_NEEDS_REVIEW", test: (q: StructuralQuestion) => ocrReviewNotes(q).includes("MATH_OCR_NEEDS_REVIEW"), severity: "HIGH", approvable: false },
+  { id: "OCR_REGION_UNREADABLE", test: (q: StructuralQuestion) => ocrReviewNotes(q).includes("OCR_REGION_UNREADABLE"), severity: "HIGH", approvable: false },
   // Explanations enrich post-exam learning but are not required to score a
   // single-choice question safely. Keep the omission visible without letting
   // it block review readiness or release.

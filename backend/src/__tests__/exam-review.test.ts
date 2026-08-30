@@ -73,6 +73,15 @@ describe("exam review authority", () => {
     expect(issue).toMatchObject({ severity: "HIGH", state: "OPEN", approvable: false });
   });
 
+  it("blocks OCR text and math until a director confirms the scan", () => {
+    const issues = deriveReviewIssues({
+      ...complete,
+      contentJson: { metadata: { ocrReviewRequired: true, ocrReviewNotes: ["OCR_TEXT_NEEDS_REVIEW", "MATH_OCR_NEEDS_REVIEW"] } },
+    });
+    expect(issues.find((item) => item.id === "OCR_TEXT_NEEDS_REVIEW")).toMatchObject({ severity: "HIGH", approvable: false, state: "OPEN" });
+    expect(issues.find((item) => item.id === "MATH_OCR_NEEDS_REVIEW")).toMatchObject({ severity: "HIGH", approvable: false, state: "OPEN" });
+  });
+
   it("derives end time from start and duration, including cross-day", () => {
     expect(calculateExamEnd("2026-08-29T09:00:00+05:30", 60).toISOString()).toBe("2026-08-29T04:30:00.000Z");
     expect(calculateExamEnd("2026-08-29T23:30:00+05:30", 120).toISOString()).toBe("2026-08-29T20:00:00.000Z");

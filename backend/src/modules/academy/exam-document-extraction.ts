@@ -3,6 +3,7 @@ import { analyzePdfPage } from "./pdf-layout-analysis.js";
 import type { PdfGlyphRun } from "./pdf-math-reconstruction.js";
 import { decodePdfTextItem } from "./pdf-text-decoding.js";
 import { detectPdfVisualRegions, questionRequiresVisual, renderPdfVisualCrops, visualStats, type PdfVisualRegion, type PdfVisualStats } from "./pdf-visual-analysis.js";
+import { recognizePdfPageWithOcr, shouldUsePdfOcrFallback, type PdfOcrPageResult } from "./pdf-ocr-fallback.js";
 
 type PdfJsModule = typeof import("pdfjs-dist/legacy/build/pdf.mjs");
 type MammothModule = typeof import("mammoth");
@@ -32,6 +33,9 @@ export type ExtractedExamQuestion = {
   visualAssets?: PdfVisualRegion[];
   visualReviewRequired?: boolean;
   visualReviewNotes?: string[];
+  ocrReviewRequired?: boolean;
+  ocrReviewNotes?: string[];
+  ocrConfidence?: number | null;
 };
 
 export type NormalizedDocumentBlock = {
@@ -50,9 +54,10 @@ export type NormalizedDocumentPage = {
   encodingStatus?: "TEXT_LAYER_OK" | "GLYPH_ENCODING_SUSPECT" | "MATH_LAYOUT_AMBIGUOUS" | "VISUAL_ONLY_CONTENT";
   visualRegions?: PdfVisualRegion[];
   visualStats?: PdfVisualStats;
+  ocr?: { text: string; rawText: string; normalizedText: string; confidence: number | null; providerId: string; reviewRequired: boolean; reviewNotes: string[]; warnings: string[]; blocks: Array<{ type: "line"; text: string; order: number; boundingBox?: { x: number; y: number; width: number; height: number } }> };
 };
 
-export type ExtractedPdf = { pages: NormalizedDocumentPage[]; textCharacters: number; visualStats?: PdfVisualStats };
+export type ExtractedPdf = { pages: NormalizedDocumentPage[]; textCharacters: number; visualStats?: PdfVisualStats; ocrStats?: { pagesNative: number; pagesOCR: number; ocrTextRegions: number; ocrMathRegions: number; ocrReviewRequired: number; ocrUnreadableRegions: number } };
 export type ExtractedDocument = ExtractedPdf;
 
 function normalizeDocumentText(value: string, form: "NFKC" | "NFC" = "NFKC") {
@@ -169,13 +174,41 @@ export function renderOfficeMathFragment(fragment: string): string {
  * m:t math text remains in the normalized representation. This is not an XML
  * renderer: unsupported drawing/image content is left for review.
  */
-async function extractDocxXmlParagraphs(buffer: Buffer) {
+export async function extractDocxXmlParagraphs(buffer: Buffer) {
   try {
     const module = await loadJsZip();
     const jszip = (module as unknown as { default?: JsZipModule }).default ?? module;
     const zip = await jszip.loadAsync(buffer);
     const entry = zip.file("word/document.xml");
     if (!entry) return "";
+    const numberingEntry = zip.file("word/numbering.xml");
+    const numberingXml = numberingEntry ? await numberingEntry.async("string") : "";
+    const abstractLevels = new Map<string, Map<number, { start: number; format: string; template: string }>>();
+    for (const abstractMatch of numberingXml.matchAll(/<w:abstractNum\b[^>]*w:abstractNumId="(\d+)"[^>]*>([\s\S]*?)<\/w:abstractNum>/g)) {
+      const levels = new Map<number, { start: number; format: string; template: string }>();
+      for (const levelMatch of abstractMatch[2].matchAll(/<w:lvl\b[^>]*w:ilvl="(\d+)"[^>]*>([\s\S]*?)<\/w:lvl>/g)) {
+        const body = levelMatch[2];
+        levels.set(Number(levelMatch[1]), {
+          start: Number(body.match(/<w:start\b[^>]*w:val="(\d+)"/)?.[1] || 1),
+          format: body.match(/<w:numFmt\b[^>]*w:val="([^"]+)"/)?.[1] || "decimal",
+          template: decodeXml(body.match(/<w:lvlText\b[^>]*w:val="([^"]*)"/)?.[1] || `%${Number(levelMatch[1]) + 1}.`),
+        });
+      }
+      abstractLevels.set(abstractMatch[1], levels);
+    }
+    const numbering = new Map<string, Map<number, { start: number; format: string; template: string }>>();
+    for (const numMatch of numberingXml.matchAll(/<w:num\b[^>]*w:numId="(\d+)"[^>]*>([\s\S]*?)<\/w:num>/g)) {
+      const abstractId = numMatch[2].match(/<w:abstractNumId\b[^>]*w:val="(\d+)"/)?.[1];
+      if (abstractId && abstractLevels.has(abstractId)) numbering.set(numMatch[1], abstractLevels.get(abstractId)!);
+    }
+    const counters = new Map<string, number>();
+    const alpha = (value: number) => String.fromCharCode(96 + Math.max(1, Math.min(26, value)));
+    const roman = (value: number) => {
+      const pairs: Array<[number, string]> = [[1000, "m"], [900, "cm"], [500, "d"], [400, "cd"], [100, "c"], [90, "xc"], [50, "l"], [40, "xl"], [10, "x"], [9, "ix"], [5, "v"], [4, "iv"], [1, "i"]];
+      let remaining = value;
+      return pairs.map(([amount, symbol]) => { const count = Math.floor(remaining / amount); remaining %= amount; return symbol.repeat(count); }).join("");
+    };
+    const formatCounter = (value: number, format: string) => format === "lowerLetter" ? alpha(value) : format === "upperLetter" ? alpha(value).toUpperCase() : format === "lowerRoman" ? roman(value) : format === "upperRoman" ? roman(value).toUpperCase() : String(value);
     const xml = (await entry.async("string")).replace(/<m:oMath\b[^>]*>([\s\S]*?)<\/m:oMath>/g, (_, body: string) => {
       const converted = convertOfficeMathFragment(body);
       // Keep an internal, lossless marker until question parsing so the
@@ -186,8 +219,21 @@ async function extractDocxXmlParagraphs(buffer: Buffer) {
     const paragraphs: string[] = [];
     for (const paragraph of xml.matchAll(/<w:p\b[^>]*>[\s\S]*?<\/w:p>/g)) {
       const tokens: string[] = [];
-      for (const token of paragraph[0].matchAll(/<(?:w|m):t\b[^>]*>([\s\S]*?)<\/(?:w|m):t>|<w:tab\b[^>]*\/?\s*>/g)) tokens.push(token[1] === undefined ? "\t" : decodeXml(token[1]));
-      const text = tokens.join("").trim();
+      for (const token of paragraph[0].matchAll(/<(?:w|m):t\b[^>]*>([\s\S]*?)<\/(?:w|m):t>|<w:tab\b[^>]*\/?\s*>|<w:(?:br|cr)\b[^>]*\/?\s*>/g)) {
+        if (token[1] !== undefined) tokens.push(decodeXml(token[1]));
+        else tokens.push(/^<w:tab\b/.test(token[0]) ? "\t" : "\n");
+      }
+      let text = tokens.join("").trim();
+      const numId = paragraph[0].match(/<w:numId\b[^>]*w:val="(\d+)"/)?.[1];
+      const level = Number(paragraph[0].match(/<w:ilvl\b[^>]*w:val="(\d+)"/)?.[1] || 0);
+      const levelDefinition = numId ? numbering.get(numId)?.get(level) : undefined;
+      if (text && numId && levelDefinition && levelDefinition.format !== "bullet") {
+        const counterKey = `${numId}:${level}`;
+        const value = counters.has(counterKey) ? (counters.get(counterKey) || 0) + 1 : levelDefinition.start;
+        counters.set(counterKey, value);
+        const marker = levelDefinition.template.replace(new RegExp(`%${level + 1}`, "g"), formatCounter(value, levelDefinition.format));
+        text = `${marker} ${text}`;
+      }
       if (text) paragraphs.push(text);
     }
     return paragraphs.join("\n");
@@ -198,18 +244,24 @@ async function extractDocxXmlParagraphs(buffer: Buffer) {
 
 function pdfError(error: unknown) {
   const message = error instanceof Error ? error.message : "PDF parsing failed";
-  if (/password/i.test(message)) return Object.assign(new Error("This PDF is password protected. Upload an unlocked PDF."), { statusCode: 422 });
-  return Object.assign(new Error("This PDF appears corrupt or unreadable. Upload a valid text-based PDF."), { statusCode: 422 });
+  if (/password/i.test(message)) return Object.assign(new Error("This PDF is password protected. Upload an unlocked PDF."), { statusCode: 422, code: "PDF_PASSWORD_PROTECTED", stage: "DOCUMENT_OPEN" });
+  return Object.assign(new Error("This PDF could not be opened or decoded. Upload a valid text-based PDF."), { statusCode: 422, code: "PDF_DOCUMENT_OPEN_FAILED", stage: "DOCUMENT_OPEN" });
 }
 
 export async function extractTextPdf(buffer: Buffer): Promise<ExtractedPdf> {
   if (buffer.subarray(0, 4).toString("utf8") !== "%PDF") {
-    throw Object.assign(new Error("Uploaded source is not a valid PDF."), { statusCode: 415 });
+    throw Object.assign(new Error("Uploaded source is not a valid PDF."), { statusCode: 415, code: "PDF_SIGNATURE_INVALID", stage: "FILE_VALIDATION" });
   }
   try {
     const pdfjs = await loadPdfJs();
     const document = await pdfjs.getDocument({ data: new Uint8Array(buffer), disableFontFace: true, useSystemFonts: true }).promise;
     const pages: ExtractedPdf["pages"] = [];
+    let pagesNative = 0;
+    let pagesOCR = 0;
+    let ocrTextRegions = 0;
+    let ocrMathRegions = 0;
+    let ocrReviewRequired = 0;
+    let ocrUnreadableRegions = 0;
     for (let pageNumber = 1; pageNumber <= document.numPages; pageNumber += 1) {
       const page = await document.getPage(pageNumber);
       const content = await page.getTextContent();
@@ -243,6 +295,30 @@ export async function extractTextPdf(buffer: Buffer): Promise<ExtractedPdf> {
         })
         .filter((item): item is PdfGlyphRun => Boolean(item));
       const analysis = analyzePdfPage(glyphs, viewport.width, viewport.height);
+      let ocr: PdfOcrPageResult | undefined;
+      if (shouldUsePdfOcrFallback({ text: analysis.text, encodingStatus: analysis.encodingStatus }) && pagesOCR < Number(process.env.NDIE_OCR_MAX_PAGES || 20)) {
+        try {
+          ocr = await recognizePdfPageWithOcr(page, pageNumber);
+          pagesOCR += 1;
+          if (ocr.text) ocrTextRegions += 1;
+          if (/[²³ⁿ₀₁₂₃√∫∑∏πθ≤≥≠≈±×÷∞]|\\(?:frac|sqrt|int|sum|prod|lim|log|sin|cos)/u.test(ocr.text)) ocrMathRegions += 1;
+          if (ocr.reviewRequired) ocrReviewRequired += 1;
+          if (ocr.reviewNotes.includes("OCR_REGION_UNREADABLE")) ocrUnreadableRegions += 1;
+        } catch (error) {
+          pagesOCR += 1;
+          ocrReviewRequired += 1;
+          ocrUnreadableRegions += 1;
+          ocr = {
+            text: "", rawText: "", normalizedText: "", confidence: null, providerId: "ocr.unavailable",
+            reviewRequired: true, reviewNotes: ["OCR_REGION_UNREADABLE"],
+            warnings: [error instanceof Error ? error.message : "OCR could not process this page."], blocks: [],
+          };
+        }
+      } else {
+        pagesNative += 1;
+      }
+      const pageText = ocr?.text || analysis.text;
+      const pageBlocks = ocr?.blocks?.length ? ocr.blocks : analysis.lines.map((line, order) => ({ type: "line" as const, text: line.text, order }));
       let visualRegions: PdfVisualRegion[] = [];
       try {
         const operatorList = await page.getOperatorList();
@@ -283,10 +359,29 @@ export async function extractTextPdf(buffer: Buffer): Promise<ExtractedPdf> {
           }));
         }
       }
+      // Keep a rendered source page for OCR review when the text layer was
+      // unavailable or the recognition needs confirmation. It is evidence,
+      // not a semantic interpretation, and is intentionally marked for review.
+      if (ocr?.crop && ocr.reviewRequired && !visualRegions.some((region) => region.id === `pdf-${pageNumber}-ocr-source`)) {
+        visualRegions.push({
+          id: `pdf-${pageNumber}-ocr-source`,
+          pageNumber,
+          boundingBox: { page: pageNumber, x: 0, y: 0, width: 1, height: 1 },
+          sourceType: "UNKNOWN_VISUAL",
+          confidence: ocr.confidence ?? 0.4,
+          reviewRequired: true,
+          sourceReference: `Page ${pageNumber} (OCR source)`,
+          cropBuffer: ocr.crop.buffer,
+          cropMimeType: ocr.crop.mimeType,
+          cropWidth: ocr.crop.width,
+          cropHeight: ocr.crop.height,
+          warnings: ocr.warnings,
+        });
+      }
       pages.push({
-        ...normalizedPage(pageNumber, analysis.text, analysis.lines.map((line, order) => ({ type: "line", text: line.text, order })), "NFC"),
+        ...normalizedPage(pageNumber, pageText, pageBlocks, "NFC"),
         glyphs,
-        mathSegments: analysis.mathSegments,
+        mathSegments: [...analysis.mathSegments, ...(ocr ? explicitOcrMathHints(ocr.text, ocr.confidence) : [])],
         mathStats: {
           mathRegionsDetected: analysis.mathRegionsDetected,
           mathRegionsCanonicalized: analysis.mathRegionsCanonicalized,
@@ -297,17 +392,18 @@ export async function extractTextPdf(buffer: Buffer): Promise<ExtractedPdf> {
           replacementCharacters: analysis.replacementCharacters,
           encodingWarnings: analysis.encodingWarnings,
         },
-        encodingStatus: analysis.encodingStatus,
+        encodingStatus: ocr ? "VISUAL_ONLY_CONTENT" : analysis.encodingStatus,
         visualRegions,
         visualStats: visualStats(visualRegions),
+        ...(ocr ? { ocr: { text: ocr.text, rawText: ocr.rawText, normalizedText: ocr.normalizedText, confidence: ocr.confidence, providerId: ocr.providerId, reviewRequired: ocr.reviewRequired, reviewNotes: ocr.reviewNotes, warnings: ocr.warnings, blocks: ocr.blocks } } : {}),
       });
     }
     const textCharacters = pages.reduce((sum, page) => sum + page.text.replace(/\s/g, "").length, 0);
     if (textCharacters < 20) {
-      throw Object.assign(new Error("This PDF appears to contain scanned images without readable text. Please upload a text-based PDF, DOC, or DOCX file."), { statusCode: 422, code: "SCANNED_PDF_UNSUPPORTED" });
+      throw Object.assign(new Error("This PDF has no usable text layer and OCR could not recover readable questions."), { statusCode: 422, code: "PDF_TEXT_LAYER_UNUSABLE", stage: "TEXT_EXTRACTION" });
     }
     const regions = pages.flatMap((page) => page.visualRegions || []);
-    return { pages, textCharacters, visualStats: visualStats(regions) };
+    return { pages, textCharacters, visualStats: visualStats(regions), ocrStats: { pagesNative, pagesOCR, ocrTextRegions, ocrMathRegions, ocrReviewRequired, ocrUnreadableRegions } };
   } catch (error) {
     if (error && typeof error === "object" && "statusCode" in error) throw error;
     throw pdfError(error);
@@ -316,7 +412,7 @@ export async function extractTextPdf(buffer: Buffer): Promise<ExtractedPdf> {
 
 export async function extractTextDocx(buffer: Buffer): Promise<ExtractedDocument> {
   if (buffer[0] !== 0x50 || buffer[1] !== 0x4b) {
-    throw Object.assign(new Error("Uploaded source is not a valid DOCX file."), { statusCode: 415 });
+    throw Object.assign(new Error("Uploaded source is not a valid DOCX file."), { statusCode: 415, code: "DOCX_SIGNATURE_INVALID", stage: "FILE_VALIDATION" });
   }
   try {
     const mammoth = await loadMammoth();
@@ -332,21 +428,21 @@ export async function extractTextDocx(buffer: Buffer): Promise<ExtractedDocument
     const text = normalizeDocumentText(xmlText || mammothText);
     const textCharacters = text.replace(/\s/g, "").length;
     if (textCharacters < 20) {
-      throw Object.assign(new Error("This DOCX does not contain enough readable text. Please upload a document containing editable question text."), { statusCode: 422, code: "DOCX_TEXT_UNAVAILABLE" });
+      throw Object.assign(new Error("This DOCX opened, but no usable question text was found. Check that the content is editable text rather than only images."), { statusCode: 422, code: "DOCX_TEXT_UNAVAILABLE", stage: "TEXT_EXTRACTION" });
     }
     // DOCX does not carry stable rendered page boundaries. Preserve one
     // truthful document-level source reference rather than inventing pages.
     return { pages: [normalizedPage(1, text)], textCharacters };
   } catch (error) {
     if (error && typeof error === "object" && "statusCode" in error) throw error;
-    throw Object.assign(new Error("This DOCX appears corrupt or unreadable. Upload a valid DOCX file."), { statusCode: 422 });
+    throw Object.assign(new Error("This DOCX package could not be opened or decoded. Upload a valid DOCX file."), { statusCode: 422, code: "DOCX_DOCUMENT_OPEN_FAILED", stage: "DOCUMENT_OPEN" });
   }
 }
 
 export async function extractTextDoc(buffer: Buffer): Promise<ExtractedDocument> {
   const oleSignature = Buffer.from([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1]);
   if (!buffer.subarray(0, oleSignature.length).equals(oleSignature)) {
-    throw Object.assign(new Error("Uploaded source is not a valid DOC file."), { statusCode: 415 });
+    throw Object.assign(new Error("Uploaded source is not a valid DOC file."), { statusCode: 415, code: "DOC_SIGNATURE_INVALID", stage: "FILE_VALIDATION" });
   }
   try {
     const module = await loadWordExtractor();
@@ -355,12 +451,12 @@ export async function extractTextDoc(buffer: Buffer): Promise<ExtractedDocument>
     const text = normalizeDocumentText(document.getBody());
     const textCharacters = text.replace(/\s/g, "").length;
     if (textCharacters < 20) {
-      throw Object.assign(new Error("This DOC does not contain enough readable text. Please upload a document containing editable question text."), { statusCode: 422, code: "DOC_TEXT_UNAVAILABLE" });
+      throw Object.assign(new Error("This DOC opened, but no usable question text was found."), { statusCode: 422, code: "DOC_TEXT_UNAVAILABLE", stage: "TEXT_EXTRACTION" });
     }
     return { pages: [normalizedPage(1, text)], textCharacters };
   } catch (error) {
     if (error && typeof error === "object" && "statusCode" in error) throw error;
-    throw Object.assign(new Error("This DOC appears corrupt or unreadable. Upload a valid DOC file."), { statusCode: 422 });
+    throw Object.assign(new Error("This DOC could not be opened or decoded. Upload a valid DOC file."), { statusCode: 422, code: "DOC_DOCUMENT_OPEN_FAILED", stage: "DOCUMENT_OPEN" });
   }
 }
 
@@ -417,6 +513,16 @@ function materializeCombined(value: string, pdfHints: MathSegmentHint[] = []) {
   return { text: normalized, hints: [...materialized.hints, ...hints] };
 }
 
+function explicitOcrMathHints(value: string, confidence: number | null): MathSegmentHint[] {
+  const hints: MathSegmentHint[] = [];
+  for (const match of String(value || "").matchAll(/(\$\$[\s\S]+?\$\$|\\\[[\s\S]+?\\\]|\\\([\s\S]+?\\\)|\$[^$\n]+?\$)/g)) {
+    const sourceText = match[0];
+    const latex = sourceText.startsWith("$$") ? sourceText.slice(2, -2).trim() : sourceText.startsWith("$") ? sourceText.slice(1, -1).trim() : sourceText.slice(2, -2).trim();
+    if (latex) hints.push({ sourceText, matchText: sourceText, latex, origin: "OCR", confidence: confidence ?? 0.5, warnings: [{ code: "MATH_OCR_NEEDS_REVIEW", message: "Mathematical content was recognized from a scanned page and requires review.", severity: "HIGH" }] });
+  }
+  return hints;
+}
+
 export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: ExtractedPdf["pages"] = []): ExtractedExamQuestion[] {
   const key = answerMap(keyPages.map((page) => page.text).join("\n"));
   const questions: ExtractedExamQuestion[] = [];
@@ -433,7 +539,7 @@ export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: Extra
     // parenthesis must be followed by whitespace, which prevents mathematical
     // groups such as `(1024)10` from being mistaken for a new question while
     // preserving compact `...102.Convert` Word extraction.
-    const candidates: Array<{ rawNumber: string; matchIndex: number; startIndex: number; end: number; lineStart: boolean }> = [...page.text.matchAll(/(\d{1,4})(?:\.(?=\s*\S)|\)(?=\s+\S))\s*/g)].map((match) => {
+    const candidates: Array<{ rawNumber: string; matchIndex: number; startIndex: number; end: number; lineStart: boolean; explicitLabel?: boolean }> = [...page.text.matchAll(/(\d{1,4})(?:\.(?=\s*\S)|\)(?=\s+\S))\s*/g)].map((match) => {
       const matchIndex = match.index ?? 0;
       return {
         rawNumber: match[1],
@@ -443,21 +549,25 @@ export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: Extra
         lineStart: matchIndex === 0 || page.text[matchIndex - 1] === "\n" || page.text[matchIndex - 1] === "\r",
       };
     });
-    for (const match of page.text.matchAll(/(?:^|[\r\n])\s*(?:question\s*|q\s*)(\d{1,4})\s*[.):\-]?\s*(?=\S)/gi)) {
+    for (const match of page.text.matchAll(/(?:^|[\r\n])\s*(?:question\s*|q\s*\.?\s*)(\d{1,4})\s*[.):\-]?\s*(?=\S)/gi)) {
       const rawNumber = match[1];
       const numberOffset = (match[0].indexOf(rawNumber));
       const matchIndex = (match.index ?? 0) + numberOffset;
-      candidates.push({ rawNumber, matchIndex, startIndex: match.index ?? 0, end: (match.index ?? 0) + match[0].length, lineStart: true });
+      candidates.push({ rawNumber, matchIndex, startIndex: match.index ?? 0, end: (match.index ?? 0) + match[0].length, lineStart: true, explicitLabel: true });
     }
     for (const match of page.text.matchAll(/(?:^|[\r\n]|\s)\((\d{1,4})\)\s+(?=\S)/g)) {
       const rawNumber = match[1];
       const numberOffset = match[0].indexOf(rawNumber);
       const matchIndex = (match.index ?? 0) + numberOffset;
       const startIndex = (match.index ?? 0) + match[0].indexOf("(");
-      candidates.push({ rawNumber, matchIndex, startIndex, end: (match.index ?? 0) + match[0].length, lineStart: startIndex === 0 || page.text[startIndex - 1] === "\n" || page.text[startIndex - 1] === "\r" });
+      candidates.push({ rawNumber, matchIndex, startIndex, end: (match.index ?? 0) + match[0].length, lineStart: startIndex === 0 || page.text[startIndex - 1] === "\n" || page.text[startIndex - 1] === "\r", explicitLabel: true });
     }
     const dedupedCandidates = Array.from(new Map(candidates.map((candidate) => [`${candidate.matchIndex}:${candidate.rawNumber}`, candidate])).values())
       .sort((a, b) => a.matchIndex - b.matchIndex);
+    if (questions.length === 0 && expectedNumber === 1 && !dedupedCandidates.some((candidate) => candidate.rawNumber === "1")) {
+      const firstExplicit = dedupedCandidates.find((candidate) => candidate.lineStart && candidate.explicitLabel);
+      if (firstExplicit) expectedNumber = Number(firstExplicit.rawNumber);
+    }
     const starts: Array<{ index: number; end: number; number: number }> = [];
     let candidateCursor = 0;
     while (candidateCursor < dedupedCandidates.length) {
@@ -481,7 +591,26 @@ export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: Extra
     for (let index = 0; index < starts.length; index += 1) {
       const start = starts[index];
       const chunk = page.text.slice(start.end, starts[index + 1]?.index ?? page.text.length).trim();
-      const optionMatches = [...chunk.matchAll(/(?:^|\s|\()([A-D])[.):]\s*/gi)];
+      // Prefer option labels at physical line boundaries. Broad whitespace
+      // matching mistakes prose such as `Assertion (A):` for Option A and can
+      // leak question text into the options. Inline labels remain supported
+      // only when a complete ordered A-D sequence is present.
+      let optionMatches = [...chunk.matchAll(/(?:^|[\r\n])\s*([A-D])[.):]\s*/gi)];
+      if (optionMatches.length < 3) {
+        const inlineCandidates = [...chunk.matchAll(/(?:^|\s|\()([A-D])[.):]\s*/gi)];
+        const ordered = inlineCandidates.map((candidate) => candidate[1].toUpperCase()).join("");
+        if (ordered.includes("ABCD")) optionMatches = inlineCandidates.slice(ordered.indexOf("ABCD"), ordered.indexOf("ABCD") + 4);
+      }
+      const firstExplicitLetter = optionMatches[0]?.[1]?.toUpperCase();
+      const firstExplicitIndex = optionMatches[0]?.index ?? chunk.length;
+      const beforeExplicit = chunk.slice(0, firstExplicitIndex).trim();
+      const beforeExplicitLines = beforeExplicit.split(/\r?\n+/).map((line) => line.trim()).filter(Boolean);
+      // Several real Word exports omit only the visual `A.` list label while
+      // retaining B/C/D. The final paragraph immediately before B is then the
+      // only safe Option A candidate; earlier paragraphs remain the stem.
+      const inferredOptionA = firstExplicitLetter === "B" && beforeExplicitLines.length >= 2
+        ? beforeExplicitLines.at(-1) || ""
+        : "";
       // Some Word papers use four unlabeled option paragraphs (one value per
       // line) instead of explicit A-D prefixes. When no labels are present,
       // treat the final four non-empty lines as the options and keep all
@@ -492,6 +621,7 @@ export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: Extra
         : [];
       const unlabeledOptions = unlabeledLines.length >= 5 ? unlabeledLines.slice(-4) : [];
       const optionText = (letter: string) => {
+        if (letter === "A" && inferredOptionA) return inferredOptionA;
         const optionIndex = optionMatches.findIndex((candidate) => candidate[1].toUpperCase() === letter);
         if (optionIndex < 0) return "";
         const option = optionMatches[optionIndex];
@@ -507,7 +637,7 @@ export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: Extra
       const marksMatch = chunk.match(/(?:^|\s)(\d+(?:\.\d+)?)\s*marks?\b/i);
       const marks = marksMatch ? Number(marksMatch[1]) : undefined;
       const ownText = optionMatches.length > 0
-        ? chunk.slice(0, optionMatches[0]?.index ?? chunk.length).trim()
+        ? (inferredOptionA ? beforeExplicitLines.slice(0, -1).join("\n").trim() : beforeExplicit)
         : (unlabeledOptions.length ? unlabeledLines.slice(0, -4).join(" ").trim() : chunk.trim());
       const questionText = [directions.get(number), ownText].filter(Boolean).join(" ");
       const options = optionMatches.length > 0
@@ -529,6 +659,8 @@ export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: Extra
         : associatedVisuals.filter((asset) => asset.reviewRequired).length
           ? ["Visual source bounds or association need review before release."]
           : [];
+      const ocrReviewNotes = page.ocr?.reviewNotes || [];
+      const ocrReviewRequired = Boolean(page.ocr?.reviewRequired);
       const question = {
         number,
         questionText: questionMaterialized.text,
@@ -543,6 +675,7 @@ export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: Extra
         reviewStatus,
         ...(associatedVisuals.length ? { visualAssets: associatedVisuals } : {}),
         ...(visualReferences || visualReviewNotes.length ? { visualReviewRequired: Boolean(visualReferences || visualReviewNotes.length), visualReviewNotes } : {}),
+        ...(ocrReviewRequired ? { ocrReviewRequired: true, ocrReviewNotes, ocrConfidence: page.ocr?.confidence } : {}),
       } as const;
       questions.push({
         ...question,
@@ -567,6 +700,9 @@ export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: Extra
             reviewRequired: asset.reviewRequired,
             sourceReference: asset.sourceReference,
           })),
+          ocrReviewRequired: question.ocrReviewRequired,
+          ocrReviewNotes: question.ocrReviewNotes,
+          ocrConfidence: question.ocrConfidence,
           contentSource: "TEACHER_IMPORT",
         }),
       });

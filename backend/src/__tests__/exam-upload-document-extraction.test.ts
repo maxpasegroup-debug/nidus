@@ -1,8 +1,9 @@
 import { describe, expect, it } from "@jest/globals";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import JSZip from "jszip";
 
-import { extractTextDoc, extractTextDocx, extractTextPdf, parseExamQuestions, renderOfficeMathFragment, convertOfficeMathFragment } from "../modules/academy/exam-document-extraction.js";
+import { extractDocxXmlParagraphs, extractTextDoc, extractTextDocx, extractTextPdf, parseExamQuestions, renderOfficeMathFragment, convertOfficeMathFragment } from "../modules/academy/exam-document-extraction.js";
 import { analyzePdfPage } from "../modules/academy/pdf-layout-analysis.js";
 import { reconstructPdfMath } from "../modules/academy/pdf-math-reconstruction.js";
 import { decodePdfTextItem } from "../modules/academy/pdf-text-decoding.js";
@@ -307,6 +308,50 @@ describe("exam upload PDF extraction", () => {
     expect(questions[0]).toMatchObject({ optionA: "2", optionB: "4", optionC: "6", optionD: "8", correctAnswer: "B" });
     expect(questions[1]).toMatchObject({ optionA: "Mercury", optionB: "Venus", optionC: "Earth", optionD: "Mars", correctAnswer: "C" });
     expect(questions[2]).toMatchObject({ correctAnswer: "B" });
+  });
+
+  it("recognizes Q.1 labels and keeps adjacent question options isolated", () => {
+    const questions = parseExamQuestions([{ pageNumber: 1, text: [
+      "Q.11 First question?", "A. eleven-a", "B. eleven-b", "C. eleven-c", "D. eleven-d",
+      "Q.12 Second question?", "A. twelve-a", "B. twelve-b", "C. twelve-c", "D. twelve-d",
+    ].join("\n") }]);
+    expect(questions).toHaveLength(2);
+    expect(questions[0]).toMatchObject({ number: 11, optionD: "eleven-d" });
+    expect(questions[1]).toMatchObject({ number: 12, optionA: "twelve-a" });
+    expect(questions[0].optionD).not.toContain("Second question");
+  });
+
+  it("recovers an omitted visual A label before explicit B-D without misreading Assertion (A)", () => {
+    const questions = parseExamQuestions([{ pageNumber: 1, text: [
+      "1. Assertion (A): The statement is true.",
+      "Reason (R): Supporting reason.",
+      "Both A and R are true.",
+      "B. A is true and R is false.",
+      "C. A is false and R is true.",
+      "D. Both are false.",
+    ].join("\n") }]);
+    expect(questions[0]).toMatchObject({
+      questionText: expect.stringContaining("Assertion (A)"),
+      optionA: "Both A and R are true.",
+      optionB: "A is true and R is false.",
+      optionC: "A is false and R is true.",
+      optionD: "Both are false.",
+    });
+  });
+
+  it("restores Word auto-numbering and preserves manual line breaks in DOCX option paragraphs", async () => {
+    const zip = new JSZip();
+    zip.file("[Content_Types].xml", '<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/numbering.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml"/></Types>');
+    zip.file("_rels/.rels", '<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
+    zip.file("word/_rels/document.xml.rels", '<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering" Target="numbering.xml"/></Relationships>');
+    zip.file("word/numbering.xml", '<w:numbering xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:abstractNum w:abstractNumId="1"><w:lvl w:ilvl="0"><w:start w:val="1"/><w:numFmt w:val="decimal"/><w:lvlText w:val="%1."/></w:lvl></w:abstractNum><w:num w:numId="4"><w:abstractNumId w:val="1"/></w:num></w:numbering>');
+    zip.file("word/document.xml", '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:pPr><w:numPr><w:ilvl w:val="0"/><w:numId w:val="4"/></w:numPr></w:pPr><w:r><w:t>First question?</w:t></w:r></w:p><w:p><w:r><w:t>alpha</w:t><w:br/><w:t>B. beta</w:t><w:br/><w:t>C. gamma</w:t><w:br/><w:t>D. delta</w:t></w:r></w:p><w:p><w:pPr><w:numPr><w:ilvl w:val="0"/><w:numId w:val="4"/></w:numPr></w:pPr><w:r><w:t>Second question?</w:t></w:r></w:p><w:p><w:r><w:t>A. one</w:t><w:br/><w:t>B. two</w:t><w:br/><w:t>C. three</w:t><w:br/><w:t>D. four</w:t></w:r></w:p></w:body></w:document>');
+    const text = await extractDocxXmlParagraphs(await zip.generateAsync({ type: "nodebuffer" }));
+    const questions = parseExamQuestions([{ pageNumber: 1, text }]);
+    expect(text).toContain("1. First question?");
+    expect(questions).toHaveLength(2);
+    expect(questions[0]).toMatchObject({ optionA: "alpha", optionB: "beta", optionC: "gamma", optionD: "delta" });
+    expect(questions[1]).toMatchObject({ optionA: "one", optionD: "four" });
   });
 
   it("preserves explicit marks and leaves explanations optional", () => {

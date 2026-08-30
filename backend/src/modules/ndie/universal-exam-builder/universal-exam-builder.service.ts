@@ -10,6 +10,9 @@ type UniversalQuestionInput = {
   marks?: number;
   visualReviewRequired?: boolean;
   visualReviewNotes?: unknown;
+  ocrReviewRequired?: boolean;
+  ocrReviewNotes?: unknown;
+  ocrConfidence?: number | null;
   aiConfidence?: number;
   reviewStatus?: string;
   boundingBoxes?: unknown;
@@ -89,6 +92,9 @@ type ProfessionalQuestion = {
   contentJson?: unknown;
   visualReviewRequired?: boolean;
   visualReviewNotes?: unknown;
+  ocrReviewRequired?: boolean;
+  ocrReviewNotes?: unknown;
+  ocrConfidence?: number | null;
 };
 
 type QualityLabel = "High" | "Medium" | "Needs Review";
@@ -289,6 +295,7 @@ export const ndieUniversalExamBuilderService = {
       const combined = `${question.questionText ?? ""} ${question.optionA ?? ""} ${question.optionB ?? ""} ${question.optionC ?? ""} ${question.optionD ?? ""}`;
       const formula = hasFormulaSignal(combined);
       const visual = Boolean(question.visualReviewRequired || /diagram|figure|graph|table|circuit|shown/i.test(combined));
+      const ocr = Boolean(question.ocrReviewRequired);
       const options = optionsFor(question, questionType);
       const missingItems: ProfessionalQuestion["missingItems"] = [
         options.length > 0 && options.some((option) => /requires review/i.test(option.text)) ? "Option" : "",
@@ -297,7 +304,7 @@ export const ndieUniversalExamBuilderService = {
         !cleanText(question.correctAnswer) ? "Answer" : "",
         cleanText(question.correctAnswer) && !cleanText(question.explanation) ? "Solution" : "",
       ].filter((item): item is ProfessionalQuestion["missingItems"][number] => Boolean(item));
-      const confidence = typeof question.aiConfidence === "number" ? Math.max(0, Math.min(1, question.aiConfidence)) : formula || visual ? 0.62 : 0.8;
+      const confidence = typeof question.aiConfidence === "number" ? Math.max(0, Math.min(1, question.aiConfidence)) : ocr ? Math.min(0.66, question.ocrConfidence ?? 0.66) : formula || visual ? 0.62 : 0.8;
       const status = reviewStatus(missingItems, confidence < 0.8 || /review/i.test(String(question.reviewStatus || "")));
       const page = pageForQuestion(input, number, Math.max(1, sourceQuestions.length));
       return {
@@ -311,6 +318,7 @@ export const ndieUniversalExamBuilderService = {
         linkedAssets: [
           formula ? "Formula" : "",
           visual ? "Visual" : "",
+          ocr ? "Scanned source" : "",
           page ? `Page ${page}` : "",
         ].filter(Boolean),
         linkedAnswer: cleanText(question.correctAnswer) || undefined,
@@ -325,10 +333,12 @@ export const ndieUniversalExamBuilderService = {
         notes: [
           formula ? "Formula image/placeholder preserved for review." : "",
           visual ? "Visual asset preserved with source reference." : "",
+          ocr ? "Scanned text/math needs director review against the source page." : "",
           missingItems.length ? `Needs review: ${missingItems.join(", ")}` : "",
         ].filter(Boolean),
         ...(question.contentJson ? { contentJson: question.contentJson } : {}),
         ...(question.visualReviewRequired ? { visualReviewRequired: true, visualReviewNotes: question.visualReviewNotes } : {}),
+        ...(question.ocrReviewRequired ? { ocrReviewRequired: true, ocrReviewNotes: question.ocrReviewNotes, ocrConfidence: question.ocrConfidence } : {}),
       };
     });
 

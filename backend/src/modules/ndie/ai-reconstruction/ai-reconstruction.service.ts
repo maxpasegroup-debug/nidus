@@ -16,6 +16,9 @@ type TeacherQuestionInput = {
   marks?: number;
   visualReviewRequired?: boolean;
   visualReviewNotes?: unknown;
+  ocrReviewRequired?: boolean;
+  ocrReviewNotes?: unknown;
+  ocrConfidence?: number | null;
   aiConfidence?: number;
   reviewStatus?: string;
   sourcePageNumber?: number;
@@ -84,6 +87,9 @@ type ProfessionalQuestion = {
   contentJson?: unknown;
   visualReviewRequired?: boolean;
   visualReviewNotes?: unknown;
+  ocrReviewRequired?: boolean;
+  ocrReviewNotes?: unknown;
+  ocrConfidence?: number | null;
 };
 
 type ProfessionalDraft = {
@@ -185,10 +191,11 @@ function buildDeterministicDraft(input: NdieAiReconstructionInput): Professional
     const combined = `${question.questionText ?? ""} ${question.optionA ?? ""} ${question.optionB ?? ""} ${question.optionC ?? ""} ${question.optionD ?? ""}`;
     const formula = hasFormulaSignal(combined);
     const visual = Boolean(question.visualReviewRequired || /diagram|figure|graph|table|shown/i.test(combined));
-    const linkedAssets = [formula ? "Formula" : "", visual ? "Visual source" : ""].filter(Boolean);
-    const confidence = typeof question.aiConfidence === "number" ? Math.max(0, Math.min(1, question.aiConfidence)) : formula || visual ? 0.66 : 0.82;
+    const ocr = Boolean(question.ocrReviewRequired);
+    const linkedAssets = [formula ? "Formula" : "", visual ? "Visual source" : "", ocr ? "Scanned source" : ""].filter(Boolean);
+    const confidence = typeof question.aiConfidence === "number" ? Math.max(0, Math.min(1, question.aiConfidence)) : ocr ? Math.min(0.66, question.ocrConfidence ?? 0.66) : formula || visual ? 0.66 : 0.82;
     const missingAnswer = !question.correctAnswer;
-    const needsReview = confidence < 0.8 || formula || visual || missingAnswer || String(question.reviewStatus || "").toUpperCase().includes("REVIEW");
+    const needsReview = confidence < 0.8 || formula || visual || ocr || missingAnswer || String(question.reviewStatus || "").toUpperCase().includes("REVIEW");
     return {
       number,
       questionText: /[?.:]$/.test(text) ? text : `${text}?`,
@@ -212,10 +219,12 @@ function buildDeterministicDraft(input: NdieAiReconstructionInput): Professional
       notes: [
         formula ? "Formula content preserved for review." : "",
         visual ? "Visual content linked to original source." : "",
-        missingAnswer ? "Answer key needs teacher confirmation." : ""
+        missingAnswer ? "Answer key needs teacher confirmation." : "",
+        ocr ? "Scanned text/math needs director review against the source page." : ""
        ].filter(Boolean),
       ...(question.contentJson ? { contentJson: question.contentJson } : {}),
-      ...(question.visualReviewRequired ? { visualReviewRequired: true, visualReviewNotes: question.visualReviewNotes } : {})
+      ...(question.visualReviewRequired ? { visualReviewRequired: true, visualReviewNotes: question.visualReviewNotes } : {}),
+      ...(question.ocrReviewRequired ? { ocrReviewRequired: true, ocrReviewNotes: question.ocrReviewNotes, ocrConfidence: question.ocrConfidence } : {})
       };
   });
   if (!questions.length) {

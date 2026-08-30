@@ -14,6 +14,7 @@ import { ndieComplianceService } from "../ndie/security/compliance.service.js";
 import { DEFAULT_ACCOUNT_PIN } from "../auth/auth.v2.service.js";
 import { extractTextDoc, extractTextDocx, extractTextPdf, parseExamQuestions } from "./exam-document-extraction.js";
 import type { PdfVisualRegion } from "./pdf-visual-analysis.js";
+import { logger } from "../../utils/logger.js";
 
 const db = prisma as any;
 
@@ -271,6 +272,9 @@ type ExamImportValidationQuestion = {
   sourceReference?: string;
   visualReviewRequired?: boolean;
   visualReviewNotes?: unknown;
+  ocrReviewRequired?: boolean;
+  ocrReviewNotes?: unknown;
+  ocrConfidence?: number | null;
   aiConfidence?: number;
   reviewStatus?: string;
   visualAssets?: unknown;
@@ -4997,6 +5001,9 @@ export const academyService = {
       correctAnswer: question.correctAnswer,
       visualReviewRequired: question.visualReviewRequired,
       visualReviewNotes: question.visualReviewNotes,
+      ocrReviewRequired: question.ocrReviewRequired,
+      ocrReviewNotes: question.ocrReviewNotes,
+      ocrConfidence: question.ocrConfidence,
     }));
     let aiResult = fallback;
     try {
@@ -5094,7 +5101,10 @@ export const academyService = {
     const questionPaperIsDoc = questionPaperName?.endsWith(".doc");
     if (questionPaper && (questionPaperIsPdf || questionPaperIsDocx || questionPaperIsDoc)) {
       const response = await fetch(signedMediaUrl(questionPaper.publicId, questionPaper.fileType));
-      if (!response.ok) throw Object.assign(new Error("The question paper could not be read. Please upload it again."), { statusCode: 422 });
+      if (!response.ok) {
+        logger.warn("Exam question-paper source download failed", { uploadId: questionPaper.id, fileName: questionPaper.originalName, status: response.status, stage: "SOURCE_DOWNLOAD" });
+        throw Object.assign(new Error("The uploaded question paper could not be downloaded from storage. Please retry the upload."), { statusCode: 422, code: "SOURCE_DOWNLOAD_FAILED", stage: "SOURCE_DOWNLOAD" });
+      }
       const paperBuffer = Buffer.from(await response.arrayBuffer());
       const paper = questionPaperIsPdf ? await extractTextPdf(paperBuffer) : questionPaperIsDocx ? await extractTextDocx(paperBuffer) : await extractTextDoc(paperBuffer);
       if (questionPaperIsPdf) {
@@ -5110,11 +5120,25 @@ export const academyService = {
       let keyPages: Awaited<ReturnType<typeof extractTextPdf>>["pages"] = [];
       if (answerKey && (answerKeyName?.endsWith(".pdf") || answerKeyName?.endsWith(".docx") || answerKeyName?.endsWith(".doc"))) {
         const keyResponse = await fetch(signedMediaUrl(answerKey.publicId, answerKey.fileType));
-        if (!keyResponse.ok) throw Object.assign(new Error("The answer key could not be read. Please upload it again."), { statusCode: 422 });
+        if (!keyResponse.ok) {
+          logger.warn("Exam answer-key source download failed", { uploadId: answerKey.id, fileName: answerKey.originalName, status: keyResponse.status, stage: "SOURCE_DOWNLOAD" });
+          throw Object.assign(new Error("The uploaded answer key could not be downloaded from storage. You can retry it or continue without an answer key."), { statusCode: 422, code: "ANSWER_KEY_DOWNLOAD_FAILED", stage: "SOURCE_DOWNLOAD" });
+        }
         const keyBuffer = Buffer.from(await keyResponse.arrayBuffer());
         keyPages = (answerKeyName.endsWith(".pdf") ? await extractTextPdf(keyBuffer) : answerKeyName.endsWith(".docx") ? await extractTextDocx(keyBuffer) : await extractTextDoc(keyBuffer)).pages;
       }
       extractedQuestions = parseExamQuestions(paper.pages, keyPages);
+      const detectedQuestionMarkers = paper.pages.reduce((count, page) => count + [...page.text.matchAll(/(?:^|[\r\n])\s*(?:(?:question|q)\s*\.?\s*)?\d{1,4}\s*[.)]\s*(?=\S)/gi)].length, 0);
+      const countCollapseSuspected = detectedQuestionMarkers >= 5 && extractedQuestions.length < Math.ceil(detectedQuestionMarkers * 0.5);
+      if (countCollapseSuspected) {
+        logger.warn("Exam extraction question-count collapse detected", {
+          uploadId: questionPaper.id,
+          fileName: questionPaper.originalName,
+          stage: "QUESTION_BOUNDARY_DETECTION",
+          detectedQuestionMarkers,
+          extractedQuestionCount: extractedQuestions.length,
+        });
+      }
       // Association is decided by the deterministic question parser. Keep
       // the development metrics honest after that pass so callers can see
       // which detected regions were actually attached to a question.
@@ -5145,6 +5169,7 @@ export const academyService = {
           sourcePageNumber: paper.pages[0]?.pageNumber || 1,
           sourceReference: `Page ${paper.pages[0]?.pageNumber || 1}`,
           reviewStatus: "NEEDS_REVIEW",
+          ...(paper.pages[0]?.ocr ? { ocrReviewRequired: true, ocrReviewNotes: paper.pages[0].ocr.reviewNotes, ocrConfidence: paper.pages[0].ocr.confidence } : {}),
         }];
       }
       documentEvidence = {
@@ -5153,6 +5178,14 @@ export const academyService = {
         sourcePages: paper.pages.map((page) => page.pageNumber),
         visualStats: paper.visualStats || { candidateVisualRegions: 0, visualRegionsAttached: 0, visualRegionsReviewRequired: 0, unassignedVisualRegions: 0, visualCropsGenerated: 0 },
         visualRegions: paper.pages.flatMap((page) => (page.visualRegions || []).map(({ cropBuffer: _cropBuffer, ...region }) => region)),
+        ocrStats: paper.ocrStats,
+        ocrPages: paper.pages.filter((page) => page.ocr).map((page) => ({ pageNumber: page.pageNumber, ...page.ocr })),
+        parserDiagnostics: {
+          detectedQuestionMarkers,
+          extractedQuestionCount: extractedQuestions.length,
+          countCollapseSuspected,
+          stage: countCollapseSuspected ? "QUESTION_BOUNDARY_DETECTION" : "COMPLETE",
+        },
       };
     }
     const importJobIds = Array.from(new Set([
@@ -5168,6 +5201,7 @@ export const academyService = {
       ndieOutputs: {
         ...input.ndieOutputs,
         ...(documentEvidence ? { pageReferences: documentEvidence } : {}),
+        ...(documentEvidence && "ocrStats" in documentEvidence ? { ocr: { stats: documentEvidence.ocrStats, pages: documentEvidence.ocrPages } } : {}),
         ...(documentEvidence ? { visual: { stats: documentEvidence.visualStats, regions: documentEvidence.visualRegions } } : {}),
         ...(documentEvidence ? { originalPageAssets: documentEvidence.visualRegions } : {}),
       },
