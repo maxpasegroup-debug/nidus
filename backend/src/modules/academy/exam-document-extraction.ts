@@ -137,7 +137,10 @@ export function joinLatexFragments(fragments: string[]) {
   }, "");
 }
 
-function normalizeMathText(value: string) { return joinLatexFragments(Array.from(value).map((symbol) => unicodeMathSymbolMap[symbol] || mathSymbolMap[symbol] || symbol)).replace(/\s+/g, " ").trim(); }
+function normalizeMathText(value: string) {
+  const normalized = joinLatexFragments(Array.from(value).map((symbol) => unicodeMathSymbolMap[symbol] || mathSymbolMap[symbol] || symbol)).replace(/\s+/g, " ").trim();
+  return normalized.replace(/(\\[A-Za-z]+) and (\\[A-Za-z]+)/g, "$1\\ \\text{and}\\ $2");
+}
 function group(value: string) { return `{${value || "\\text{?}"}}`; }
 function combine(results: MathConversionResult[]): MathConversionResult { const warnings = results.flatMap((result) => result.warnings || []); return { latex: joinLatexFragments(results.map((result) => result.latex)), sourceText: results.map((result) => result.sourceText || "").join(""), confidence: results.length ? Math.min(...results.map((result) => result.confidence)) : 1, ...(warnings.length ? { warnings } : {}) }; }
 function warning(code: string, message: string, severity: MathConversionWarning["severity"] = "MEDIUM"): MathConversionWarning { return { code, message, severity }; }
@@ -196,6 +199,28 @@ function exposeQuestionNumberFromOmml(value: string) {
   });
 }
 
+const wordSuperscriptCharacters: Record<string, string> = {
+  "0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴",
+  "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹",
+  "+": "⁺", "-": "⁻", "=": "⁼", "(": "⁽", ")": "⁾",
+};
+const wordSubscriptCharacters: Record<string, string> = {
+  "0": "₀", "1": "₁", "2": "₂", "3": "₃", "4": "₄",
+  "5": "₅", "6": "₆", "7": "₇", "8": "₈", "9": "₉",
+  "+": "₊", "-": "₋", "=": "₌", "(": "₍", ")": "₎",
+};
+
+/** Preserve Word's ordinary-run superscript/subscript semantics before text extraction. */
+function preserveWordVerticalAlignment(runXml: string) {
+  const alignment = runXml.match(/<w:vertAlign\b[^>]*w:val="(superscript|subscript)"/)?.[1];
+  if (!alignment) return runXml;
+  const mapping = alignment === "superscript" ? wordSuperscriptCharacters : wordSubscriptCharacters;
+  return runXml.replace(/(<w:t\b[^>]*>)([\s\S]*?)(<\/w:t>)/g, (_, open: string, encoded: string, close: string) => {
+    const converted = Array.from(decodeXml(encoded)).map((character) => mapping[character] || character).join("");
+    return `${open}${converted}${close}`;
+  });
+}
+
 /**
  * Mammoth intentionally prioritizes readable prose and may omit Office Math
  * runs. Read the document XML as a small, dependency-light supplement so
@@ -246,14 +271,15 @@ export async function extractDocxXmlParagraphs(buffer: Buffer, jszipOverride?: J
     });
     const paragraphs: string[] = [];
     for (const paragraph of xml.matchAll(/<w:p\b[^>]*>[\s\S]*?<\/w:p>/g)) {
+      const paragraphXml = paragraph[0].replace(/<w:r\b[^>]*>[\s\S]*?<\/w:r>/g, preserveWordVerticalAlignment);
       const tokens: string[] = [];
-      for (const token of paragraph[0].matchAll(/<(?:w|m):t\b[^>]*>([\s\S]*?)<\/(?:w|m):t>|<w:tab\b[^>]*\/?\s*>|<w:(?:br|cr)\b[^>]*\/?\s*>/g)) {
+      for (const token of paragraphXml.matchAll(/<(?:w|m):t\b[^>]*>([\s\S]*?)<\/(?:w|m):t>|<w:tab\b[^>]*\/?\s*>|<w:(?:br|cr)\b[^>]*\/?\s*>/g)) {
         if (token[1] !== undefined) tokens.push(decodeXml(token[1]));
         else tokens.push(/^<w:tab\b/.test(token[0]) ? "\t" : "\n");
       }
       let text = tokens.join("").trim();
-      const numId = paragraph[0].match(/<w:numId\b[^>]*w:val="(\d+)"/)?.[1];
-      const level = Number(paragraph[0].match(/<w:ilvl\b[^>]*w:val="(\d+)"/)?.[1] || 0);
+      const numId = paragraphXml.match(/<w:numId\b[^>]*w:val="(\d+)"/)?.[1];
+      const level = Number(paragraphXml.match(/<w:ilvl\b[^>]*w:val="(\d+)"/)?.[1] || 0);
       const levelDefinition = numId ? numbering.get(numId)?.get(level) : undefined;
       if (text && numId && levelDefinition && levelDefinition.format !== "bullet") {
         const counterKey = `${numId}:${level}`;
@@ -453,14 +479,17 @@ export async function extractTextDocx(buffer: Buffer): Promise<ExtractedDocument
       // when a malformed optional DOCX part makes Mammoth reject the package.
     }
     const xmlText = await extractDocxXmlParagraphs(buffer);
-    const text = normalizeDocumentText(xmlText || mammothText);
+    // DOCX text can contain semantically meaningful Unicode script glyphs
+    // (for example log₁₀100). NFKC flattens those glyphs to log10100 before
+    // canonical math detection, so preserve them with NFC for DOCX imports.
+    const text = normalizeDocumentText(xmlText || mammothText, "NFC");
     const textCharacters = text.replace(/\s/g, "").length;
     if (textCharacters < 20) {
       throw Object.assign(new Error("This DOCX opened, but no usable question text was found. Check that the content is editable text rather than only images."), { statusCode: 422, code: "DOCX_TEXT_UNAVAILABLE", stage: "TEXT_EXTRACTION" });
     }
     // DOCX does not carry stable rendered page boundaries. Preserve one
     // truthful document-level source reference rather than inventing pages.
-    return { pages: [normalizedPage(1, text)], textCharacters };
+    return { pages: [normalizedPage(1, text, undefined, "NFC")], textCharacters };
   } catch (error) {
     if (error && typeof error === "object" && "statusCode" in error) throw error;
     throw Object.assign(new Error("This DOCX package could not be opened or decoded. Upload a valid DOCX file."), { statusCode: 422, code: "DOCX_DOCUMENT_OPEN_FAILED", stage: "DOCUMENT_OPEN" });
@@ -534,11 +563,52 @@ function materializeOmml(value: string): { text: string; hints: MathSegmentHint[
 function materializeCombined(value: string, pdfHints: MathSegmentHint[] = []) {
   const materialized = materializeOmml(value);
   const normalized = materialized.text;
+  const deterministicHints = deterministicUnicodeMathHints(normalized);
   const hints = pdfHints.filter((hint) => {
     const token = hint.matchText || hint.sourceText;
     return Boolean(token && normalized.includes(token));
   });
-  return { text: normalized, hints: [...materialized.hints, ...hints] };
+  return { text: normalized, hints: [...materialized.hints, ...deterministicHints, ...hints] };
+}
+
+const unicodeSubscriptDigits: Record<string, string> = {
+  "₀": "0", "₁": "1", "₂": "2", "₃": "3", "₄": "4",
+  "₅": "5", "₆": "6", "₇": "7", "₈": "8", "₉": "9",
+};
+const unicodeSuperscriptDigits: Record<string, string> = {
+  "⁰": "0", "¹": "1", "²": "2", "³": "3", "⁴": "4",
+  "⁵": "5", "⁶": "6", "⁷": "7", "⁸": "8", "⁹": "9",
+};
+
+/**
+ * Convert only explicit Unicode script notation into trusted canonical math.
+ * These characters already encode the author's sub/superscript intent, so
+ * this is deterministic and does not infer mathematics from ordinary prose.
+ */
+function deterministicUnicodeMathHints(value: string): MathSegmentHint[] {
+  const result: MathSegmentHint[] = [];
+  for (const match of value.matchAll(/\blog([\u2080-\u2089]+)([A-Za-z0-9α-ωΑ-Ω()]+)/gu)) {
+    const sourceText = match[0];
+    const base = Array.from(match[1]).map((character) => unicodeSubscriptDigits[character]).join("");
+    if (base && match[2]) result.push({ sourceText, matchText: sourceText, latex: `\\log_{${base}}${normalizeMathText(match[2])}`, origin: "NORMALIZED_SOURCE", confidence: 1 });
+  }
+  for (const match of value.matchAll(/\b(sin|cos|tan|cot|sec|cosec)([\u2070\u00b9\u00b2\u00b3\u2074-\u2079]+)([A-Za-zα-ωΑ-Ω][A-Za-z0-9α-ωΑ-Ω()]*)/gu)) {
+    const sourceText = match[0];
+    const power = Array.from(match[2]).map((character) => unicodeSuperscriptDigits[character]).join("");
+    if (power && match[3]) result.push({ sourceText, matchText: sourceText, latex: `\\${match[1]}^{${power}}${normalizeMathText(match[3])}`, origin: "NORMALIZED_SOURCE", confidence: 1 });
+  }
+  for (const match of value.matchAll(/\b(\d+)(sin|cos|tan|cot|sec|cosec)([\u2070\u00b9\u00b2\u00b3\u2074-\u2079]+)([A-Za-zα-ωΑ-Ω][A-Za-z0-9α-ωΑ-Ω()]*)/gu)) {
+    const sourceText = match[0];
+    const power = Array.from(match[3]).map((character) => unicodeSuperscriptDigits[character]).join("");
+    if (power && match[4]) result.push({ sourceText, matchText: sourceText, latex: `${match[1]}\\${match[2]}^{${power}}${normalizeMathText(match[4])}`, origin: "NORMALIZED_SOURCE", confidence: 1 });
+  }
+  for (const match of value.matchAll(/(\([^()\n]+\)|\b[A-Za-z0-9][A-Za-z0-9]*)([\u2070\u00b9\u00b2\u00b3\u2074-\u2079]+)/gu)) {
+    const sourceText = match[0];
+    if (/^\d*(?:sin|cos|tan|cot|sec|cosec)$/i.test(match[1])) continue;
+    const power = Array.from(match[2]).map((character) => unicodeSuperscriptDigits[character]).join("");
+    if (power) result.push({ sourceText, matchText: sourceText, latex: `${normalizeMathText(match[1])}^{${power}}`, origin: "NORMALIZED_SOURCE", confidence: 1 });
+  }
+  return result;
 }
 
 function explicitOcrMathHints(value: string, confidence: number | null): MathSegmentHint[] {

@@ -342,6 +342,26 @@ describe("exam upload PDF extraction", () => {
     expect(questions[1]).toMatchObject({ questionText: "First question in the next source section", optionA: "A81" });
   });
 
+  it("canonicalizes an explicit Unicode logarithm base without flattening its argument", () => {
+    const [question] = parseExamQuestions([{
+      pageNumber: 1,
+      text: [
+        "2. The value of log₁₀100 is",
+        "A. 1",
+        "B. 2",
+        "C. 10",
+        "D. 100",
+      ].join("\n"),
+    }]);
+
+    const content = question.contentJson as { blocks?: Array<{ type?: string; segments?: Array<{ type?: string; latex?: string; sourceText?: string }> }> };
+    const paragraph = content.blocks?.find((block) => block.type === "paragraph");
+    expect(question.questionText).toContain("log₁₀100");
+    expect(paragraph?.segments).toEqual(expect.arrayContaining([
+      expect.objectContaining({ type: "math", latex: "\\log_{10}100", sourceText: "log₁₀100" }),
+    ]));
+  });
+
   it("preserves a confirmed question whose options are incomplete", () => {
     const questions = parseExamQuestions([{ pageNumber: 1, text: [
       "Q30. Complete question", "A. A30", "B. B30", "C. C30", "D. D30",
@@ -409,6 +429,17 @@ describe("exam upload PDF extraction", () => {
     expect(questions).toHaveLength(2);
     expect(questions[0]).toMatchObject({ optionA: "alpha", optionB: "beta", optionC: "gamma", optionD: "delta" });
     expect(questions[1]).toMatchObject({ optionA: "one", optionD: "four" });
+  });
+
+  it("preserves ordinary Word superscript runs and emits canonical powers", async () => {
+    const zip = new JSZip();
+    zip.file("word/document.xml", '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>1. Solve ax</w:t></w:r><w:r><w:rPr><w:vertAlign w:val="superscript"/></w:rPr><w:t>2</w:t></w:r><w:r><w:t> + bx + c. A. one B. two C. three D. four</w:t></w:r></w:p></w:body></w:document>');
+    const text = await extractDocxXmlParagraphs(await zip.generateAsync({ type: "nodebuffer" }), JSZip as never);
+    const [question] = parseExamQuestions([{ pageNumber: 1, text }]);
+    const paragraph = (question.contentJson as { blocks: Array<{ type: string; segments?: Array<{ type: string; latex?: string }> }> }).blocks.find((block) => block.type === "paragraph");
+    expect(text).toContain("ax²");
+    expect(question.questionText).toContain("ax²");
+    expect(paragraph?.segments).toEqual(expect.arrayContaining([expect.objectContaining({ type: "math", latex: "ax^{2}" })]));
   });
 
   it("preserves explicit marks and leaves explanations optional", () => {
