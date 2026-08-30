@@ -624,7 +624,11 @@ export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: Extra
         : dedupedCandidates.findIndex((candidate, candidateIndex) => candidateIndex >= candidateCursor && candidate.rawNumber.endsWith(expected));
       const gapIndex = dedupedCandidates.findIndex((candidate, candidateIndex) => {
         const value = Number(candidate.rawNumber);
-        return candidateIndex >= candidateCursor && candidate.lineStart && value > expectedNumber && value <= expectedNumber + 5;
+        // A labelled boundary such as Q81 is authoritative even when the
+        // source intentionally skips a large number range. Unlabelled numeric
+        // candidates retain the narrow gap guard to avoid promoting formula
+        // numbers or numbered stem statements into questions.
+        return candidateIndex >= candidateCursor && candidate.lineStart && value > expectedNumber && (candidate.explicitLabel || value <= expectedNumber + 5);
       });
       const selectedIndex = exactIndex >= 0 ? exactIndex : suffixIndex >= 0 ? suffixIndex : gapIndex;
       if (selectedIndex < 0) break;

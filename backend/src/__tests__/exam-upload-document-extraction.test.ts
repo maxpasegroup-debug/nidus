@@ -331,6 +331,17 @@ describe("exam upload PDF extraction", () => {
     expect(questions[2]).toMatchObject({ optionA: "A4", optionD: "D4" });
   });
 
+  it("preserves explicit labelled questions across a large source-number gap", () => {
+    const questions = parseExamQuestions([{ pageNumber: 1, text: [
+      "Q40. Last question in the first source section", "A. A40", "B. B40", "C. C40", "D. D40",
+      "Q81. First question in the next source section", "A. A81", "B. B81", "C. C81", "D. D81",
+      "Q82. Following question", "A. A82", "B. B82", "C. C82", "D. D82",
+    ].join("\n") }]);
+    expect(questions.map((question) => question.number)).toEqual([40, 81, 82]);
+    expect(questions[0].optionD).toBe("D40");
+    expect(questions[1]).toMatchObject({ questionText: "First question in the next source section", optionA: "A81" });
+  });
+
   it("preserves a confirmed question whose options are incomplete", () => {
     const questions = parseExamQuestions([{ pageNumber: 1, text: [
       "Q30. Complete question", "A. A30", "B. B30", "C. C30", "D. D30",
