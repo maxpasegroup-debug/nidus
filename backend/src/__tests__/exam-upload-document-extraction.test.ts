@@ -80,6 +80,8 @@ describe("exam upload PDF extraction", () => {
     expect(privateGlyph.warnings).toEqual(expect.arrayContaining([expect.objectContaining({ code: "PDF_PRIVATE_USE_GLYPH_NEEDS_REVIEW" })]));
     expect(decodePdfTextItem("x�").warnings).toEqual(expect.arrayContaining([expect.objectContaining({ code: "PDF_GLYPH_ENCODING_NEEDS_REVIEW" })]));
     expect(decodePdfTextItem("sin²;€").encodingStatus).toBe("GLYPH_ENCODING_SUSPECT");
+    expect(decodePdfTextItem("mulƟples and MathemaƟcs")).toMatchObject({ normalizedText: "multiples and Mathematics", encodingStatus: "TEXT_LAYER_OK" });
+    expect(decodePdfTextItem("Ɵ").normalizedText).toBe("Ɵ");
   });
 
   it("keeps positioned PDF geometry and reconstructs clear scripts conservatively", () => {

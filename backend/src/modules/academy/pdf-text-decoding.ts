@@ -22,7 +22,13 @@ export function decodePdfTextItem(rawValue: string): PdfTextDecodingResult {
   const rawText = String(rawValue ?? "");
   const normalizedText = rawText
     .normalize("NFC")
-    .replace(/[\u00a0\u2007\u202f]/gu, " ");
+    .replace(/[\u00a0\u2007\u202f]/gu, " ")
+    // A recurring Microsoft Print to PDF/Cambria text-map defect emits the
+    // Latin O-with-middle-tilde character (U+019F) for the `ti` digraph in
+    // ordinary words (`mulƟples`, `disƟnct`, `MathemaƟcs`). Restore it only
+    // when it is bounded by letters; an isolated mathematical glyph remains
+    // untouched and therefore cannot be mistaken for Greek theta.
+    .replace(/(?<=[A-Za-z])\u019F(?=[A-Za-z])/gu, "ti");
   const warnings: MathConversionWarning[] = [];
 
   if (/\uFFFD/u.test(normalizedText)) {
