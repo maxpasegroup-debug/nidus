@@ -28,12 +28,14 @@ export type AggregateQuestionVersion = {
 
 export type QuestionVersionAvgAggregateOutputType = {
   version: number | null
+  displayOrder: number | null
   aiConfidence: number | null
   sourcePageNumber: number | null
 }
 
 export type QuestionVersionSumAggregateOutputType = {
   version: number | null
+  displayOrder: number | null
   aiConfidence: number | null
   sourcePageNumber: number | null
 }
@@ -48,6 +50,13 @@ export type QuestionVersionMinAggregateOutputType = {
   changedById: string | null
   changedByRole: string | null
   questionText: string | null
+  displayOrder: number | null
+  questionType: string | null
+  questionStructure: string | null
+  sectionId: string | null
+  groupId: string | null
+  parentQuestionId: string | null
+  sourceQuestionNumber: string | null
   questionImage: string | null
   explanation: string | null
   renderMode: string | null
@@ -68,6 +77,13 @@ export type QuestionVersionMaxAggregateOutputType = {
   changedById: string | null
   changedByRole: string | null
   questionText: string | null
+  displayOrder: number | null
+  questionType: string | null
+  questionStructure: string | null
+  sectionId: string | null
+  groupId: string | null
+  parentQuestionId: string | null
+  sourceQuestionNumber: string | null
   questionImage: string | null
   explanation: string | null
   renderMode: string | null
@@ -88,8 +104,19 @@ export type QuestionVersionCountAggregateOutputType = {
   changedById: number
   changedByRole: number
   questionText: number
+  displayOrder: number
+  questionType: number
+  questionStructure: number
+  sectionId: number
+  groupId: number
+  parentQuestionId: number
+  sourceQuestionNumber: number
   questionImage: number
   contentJson: number
+  responseSpec: number
+  evaluationSpec: number
+  sourceEvidence: number
+  extractionConfidence: number
   optionsSnapshot: number
   answerSnapshot: number
   explanation: number
@@ -110,12 +137,14 @@ export type QuestionVersionCountAggregateOutputType = {
 
 export type QuestionVersionAvgAggregateInputType = {
   version?: true
+  displayOrder?: true
   aiConfidence?: true
   sourcePageNumber?: true
 }
 
 export type QuestionVersionSumAggregateInputType = {
   version?: true
+  displayOrder?: true
   aiConfidence?: true
   sourcePageNumber?: true
 }
@@ -130,6 +159,13 @@ export type QuestionVersionMinAggregateInputType = {
   changedById?: true
   changedByRole?: true
   questionText?: true
+  displayOrder?: true
+  questionType?: true
+  questionStructure?: true
+  sectionId?: true
+  groupId?: true
+  parentQuestionId?: true
+  sourceQuestionNumber?: true
   questionImage?: true
   explanation?: true
   renderMode?: true
@@ -150,6 +186,13 @@ export type QuestionVersionMaxAggregateInputType = {
   changedById?: true
   changedByRole?: true
   questionText?: true
+  displayOrder?: true
+  questionType?: true
+  questionStructure?: true
+  sectionId?: true
+  groupId?: true
+  parentQuestionId?: true
+  sourceQuestionNumber?: true
   questionImage?: true
   explanation?: true
   renderMode?: true
@@ -170,8 +213,19 @@ export type QuestionVersionCountAggregateInputType = {
   changedById?: true
   changedByRole?: true
   questionText?: true
+  displayOrder?: true
+  questionType?: true
+  questionStructure?: true
+  sectionId?: true
+  groupId?: true
+  parentQuestionId?: true
+  sourceQuestionNumber?: true
   questionImage?: true
   contentJson?: true
+  responseSpec?: true
+  evaluationSpec?: true
+  sourceEvidence?: true
+  extractionConfidence?: true
   optionsSnapshot?: true
   answerSnapshot?: true
   explanation?: true
@@ -285,8 +339,19 @@ export type QuestionVersionGroupByOutputType = {
   changedById: string | null
   changedByRole: string | null
   questionText: string
+  displayOrder: number
+  questionType: string
+  questionStructure: string
+  sectionId: string | null
+  groupId: string | null
+  parentQuestionId: string | null
+  sourceQuestionNumber: string | null
   questionImage: string | null
   contentJson: runtime.JsonValue | null
+  responseSpec: runtime.JsonValue | null
+  evaluationSpec: runtime.JsonValue | null
+  sourceEvidence: runtime.JsonValue | null
+  extractionConfidence: runtime.JsonValue | null
   optionsSnapshot: runtime.JsonValue
   answerSnapshot: runtime.JsonValue
   explanation: string | null
@@ -336,8 +401,19 @@ export type QuestionVersionWhereInput = {
   changedById?: Prisma.StringNullableFilter<"QuestionVersion"> | string | null
   changedByRole?: Prisma.StringNullableFilter<"QuestionVersion"> | string | null
   questionText?: Prisma.StringFilter<"QuestionVersion"> | string
+  displayOrder?: Prisma.IntFilter<"QuestionVersion"> | number
+  questionType?: Prisma.StringFilter<"QuestionVersion"> | string
+  questionStructure?: Prisma.StringFilter<"QuestionVersion"> | string
+  sectionId?: Prisma.StringNullableFilter<"QuestionVersion"> | string | null
+  groupId?: Prisma.StringNullableFilter<"QuestionVersion"> | string | null
+  parentQuestionId?: Prisma.StringNullableFilter<"QuestionVersion"> | string | null
+  sourceQuestionNumber?: Prisma.StringNullableFilter<"QuestionVersion"> | string | null
   questionImage?: Prisma.StringNullableFilter<"QuestionVersion"> | string | null
   contentJson?: Prisma.JsonNullableFilter<"QuestionVersion">
+  responseSpec?: Prisma.JsonNullableFilter<"QuestionVersion">
+  evaluationSpec?: Prisma.JsonNullableFilter<"QuestionVersion">
+  sourceEvidence?: Prisma.JsonNullableFilter<"QuestionVersion">
+  extractionConfidence?: Prisma.JsonNullableFilter<"QuestionVersion">
   optionsSnapshot?: Prisma.JsonFilter<"QuestionVersion">
   answerSnapshot?: Prisma.JsonFilter<"QuestionVersion">
   explanation?: Prisma.StringNullableFilter<"QuestionVersion"> | string | null
@@ -367,8 +443,19 @@ export type QuestionVersionOrderByWithRelationInput = {
   changedById?: Prisma.SortOrderInput | Prisma.SortOrder
   changedByRole?: Prisma.SortOrderInput | Prisma.SortOrder
   questionText?: Prisma.SortOrder
+  displayOrder?: Prisma.SortOrder
+  questionType?: Prisma.SortOrder
+  questionStructure?: Prisma.SortOrder
+  sectionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  groupId?: Prisma.SortOrderInput | Prisma.SortOrder
+  parentQuestionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceQuestionNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   questionImage?: Prisma.SortOrderInput | Prisma.SortOrder
   contentJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  responseSpec?: Prisma.SortOrderInput | Prisma.SortOrder
+  evaluationSpec?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceEvidence?: Prisma.SortOrderInput | Prisma.SortOrder
+  extractionConfidence?: Prisma.SortOrderInput | Prisma.SortOrder
   optionsSnapshot?: Prisma.SortOrder
   answerSnapshot?: Prisma.SortOrder
   explanation?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -402,8 +489,19 @@ export type QuestionVersionWhereUniqueInput = Prisma.AtLeast<{
   changedById?: Prisma.StringNullableFilter<"QuestionVersion"> | string | null
   changedByRole?: Prisma.StringNullableFilter<"QuestionVersion"> | string | null
   questionText?: Prisma.StringFilter<"QuestionVersion"> | string
+  displayOrder?: Prisma.IntFilter<"QuestionVersion"> | number
+  questionType?: Prisma.StringFilter<"QuestionVersion"> | string
+  questionStructure?: Prisma.StringFilter<"QuestionVersion"> | string
+  sectionId?: Prisma.StringNullableFilter<"QuestionVersion"> | string | null
+  groupId?: Prisma.StringNullableFilter<"QuestionVersion"> | string | null
+  parentQuestionId?: Prisma.StringNullableFilter<"QuestionVersion"> | string | null
+  sourceQuestionNumber?: Prisma.StringNullableFilter<"QuestionVersion"> | string | null
   questionImage?: Prisma.StringNullableFilter<"QuestionVersion"> | string | null
   contentJson?: Prisma.JsonNullableFilter<"QuestionVersion">
+  responseSpec?: Prisma.JsonNullableFilter<"QuestionVersion">
+  evaluationSpec?: Prisma.JsonNullableFilter<"QuestionVersion">
+  sourceEvidence?: Prisma.JsonNullableFilter<"QuestionVersion">
+  extractionConfidence?: Prisma.JsonNullableFilter<"QuestionVersion">
   optionsSnapshot?: Prisma.JsonFilter<"QuestionVersion">
   answerSnapshot?: Prisma.JsonFilter<"QuestionVersion">
   explanation?: Prisma.StringNullableFilter<"QuestionVersion"> | string | null
@@ -433,8 +531,19 @@ export type QuestionVersionOrderByWithAggregationInput = {
   changedById?: Prisma.SortOrderInput | Prisma.SortOrder
   changedByRole?: Prisma.SortOrderInput | Prisma.SortOrder
   questionText?: Prisma.SortOrder
+  displayOrder?: Prisma.SortOrder
+  questionType?: Prisma.SortOrder
+  questionStructure?: Prisma.SortOrder
+  sectionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  groupId?: Prisma.SortOrderInput | Prisma.SortOrder
+  parentQuestionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceQuestionNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   questionImage?: Prisma.SortOrderInput | Prisma.SortOrder
   contentJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  responseSpec?: Prisma.SortOrderInput | Prisma.SortOrder
+  evaluationSpec?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceEvidence?: Prisma.SortOrderInput | Prisma.SortOrder
+  extractionConfidence?: Prisma.SortOrderInput | Prisma.SortOrder
   optionsSnapshot?: Prisma.SortOrder
   answerSnapshot?: Prisma.SortOrder
   explanation?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -469,8 +578,19 @@ export type QuestionVersionScalarWhereWithAggregatesInput = {
   changedById?: Prisma.StringNullableWithAggregatesFilter<"QuestionVersion"> | string | null
   changedByRole?: Prisma.StringNullableWithAggregatesFilter<"QuestionVersion"> | string | null
   questionText?: Prisma.StringWithAggregatesFilter<"QuestionVersion"> | string
+  displayOrder?: Prisma.IntWithAggregatesFilter<"QuestionVersion"> | number
+  questionType?: Prisma.StringWithAggregatesFilter<"QuestionVersion"> | string
+  questionStructure?: Prisma.StringWithAggregatesFilter<"QuestionVersion"> | string
+  sectionId?: Prisma.StringNullableWithAggregatesFilter<"QuestionVersion"> | string | null
+  groupId?: Prisma.StringNullableWithAggregatesFilter<"QuestionVersion"> | string | null
+  parentQuestionId?: Prisma.StringNullableWithAggregatesFilter<"QuestionVersion"> | string | null
+  sourceQuestionNumber?: Prisma.StringNullableWithAggregatesFilter<"QuestionVersion"> | string | null
   questionImage?: Prisma.StringNullableWithAggregatesFilter<"QuestionVersion"> | string | null
   contentJson?: Prisma.JsonNullableWithAggregatesFilter<"QuestionVersion">
+  responseSpec?: Prisma.JsonNullableWithAggregatesFilter<"QuestionVersion">
+  evaluationSpec?: Prisma.JsonNullableWithAggregatesFilter<"QuestionVersion">
+  sourceEvidence?: Prisma.JsonNullableWithAggregatesFilter<"QuestionVersion">
+  extractionConfidence?: Prisma.JsonNullableWithAggregatesFilter<"QuestionVersion">
   optionsSnapshot?: Prisma.JsonWithAggregatesFilter<"QuestionVersion">
   answerSnapshot?: Prisma.JsonWithAggregatesFilter<"QuestionVersion">
   explanation?: Prisma.StringNullableWithAggregatesFilter<"QuestionVersion"> | string | null
@@ -494,8 +614,19 @@ export type QuestionVersionCreateInput = {
   changeReason?: string | null
   changedByRole?: string | null
   questionText: string
+  displayOrder?: number
+  questionType?: string
+  questionStructure?: string
+  sectionId?: string | null
+  groupId?: string | null
+  parentQuestionId?: string | null
+  sourceQuestionNumber?: string | null
   questionImage?: string | null
   contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  responseSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  evaluationSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extractionConfidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   optionsSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   answerSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   explanation?: string | null
@@ -525,8 +656,19 @@ export type QuestionVersionUncheckedCreateInput = {
   changedById?: string | null
   changedByRole?: string | null
   questionText: string
+  displayOrder?: number
+  questionType?: string
+  questionStructure?: string
+  sectionId?: string | null
+  groupId?: string | null
+  parentQuestionId?: string | null
+  sourceQuestionNumber?: string | null
   questionImage?: string | null
   contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  responseSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  evaluationSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extractionConfidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   optionsSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   answerSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   explanation?: string | null
@@ -550,8 +692,19 @@ export type QuestionVersionUpdateInput = {
   changeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   changedByRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionText?: Prisma.StringFieldUpdateOperationsInput | string
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  questionType?: Prisma.StringFieldUpdateOperationsInput | string
+  questionStructure?: Prisma.StringFieldUpdateOperationsInput | string
+  sectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parentQuestionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceQuestionNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  responseSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  evaluationSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extractionConfidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   optionsSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   answerSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   explanation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -581,8 +734,19 @@ export type QuestionVersionUncheckedUpdateInput = {
   changedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   changedByRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionText?: Prisma.StringFieldUpdateOperationsInput | string
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  questionType?: Prisma.StringFieldUpdateOperationsInput | string
+  questionStructure?: Prisma.StringFieldUpdateOperationsInput | string
+  sectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parentQuestionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceQuestionNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  responseSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  evaluationSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extractionConfidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   optionsSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   answerSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   explanation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -609,8 +773,19 @@ export type QuestionVersionCreateManyInput = {
   changedById?: string | null
   changedByRole?: string | null
   questionText: string
+  displayOrder?: number
+  questionType?: string
+  questionStructure?: string
+  sectionId?: string | null
+  groupId?: string | null
+  parentQuestionId?: string | null
+  sourceQuestionNumber?: string | null
   questionImage?: string | null
   contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  responseSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  evaluationSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extractionConfidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   optionsSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   answerSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   explanation?: string | null
@@ -634,8 +809,19 @@ export type QuestionVersionUpdateManyMutationInput = {
   changeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   changedByRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionText?: Prisma.StringFieldUpdateOperationsInput | string
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  questionType?: Prisma.StringFieldUpdateOperationsInput | string
+  questionStructure?: Prisma.StringFieldUpdateOperationsInput | string
+  sectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parentQuestionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceQuestionNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  responseSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  evaluationSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extractionConfidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   optionsSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   answerSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   explanation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -662,8 +848,19 @@ export type QuestionVersionUncheckedUpdateManyInput = {
   changedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   changedByRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionText?: Prisma.StringFieldUpdateOperationsInput | string
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  questionType?: Prisma.StringFieldUpdateOperationsInput | string
+  questionStructure?: Prisma.StringFieldUpdateOperationsInput | string
+  sectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parentQuestionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceQuestionNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  responseSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  evaluationSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extractionConfidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   optionsSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   answerSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   explanation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -705,8 +902,19 @@ export type QuestionVersionCountOrderByAggregateInput = {
   changedById?: Prisma.SortOrder
   changedByRole?: Prisma.SortOrder
   questionText?: Prisma.SortOrder
+  displayOrder?: Prisma.SortOrder
+  questionType?: Prisma.SortOrder
+  questionStructure?: Prisma.SortOrder
+  sectionId?: Prisma.SortOrder
+  groupId?: Prisma.SortOrder
+  parentQuestionId?: Prisma.SortOrder
+  sourceQuestionNumber?: Prisma.SortOrder
   questionImage?: Prisma.SortOrder
   contentJson?: Prisma.SortOrder
+  responseSpec?: Prisma.SortOrder
+  evaluationSpec?: Prisma.SortOrder
+  sourceEvidence?: Prisma.SortOrder
+  extractionConfidence?: Prisma.SortOrder
   optionsSnapshot?: Prisma.SortOrder
   answerSnapshot?: Prisma.SortOrder
   explanation?: Prisma.SortOrder
@@ -725,6 +933,7 @@ export type QuestionVersionCountOrderByAggregateInput = {
 
 export type QuestionVersionAvgOrderByAggregateInput = {
   version?: Prisma.SortOrder
+  displayOrder?: Prisma.SortOrder
   aiConfidence?: Prisma.SortOrder
   sourcePageNumber?: Prisma.SortOrder
 }
@@ -739,6 +948,13 @@ export type QuestionVersionMaxOrderByAggregateInput = {
   changedById?: Prisma.SortOrder
   changedByRole?: Prisma.SortOrder
   questionText?: Prisma.SortOrder
+  displayOrder?: Prisma.SortOrder
+  questionType?: Prisma.SortOrder
+  questionStructure?: Prisma.SortOrder
+  sectionId?: Prisma.SortOrder
+  groupId?: Prisma.SortOrder
+  parentQuestionId?: Prisma.SortOrder
+  sourceQuestionNumber?: Prisma.SortOrder
   questionImage?: Prisma.SortOrder
   explanation?: Prisma.SortOrder
   renderMode?: Prisma.SortOrder
@@ -759,6 +975,13 @@ export type QuestionVersionMinOrderByAggregateInput = {
   changedById?: Prisma.SortOrder
   changedByRole?: Prisma.SortOrder
   questionText?: Prisma.SortOrder
+  displayOrder?: Prisma.SortOrder
+  questionType?: Prisma.SortOrder
+  questionStructure?: Prisma.SortOrder
+  sectionId?: Prisma.SortOrder
+  groupId?: Prisma.SortOrder
+  parentQuestionId?: Prisma.SortOrder
+  sourceQuestionNumber?: Prisma.SortOrder
   questionImage?: Prisma.SortOrder
   explanation?: Prisma.SortOrder
   renderMode?: Prisma.SortOrder
@@ -771,6 +994,7 @@ export type QuestionVersionMinOrderByAggregateInput = {
 
 export type QuestionVersionSumOrderByAggregateInput = {
   version?: Prisma.SortOrder
+  displayOrder?: Prisma.SortOrder
   aiConfidence?: Prisma.SortOrder
   sourcePageNumber?: Prisma.SortOrder
 }
@@ -908,8 +1132,19 @@ export type QuestionVersionCreateWithoutChangedByInput = {
   changeReason?: string | null
   changedByRole?: string | null
   questionText: string
+  displayOrder?: number
+  questionType?: string
+  questionStructure?: string
+  sectionId?: string | null
+  groupId?: string | null
+  parentQuestionId?: string | null
+  sourceQuestionNumber?: string | null
   questionImage?: string | null
   contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  responseSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  evaluationSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extractionConfidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   optionsSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   answerSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   explanation?: string | null
@@ -937,8 +1172,19 @@ export type QuestionVersionUncheckedCreateWithoutChangedByInput = {
   changeReason?: string | null
   changedByRole?: string | null
   questionText: string
+  displayOrder?: number
+  questionType?: string
+  questionStructure?: string
+  sectionId?: string | null
+  groupId?: string | null
+  parentQuestionId?: string | null
+  sourceQuestionNumber?: string | null
   questionImage?: string | null
   contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  responseSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  evaluationSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extractionConfidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   optionsSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   answerSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   explanation?: string | null
@@ -994,8 +1240,19 @@ export type QuestionVersionScalarWhereInput = {
   changedById?: Prisma.StringNullableFilter<"QuestionVersion"> | string | null
   changedByRole?: Prisma.StringNullableFilter<"QuestionVersion"> | string | null
   questionText?: Prisma.StringFilter<"QuestionVersion"> | string
+  displayOrder?: Prisma.IntFilter<"QuestionVersion"> | number
+  questionType?: Prisma.StringFilter<"QuestionVersion"> | string
+  questionStructure?: Prisma.StringFilter<"QuestionVersion"> | string
+  sectionId?: Prisma.StringNullableFilter<"QuestionVersion"> | string | null
+  groupId?: Prisma.StringNullableFilter<"QuestionVersion"> | string | null
+  parentQuestionId?: Prisma.StringNullableFilter<"QuestionVersion"> | string | null
+  sourceQuestionNumber?: Prisma.StringNullableFilter<"QuestionVersion"> | string | null
   questionImage?: Prisma.StringNullableFilter<"QuestionVersion"> | string | null
   contentJson?: Prisma.JsonNullableFilter<"QuestionVersion">
+  responseSpec?: Prisma.JsonNullableFilter<"QuestionVersion">
+  evaluationSpec?: Prisma.JsonNullableFilter<"QuestionVersion">
+  sourceEvidence?: Prisma.JsonNullableFilter<"QuestionVersion">
+  extractionConfidence?: Prisma.JsonNullableFilter<"QuestionVersion">
   optionsSnapshot?: Prisma.JsonFilter<"QuestionVersion">
   answerSnapshot?: Prisma.JsonFilter<"QuestionVersion">
   explanation?: Prisma.StringNullableFilter<"QuestionVersion"> | string | null
@@ -1019,8 +1276,19 @@ export type QuestionVersionCreateWithoutTestInput = {
   changeReason?: string | null
   changedByRole?: string | null
   questionText: string
+  displayOrder?: number
+  questionType?: string
+  questionStructure?: string
+  sectionId?: string | null
+  groupId?: string | null
+  parentQuestionId?: string | null
+  sourceQuestionNumber?: string | null
   questionImage?: string | null
   contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  responseSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  evaluationSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extractionConfidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   optionsSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   answerSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   explanation?: string | null
@@ -1048,8 +1316,19 @@ export type QuestionVersionUncheckedCreateWithoutTestInput = {
   changedById?: string | null
   changedByRole?: string | null
   questionText: string
+  displayOrder?: number
+  questionType?: string
+  questionStructure?: string
+  sectionId?: string | null
+  groupId?: string | null
+  parentQuestionId?: string | null
+  sourceQuestionNumber?: string | null
   questionImage?: string | null
   contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  responseSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  evaluationSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extractionConfidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   optionsSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   answerSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   explanation?: string | null
@@ -1099,8 +1378,19 @@ export type QuestionVersionCreateWithoutQuestionInput = {
   changeReason?: string | null
   changedByRole?: string | null
   questionText: string
+  displayOrder?: number
+  questionType?: string
+  questionStructure?: string
+  sectionId?: string | null
+  groupId?: string | null
+  parentQuestionId?: string | null
+  sourceQuestionNumber?: string | null
   questionImage?: string | null
   contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  responseSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  evaluationSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extractionConfidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   optionsSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   answerSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   explanation?: string | null
@@ -1128,8 +1418,19 @@ export type QuestionVersionUncheckedCreateWithoutQuestionInput = {
   changedById?: string | null
   changedByRole?: string | null
   questionText: string
+  displayOrder?: number
+  questionType?: string
+  questionStructure?: string
+  sectionId?: string | null
+  groupId?: string | null
+  parentQuestionId?: string | null
+  sourceQuestionNumber?: string | null
   questionImage?: string | null
   contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  responseSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  evaluationSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extractionConfidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   optionsSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   answerSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   explanation?: string | null
@@ -1181,8 +1482,19 @@ export type QuestionVersionCreateManyChangedByInput = {
   changeReason?: string | null
   changedByRole?: string | null
   questionText: string
+  displayOrder?: number
+  questionType?: string
+  questionStructure?: string
+  sectionId?: string | null
+  groupId?: string | null
+  parentQuestionId?: string | null
+  sourceQuestionNumber?: string | null
   questionImage?: string | null
   contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  responseSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  evaluationSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extractionConfidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   optionsSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   answerSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   explanation?: string | null
@@ -1206,8 +1518,19 @@ export type QuestionVersionUpdateWithoutChangedByInput = {
   changeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   changedByRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionText?: Prisma.StringFieldUpdateOperationsInput | string
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  questionType?: Prisma.StringFieldUpdateOperationsInput | string
+  questionStructure?: Prisma.StringFieldUpdateOperationsInput | string
+  sectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parentQuestionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceQuestionNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  responseSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  evaluationSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extractionConfidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   optionsSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   answerSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   explanation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1235,8 +1558,19 @@ export type QuestionVersionUncheckedUpdateWithoutChangedByInput = {
   changeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   changedByRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionText?: Prisma.StringFieldUpdateOperationsInput | string
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  questionType?: Prisma.StringFieldUpdateOperationsInput | string
+  questionStructure?: Prisma.StringFieldUpdateOperationsInput | string
+  sectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parentQuestionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceQuestionNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  responseSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  evaluationSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extractionConfidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   optionsSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   answerSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   explanation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1262,8 +1596,19 @@ export type QuestionVersionUncheckedUpdateManyWithoutChangedByInput = {
   changeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   changedByRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionText?: Prisma.StringFieldUpdateOperationsInput | string
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  questionType?: Prisma.StringFieldUpdateOperationsInput | string
+  questionStructure?: Prisma.StringFieldUpdateOperationsInput | string
+  sectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parentQuestionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceQuestionNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  responseSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  evaluationSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extractionConfidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   optionsSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   answerSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   explanation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1289,8 +1634,19 @@ export type QuestionVersionCreateManyTestInput = {
   changedById?: string | null
   changedByRole?: string | null
   questionText: string
+  displayOrder?: number
+  questionType?: string
+  questionStructure?: string
+  sectionId?: string | null
+  groupId?: string | null
+  parentQuestionId?: string | null
+  sourceQuestionNumber?: string | null
   questionImage?: string | null
   contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  responseSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  evaluationSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extractionConfidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   optionsSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   answerSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   explanation?: string | null
@@ -1314,8 +1670,19 @@ export type QuestionVersionUpdateWithoutTestInput = {
   changeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   changedByRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionText?: Prisma.StringFieldUpdateOperationsInput | string
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  questionType?: Prisma.StringFieldUpdateOperationsInput | string
+  questionStructure?: Prisma.StringFieldUpdateOperationsInput | string
+  sectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parentQuestionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceQuestionNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  responseSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  evaluationSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extractionConfidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   optionsSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   answerSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   explanation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1343,8 +1710,19 @@ export type QuestionVersionUncheckedUpdateWithoutTestInput = {
   changedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   changedByRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionText?: Prisma.StringFieldUpdateOperationsInput | string
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  questionType?: Prisma.StringFieldUpdateOperationsInput | string
+  questionStructure?: Prisma.StringFieldUpdateOperationsInput | string
+  sectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parentQuestionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceQuestionNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  responseSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  evaluationSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extractionConfidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   optionsSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   answerSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   explanation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1370,8 +1748,19 @@ export type QuestionVersionUncheckedUpdateManyWithoutTestInput = {
   changedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   changedByRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionText?: Prisma.StringFieldUpdateOperationsInput | string
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  questionType?: Prisma.StringFieldUpdateOperationsInput | string
+  questionStructure?: Prisma.StringFieldUpdateOperationsInput | string
+  sectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parentQuestionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceQuestionNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  responseSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  evaluationSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extractionConfidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   optionsSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   answerSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   explanation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1397,8 +1786,19 @@ export type QuestionVersionCreateManyQuestionInput = {
   changedById?: string | null
   changedByRole?: string | null
   questionText: string
+  displayOrder?: number
+  questionType?: string
+  questionStructure?: string
+  sectionId?: string | null
+  groupId?: string | null
+  parentQuestionId?: string | null
+  sourceQuestionNumber?: string | null
   questionImage?: string | null
   contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  responseSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  evaluationSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extractionConfidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   optionsSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   answerSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   explanation?: string | null
@@ -1422,8 +1822,19 @@ export type QuestionVersionUpdateWithoutQuestionInput = {
   changeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   changedByRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionText?: Prisma.StringFieldUpdateOperationsInput | string
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  questionType?: Prisma.StringFieldUpdateOperationsInput | string
+  questionStructure?: Prisma.StringFieldUpdateOperationsInput | string
+  sectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parentQuestionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceQuestionNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  responseSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  evaluationSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extractionConfidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   optionsSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   answerSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   explanation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1451,8 +1862,19 @@ export type QuestionVersionUncheckedUpdateWithoutQuestionInput = {
   changedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   changedByRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionText?: Prisma.StringFieldUpdateOperationsInput | string
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  questionType?: Prisma.StringFieldUpdateOperationsInput | string
+  questionStructure?: Prisma.StringFieldUpdateOperationsInput | string
+  sectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parentQuestionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceQuestionNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  responseSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  evaluationSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extractionConfidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   optionsSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   answerSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   explanation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1478,8 +1900,19 @@ export type QuestionVersionUncheckedUpdateManyWithoutQuestionInput = {
   changedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   changedByRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionText?: Prisma.StringFieldUpdateOperationsInput | string
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  questionType?: Prisma.StringFieldUpdateOperationsInput | string
+  questionStructure?: Prisma.StringFieldUpdateOperationsInput | string
+  sectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parentQuestionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceQuestionNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contentJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  responseSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  evaluationSpec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extractionConfidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   optionsSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   answerSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   explanation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1508,8 +1941,19 @@ export type QuestionVersionSelect<ExtArgs extends runtime.Types.Extensions.Inter
   changedById?: boolean
   changedByRole?: boolean
   questionText?: boolean
+  displayOrder?: boolean
+  questionType?: boolean
+  questionStructure?: boolean
+  sectionId?: boolean
+  groupId?: boolean
+  parentQuestionId?: boolean
+  sourceQuestionNumber?: boolean
   questionImage?: boolean
   contentJson?: boolean
+  responseSpec?: boolean
+  evaluationSpec?: boolean
+  sourceEvidence?: boolean
+  extractionConfidence?: boolean
   optionsSnapshot?: boolean
   answerSnapshot?: boolean
   explanation?: boolean
@@ -1539,8 +1983,19 @@ export type QuestionVersionSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   changedById?: boolean
   changedByRole?: boolean
   questionText?: boolean
+  displayOrder?: boolean
+  questionType?: boolean
+  questionStructure?: boolean
+  sectionId?: boolean
+  groupId?: boolean
+  parentQuestionId?: boolean
+  sourceQuestionNumber?: boolean
   questionImage?: boolean
   contentJson?: boolean
+  responseSpec?: boolean
+  evaluationSpec?: boolean
+  sourceEvidence?: boolean
+  extractionConfidence?: boolean
   optionsSnapshot?: boolean
   answerSnapshot?: boolean
   explanation?: boolean
@@ -1570,8 +2025,19 @@ export type QuestionVersionSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   changedById?: boolean
   changedByRole?: boolean
   questionText?: boolean
+  displayOrder?: boolean
+  questionType?: boolean
+  questionStructure?: boolean
+  sectionId?: boolean
+  groupId?: boolean
+  parentQuestionId?: boolean
+  sourceQuestionNumber?: boolean
   questionImage?: boolean
   contentJson?: boolean
+  responseSpec?: boolean
+  evaluationSpec?: boolean
+  sourceEvidence?: boolean
+  extractionConfidence?: boolean
   optionsSnapshot?: boolean
   answerSnapshot?: boolean
   explanation?: boolean
@@ -1601,8 +2067,19 @@ export type QuestionVersionSelectScalar = {
   changedById?: boolean
   changedByRole?: boolean
   questionText?: boolean
+  displayOrder?: boolean
+  questionType?: boolean
+  questionStructure?: boolean
+  sectionId?: boolean
+  groupId?: boolean
+  parentQuestionId?: boolean
+  sourceQuestionNumber?: boolean
   questionImage?: boolean
   contentJson?: boolean
+  responseSpec?: boolean
+  evaluationSpec?: boolean
+  sourceEvidence?: boolean
+  extractionConfidence?: boolean
   optionsSnapshot?: boolean
   answerSnapshot?: boolean
   explanation?: boolean
@@ -1619,7 +2096,7 @@ export type QuestionVersionSelectScalar = {
   createdAt?: boolean
 }
 
-export type QuestionVersionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "questionId" | "testId" | "version" | "changeType" | "changeReason" | "changedById" | "changedByRole" | "questionText" | "questionImage" | "contentJson" | "optionsSnapshot" | "answerSnapshot" | "explanation" | "renderMode" | "aiConfidence" | "reviewStatus" | "sourceDocumentId" | "sourcePageNumber" | "boundingBoxes" | "latex" | "assets" | "layout" | "metadataSnapshot" | "createdAt", ExtArgs["result"]["questionVersion"]>
+export type QuestionVersionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "questionId" | "testId" | "version" | "changeType" | "changeReason" | "changedById" | "changedByRole" | "questionText" | "displayOrder" | "questionType" | "questionStructure" | "sectionId" | "groupId" | "parentQuestionId" | "sourceQuestionNumber" | "questionImage" | "contentJson" | "responseSpec" | "evaluationSpec" | "sourceEvidence" | "extractionConfidence" | "optionsSnapshot" | "answerSnapshot" | "explanation" | "renderMode" | "aiConfidence" | "reviewStatus" | "sourceDocumentId" | "sourcePageNumber" | "boundingBoxes" | "latex" | "assets" | "layout" | "metadataSnapshot" | "createdAt", ExtArgs["result"]["questionVersion"]>
 export type QuestionVersionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   question?: boolean | Prisma.QuestionDefaultArgs<ExtArgs>
   test?: boolean | Prisma.TestDefaultArgs<ExtArgs>
@@ -1653,8 +2130,19 @@ export type $QuestionVersionPayload<ExtArgs extends runtime.Types.Extensions.Int
     changedById: string | null
     changedByRole: string | null
     questionText: string
+    displayOrder: number
+    questionType: string
+    questionStructure: string
+    sectionId: string | null
+    groupId: string | null
+    parentQuestionId: string | null
+    sourceQuestionNumber: string | null
     questionImage: string | null
     contentJson: runtime.JsonValue | null
+    responseSpec: runtime.JsonValue | null
+    evaluationSpec: runtime.JsonValue | null
+    sourceEvidence: runtime.JsonValue | null
+    extractionConfidence: runtime.JsonValue | null
     optionsSnapshot: runtime.JsonValue
     answerSnapshot: runtime.JsonValue
     explanation: string | null
@@ -2104,8 +2592,19 @@ export interface QuestionVersionFieldRefs {
   readonly changedById: Prisma.FieldRef<"QuestionVersion", 'String'>
   readonly changedByRole: Prisma.FieldRef<"QuestionVersion", 'String'>
   readonly questionText: Prisma.FieldRef<"QuestionVersion", 'String'>
+  readonly displayOrder: Prisma.FieldRef<"QuestionVersion", 'Int'>
+  readonly questionType: Prisma.FieldRef<"QuestionVersion", 'String'>
+  readonly questionStructure: Prisma.FieldRef<"QuestionVersion", 'String'>
+  readonly sectionId: Prisma.FieldRef<"QuestionVersion", 'String'>
+  readonly groupId: Prisma.FieldRef<"QuestionVersion", 'String'>
+  readonly parentQuestionId: Prisma.FieldRef<"QuestionVersion", 'String'>
+  readonly sourceQuestionNumber: Prisma.FieldRef<"QuestionVersion", 'String'>
   readonly questionImage: Prisma.FieldRef<"QuestionVersion", 'String'>
   readonly contentJson: Prisma.FieldRef<"QuestionVersion", 'Json'>
+  readonly responseSpec: Prisma.FieldRef<"QuestionVersion", 'Json'>
+  readonly evaluationSpec: Prisma.FieldRef<"QuestionVersion", 'Json'>
+  readonly sourceEvidence: Prisma.FieldRef<"QuestionVersion", 'Json'>
+  readonly extractionConfidence: Prisma.FieldRef<"QuestionVersion", 'Json'>
   readonly optionsSnapshot: Prisma.FieldRef<"QuestionVersion", 'Json'>
   readonly answerSnapshot: Prisma.FieldRef<"QuestionVersion", 'Json'>
   readonly explanation: Prisma.FieldRef<"QuestionVersion", 'String'>

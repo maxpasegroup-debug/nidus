@@ -181,7 +181,7 @@ export const questionContentSchema = z.object({
       z.number().min(0).max(1).optional(),
     ),
     reviewStatus: z.string().optional(),
-    sourceQuestionNumber: z.number().int().positive().optional(),
+    sourceQuestionNumber: z.union([z.number().int().positive(), z.string().min(1)]).optional(),
   }).passthrough().default({}),
 }).strict();
 
@@ -292,7 +292,7 @@ export function buildLegacyQuestionContent(question: {
   ocrReviewNotes?: string[];
   ocrConfidence?: number | null;
   contentSource?: "TEACHER_IMPORT" | "AI_IMPORT" | "LEGACY_MIGRATION" | "MANUAL_ENTRY";
-  sourceQuestionNumber?: number;
+  sourceQuestionNumber?: number | string;
 }): QuestionContent {
   const sourceReference = question.sourceDocumentId ? { documentId: question.sourceDocumentId } : undefined;
   const correctOption = String(question.correctAnswer ?? "").trim().toUpperCase();

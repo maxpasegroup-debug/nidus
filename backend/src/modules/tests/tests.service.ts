@@ -2,6 +2,7 @@ import { Prisma, Role } from "../../generated/prisma/client.js";
 import { prisma } from "../../config/prisma.js";
 import { logger } from "../../utils/logger.js";
 import { normalizeQuestionContentJson, synchronizeEditableQuestionContentJson } from "../document-intelligence/question-content.schema.js";
+import { legacySingleChoiceFoundation } from "../document-intelligence/universal-question.schema.js";
 import { validateDraftQuestions, validateEditableDraftQuestions, validatePublishableExam, validatePublishedQuestions } from "./exam-publishing-gate.js";
 import { calculateObjectiveScore } from "./exam-scoring.js";
 import { assertLifecycleTransition, examAvailability, examDisplayStatus, isExamLifecycle, legacyExamStatus, lifecycleIsLive, parseExamWindow, validateScheduledRelease, type ExamDisplayStatus, type ExamLifecycle } from "./exam-lifecycle.js";
@@ -33,6 +34,17 @@ export type TestPayload = {
 };
 
 export type QuestionPayload = {
+  displayOrder?: number;
+  questionType?: string;
+  questionStructure?: string;
+  sectionId?: string;
+  groupId?: string;
+  parentQuestionId?: string;
+  sourceQuestionNumber?: string;
+  responseSpec?: Prisma.InputJsonValue;
+  evaluationSpec?: Prisma.InputJsonValue;
+  sourceEvidence?: Prisma.InputJsonValue;
+  extractionConfidence?: Prisma.InputJsonValue;
   questionText: string;
   questionImage?: string;
   visualReviewRequired?: boolean;
@@ -146,6 +158,17 @@ async function persistedReviewSummary(testId: string) {
 
 function persistedQuestionPayload(question: Prisma.QuestionGetPayload<object>): QuestionPayload {
   return {
+    displayOrder: question.displayOrder,
+    questionType: question.questionType,
+    questionStructure: question.questionStructure,
+    sectionId: question.sectionId ?? undefined,
+    groupId: question.groupId ?? undefined,
+    parentQuestionId: question.parentQuestionId ?? undefined,
+    sourceQuestionNumber: question.sourceQuestionNumber ?? undefined,
+    responseSpec: question.responseSpec == null ? undefined : question.responseSpec as Prisma.InputJsonValue,
+    evaluationSpec: question.evaluationSpec == null ? undefined : question.evaluationSpec as Prisma.InputJsonValue,
+    sourceEvidence: question.sourceEvidence == null ? undefined : question.sourceEvidence as Prisma.InputJsonValue,
+    extractionConfidence: question.extractionConfidence == null ? undefined : question.extractionConfidence as Prisma.InputJsonValue,
     questionText: question.questionText,
     questionImage: question.questionImage ?? undefined,
     visualReviewRequired: question.visualReviewRequired,
@@ -203,8 +226,19 @@ function questionVersionData(question: VersionableQuestion, requester: Requester
     changedById: requester.id,
     changedByRole: requester.role,
     questionText: question.questionText,
+    displayOrder: question.displayOrder || 0,
+    questionType: question.questionType || "SINGLE_CHOICE",
+    questionStructure: question.questionStructure || "STANDARD",
+    sectionId: question.sectionId || null,
+    groupId: question.groupId || null,
+    parentQuestionId: question.parentQuestionId || null,
+    sourceQuestionNumber: question.sourceQuestionNumber || null,
     questionImage: question.questionImage || null,
     contentJson: question.contentJson ?? undefined,
+    responseSpec: question.responseSpec ?? undefined,
+    evaluationSpec: question.evaluationSpec ?? undefined,
+    sourceEvidence: question.sourceEvidence ?? undefined,
+    extractionConfidence: question.extractionConfidence ?? undefined,
     optionsSnapshot: {
       A: question.optionA,
       B: question.optionB,
@@ -246,7 +280,7 @@ async function createInitialQuestionVersions(questions: VersionableQuestion[], r
 
 const testInclude = {
   questions: {
-    orderBy: { id: "asc" as const }
+    orderBy: [{ displayOrder: "asc" as const }, { id: "asc" as const }]
   },
   batch: {
     select: { id: true, name: true, batchType: true, programSlug: true }
@@ -843,10 +877,24 @@ export const testsService = {
       if (existing.lifecycle !== "DRAFT") {
         throw Object.assign(new Error("Only DRAFT exams can receive questions."), { statusCode: 409 });
       }
-      const questionsForCreate = (payload.questions ?? []).map((question) => {
+      const questionsForCreate = (payload.questions ?? []).map((question, index) => {
         const { ocrReviewRequired: _ocrReviewRequired, ocrReviewNotes: _ocrReviewNotes, ocrConfidence: _ocrConfidence, ...persistable } = question;
+        const foundation = legacySingleChoiceFoundation({
+          displayOrder: question.displayOrder ?? index + 1,
+          sourceQuestionNumber: question.sourceQuestionNumber,
+          correctAnswer: question.correctAnswer,
+          sourceDocumentId: question.sourceDocumentId,
+          sourcePageNumber: question.sourcePageNumber,
+        });
         return {
         ...persistable,
+        ...foundation,
+        displayOrder: question.displayOrder ?? foundation.displayOrder,
+        questionType: question.questionType ?? foundation.questionType,
+        questionStructure: question.questionStructure ?? foundation.questionStructure,
+        responseSpec: question.responseSpec ?? foundation.responseSpec,
+        evaluationSpec: question.evaluationSpec ?? foundation.evaluationSpec,
+        sourceEvidence: question.sourceEvidence ?? foundation.sourceEvidence,
         reviewStatus: "DRAFT",
         reviewIssues: deriveReviewIssues(question),
         contentJson: normalizeQuestionContentJson(question),
@@ -887,10 +935,24 @@ export const testsService = {
     }
     await assertTeacherBatchSubjectAccess(requester, payload.batchId, payload.subject);
     await assertTeacherTenantAccess(requester, payload.teacherId);
-    const questionsForCreate = (payload.questions ?? []).map((question) => {
+    const questionsForCreate = (payload.questions ?? []).map((question, index) => {
       const { ocrReviewRequired: _ocrReviewRequired, ocrReviewNotes: _ocrReviewNotes, ocrConfidence: _ocrConfidence, ...persistable } = question;
+      const foundation = legacySingleChoiceFoundation({
+        displayOrder: question.displayOrder ?? index + 1,
+        sourceQuestionNumber: question.sourceQuestionNumber,
+        correctAnswer: question.correctAnswer,
+        sourceDocumentId: question.sourceDocumentId,
+        sourcePageNumber: question.sourcePageNumber,
+      });
       return {
       ...persistable,
+      ...foundation,
+      displayOrder: question.displayOrder ?? foundation.displayOrder,
+      questionType: question.questionType ?? foundation.questionType,
+      questionStructure: question.questionStructure ?? foundation.questionStructure,
+      responseSpec: question.responseSpec ?? foundation.responseSpec,
+      evaluationSpec: question.evaluationSpec ?? foundation.evaluationSpec,
+      sourceEvidence: question.sourceEvidence ?? foundation.sourceEvidence,
       reviewStatus: "DRAFT",
       reviewIssues: deriveReviewIssues(question),
       contentJson: normalizeQuestionContentJson(question),
@@ -1003,8 +1065,18 @@ export const testsService = {
       reviewStatus: blockingIssues(reviewIssues).length ? "NEEDS_REVIEW" : "REVIEWED",
       reviewIssues,
     };
+    const legacyFoundation = legacySingleChoiceFoundation({
+      displayOrder: reviewedCandidate.displayOrder ?? current.displayOrder,
+      sourceQuestionNumber: reviewedCandidate.sourceQuestionNumber,
+      correctAnswer: reviewedCandidate.correctAnswer,
+      sourceDocumentId: reviewedCandidate.sourceDocumentId,
+      sourcePageNumber: reviewedCandidate.sourcePageNumber,
+    });
     const next = {
       ...reviewedCandidate,
+      responseSpec: payload.responseSpec ?? legacyFoundation.responseSpec,
+      evaluationSpec: payload.evaluationSpec ?? legacyFoundation.evaluationSpec,
+      sourceEvidence: payload.sourceEvidence ?? reviewedCandidate.sourceEvidence ?? legacyFoundation.sourceEvidence,
       contentJson: synchronizeEditableQuestionContentJson(reviewedCandidate),
     };
     const updated = await prisma.$transaction(async (tx) => {
@@ -1278,10 +1350,26 @@ export const testsService = {
     }
     await assertTeacherBatchSubjectAccess(requester, payload.batchId, payload.subject);
     await assertTeacherTenantAccess(requester, payload.teacherId);
-    const questionsForCreate = payload.questions.map((question) => ({
-      ...question,
-      contentJson: normalizeQuestionContentJson(question),
-    }));
+    const questionsForCreate = payload.questions.map((question, index) => {
+      const foundation = legacySingleChoiceFoundation({
+        displayOrder: question.displayOrder ?? index + 1,
+        sourceQuestionNumber: question.sourceQuestionNumber,
+        correctAnswer: question.correctAnswer,
+        sourceDocumentId: question.sourceDocumentId,
+        sourcePageNumber: question.sourcePageNumber,
+      });
+      return {
+        ...question,
+        ...foundation,
+        displayOrder: question.displayOrder ?? foundation.displayOrder,
+        questionType: question.questionType ?? foundation.questionType,
+        questionStructure: question.questionStructure ?? foundation.questionStructure,
+        responseSpec: question.responseSpec ?? foundation.responseSpec,
+        evaluationSpec: question.evaluationSpec ?? foundation.evaluationSpec,
+        sourceEvidence: question.sourceEvidence ?? foundation.sourceEvidence,
+        contentJson: normalizeQuestionContentJson(question),
+      };
+    });
     const test = await prisma.test.create({
       data: {
         title: payload.title,

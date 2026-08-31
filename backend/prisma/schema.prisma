@@ -430,6 +430,13 @@ model Test {
 model Question {
   id              String   @id @default(cuid())
   testId          String
+  displayOrder    Int      @default(0)
+  questionType    String   @default("SINGLE_CHOICE")
+  questionStructure String @default("STANDARD")
+  sectionId       String?
+  groupId         String?
+  parentQuestionId String?
+  sourceQuestionNumber String?
   questionText    String
   questionImage   String?
   visualReviewRequired Boolean @default(false)
@@ -445,6 +452,10 @@ model Question {
   aiConfidence    Float?
   reviewStatus    String   @default("DRAFT")
   reviewIssues    Json?
+  responseSpec    Json?
+  evaluationSpec  Json?
+  sourceEvidence  Json?
+  extractionConfidence Json?
   publishedVersion Int     @default(1)
   optionA         String
   optionB         String
@@ -460,8 +471,15 @@ model Question {
   answers         Answer[]
   answerStates    CBTAnswerState[]
   versions        QuestionVersion[]
+  parentQuestion  Question? @relation("QuestionHierarchy", fields: [parentQuestionId], references: [id], onDelete: SetNull)
+  childQuestions  Question[] @relation("QuestionHierarchy")
 
   @@index([testId])
+  @@index([testId, displayOrder])
+  @@index([parentQuestionId])
+  @@index([sectionId])
+  @@index([groupId])
+  @@index([questionType])
   @@index([sourceDocumentId])
   @@index([renderMode])
   @@index([reviewStatus])
@@ -477,8 +495,19 @@ model QuestionVersion {
   changedById        String?
   changedByRole      String?
   questionText       String
+  displayOrder       Int      @default(0)
+  questionType       String   @default("SINGLE_CHOICE")
+  questionStructure  String   @default("STANDARD")
+  sectionId          String?
+  groupId            String?
+  parentQuestionId   String?
+  sourceQuestionNumber String?
   questionImage      String?
   contentJson        Json?
+  responseSpec       Json?
+  evaluationSpec     Json?
+  sourceEvidence     Json?
+  extractionConfidence Json?
   optionsSnapshot    Json
   answerSnapshot     Json
   explanation        String?
