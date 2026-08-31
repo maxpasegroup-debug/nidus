@@ -863,7 +863,19 @@ export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: Extra
         // into the marker sequence.
         const lowercaseParenthesized = [...chunk.matchAll(/\(([a-d])\)\s*/g)];
         const uppercaseParenthesized = [...chunk.matchAll(/\(([A-D])\)\s*/g)];
-        const parenthesizedSelection = selectOptionSequence(lowercaseParenthesized) || selectOptionSequence(uppercaseParenthesized);
+        // Real papers sometimes lose only one opening parenthesis during PDF
+        // extraction, yielding `(A) ... (B) ... (C) ... D) ...`. Combine the
+        // exact parenthesized markers with physical-line markers and accept
+        // them only when their document order still forms a complete A-D
+        // sequence. Exact `(x)` matching keeps algebraic `(c - a)` safe.
+        const mixedExplicit = Array.from(new Map(
+          [...optionMatches, ...lowercaseParenthesized, ...uppercaseParenthesized]
+            .sort((left, right) => (left.index ?? 0) - (right.index ?? 0))
+            .map((candidate) => [`${candidate.index}:${candidate[1].toUpperCase()}`, candidate]),
+        ).values());
+        const parenthesizedSelection = selectOptionSequence(lowercaseParenthesized)
+          || selectOptionSequence(uppercaseParenthesized)
+          || selectOptionSequence(mixedExplicit);
         if (parenthesizedSelection) {
           optionMatches = parenthesizedSelection.matches;
           positionalOptionOrder = parenthesizedSelection.positional;

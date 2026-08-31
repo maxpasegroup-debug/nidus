@@ -475,6 +475,23 @@ describe("exam upload PDF extraction", () => {
     expect(question).toMatchObject({ optionA: "36", optionB: "63", optionC: "57", optionD: "75", reviewStatus: "MISSING_ANSWER" });
   });
 
+  it("combines parenthesized A-C options with a closing-parenthesis D option", () => {
+    const [question] = parseExamQuestions([{ pageNumber: 1, sourceKind: "PDF", text: [
+      "Q19. If a set A contains 3 elements and another set B contains 6 elements, then how many elements may A union B contain?",
+      "(A) 9",
+      "(B) either 8 or 9",
+      "(C) either 7 or 8 or 9",
+      "D) either 6 or 7 or 8 or 9",
+    ].join("\n") }]);
+    expect(question).toMatchObject({
+      questionText: expect.not.stringContaining("(A)"),
+      optionA: "9",
+      optionB: "either 8 or 9",
+      optionC: "either 7 or 8 or 9",
+      optionD: "either 6 or 7 or 8 or 9",
+    });
+  });
+
   it("recognizes compact closing-parenthesis and single-letter-article question starts", () => {
     const questions = parseExamQuestions([{ pageNumber: 1, text: [
       "Q9. Previous question? (a) A (b) B (c) C (d) D",
