@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 
 import { Prisma, Role } from "../../generated/prisma/client.js";
 import { prisma } from "../../config/prisma.js";
-import { deleteCloudinaryAsset, signedMediaUrl, uploadBufferToCloudinary } from "../../config/cloudinary.js";
+import { authenticatedMediaDownloadUrl, deleteCloudinaryAsset, signedMediaUrl, uploadBufferToCloudinary } from "../../config/cloudinary.js";
 import { ndieAssetStorageProvider } from "../ndie/storage/storage-provider.js";
 import { enqueuePDF } from "../../queues/pdf.queue.js";
 import { testsService, type TestPayload } from "../tests/tests.service.js";
@@ -866,6 +866,49 @@ function withSignedExamUploadUrls<T extends Record<string, any>>(rows: T[]) {
       return { ...row, signedUrl: row.cloudinaryUrl };
     }
   });
+}
+
+async function downloadExamSource(input: { id: string; publicId: string; fileType: string; originalName: string }, sourceLabel: "question paper" | "answer key") {
+  const candidates = [
+    { method: "authenticated-download", url: authenticatedMediaDownloadUrl(input.publicId, input.fileType) },
+    { method: "signed-delivery", url: signedMediaUrl(input.publicId, input.fileType) },
+  ];
+  let lastStatus: number | undefined;
+  let lastError: string | undefined;
+  for (const candidate of candidates) {
+    try {
+      const response = await fetch(candidate.url);
+      lastStatus = response.status;
+      if (response.ok) return Buffer.from(await response.arrayBuffer());
+      logger.warn("Exam source download attempt failed", {
+        uploadId: input.id,
+        fileName: input.originalName,
+        sourceLabel,
+        method: candidate.method,
+        status: response.status,
+        stage: "SOURCE_DOWNLOAD",
+      });
+    } catch (error) {
+      lastError = error instanceof Error ? error.message : "Unknown storage download error";
+      logger.warn("Exam source download attempt failed", {
+        uploadId: input.id,
+        fileName: input.originalName,
+        sourceLabel,
+        method: candidate.method,
+        error: lastError,
+        stage: "SOURCE_DOWNLOAD",
+      });
+    }
+  }
+  logger.warn("Exam source download exhausted all storage methods", {
+    uploadId: input.id,
+    fileName: input.originalName,
+    sourceLabel,
+    status: lastStatus,
+    error: lastError,
+    stage: "SOURCE_DOWNLOAD",
+  });
+  return null;
 }
 
 /** Persist bounded PDF visual crops through the existing NDIE asset provider.
@@ -5100,12 +5143,10 @@ export const academyService = {
     const questionPaperIsDocx = questionPaperName?.endsWith(".docx");
     const questionPaperIsDoc = questionPaperName?.endsWith(".doc");
     if (questionPaper && (questionPaperIsPdf || questionPaperIsDocx || questionPaperIsDoc)) {
-      const response = await fetch(signedMediaUrl(questionPaper.publicId, questionPaper.fileType));
-      if (!response.ok) {
-        logger.warn("Exam question-paper source download failed", { uploadId: questionPaper.id, fileName: questionPaper.originalName, status: response.status, stage: "SOURCE_DOWNLOAD" });
+      const paperBuffer = await downloadExamSource(questionPaper, "question paper");
+      if (!paperBuffer) {
         throw Object.assign(new Error("The uploaded question paper could not be downloaded from storage. Please retry the upload."), { statusCode: 422, code: "SOURCE_DOWNLOAD_FAILED", stage: "SOURCE_DOWNLOAD" });
       }
-      const paperBuffer = Buffer.from(await response.arrayBuffer());
       const paper = questionPaperIsPdf ? await extractTextPdf(paperBuffer) : questionPaperIsDocx ? await extractTextDocx(paperBuffer) : await extractTextDoc(paperBuffer);
       if (questionPaperIsPdf) {
         const regions = await persistPdfVisualRegions(paper.pages.flatMap((page) => page.visualRegions || []), input.testId);
@@ -5119,12 +5160,10 @@ export const academyService = {
       }
       let keyPages: Awaited<ReturnType<typeof extractTextPdf>>["pages"] = [];
       if (answerKey && (answerKeyName?.endsWith(".pdf") || answerKeyName?.endsWith(".docx") || answerKeyName?.endsWith(".doc"))) {
-        const keyResponse = await fetch(signedMediaUrl(answerKey.publicId, answerKey.fileType));
-        if (!keyResponse.ok) {
-          logger.warn("Exam answer-key source download failed", { uploadId: answerKey.id, fileName: answerKey.originalName, status: keyResponse.status, stage: "SOURCE_DOWNLOAD" });
+        const keyBuffer = await downloadExamSource(answerKey, "answer key");
+        if (!keyBuffer) {
           throw Object.assign(new Error("The uploaded answer key could not be downloaded from storage. You can retry it or continue without an answer key."), { statusCode: 422, code: "ANSWER_KEY_DOWNLOAD_FAILED", stage: "SOURCE_DOWNLOAD" });
         }
-        const keyBuffer = Buffer.from(await keyResponse.arrayBuffer());
         keyPages = (answerKeyName.endsWith(".pdf") ? await extractTextPdf(keyBuffer) : answerKeyName.endsWith(".docx") ? await extractTextDocx(keyBuffer) : await extractTextDoc(keyBuffer)).pages;
       }
       extractedQuestions = parseExamQuestions(paper.pages, keyPages);

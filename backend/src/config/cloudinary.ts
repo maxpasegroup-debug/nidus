@@ -144,6 +144,36 @@ export function signedMediaUrl(publicId: string, mimeType?: string) {
   });
 }
 
+function mediaFormat(publicId: string, mimeType?: string) {
+  const mimeFormats: Record<string, string> = {
+    "application/pdf": "pdf",
+    "application/msword": "doc",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
+    "application/vnd.ms-powerpoint": "ppt",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation": "pptx",
+    "text/plain": "txt",
+    "text/csv": "csv",
+  };
+  return (mimeType && mimeFormats[mimeType.toLowerCase()])
+    || publicId.match(/\.([a-z0-9]{1,10})$/i)?.[1]?.toLowerCase()
+    || "bin";
+}
+
+/**
+ * Cloudinary's authenticated download endpoint is the authoritative way for
+ * backend jobs to retrieve private/raw source documents. Unlike a CDN URL it
+ * is time-limited and signed as an API request, so PDF reconstruction does
+ * not depend on CDN version/path behaviour.
+ */
+export function authenticatedMediaDownloadUrl(publicId: string, mimeType?: string) {
+  assertCloudinaryReady();
+  return cloudinary.utils.private_download_url(publicId, mediaFormat(publicId, mimeType), {
+    resource_type: mimeType ? resourceTypeForMime(mimeType) : "raw",
+    type: "authenticated",
+    expires_at: Math.floor(Date.now() / 1000) + 10 * 60,
+  });
+}
+
 export function signedCloudinaryPageImageUrl(publicId: string, pageNumber: number) {
   assertCloudinaryReady();
   return cloudinary.url(publicId, {
