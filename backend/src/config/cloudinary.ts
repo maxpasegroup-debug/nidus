@@ -134,6 +134,12 @@ export function signedMediaUrl(publicId: string, mimeType?: string) {
     sign_url: true,
     type: "authenticated",
     resource_type: mimeType ? resourceTypeForMime(mimeType) : "image",
+    // Upload responses contain the real Cloudinary version, but ExamUpload
+    // persists only the public ID. Cloudinary's SDK otherwise fabricates a
+    // `/v1/` segment for IDs containing folders, which makes authenticated
+    // PDF/raw downloads fail after a successful upload. Versionless delivery
+    // URLs resolve the stored asset without inventing a version.
+    force_version: false,
     expires_at: Math.floor(Date.now() / 1000) + 10 * 60
   });
 }
@@ -146,6 +152,7 @@ export function signedCloudinaryPageImageUrl(publicId: string, pageNumber: numbe
     type: "authenticated",
     resource_type: "image",
     format: "jpg",
+    force_version: false,
     transformation: [
       { page: pageNumber, width: 1800, crop: "limit", quality: "auto", fetch_format: "jpg" }
     ],
