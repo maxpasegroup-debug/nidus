@@ -207,6 +207,13 @@ const wordSuperscriptCharacters: Record<string, string> = {
 const wordSubscriptCharacters: Record<string, string> = {
   "0": "₀", "1": "₁", "2": "₂", "3": "₃", "4": "₄",
   "5": "₅", "6": "₆", "7": "₇", "8": "₈", "9": "₉",
+  // These are the Latin letters for which Unicode has an explicit
+  // subscript form. Keeping the conversion limited to known characters
+  // preserves the author's Word formatting without guessing at arbitrary
+  // text (for example, a prose "log a" remains prose).
+  "a": "ₐ", "e": "ₑ", "h": "ₕ", "i": "ᵢ", "j": "ⱼ",
+  "k": "ₖ", "l": "ₗ", "m": "ₘ", "n": "ₙ", "o": "ₒ",
+  "p": "ₚ", "r": "ᵣ", "s": "ₛ", "t": "ₜ",
   "+": "₊", "-": "₋", "=": "₌", "(": "₍", ")": "₎",
 };
 
@@ -591,9 +598,12 @@ function materializeCombined(value: string, pdfHints: MathSegmentHint[] = []) {
   return { text: normalized, hints: [...materialized.hints, ...deterministicHints, ...hints] };
 }
 
-const unicodeSubscriptDigits: Record<string, string> = {
+const unicodeSubscriptCharacters: Record<string, string> = {
   "₀": "0", "₁": "1", "₂": "2", "₃": "3", "₄": "4",
   "₅": "5", "₆": "6", "₇": "7", "₈": "8", "₉": "9",
+  "ₐ": "a", "ₑ": "e", "ₕ": "h", "ᵢ": "i", "ⱼ": "j",
+  "ₖ": "k", "ₗ": "l", "ₘ": "m", "ₙ": "n", "ₒ": "o",
+  "ₚ": "p", "ᵣ": "r", "ₛ": "s", "ₜ": "t",
 };
 const unicodeSuperscriptDigits: Record<string, string> = {
   "⁰": "0", "¹": "1", "²": "2", "³": "3", "⁴": "4",
@@ -607,9 +617,12 @@ const unicodeSuperscriptDigits: Record<string, string> = {
  */
 function deterministicUnicodeMathHints(value: string): MathSegmentHint[] {
   const result: MathSegmentHint[] = [];
-  for (const match of value.matchAll(/\blog([\u2080-\u2089]+)([A-Za-z0-9α-ωΑ-Ω()]+)/gu)) {
+  // A subscripted logarithm base may be a digit (log₂) or an explicitly
+  // formatted Latin letter (logₐ). Both are safe because the source already
+  // carries Unicode/Word subscript semantics.
+  for (const match of value.matchAll(/\blog([₀₁₂₃₄₅₆₇₈₉ₐₑₕᵢⱼₖₗₘₙₒₚᵣₛₜ]+)\s*([A-Za-z0-9α-ωΑ-Ω()]+)/gu)) {
     const sourceText = match[0];
-    const base = Array.from(match[1]).map((character) => unicodeSubscriptDigits[character]).join("");
+    const base = Array.from(match[1]).map((character) => unicodeSubscriptCharacters[character]).join("");
     if (base && match[2]) result.push({ sourceText, matchText: sourceText, latex: `\\log_{${base}}${normalizeMathText(match[2])}`, origin: "NORMALIZED_SOURCE", confidence: 1 });
   }
   for (const match of value.matchAll(/\b(sin|cos|tan|cot|sec|cosec)([\u2070\u00b9\u00b2\u00b3\u2074-\u2079]+)([A-Za-zα-ωΑ-Ω][A-Za-z0-9α-ωΑ-Ω()]*)/gu)) {

@@ -28,15 +28,18 @@ export function NidusRichSegments({ segments, className = "" }: { segments?: Nid
 
 const delimiterPattern = /(\$\$[\s\S]+?\$\$|\\\[[\s\S]+?\\\]|\\\([\s\S]+?\\\)|\$[^$\n]+?\$)/g;
 
-const autoMathPattern = /(\[[^\[\]\n]*;[^\[\]\n]*\]|\|[^|\n;]+(?:;[^|\n;]+)+\||\b(?:log|ln|sin|cos|tan|cot|sec|cosec)(?:\s*(?:_|₀|₁|₂|₃|₄|₅|₆|₇|₈|₉)\s*\{?[0-9]+\}?)\s*[A-Za-z0-9().]+|\blog10(?:\s*\d{2,}|\d{2,})\b|\b(?:log|ln|sin|cos|tan|cot|sec|cosec)[₀₁₂₃₄₅₆₇₈₉]+[A-Za-z0-9().]+|\b[A-Za-z][A-Za-z0-9]*[\^_][A-Za-z0-9]+|\b[A-Za-z0-9]+[⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁽⁾]+|√(?:\s*\([^\n)]*\)|\s*[A-Za-z0-9]+)|(?<![\w\/])\d+\s*\/\s*\d+(?![\/\d])|(?<!\w)[A-Za-zα-ωΑ-Ω0-9]+\s*(?:=|\+|−|×|÷|≤|≥|≠|≈|±|<|>|\s-\s)\s*[A-Za-zα-ωΑ-Ω0-9().]+(?:\s*(?:\+|−|×|÷|≤|≥|≠|≈|±|<|>|\s-\s)\s*[A-Za-zα-ωΑ-Ω0-9().]+)*(?!\w)|[√∫∑πθαβγΔΩ∞≈≤≥÷×±∈])/g;
+const autoMathPattern = /(\[[^\[\]\n]*;[^\[\]\n]*\]|\|[^|\n;]+(?:;[^|\n;]+)+\||\b(?:log|ln|sin|cos|tan|cot|sec|cosec)(?:\s*(?:_|₀|₁|₂|₃|₄|₅|₆|₇|₈|₉|ₐ|ₑ|ₕ|ᵢ|ⱼ|ₖ|ₗ|ₘ|ₙ|ₒ|ₚ|ᵣ|ₛ|ₜ)\s*\{?[0-9A-Za-z]+\}?)?\s*[A-Za-z0-9().]+|\blog10(?:\s*\d{2,}|\d{2,})\b|\b(?:log|ln|sin|cos|tan|cot|sec|cosec)[₀₁₂₃₄₅₆₇₈₉ₐₑₕᵢⱼₖₗₘₙₒₚᵣₛₜ]+\s*[A-Za-z0-9().]+|\b[A-Za-z][A-Za-z0-9]*[\^_][A-Za-z0-9]+|\b[A-Za-z0-9]+[⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁽⁾]+|√(?:\s*\([^\n)]*\)|\s*[A-Za-z0-9]+)|(?<![\w\/])\d+\s*\/\s*\d+(?![\/\d])|(?<!\w)[A-Za-zα-ωΑ-Ω0-9]+\s*(?:=|\+|−|×|÷|≤|≥|≠|≈|±|<|>|\s-\s)\s*[A-Za-zα-ωΑ-Ω0-9().]+(?:\s*(?:\+|−|×|÷|≤|≥|≠|≈|±|<|>|\s-\s)\s*[A-Za-zα-ωΑ-Ω0-9().]+)*(?!\w)|[√∫∑πθαβγΔΩ∞≈≤≥÷×±∈])/g;
 
-const unicodeSubscript: Record<string, string> = { "₀": "0", "₁": "1", "₂": "2", "₃": "3", "₄": "4", "₅": "5", "₆": "6", "₇": "7", "₈": "8", "₉": "9" };
+const unicodeSubscript: Record<string, string> = {
+  "₀": "0", "₁": "1", "₂": "2", "₃": "3", "₄": "4", "₅": "5", "₆": "6", "₇": "7", "₈": "8", "₉": "9",
+  "ₐ": "a", "ₑ": "e", "ₕ": "h", "ᵢ": "i", "ⱼ": "j", "ₖ": "k", "ₗ": "l", "ₘ": "m", "ₙ": "n", "ₒ": "o", "ₚ": "p", "ᵣ": "r", "ₛ": "s", "ₜ": "t",
+};
 const unicodeSuperscript: Record<string, string> = { "⁰": "0", "¹": "1", "²": "2", "³": "3", "⁴": "4", "⁵": "5", "⁶": "6", "⁷": "7", "⁸": "8", "⁹": "9", "⁺": "+", "⁻": "-", "⁽": "(", "⁾": ")" };
 
 function replaceUnicodePowers(value: string) {
   return value
     .replace(/([A-Za-z0-9])([⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁽⁾]+)/g, (_, base: string, power: string) => `${base}^{${[...power].map((char) => unicodeSuperscript[char] ?? char).join("")}}`)
-    .replace(/([A-Za-z]+)([₀₁₂₃₄₅₆₇₈₉]+)/g, (_, base: string, subscript: string) => `${base}_{${[...subscript].map((char) => unicodeSubscript[char] ?? char).join("")}}`);
+    .replace(/([A-Za-z]+)([₀₁₂₃₄₅₆₇₈₉ₐₑₕᵢⱼₖₗₘₙₒₚᵣₛₜ]+)/g, (_, base: string, subscript: string) => `${base}_{${[...subscript].map((char) => unicodeSubscript[char] ?? char).join("")}}`);
 }
 
 function autoMathLatex(value: string) {
@@ -51,7 +54,7 @@ function autoMathLatex(value: string) {
     const rows = determinant[1].split(";").map((row) => row.trim().split(/\s+/).join(" & "));
     return `\\begin{vmatrix}${rows.join("\\\\")}\\end{vmatrix}`;
   }
-  const unicodeLogarithm = trimmed.match(/^(log|ln|sin|cos|tan|cot|sec|cosec)([₀₁₂₃₄₅₆₇₈₉]+)([A-Za-z0-9().]+)$/i);
+  const unicodeLogarithm = trimmed.match(/^(log|ln|sin|cos|tan|cot|sec|cosec)([₀₁₂₃₄₅₆₇₈₉ₐₑₕᵢⱼₖₗₘₙₒₚᵣₛₜ]+)\s*([A-Za-z0-9().]+)$/i);
   if (unicodeLogarithm) {
     const functionName = unicodeLogarithm[1].toLowerCase();
     const base = [...unicodeLogarithm[2]].map((char) => unicodeSubscript[char] ?? char).join("");

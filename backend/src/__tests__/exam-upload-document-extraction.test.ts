@@ -362,6 +362,24 @@ describe("exam upload PDF extraction", () => {
     ]));
   });
 
+  it("preserves an explicitly subscripted letter as a logarithm base", () => {
+    const [question] = parseExamQuestions([{ pageNumber: 1, text: "1. If logₐ x = 2, find x. A. a² B. 2a C. a+2 D. x" }]);
+    const paragraph = (question.contentJson as { blocks: Array<{ type: string; segments?: Array<{ type: string; latex?: string; sourceText?: string }> }> }).blocks.find((block) => block.type === "paragraph");
+    expect(paragraph?.segments).toEqual(expect.arrayContaining([
+      expect.objectContaining({ type: "math", latex: "\\log_{a}x", sourceText: "logₐ x" }),
+    ]));
+  });
+
+  it("preserves Word subscript formatting for the letter a", async () => {
+    const zip = new JSZip();
+    zip.file("word/document.xml", '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>1. Evaluate log</w:t></w:r><w:r><w:rPr><w:vertAlign w:val="subscript"/></w:rPr><w:t>a</w:t></w:r><w:r><w:t>x. A. one B. two C. three D. four</w:t></w:r></w:p></w:body></w:document>');
+    const text = await extractDocxXmlParagraphs(await zip.generateAsync({ type: "nodebuffer" }), JSZip as never);
+    const [question] = parseExamQuestions([{ pageNumber: 1, text }]);
+    const paragraph = (question.contentJson as { blocks: Array<{ type: string; segments?: Array<{ type: string; latex?: string }> }> }).blocks.find((block) => block.type === "paragraph");
+    expect(text).toContain("logₐx");
+    expect(paragraph?.segments).toEqual(expect.arrayContaining([expect.objectContaining({ type: "math", latex: "\\log_{a}x" })]));
+  });
+
   it("keeps a native Word fraction authoritative when it follows a Unicode logarithm base", () => {
     const equation = Buffer.from(JSON.stringify({
       sourceText: "16=23",
