@@ -47,6 +47,7 @@ export type NormalizedDocumentBlock = {
 export type NormalizedDocumentPage = {
   pageNumber: number;
   text: string;
+  sourceKind?: "PDF" | "DOCX" | "DOC";
   blocks?: NormalizedDocumentBlock[];
   glyphs?: PdfGlyphRun[];
   mathSegments?: MathSegmentHint[];
@@ -85,9 +86,9 @@ function blocksFromText(text: string): NormalizedDocumentBlock[] {
     }));
 }
 
-function normalizedPage(pageNumber: number, rawText: string, blocks?: NormalizedDocumentBlock[], normalizationForm: "NFKC" | "NFC" = "NFKC") {
+function normalizedPage(pageNumber: number, rawText: string, blocks?: NormalizedDocumentBlock[], normalizationForm: "NFKC" | "NFC" = "NFKC", sourceKind?: NormalizedDocumentPage["sourceKind"]) {
   const text = normalizeDocumentText(rawText, normalizationForm);
-  return { pageNumber, text, blocks: blocks ?? blocksFromText(text) };
+  return { pageNumber, text, blocks: blocks ?? blocksFromText(text), ...(sourceKind ? { sourceKind } : {}) };
 }
 
 function decodeXml(value: string) {
@@ -469,7 +470,7 @@ export async function extractTextPdf(buffer: Buffer): Promise<ExtractedPdf> {
         });
       }
       pages.push({
-        ...normalizedPage(pageNumber, pageText, pageBlocks, "NFC"),
+        ...normalizedPage(pageNumber, pageText, pageBlocks, "NFC", "PDF"),
         glyphs,
         mathSegments: [...analysis.mathSegments, ...(ocr ? explicitOcrMathHints(ocr.text, ocr.confidence) : [])],
         mathStats: {
@@ -525,7 +526,7 @@ export async function extractTextDocx(buffer: Buffer): Promise<ExtractedDocument
     }
     // DOCX does not carry stable rendered page boundaries. Preserve one
     // truthful document-level source reference rather than inventing pages.
-    return { pages: [normalizedPage(1, text, undefined, "NFC")], textCharacters };
+    return { pages: [normalizedPage(1, text, undefined, "NFC", "DOCX")], textCharacters };
   } catch (error) {
     if (error && typeof error === "object" && "statusCode" in error) throw error;
     throw Object.assign(new Error("This DOCX package could not be opened or decoded. Upload a valid DOCX file."), { statusCode: 422, code: "DOCX_DOCUMENT_OPEN_FAILED", stage: "DOCUMENT_OPEN" });
@@ -546,7 +547,7 @@ export async function extractTextDoc(buffer: Buffer): Promise<ExtractedDocument>
     if (textCharacters < 20) {
       throw Object.assign(new Error("This DOC opened, but no usable question text was found."), { statusCode: 422, code: "DOC_TEXT_UNAVAILABLE", stage: "TEXT_EXTRACTION" });
     }
-    return { pages: [normalizedPage(1, text)], textCharacters };
+    return { pages: [normalizedPage(1, text, undefined, "NFKC", "DOC")], textCharacters };
   } catch (error) {
     if (error && typeof error === "object" && "statusCode" in error) throw error;
     throw Object.assign(new Error("This DOC could not be opened or decoded. Upload a valid DOC file."), { statusCode: 422, code: "DOC_DOCUMENT_OPEN_FAILED", stage: "DOCUMENT_OPEN" });
@@ -683,6 +684,36 @@ function explicitOcrMathHints(value: string, confidence: number | null): MathSeg
   return hints;
 }
 
+/** Preserve a complete A-D item whose source number is absent. */
+function exposeStructurallyCompleteUnnumberedQuestions(value: string) {
+  const lines = value.split(/\r?\n/);
+  const numbered = lines.flatMap((line) => {
+    const match = line.match(/^\s*(?:Q(?:uestion)?\s*)?(\d{1,4})\s*(?:[.)]|\s+(?=[A-Z]))/i);
+    return match ? [Number(match[1])] : [];
+  });
+  let nextNumber = Math.max(0, ...numbered) + 1;
+  const isQuestionStart = (line: string) => /^\s*(?:Q(?:uestion)?\s*)?\d{1,4}\s*(?:[.)]|\s+(?=[A-Z]))/i.test(line);
+  const optionLabel = (line: string) => line.match(/^\s*\(([A-D])\)\s*/i)?.[1]?.toUpperCase();
+  for (let lineIndex = 0; lineIndex < lines.length - 5; lineIndex += 1) {
+    if (optionLabel(lines[lineIndex]) !== "D") continue;
+    const stemIndex = lineIndex + 1;
+    const stem = lines[stemIndex]?.trim();
+    if (!stem || isQuestionStart(stem) || /^directions?\b/i.test(stem) || optionLabel(stem)) continue;
+    const labels: Array<{ label: string; index: number }> = [];
+    for (let scan = stemIndex + 1; scan < Math.min(lines.length, stemIndex + 12); scan += 1) {
+      if (isQuestionStart(lines[scan]) || /^directions?\b/i.test(lines[scan])) break;
+      const label = optionLabel(lines[scan]);
+      if (label) labels.push({ label, index: scan });
+    }
+    const optionStart = labels.map((entry) => entry.label).join("").indexOf("ABCD");
+    if (optionStart < 0) continue;
+    lines[stemIndex] = `${nextNumber}. ${lines[stemIndex].trimStart()}`;
+    nextNumber += 1;
+    lineIndex = labels[optionStart + 3].index;
+  }
+  return lines.join("\n");
+}
+
 export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: ExtractedPdf["pages"] = []): ExtractedExamQuestion[] {
   const key = answerMap(keyPages.map((page) => page.text).join("\n"));
   const questions: ExtractedExamQuestion[] = [];
@@ -691,7 +722,10 @@ export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: Extra
     // Word can place the question number inside an OMML equation (for example
     // `47.A=...`). Expose only that numeric prefix before boundary scanning;
     // the remaining equation stays encoded as canonical OMML content.
-    const pageText = exposeQuestionNumberFromOmml(page.text);
+    const tolerateNonSequentialSource = page.sourceKind === "DOCX";
+    const pageText = tolerateNonSequentialSource
+      ? exposeStructurallyCompleteUnnumberedQuestions(exposeQuestionNumberFromOmml(page.text))
+      : exposeQuestionNumberFromOmml(page.text);
     const directions = new Map<number, string>();
     for (const direction of pageText.matchAll(/Direction for questions\s+(\d+)\s+to\s+(\d+)\s*:\s*(.*?)Then\s+\1\./gi)) {
       directions.set(Number(direction[1]), `Direction for questions ${direction[1]} to ${direction[2]}: ${direction[3].trim()}`);
@@ -738,6 +772,20 @@ export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: Extra
     }
     const dedupedCandidates = Array.from(new Map(candidates.map((candidate) => [`${candidate.matchIndex}:${candidate.rawNumber}`, candidate])).values())
       .sort((a, b) => a.matchIndex - b.matchIndex);
+    const boundedCandidateHasOptions = (candidateIndex: number) => {
+      const candidate = dedupedCandidates[candidateIndex];
+      const bounded = pageText.slice(candidate.end, dedupedCandidates[candidateIndex + 1]?.startIndex ?? pageText.length);
+      const sequences = [
+        [...bounded.matchAll(/(?:^|[\r\n])\s*([A-D])[.):]\s*/g)],
+        [...bounded.matchAll(/(?:^|[\r\n])\s*([a-d])[.):]\s*/g)],
+        [...bounded.matchAll(/\(([A-D])\)\s*/g)],
+        [...bounded.matchAll(/\(([a-d])\)\s*/g)],
+      ];
+      return sequences.some((matches) => {
+        const labels = matches.map((match) => match[1].toUpperCase()).join("");
+        return labels.includes("ABCD") || /ABC[C-D]/.test(labels);
+      });
+    };
     if (questions.length === 0 && expectedNumber === 1 && !dedupedCandidates.some((candidate) => candidate.rawNumber === "1")) {
       const firstExplicit = dedupedCandidates.find((candidate) => candidate.lineStart && candidate.explicitLabel);
       if (firstExplicit) expectedNumber = Number(firstExplicit.rawNumber);
@@ -762,12 +810,20 @@ export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: Extra
         // numbers or numbered stem statements into questions.
         return candidateIndex >= candidateCursor && candidate.lineStart && value > expectedNumber && (candidate.explicitLabel || value <= expectedNumber + 5);
       });
-      const selectedIndex = exactIndex >= 0 ? exactIndex : suffixIndex >= 0 ? suffixIndex : gapIndex;
+      const sequentialIndex = exactIndex >= 0 ? exactIndex : suffixIndex >= 0 ? suffixIndex : gapIndex;
+      const structuralIndex = dedupedCandidates.findIndex((candidate, candidateIndex) => candidateIndex >= candidateCursor && candidate.lineStart && boundedCandidateHasOptions(candidateIndex));
+      // A physically earlier, structurally complete question wins over a
+      // later matching number. This preserves concatenated papers containing
+      // repeated numbers, large jumps, or section resets without accepting
+      // arbitrary numbered statements as question boundaries.
+      const selectedIndex = tolerateNonSequentialSource && structuralIndex >= 0 && (sequentialIndex < 0 || structuralIndex < sequentialIndex)
+        ? structuralIndex
+        : sequentialIndex;
       if (selectedIndex < 0) break;
       const selected = dedupedCandidates[selectedIndex];
-      const isGap = exactIndex < 0 && suffixIndex < 0;
-      const selectedNumber = isGap ? Number(selected.rawNumber) : expectedNumber;
-      const prefixLength = isGap ? 0 : selected.rawNumber.length - expected.length;
+      const matchesExpected = selected.rawNumber === expected || selected.rawNumber.endsWith(expected);
+      const selectedNumber = matchesExpected ? expectedNumber : Number(selected.rawNumber);
+      const prefixLength = matchesExpected ? selected.rawNumber.length - expected.length : 0;
       starts.push({ index: selected.startIndex + prefixLength, end: selected.end, number: selectedNumber });
       expectedNumber = selectedNumber + 1;
       candidateCursor = selectedIndex + 1;
@@ -854,7 +910,7 @@ export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: Extra
         return chunk.slice((option.index ?? 0) + option[0].length, optionMatches[optionIndex + 1]?.index ?? chunk.length)
           .replace(/\s+Answer\s*[:\-].*$/i, "")
           .replace(/\s+\d+(?:\.\d+)?\s*marks?\b.*$/i, "")
-          .replace(/Direction for questions\s+\d+\s+to\s+\d+\s*:.*$/i, "")
+          .replace(/\r?\n\s*Directions?\s+for\s+questions?\b[\s\S]*$/i, "")
           .trim();
       };
       const number = start.number;

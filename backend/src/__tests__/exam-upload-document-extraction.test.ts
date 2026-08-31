@@ -100,6 +100,23 @@ describe("exam upload PDF extraction", () => {
     expect(reconstructPdfMath([{ text: "2 x 4 boards", pageNumber: 1, x: 0, y: 0, width: 60, height: 10 }])).toHaveLength(0);
   });
 
+  it("recovers a geometry-backed Cambria Math complement without rewriting prose", () => {
+    const complement = reconstructPdfMath([
+      { text: "𝐵", rawText: "𝐵", pageNumber: 1, x: 115.2, y: 214.92, width: 7.68, height: 11.26, fontName: "g_d0_f3", order: 0 },
+      { text: "஼", rawText: "஼", pageNumber: 1, x: 122.88, y: 219.12, width: 4.84, height: 7.99, fontName: "g_d0_f3", order: 1 },
+    ], 600, 800);
+    expect(complement).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        sourceText: "𝐵஼",
+        matchText: "𝐵 ஼",
+        latex: "B^{C}",
+        confidence: 0.55,
+        warnings: expect.arrayContaining([expect.objectContaining({ code: "PDF_GLYPH_ENCODING_NEEDS_REVIEW" })]),
+      }),
+    ]));
+    expect(reconstructPdfMath([{ text: "Tamil ஼ prose", pageNumber: 1, x: 0, y: 0, width: 60, height: 10 }])).toHaveLength(0);
+  });
+
   it("does not drop the argument after a compact function script", () => {
     expect(reconstructPdfMath([{ text: "sin²θ", pageNumber: 1, x: 10, y: 100, width: 30, height: 10 }])).toEqual(expect.arrayContaining([expect.objectContaining({ latex: "\\sin^{2} \\theta", sourceText: "sin²θ" })]));
     expect(reconstructPdfMath([{ text: "log₂x", pageNumber: 1, x: 10, y: 100, width: 24, height: 10 }])).toEqual(expect.arrayContaining([expect.objectContaining({ latex: "\\log_{2} x", sourceText: "log₂x" })]));
@@ -468,6 +485,36 @@ describe("exam upload PDF extraction", () => {
     expect(questions.map((question) => question.number)).toEqual([9, 10, 38, 39]);
     expect(questions[1]).toMatchObject({ optionA: "A10", optionD: "D10" });
     expect(questions[3]).toMatchObject({ questionText: "A class has students.", optionD: "D39" });
+  });
+
+  it("preserves structurally complete questions across duplicate numbers, jumps, and resets", () => {
+    const questions = parseExamQuestions([{ pageNumber: 1, sourceKind: "DOCX", text: [
+      "1. First? (A) A1 (B) B1 (C) C1 (D) D1",
+      "1. Repeated number? (A) A1b (B) B1b (C) C1b (D) D1b",
+      "31. Jumped section? (A) A31 (B) B31 (C) C31 (D) D31",
+      "2. Reset section? (A) A2 (B) B2 (C) C2 (D) D2",
+    ].join("\n") }]);
+    expect(questions.map((question) => question.number)).toEqual([1, 1, 31, 2]);
+    expect(questions.map((question) => question.optionD)).toEqual(["D1", "D1b", "D31", "D2"]);
+  });
+
+  it("preserves a complete unnumbered item after a preceding option D", () => {
+    const questions = parseExamQuestions([{ pageNumber: 1, sourceKind: "DOCX", text: [
+      "1. Numbered question?", "(A) A1", "(B) B1", "(C) C1", "(D) D1",
+      "Unnumbered but complete question?", "(A) AU", "(B) BU", "(C) CU", "(D) DU",
+      "2. Next numbered question?", "(A) A2", "(B) B2", "(C) C2", "(D) D2",
+    ].join("\n") }]);
+    expect(questions.map((question) => question.number)).toEqual([1, 3, 2]);
+    expect(questions[0].optionD).toBe("D1");
+    expect(questions[1]).toMatchObject({ questionText: "Unnumbered but complete question?", optionA: "AU", optionD: "DU" });
+  });
+
+  it("does not append following section directions to option D", () => {
+    const [question] = parseExamQuestions([{ pageNumber: 1, text: [
+      "1. Section question?", "(A) A", "(B) B", "(C) C", "(D) D",
+      "Directions for questions 2 to 4: Use the following information.",
+    ].join("\n") }]);
+    expect(question.optionD).toBe("D");
   });
 
   it("exposes a question number embedded at the start of an OMML marker", () => {

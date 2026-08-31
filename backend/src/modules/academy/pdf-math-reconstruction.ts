@@ -18,6 +18,27 @@ const superscripts: Record<string, string> = { "⁰": "0", "¹": "1", "²": "2",
 const subscripts: Record<string, string> = { "₀": "0", "₁": "1", "₂": "2", "₃": "3", "₄": "4", "₅": "5", "₆": "6", "₇": "7", "₈": "8", "₉": "9", "₊": "+", "₋": "-", "₌": "=" };
 const symbols: Record<string, string> = { "π": "\\pi", "θ": "\\theta", "α": "\\alpha", "β": "\\beta", "γ": "\\gamma", "λ": "\\lambda", "μ": "\\mu", "σ": "\\sigma", "Δ": "\\Delta", "∞": "\\infty", "≤": "\\le", "≥": "\\ge", "≠": "\\ne", "≈": "\\approx", "±": "\\pm", "×": "\\times", "÷": "\\div", "∈": "\\in", "∉": "\\notin", "∪": "\\cup", "∩": "\\cap", "→": "\\to", "⇒": "\\Rightarrow", "⇔": "\\Leftrightarrow", "∫": "\\int", "∑": "\\sum", "∏": "\\prod", "−": "-" };
 function normalizeUnicode(value: string) { return Array.from(value).map((char) => symbols[char] || char).join(""); }
+function normalizePositionedBase(value: string) {
+  // Compatibility-fold mathematical alphabet glyphs only after geometry has
+  // established that the item is a math base. This keeps the PDF text layer
+  // untouched while giving KaTeX portable input (for example 𝐵 -> B).
+  return normalizeUnicode(value.normalize("NFKC"));
+}
+function normalizePositionedScript(value: string): { latex: string; encodingWarning?: MathConversionWarning } {
+  const normalized = normalizeUnicode(value);
+  if (normalized === "\u0BBC") {
+    // Microsoft Print to PDF can expose Cambria Math's raised complement C
+    // glyph as the unrelated Tamil spacing mark U+0BBC. Recover it only here,
+    // after smaller-font/right-adjacent/raised-baseline geometry proves that
+    // it is a script. Preserve the raw source and require review; never apply
+    // this mapping to ordinary text or an unpositioned glyph.
+    return {
+      latex: "C",
+      encodingWarning: warning("PDF_GLYPH_ENCODING_NEEDS_REVIEW", "A raised Cambria Math complement glyph had an invalid Unicode mapping; verify the recovered superscript C."),
+    };
+  }
+  return { latex: normalized };
+}
 function unicodePowers(value: string) { return value.replace(/([A-Za-z0-9])([⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁽⁾]+)/gu, (_, base: string, power: string) => `${base}^{${Array.from(power).map((char) => superscripts[char] || char).join("")}}`).replace(/([A-Za-z]+)([₀₁₂₃₄₅₆₇₈₉₊₋₌]+)/gu, (_, base: string, subscript: string) => `${base}_{${Array.from(subscript).map((char) => subscripts[char] || char).join("")}}`); }
 function nodeText(text: string): PdfMathNode { return { kind: "symbol", text }; }
 function sequence(text: string): PdfMathNode { return nodeText(normalizeUnicode(text).replace(/\s+/gu, " ").trim()); }
@@ -154,8 +175,8 @@ export function reconstructPdfMath(glyphs: PdfGlyphRun[], pageWidth = Math.max(1
   // (for example `10^-5 K^-1`), so each base/script pair is resolved locally.
   for (const baseGlyph of glyphs.filter((glyph) => glyph.text.trim())) {
     const baseText = baseGlyph.text.trim();
-    const baseLatex = normalizeUnicode(baseText);
-    if (!/[A-Za-z0-9)]$/u.test(baseText) || !baseLatex.trim()) continue;
+    const baseLatex = normalizePositionedBase(baseText);
+    if (!/[\p{L}\p{N})]$/u.test(baseText) || !baseLatex.trim()) continue;
     const script = glyphs
       .filter((candidate) => candidate !== baseGlyph && candidate.pageNumber === baseGlyph.pageNumber && candidate.text.trim())
       .map((candidate) => {
@@ -170,7 +191,7 @@ export function reconstructPdfMath(glyphs: PdfGlyphRun[], pageWidth = Math.max(1
       .sort((a, b) => a.horizontalDistance - b.horizontalDistance || Math.abs(a.verticalDistance) - Math.abs(b.verticalDistance))[0];
     if (!script) continue;
     const scriptText = script.candidate.text.trim();
-    const scriptLatex = normalizeUnicode(scriptText);
+    const { latex: scriptLatex, encodingWarning } = normalizePositionedScript(scriptText);
     if (!/^[A-Za-z0-9+\-=]+$/u.test(scriptLatex)) continue;
     const above = script.verticalDistance > 0;
     regions.push({
@@ -178,7 +199,8 @@ export function reconstructPdfMath(glyphs: PdfGlyphRun[], pageWidth = Math.max(1
       matchText: `${baseText} ${scriptText}`,
       latex: `${baseLatex}${above ? `^{${scriptLatex}}` : `_{${scriptLatex}}`}`,
       origin: "NORMALIZED_SOURCE",
-      confidence: 0.94,
+      confidence: encodingWarning ? 0.55 : 0.94,
+      ...(encodingWarning ? { warnings: [encodingWarning] } : {}),
       boundingBox: box([baseGlyph, script.candidate], baseGlyph.pageNumber, pageWidth, pageHeight),
     });
   }
