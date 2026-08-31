@@ -108,7 +108,7 @@ const graphBlockSchema = baseBlockSchema.extend({
 const optionsBlockSchema = baseBlockSchema.extend({
   type: z.literal("options"),
   options: z.array(z.object({
-    key: z.enum(["A", "B", "C", "D"]),
+    key: z.string().min(1),
     // Imported drafts may preserve an option slot whose text could not be
     // reconstructed. The publishing/review gate remains responsible for
     // rejecting those blanks; accepting them here lets the director repair
@@ -117,7 +117,7 @@ const optionsBlockSchema = baseBlockSchema.extend({
     latex: z.string().optional(),
     segments: richSegmentsSchema.optional(),
     sourceReference: sourceReferenceSchema.optional(),
-  }).strict()).length(4),
+  }).strict()).min(1),
 });
 
 const explanationBlockSchema = baseBlockSchema.extend({
@@ -157,11 +157,11 @@ export const questionContentSchema = z.object({
   format: z.literal(NIDUS_QUESTION_CONTENT_FORMAT),
   questionType: z.enum(["SINGLE_CHOICE", "MULTIPLE_ANSWER", "NUMERICAL", "FILL_BLANK", "ASSERTION_REASON", "CASE_STUDY", "MATCHING", "DIAGRAM_LABEL", "FILE_UPLOAD"]).default("SINGLE_CHOICE"),
   source: z.enum(["TEACHER_IMPORT", "AI_IMPORT", "LEGACY_MIGRATION", "MANUAL_ENTRY"]),
-  blocks: z.array(questionContentBlockSchema).min(2),
+  blocks: z.array(questionContentBlockSchema).min(1),
   answer: z.object({
     type: z.enum(["SINGLE_CHOICE", "MULTIPLE_ANSWER", "NUMERICAL", "TEXT"]),
-    correctOption: z.enum(["A", "B", "C", "D"]).optional(),
-    correctOptions: z.array(z.enum(["A", "B", "C", "D"])).optional(),
+    correctOption: z.string().min(1).optional(),
+    correctOptions: z.array(z.string().min(1)).optional(),
     value: z.string().optional(),
   }).strict(),
   sourceReferences: z.array(sourceReferenceSchema).default([]),

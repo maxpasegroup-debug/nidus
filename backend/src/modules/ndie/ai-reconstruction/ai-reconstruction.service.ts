@@ -181,7 +181,11 @@ function labelQuality(ratio: number) {
 function normalizedQuestions(input: NdieAiReconstructionInput) {
   const draftQuestions = Array.isArray(input.draft?.questions) ? input.draft.questions : [];
   const questions = draftQuestions.length ? draftQuestions : Array.isArray(input.questions) ? input.questions : [];
-  return questions.slice(0, 120);
+  const maxQuestions = 500;
+  if (questions.length > maxQuestions) {
+    throw Object.assign(new Error(`NDIE reconstruction received ${questions.length} questions, exceeding the explicit ${maxQuestions}-question safety limit. Refusing to truncate silently.`), { statusCode: 413 });
+  }
+  return questions;
 }
 
 function buildDeterministicDraft(input: NdieAiReconstructionInput): ProfessionalDraft {

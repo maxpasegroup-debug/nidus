@@ -4,7 +4,7 @@ import { logger } from "../../utils/logger.js";
 import { normalizeQuestionContentJson, synchronizeEditableQuestionContentJson } from "../document-intelligence/question-content.schema.js";
 import { legacySingleChoiceFoundation } from "../document-intelligence/universal-question.schema.js";
 import { validateDraftQuestions, validateEditableDraftQuestions, validatePublishableExam, validatePublishedQuestions } from "./exam-publishing-gate.js";
-import { calculateObjectiveScore } from "./exam-scoring.js";
+import { evaluateExamResponses, normalizeStoredResponse } from "./exam-evaluation.js";
 import { assertLifecycleTransition, examAvailability, examDisplayStatus, isExamLifecycle, legacyExamStatus, lifecycleIsLive, parseExamWindow, validateScheduledRelease, type ExamDisplayStatus, type ExamLifecycle } from "./exam-lifecycle.js";
 import { CONTROL_STATUSES, controlDisplayStatusWhere, examControlAllowedActions } from "./exam-control.js";
 import { blockingIssues, calculateExamEnd, deriveReviewIssues, reviewAnswerProgress, reviewReadiness, type ReviewIssue } from "./exam-review.js";
@@ -80,7 +80,7 @@ export type QuestionPayload = {
 
 type SubmitAnswer = {
   questionId: string;
-  selectedAnswer: string;
+  selectedAnswer: unknown;
 };
 
 type SaveStateInput = {
@@ -89,7 +89,7 @@ type SaveStateInput = {
   sectionState?: unknown;
   answers: Array<{
     questionId: string;
-    selectedAnswer?: string;
+    selectedAnswer?: unknown;
     status?: string;
     confidence?: string;
     timeSpent?: number;
@@ -1530,6 +1530,7 @@ export const testsService = {
     }
 
     const questionIds = new Set(attempt.test.questions.map((question) => question.id));
+    const questionsById = new Map(attempt.test.questions.map((question) => [question.id, question]));
     await prisma.$transaction([
       prisma.testAttempt.update({
         where: { id: input.attemptId },
@@ -1542,12 +1543,16 @@ export const testsService = {
       }),
       ...input.answers
         .filter((answer) => questionIds.has(answer.questionId))
-        .map((answer) =>
+        .map((answer) => {
+          const selectedAnswer = answer.selectedAnswer == null || answer.selectedAnswer === ""
+            ? undefined
+            : normalizeStoredResponse(questionsById.get(answer.questionId)!, answer.selectedAnswer).selectedAnswer;
+          return (
           prisma.cBTAnswerState.upsert({
             where: { attemptId_questionId: { attemptId: input.attemptId, questionId: answer.questionId } },
             update: {
-              selectedAnswer: answer.selectedAnswer,
-              status: answer.status ?? (answer.selectedAnswer ? "ANSWERED" : "UNANSWERED"),
+              selectedAnswer,
+              status: answer.status ?? (selectedAnswer ? "ANSWERED" : "UNANSWERED"),
               confidence: answer.confidence,
               timeSpent: answer.timeSpent,
               markedForReview: answer.markedForReview,
@@ -1556,15 +1561,16 @@ export const testsService = {
             create: {
               attemptId: input.attemptId,
               questionId: answer.questionId,
-              selectedAnswer: answer.selectedAnswer,
-              status: answer.status ?? (answer.selectedAnswer ? "ANSWERED" : "UNANSWERED"),
+              selectedAnswer,
+              status: answer.status ?? (selectedAnswer ? "ANSWERED" : "UNANSWERED"),
               confidence: answer.confidence,
               timeSpent: answer.timeSpent ?? 0,
               markedForReview: answer.markedForReview ?? false,
               visitCount: 1
             }
           })
-        )
+          );
+        })
     ]);
     return this.resume(userId, input.attemptId);
   },
@@ -1677,23 +1683,16 @@ export const testsService = {
     const answers = attempt.answerStates
       .filter((state) => state.selectedAnswer && questions.has(state.questionId))
       .map((state) => ({ questionId: state.questionId, selectedAnswer: state.selectedAnswer! }));
-    const normalizedAnswers = answers.map((answer) => ({
-      questionId: answer.questionId,
-      selectedAnswer: normalizeSelectedAnswer(answer.selectedAnswer),
-    }));
-    const scoreSummary = calculateObjectiveScore(attempt.test.questions, normalizedAnswers);
+    const scoreSummary = evaluateExamResponses(attempt.test.questions, answers);
 
-    const answerData = normalizedAnswers
+    const answerData = scoreSummary.evaluatedAnswers
       .filter((answer) => questions.has(answer.questionId))
       .map((answer) => {
-        const question = questions.get(answer.questionId)!;
-        const isCorrect = question.correctAnswer === answer.selectedAnswer;
-
         return {
           attemptId,
           questionId: answer.questionId,
           selectedAnswer: answer.selectedAnswer,
-          isCorrect
+          isCorrect: answer.isCorrect
         };
       });
 
@@ -1712,7 +1711,12 @@ export const testsService = {
             status: "SUBMITTED",
             sectionState: {
               ...(attempt.sectionState && typeof attempt.sectionState === "object" ? attempt.sectionState : {}),
-              submitReason: reason
+              submitReason: reason,
+              evaluationStatus: scoreSummary.pendingEvaluation > 0 ? "PENDING_EVALUATION" : "EVALUATED",
+              pendingEvaluation: scoreSummary.pendingEvaluation,
+              pendingEvaluationQuestionIds: scoreSummary.evaluatedAnswers
+                .filter((answer) => answer.status === "PENDING_EVALUATION")
+                .map((answer) => answer.questionId)
             }
           }
         });
@@ -1756,7 +1760,10 @@ export const testsService = {
     const cleanAnswers = Array.from(new Map(
       answers
         .filter((answer) => answer.selectedAnswer && questions.has(answer.questionId))
-        .map((answer) => [answer.questionId, { questionId: answer.questionId, selectedAnswer: normalizeSelectedAnswer(answer.selectedAnswer) }])
+        .map((answer) => {
+          const question = questions.get(answer.questionId)!;
+          return [answer.questionId, normalizeStoredResponse(question, answer.selectedAnswer)];
+        })
     ).values());
 
     if (cleanAnswers.length) {

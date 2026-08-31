@@ -65,7 +65,7 @@ export type TestDraftRequest = {
 
 export type SubmitTestPayload = {
   attemptId: string;
-  answers: Array<{ questionId: string; selectedAnswer: string }>;
+  answers: Array<{ questionId: string; selectedAnswer: unknown }>;
   timeTaken: number;
 };
 
@@ -73,7 +73,7 @@ export type AutosavePayload = {
   attemptId: string;
   currentQuestionId?: string;
   sectionState?: unknown;
-  answers: Array<{ questionId: string; selectedAnswer?: string; status?: string; confidence?: string; timeSpent?: number; markedForReview?: boolean }>;
+  answers: Array<{ questionId: string; selectedAnswer?: unknown; status?: string; confidence?: string; timeSpent?: number; markedForReview?: boolean }>;
 };
 
 export async function getTests(filters: TestFilters = {}) {

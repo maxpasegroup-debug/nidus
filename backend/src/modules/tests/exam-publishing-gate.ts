@@ -6,6 +6,7 @@ export type PublishableQuestion = {
   visualReviewRequired?: boolean;
   visualReviewNotes?: unknown;
   contentJson?: unknown;
+  evaluationSpec?: unknown;
   optionA: string;
   optionB: string;
   optionC: string;
@@ -50,26 +51,47 @@ function visualNotesRequireImage(notes: unknown) {
     .some((note) => note.includes("visual") || note.includes("table") || note.includes("graph"));
 }
 
+function parsedContent(question: PublishableQuestion) {
+  if (!question.contentJson) return null;
+  const parsed = parseQuestionContentJson(question.contentJson);
+  return parsed.success ? parsed.data : null;
+}
+
+function canonicalEvaluationIsResolved(question: PublishableQuestion, content: NonNullable<ReturnType<typeof parsedContent>>) {
+  const evaluation = question.evaluationSpec && typeof question.evaluationSpec === "object" && !Array.isArray(question.evaluationSpec)
+    ? question.evaluationSpec as Record<string, unknown>
+    : {};
+  if (evaluation.strategy === "UNRESOLVED" || evaluation.strategy === "MANUAL_RUBRIC") return true;
+  if (content.answer.type === "SINGLE_CHOICE") return Boolean(content.answer.correctOption);
+  if (content.answer.type === "MULTIPLE_ANSWER") return Boolean(content.answer.correctOptions?.length);
+  if (content.answer.type === "NUMERICAL" || content.answer.type === "TEXT") return content.answer.value != null;
+  return true;
+}
+
 export function validatePublishedQuestions(questions: PublishableQuestion[]) {
   const errors: string[] = [];
   const seen = new Set<string>();
 
   questions.forEach((question, index) => {
     const label = `Question ${index + 1}`;
+    const content = parsedContent(question);
+    const isCanonical = Boolean(content);
     const normalizedText = question.questionText?.trim().replace(/\s+/g, " ").toLowerCase();
     if (!normalizedText || normalizedText.length < 3) errors.push(`${label} has no readable question text.`);
     if (normalizedText && seen.has(normalizedText)) errors.push(`${label} duplicates an earlier question.`);
     if (normalizedText) seen.add(normalizedText);
 
-    const options = [question.optionA, question.optionB, question.optionC, question.optionD].map((value) => value?.trim());
-    if (options.some((value) => !value || /^option\s+[a-d]$/i.test(value))) {
-      errors.push(`${label} must contain four real answer options.`);
-    }
-    if (new Set(options.filter(Boolean)).size !== options.filter(Boolean).length) {
-      errors.push(`${label} contains duplicate answer options.`);
-    }
-    if (!/^[A-D]$/i.test(question.correctAnswer?.trim() || "")) {
-      errors.push(`${label} has an invalid answer key.`);
+    if (!isCanonical) {
+      const options = [question.optionA, question.optionB, question.optionC, question.optionD].map((value) => value?.trim());
+      if (options.some((value) => !value || /^option\s+[a-d]$/i.test(value))) {
+        errors.push(`${label} must contain four real answer options.`);
+      }
+      if (new Set(options.filter(Boolean)).size !== options.filter(Boolean).length) {
+        errors.push(`${label} contains duplicate answer options.`);
+      }
+      if (!/^[A-D]$/i.test(question.correctAnswer?.trim() || "")) {
+        errors.push(`${label} has an invalid answer key.`);
+      }
     }
     if (question.visualReviewRequired && visualNotesRequireImage(question.visualReviewNotes) && !question.questionImage?.trim()) {
       errors.push(`${label} needs the exact diagram, table or graph image attached before publishing.`);
@@ -82,8 +104,8 @@ export function validatePublishedQuestions(questions: PublishableQuestion[]) {
       if (!parsed.success) {
         errors.push(`${label} has invalid NIDUS question content schema: ${parsed.error.issues[0]?.message || "unknown schema error"}.`);
       } else {
-        if (parsed.data.questionType !== "SINGLE_CHOICE" || parsed.data.answer.type !== "SINGLE_CHOICE") {
-          errors.push(`${label} uses ${parsed.data.questionType}, which this CBT publishing path cannot evaluate safely.`);
+        if (!canonicalEvaluationIsResolved(question, parsed.data)) {
+          errors.push(`${label} has malformed answer key data for ${parsed.data.questionType}.`);
         }
         if (["AI_IMPORT", "TEACHER_IMPORT"].includes(parsed.data.source) && parsed.data.sourceReferences.length === 0) {
           errors.push(`${label} is imported content without source evidence.`);
@@ -96,7 +118,7 @@ export function validatePublishedQuestions(questions: PublishableQuestion[]) {
     if (!Number.isFinite(Number(question.negativeMarks ?? 0)) || Number(question.negativeMarks ?? 0) < 0) {
       errors.push(`${label} must have non-negative negative marks.`);
     }
-    if (question.renderMode && question.renderMode !== "LEGACY_MCQ") {
+    if (question.renderMode && !["LEGACY_MCQ", "NDIE_RICH_V1", "CANONICAL_V1"].includes(question.renderMode)) {
       errors.push(`${label} uses unsupported question rendering for this CBT path.`);
     }
   });
