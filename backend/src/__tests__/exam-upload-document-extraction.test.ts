@@ -8,7 +8,7 @@ import { analyzePdfPage } from "../modules/academy/pdf-layout-analysis.js";
 import { reconstructPdfMath } from "../modules/academy/pdf-math-reconstruction.js";
 import { decodePdfTextItem } from "../modules/academy/pdf-text-decoding.js";
 import { detectPdfVisualRegions, questionRequiresVisual, renderPdfVisualCrops, visualStats } from "../modules/academy/pdf-visual-analysis.js";
-import { buildLegacyQuestionContent, parseQuestionContentJson, synchronizeEditableQuestionContentJson } from "../modules/document-intelligence/question-content.schema.js";
+import { buildLegacyQuestionContent, buildRichSegments, parseQuestionContentJson, synchronizeEditableQuestionContentJson } from "../modules/document-intelligence/question-content.schema.js";
 
 describe("exam upload PDF extraction", () => {
   it("detects embedded visual operators with normalized source evidence", () => {
@@ -446,6 +446,18 @@ describe("exam upload PDF extraction", () => {
     expect(questions.map((question) => question.number)).toEqual([46, 47, 48]);
     expect(questions[1].questionText).toContain("A={-1,2,5,8}");
     expect((questions[1].contentJson as { metadata?: { sourceQuestionNumber?: number } }).metadata?.sourceQuestionNumber).toBe(47);
+  });
+
+  it("prefers a complete OMML set expression over an overlapping standalone symbol", () => {
+    const source = "Let A=x∈R:-1<x<1. Which functions map from A to itself?";
+    const segments = buildRichSegments(source, [
+      { sourceText: "A=x∈R:-1<x<1.", latex: "A=\\left\\{x\\in R:-1<x<1\\right\\}.", origin: "OMML", confidence: 1 },
+      { sourceText: "A", latex: "A", origin: "OMML", confidence: 1 },
+    ]);
+    expect(segments[1]).toMatchObject({
+      type: "math",
+      latex: "A=\\left\\{x\\in R:-1<x<1\\right\\}.",
+    });
   });
 
   it("recovers an omitted visual A label before explicit B-D without misreading Assertion (A)", () => {

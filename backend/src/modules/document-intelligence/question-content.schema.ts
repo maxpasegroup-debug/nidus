@@ -228,7 +228,11 @@ export function buildRichSegments(value: string, hints: MathSegmentHint[] = []):
       cursor = start + matchText.length;
     }
   }
-  const ordered = tokens.filter((token, index) => tokens.findIndex((candidate) => candidate.start === token.start && candidate.end === token.end) === index).sort((a, b) => a.start - b.start || a.end - b.end);
+  // Prefer the most specific trusted expression when two hints begin at the
+  // same source position. A later standalone `A` hint can otherwise mask an
+  // earlier full OMML set such as `A={x in R}`, dropping its delimiters from
+  // canonical rendering.
+  const ordered = tokens.filter((token, index) => tokens.findIndex((candidate) => candidate.start === token.start && candidate.end === token.end) === index).sort((a, b) => a.start - b.start || b.end - a.end);
   const segments: RichSegment[] = [];
   let cursor = 0;
   for (const token of ordered) {
