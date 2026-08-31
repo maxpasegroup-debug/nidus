@@ -149,6 +149,39 @@ export function reconstructPdfMath(glyphs: PdfGlyphRun[], pageWidth = Math.max(1
   if (!matrix) for (let start = 0; start < lines.length && !aligned; start += 1) if (lines.slice(start, start + 2).length === 2) aligned = alignedRegion(lines.slice(start, start + 2), pageWidth, pageHeight);
   if (aligned) regions.push(aligned);
   regions.push(...fractionRegions(glyphs, lines, pageWidth, pageHeight), ...largeOperatorRegions(glyphs, pageWidth, pageHeight));
+  // Reconstruct scripts from their actual baseline geometry before scanning
+  // the page-wide x ordering. Multiple powers may share one visual script row
+  // (for example `10^-5 K^-1`), so each base/script pair is resolved locally.
+  for (const baseGlyph of glyphs.filter((glyph) => glyph.text.trim())) {
+    const baseText = baseGlyph.text.trim();
+    const baseLatex = normalizeUnicode(baseText);
+    if (!/[A-Za-z0-9)]$/u.test(baseText) || !baseLatex.trim()) continue;
+    const script = glyphs
+      .filter((candidate) => candidate !== baseGlyph && candidate.pageNumber === baseGlyph.pageNumber && candidate.text.trim())
+      .map((candidate) => {
+        const horizontalDistance = Math.abs(candidate.x - (baseGlyph.x + baseGlyph.width));
+        const verticalDistance = candidate.y - baseGlyph.y;
+        const smaller = candidate.height <= baseGlyph.height * 0.9;
+        const adjacent = horizontalDistance <= Math.max(2, baseGlyph.height * 0.4);
+        const verticallyRelated = Math.abs(verticalDistance) >= baseGlyph.height * 0.2 && Math.abs(verticalDistance) <= baseGlyph.height * 0.75;
+        return { candidate, horizontalDistance, verticalDistance, valid: smaller && adjacent && verticallyRelated };
+      })
+      .filter((entry) => entry.valid)
+      .sort((a, b) => a.horizontalDistance - b.horizontalDistance || Math.abs(a.verticalDistance) - Math.abs(b.verticalDistance))[0];
+    if (!script) continue;
+    const scriptText = script.candidate.text.trim();
+    const scriptLatex = normalizeUnicode(scriptText);
+    if (!/^[A-Za-z0-9+\-=]+$/u.test(scriptLatex)) continue;
+    const above = script.verticalDistance > 0;
+    regions.push({
+      sourceText: `${baseText}${scriptText}`,
+      matchText: `${baseText} ${scriptText}`,
+      latex: `${baseLatex}${above ? `^{${scriptLatex}}` : `_{${scriptLatex}}`}`,
+      origin: "NORMALIZED_SOURCE",
+      confidence: 0.94,
+      boundingBox: box([baseGlyph, script.candidate], baseGlyph.pageNumber, pageWidth, pageHeight),
+    });
+  }
   const ordered = [...glyphs].sort((a, b) => a.pageNumber - b.pageNumber || a.x - b.x || (a.order ?? 0) - (b.order ?? 0));
   for (let index = 0; index < ordered.length; index += 1) {
     const glyph = ordered[index]; const direct = simpleInlineLatex(glyph.text);

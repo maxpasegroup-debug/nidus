@@ -19,6 +19,38 @@ export type PdfLayoutAnalysis = {
   encodingWarnings: number;
 };
 
+function meaningfulGlyphs(line: PdfLayoutLine) {
+  return line.glyphs.filter((glyph) => glyph.text.trim());
+}
+
+/**
+ * PDF producers commonly emit every superscript on a shared visual row.  A
+ * unit such as `10^-5 K^-1` therefore arrives as one small line containing
+ * both `-5` and `-1`, rather than two isolated glyph lines.  Associate that
+ * row with a normal baseline only when every non-space glyph is anchored to
+ * the right edge of a larger glyph.  This keeps scripts in reading order
+ * without treating an unrelated small-font line as mathematics.
+ */
+function scriptLineScore(candidate: PdfLayoutLine, base: PdfLayoutLine): number | null {
+  const scripts = meaningfulGlyphs(candidate);
+  const bases = meaningfulGlyphs(base);
+  if (!scripts.length || !bases.length) return null;
+  const baseHeight = Math.max(...bases.map((glyph) => glyph.height || 10));
+  if (scripts.some((glyph) => (glyph.height || 10) > baseHeight * 0.9)) return null;
+  const verticalDistance = Math.abs(candidate.y - base.y);
+  if (verticalDistance < baseHeight * 0.2 || verticalDistance > baseHeight * 0.75) return null;
+
+  let horizontalDistance = 0;
+  for (const script of scripts) {
+    const anchors = bases
+      .map((glyph) => Math.abs(script.x - (glyph.x + glyph.width)))
+      .filter((distance) => distance <= Math.max(2, baseHeight * 0.4));
+    if (!anchors.length) return null;
+    horizontalDistance += Math.min(...anchors);
+  }
+  return verticalDistance + horizontalDistance;
+}
+
 export function analyzePdfPage(glyphs: PdfGlyphRun[], pageWidth?: number, pageHeight?: number): PdfLayoutAnalysis {
   const lines: PdfLayoutLine[] = [];
   for (const glyph of glyphs) {
@@ -26,24 +58,17 @@ export function analyzePdfPage(glyphs: PdfGlyphRun[], pageWidth?: number, pageHe
     const line = lines.find((candidate) => Math.abs(candidate.y - glyph.y) <= tolerance);
     if (line) line.glyphs.push(glyph); else lines.push({ y: glyph.y, glyphs: [glyph], text: "" });
   }
-  // PDF.js often emits a superscript/subscript as its own line because its
-  // baseline differs from the surrounding text. Attach an isolated, smaller
-  // glyph to an adjacent baseline line when the horizontal relationship is
-  // unambiguous; otherwise leave the lines untouched.
+  // PDF.js often emits superscripts/subscripts as a separate visual line.
+  // Merge both isolated scripts and multi-script rows into their geometrically
+  // anchored baseline; otherwise leave the lines untouched.
   for (let index = lines.length - 1; index >= 0; index -= 1) {
     const candidate = lines[index];
-    if (candidate.glyphs.length !== 1) continue;
-    const glyph = candidate.glyphs[0];
-    const base = lines.find((line, lineIndex) => {
-      if (lineIndex === index || !line.glyphs.length) return false;
-      const baseGlyph = line.glyphs[line.glyphs.length - 1];
-      const smaller = glyph.height <= baseGlyph.height * 0.8;
-      const adjacent = glyph.x >= baseGlyph.x + baseGlyph.width - 2 && glyph.x <= baseGlyph.x + baseGlyph.width * 2.5;
-      const verticallyRelated = Math.abs(glyph.y - baseGlyph.y) <= baseGlyph.height * 1.4;
-      return smaller && adjacent && verticallyRelated;
-    });
-    if (base) {
-      base.glyphs.push(glyph);
+    const match = lines
+      .map((line, lineIndex) => ({ line, lineIndex, score: lineIndex === index ? null : scriptLineScore(candidate, line) }))
+      .filter((entry): entry is { line: PdfLayoutLine; lineIndex: number; score: number } => entry.score !== null)
+      .sort((a, b) => a.score - b.score)[0];
+    if (match) {
+      match.line.glyphs.push(...candidate.glyphs);
       lines.splice(index, 1);
     }
   }

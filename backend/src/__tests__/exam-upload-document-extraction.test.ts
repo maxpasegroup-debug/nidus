@@ -198,6 +198,22 @@ describe("exam upload PDF extraction", () => {
     expect(analysis.mathSegments).toEqual(expect.arrayContaining([expect.objectContaining({ latex: "x^{2}" })]));
   });
 
+  it("reattaches a shared PDF script row to each base without leaking into the previous line", () => {
+    const analysis = analyzePdfPage([
+      { text: "d) +0.5 D", pageNumber: 1, x: 309, y: 479.4, width: 44, height: 10.5, order: 0 },
+      { text: "4. coefficient is", pageNumber: 1, x: 51, y: 447.2, width: 260, height: 10.5, order: 1 },
+      { text: "1.6 × 10", pageNumber: 1, x: 314.4, y: 447.2, width: 34.9, height: 10.5, order: 2 },
+      { text: "−5", pageNumber: 1, x: 349.3, y: 451.7, width: 10, height: 9, order: 3 },
+      { text: "K", pageNumber: 1, x: 361.9, y: 447.2, width: 7, height: 10.5, order: 4 },
+      { text: "−1", pageNumber: 1, x: 368.9, y: 451.7, width: 10, height: 9, order: 5 },
+    ], 600, 800);
+    expect(analysis.text).toBe("d) +0.5 D\n4. coefficient is 1.6 × 10 −5 K −1");
+    expect(analysis.mathSegments).toEqual(expect.arrayContaining([
+      expect.objectContaining({ matchText: "1.6 × 10 −5", latex: "1.6 \\times 10^{-5}" }),
+      expect.objectContaining({ matchText: "K −1", latex: "K^{-1}" }),
+    ]));
+  });
+
 
   it("reconstructs extracted PDF page text without guessing a missing answer", () => {
     const questions = parseExamQuestions([{ pageNumber: 1, text: "1. What is the capital of India? A. Mumbai B. Delhi C. Chennai D. Kolkata" }]);
