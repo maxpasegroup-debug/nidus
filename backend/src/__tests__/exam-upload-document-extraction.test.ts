@@ -452,6 +452,24 @@ describe("exam upload PDF extraction", () => {
     expect(question.visualReviewRequired).toBeUndefined();
   });
 
+  it("preserves four inline options when the source repeats the final C label", () => {
+    const [question] = parseExamQuestions([{ pageNumber: 1, text: "Q1. Given n(A)=30, n(B)=28 and n(C)=25, find the union. (a) 36 (b) 63 (c) 57 (c) 75" }]);
+    expect(question.questionText).toContain("n(A)=30");
+    expect(question).toMatchObject({ optionA: "36", optionB: "63", optionC: "57", optionD: "75", reviewStatus: "MISSING_ANSWER" });
+  });
+
+  it("recognizes compact closing-parenthesis and single-letter-article question starts", () => {
+    const questions = parseExamQuestions([{ pageNumber: 1, text: [
+      "Q9. Previous question? (a) A (b) B (c) C (d) D",
+      "10)Set A contains values. (a) A10 (b) B10 (c) C10 (d) D10",
+      "Q38. Previous section? (a) A38 (b) B38 (c) C38 (d) D38",
+      "39 A class has students. (a) A39 (b) B39 (c) C39 (d) D39",
+    ].join("\n") }]);
+    expect(questions.map((question) => question.number)).toEqual([9, 10, 38, 39]);
+    expect(questions[1]).toMatchObject({ optionA: "A10", optionD: "D10" });
+    expect(questions[3]).toMatchObject({ questionText: "A class has students.", optionD: "D39" });
+  });
+
   it("exposes a question number embedded at the start of an OMML marker", () => {
     const payload = Buffer.from(JSON.stringify({ sourceText: "47.A={-1,2,5,8}", latex: "47.A=\\left\\{-1,2,5,8\\right\\}", confidence: 1 }), "utf8").toString("base64");
     const questions = parseExamQuestions([{ pageNumber: 1, text: [

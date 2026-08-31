@@ -703,7 +703,7 @@ export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: Extra
     // parenthesis must be followed by whitespace, which prevents mathematical
     // groups such as `(1024)10` from being mistaken for a new question while
     // preserving compact `...102.Convert` Word extraction.
-    const candidates: Array<{ rawNumber: string; matchIndex: number; startIndex: number; end: number; lineStart: boolean; explicitLabel?: boolean }> = [...pageText.matchAll(/(\d{1,4})\s*(?:\.(?=\s*\S)|\)(?=\s+\S))\s*/g)].map((match) => {
+    const candidates: Array<{ rawNumber: string; matchIndex: number; startIndex: number; end: number; lineStart: boolean; explicitLabel?: boolean }> = [...pageText.matchAll(/(\d{1,4})\s*(?:\.(?=\s*\S)|\)(?=(?:\s+\S|[A-Z][a-z])))\s*/g)].map((match) => {
       const matchIndex = match.index ?? 0;
       return {
         rawNumber: match[1],
@@ -730,7 +730,7 @@ export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: Extra
     // number (`9 The roots...`). Restrict this fallback to a physical line
     // start and an alphabetic stem so numbers inside formulas/options are not
     // promoted to question boundaries.
-    for (const match of pageText.matchAll(/(?:^|[\r\n])\s*(\d{1,4})\s+(?=[A-Z][A-Za-z])/g)) {
+    for (const match of pageText.matchAll(/(?:^|[\r\n])\s*(\d{1,4})\s+(?=[A-Z](?:[A-Za-z]|\s+[a-z]))/g)) {
       const rawNumber = match[1];
       const numberOffset = match[0].indexOf(rawNumber);
       const matchIndex = (match.index ?? 0) + numberOffset;
@@ -780,21 +780,45 @@ export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: Extra
       // leak question text into the options. Inline labels remain supported
       // only when a complete ordered A-D sequence is present.
       let optionMatches = [...chunk.matchAll(/(?:^|[\r\n])\s*([A-D])[.):]\s*/gi)];
-      if (optionMatches.length < 3) {
+      let positionalOptionOrder = false;
+      const selectOptionSequence = (matches: RegExpExecArray[]) => {
+        const labels = matches.map((candidate) => candidate[1].toUpperCase()).join("");
+        const exactStart = labels.indexOf("ABCD");
+        if (exactStart >= 0) return { matches: matches.slice(exactStart, exactStart + 4), positional: false };
+        // A few source papers repeat the C label for their fourth option.
+        // Four ordered markers beginning A/B/C still provide deterministic
+        // option positions; preserve the fourth value as D without inferring
+        // anything about which option is correct.
+        for (let candidateIndex = 0; candidateIndex + 3 < matches.length; candidateIndex += 1) {
+          const window = matches.slice(candidateIndex, candidateIndex + 4);
+          const windowLabels = window.map((candidate) => candidate[1].toUpperCase()).join("");
+          if (windowLabels.startsWith("ABC")) return { matches: window, positional: true };
+        }
+        return undefined;
+      };
+      const physicalSelection = selectOptionSequence(optionMatches);
+      if (physicalSelection) {
+        optionMatches = physicalSelection.matches;
+        positionalOptionOrder = physicalSelection.positional;
+      } else if (optionMatches.length < 3) {
         // Prefer exact `(a)` labels before considering `A.`/`A)` forms.
         // Treating any whitespace-prefixed `c)` as a label breaks algebraic
         // options such as `(c - a)/(b - c)` by mixing denominator variables
         // into the marker sequence.
-        const parenthesizedCandidates = [...chunk.matchAll(/\(([A-D])\)\s*/gi)];
-        const parenthesizedOrder = parenthesizedCandidates.map((candidate) => candidate[1].toUpperCase()).join("");
-        const parenthesizedStart = parenthesizedOrder.indexOf("ABCD");
-        if (parenthesizedStart >= 0) {
-          optionMatches = parenthesizedCandidates.slice(parenthesizedStart, parenthesizedStart + 4);
+        const lowercaseParenthesized = [...chunk.matchAll(/\(([a-d])\)\s*/g)];
+        const uppercaseParenthesized = [...chunk.matchAll(/\(([A-D])\)\s*/g)];
+        const parenthesizedSelection = selectOptionSequence(lowercaseParenthesized) || selectOptionSequence(uppercaseParenthesized);
+        if (parenthesizedSelection) {
+          optionMatches = parenthesizedSelection.matches;
+          positionalOptionOrder = parenthesizedSelection.positional;
         } else {
-          const inlineCandidates = [...chunk.matchAll(/(?:^|\s)([A-D])[.):]\s*/gi)];
-          const ordered = inlineCandidates.map((candidate) => candidate[1].toUpperCase()).join("");
-          const orderedStart = ordered.indexOf("ABCD");
-          if (orderedStart >= 0) optionMatches = inlineCandidates.slice(orderedStart, orderedStart + 4);
+          const lowercaseInline = [...chunk.matchAll(/(?:^|\s)([a-d])[.):]\s*/g)];
+          const uppercaseInline = [...chunk.matchAll(/(?:^|\s)([A-D])[.):]\s*/g)];
+          const inlineSelection = selectOptionSequence(lowercaseInline) || selectOptionSequence(uppercaseInline);
+          if (inlineSelection) {
+            optionMatches = inlineSelection.matches;
+            positionalOptionOrder = inlineSelection.positional;
+          }
         }
       }
       const firstExplicitLetter = optionMatches[0]?.[1]?.toUpperCase();
@@ -822,7 +846,9 @@ export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: Extra
       const unlabeledOptions = unlabeledLines.length >= 5 && numberedStemLines < 2 ? unlabeledLines.slice(-4) : [];
       const optionText = (letter: string) => {
         if (letter === "A" && inferredOptionA) return inferredOptionA;
-        const optionIndex = optionMatches.findIndex((candidate) => candidate[1].toUpperCase() === letter);
+        const optionIndex = positionalOptionOrder
+          ? letter.charCodeAt(0) - "A".charCodeAt(0)
+          : optionMatches.findIndex((candidate) => candidate[1].toUpperCase() === letter);
         if (optionIndex < 0) return "";
         const option = optionMatches[optionIndex];
         return chunk.slice((option.index ?? 0) + option[0].length, optionMatches[optionIndex + 1]?.index ?? chunk.length)
