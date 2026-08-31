@@ -235,5 +235,13 @@ export function visualStats(regions: PdfVisualRegion[], attached = 0): PdfVisual
 }
 
 export function questionRequiresVisual(text: string) {
-  return /\b(refer to|shown|following|above|below|figure|diagram|graph|chart|table|image|circuit|ray diagram|number line|venn diagram)\b/i.test(text);
+  const visual = "(?:figure|diagram|graph|chart|table|image|circuit|ray diagram|number line|venn diagram)";
+  return new RegExp(
+    `\\b(?:` +
+    `(?:refer to|according to)\\s+(?:the\\s+)?(?:following\\s+)?${visual}` +
+    `|${visual}\\s+(?:shown\\s+)?(?:above|below|following)` +
+    `|(?:shown|depicted|illustrated)\\s+(?:in\\s+)?(?:the\\s+)?${visual}` +
+    `)\\b`,
+    "i",
+  ).test(text);
 }

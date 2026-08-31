@@ -436,6 +436,22 @@ describe("exam upload PDF extraction", () => {
     expect(questions[1]).toMatchObject({ number: 2, optionA: "A2" });
   });
 
+  it("extracts inline parenthesized algebra options without treating variables as labels", () => {
+    const [question] = parseExamQuestions([{ pageNumber: 1, text: [
+      "Q19. Which one of the following is one root of (b − c)x² + (c − a)x + (a − b) = 0?",
+      "(a) (c − a)/(b − c) (b) (a − b)/(b − c) (c) (b − c)/(a − b) (d) (c − a)/(a − b)",
+    ].join("\n") }]);
+    expect(question).toMatchObject({
+      questionText: "Which one of the following is one root of (b − c)x² + (c − a)x + (a − b) = 0?",
+      optionA: "(c − a)/(b − c)",
+      optionB: "(a − b)/(b − c)",
+      optionC: "(b − c)/(a − b)",
+      optionD: "(c − a)/(a − b)",
+      reviewStatus: "MISSING_ANSWER",
+    });
+    expect(question.visualReviewRequired).toBeUndefined();
+  });
+
   it("exposes a question number embedded at the start of an OMML marker", () => {
     const payload = Buffer.from(JSON.stringify({ sourceText: "47.A={-1,2,5,8}", latex: "47.A=\\left\\{-1,2,5,8\\right\\}", confidence: 1 }), "utf8").toString("base64");
     const questions = parseExamQuestions([{ pageNumber: 1, text: [

@@ -781,9 +781,21 @@ export function parseExamQuestions(pages: ExtractedPdf["pages"], keyPages: Extra
       // only when a complete ordered A-D sequence is present.
       let optionMatches = [...chunk.matchAll(/(?:^|[\r\n])\s*([A-D])[.):]\s*/gi)];
       if (optionMatches.length < 3) {
-        const inlineCandidates = [...chunk.matchAll(/(?:^|\s|\()([A-D])[.):]\s*/gi)];
-        const ordered = inlineCandidates.map((candidate) => candidate[1].toUpperCase()).join("");
-        if (ordered.includes("ABCD")) optionMatches = inlineCandidates.slice(ordered.indexOf("ABCD"), ordered.indexOf("ABCD") + 4);
+        // Prefer exact `(a)` labels before considering `A.`/`A)` forms.
+        // Treating any whitespace-prefixed `c)` as a label breaks algebraic
+        // options such as `(c - a)/(b - c)` by mixing denominator variables
+        // into the marker sequence.
+        const parenthesizedCandidates = [...chunk.matchAll(/\(([A-D])\)\s*/gi)];
+        const parenthesizedOrder = parenthesizedCandidates.map((candidate) => candidate[1].toUpperCase()).join("");
+        const parenthesizedStart = parenthesizedOrder.indexOf("ABCD");
+        if (parenthesizedStart >= 0) {
+          optionMatches = parenthesizedCandidates.slice(parenthesizedStart, parenthesizedStart + 4);
+        } else {
+          const inlineCandidates = [...chunk.matchAll(/(?:^|\s)([A-D])[.):]\s*/gi)];
+          const ordered = inlineCandidates.map((candidate) => candidate[1].toUpperCase()).join("");
+          const orderedStart = ordered.indexOf("ABCD");
+          if (orderedStart >= 0) optionMatches = inlineCandidates.slice(orderedStart, orderedStart + 4);
+        }
       }
       const firstExplicitLetter = optionMatches[0]?.[1]?.toUpperCase();
       const firstExplicitIndex = optionMatches[0]?.index ?? chunk.length;
