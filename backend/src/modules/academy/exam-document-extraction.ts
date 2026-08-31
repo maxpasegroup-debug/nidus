@@ -144,6 +144,11 @@ function normalizeMathText(value: string) {
 function group(value: string) { return `{${value || "\\text{?}"}}`; }
 function combine(results: MathConversionResult[]): MathConversionResult { const warnings = results.flatMap((result) => result.warnings || []); return { latex: joinLatexFragments(results.map((result) => result.latex)), sourceText: results.map((result) => result.sourceText || "").join(""), confidence: results.length ? Math.min(...results.map((result) => result.confidence)) : 1, ...(warnings.length ? { warnings } : {}) }; }
 function warning(code: string, message: string, severity: MathConversionWarning["severity"] = "MEDIUM"): MathConversionWarning { return { code, message, severity }; }
+function latexDelimiter(value: string) {
+  const delimiters: Record<string, string> = { "(": "(", ")": ")", "[": "[", "]": "]", "{": "\\{", "}": "\\}", "|": "|", "\u2016": "\\|", ".": "." };
+  return delimiters[value];
+}
+function literalLatex(value: string) { return value === "{" ? "\\{" : value === "}" ? "\\}" : value; }
 
 export function convertOmmlNode(node: OmmlNode): MathConversionResult {
   if (node.name === "#text") return { latex: normalizeMathText(node.text || ""), sourceText: node.text || "", confidence: 1 };
@@ -165,7 +170,31 @@ export function convertOmmlNode(node: OmmlNode): MathConversionResult {
     case "m:mc": return all();
     case "m:m": { const rows = children(node, "m:mr").map((row) => { const cells = children(row, "m:e").length ? children(row, "m:e") : children(row, "m:mc"); return cells.map((cell) => convert(cell).latex).join(" & "); }).join(" \\\\ "); return { latex: `\\begin{matrix}${rows}\\end{matrix}`, sourceText: textOf(node), confidence: 1 }; }
     case "m:eqArr": { const rows = children(node, "m:e").map((row) => convert(row).latex).join(" \\\\ "); return { latex: `\\begin{aligned}${rows}\\end{aligned}`, sourceText: textOf(node), confidence: 1 }; }
-    case "m:d": { const props = child(node, "m:dPr"), begin = child(props || emptyOmmlNode(), "m:begChr")?.attrs["m:val"] || "(", end = child(props || emptyOmmlNode(), "m:endChr")?.attrs["m:val"] || ")", separator = child(props || emptyOmmlNode(), "m:sepChr")?.attrs["m:val"] || "", bodies = children(node, "m:e"), body = bodies[0], convertedBodies = (bodies.length ? bodies : [emptyOmmlNode()]).map(convert), innerBase = combine(convertedBodies), inner = { ...innerBase, latex: convertedBodies.map((item) => item.latex).join(separator), sourceText: convertedBodies.map((item) => item.sourceText || "").join(separator) }, matrix = body && child(body, "m:m"); if (matrix && begin === "[" && end === "]") return { ...inner, latex: inner.latex.replace(/^\\begin\{matrix\}/, "\\begin{bmatrix}").replace(/\\end\{matrix\}$/, "\\end{bmatrix}") }; if (matrix && begin === "|" && end === "|") return { ...inner, latex: inner.latex.replace(/^\\begin\{matrix\}/, "\\begin{vmatrix}").replace(/\\end\{matrix\}$/, "\\end{vmatrix}") }; if (matrix && begin === "{" && end === "}") return { ...inner, latex: inner.latex.replace(/^\\begin\{matrix\}/, "\\begin{cases}").replace(/\\end\{matrix\}$/, "\\end{cases}") }; return { ...inner, latex: `\\left${begin === "{" ? "\\{" : begin}${inner.latex}\\right${end === "}" ? "\\}" : end}` }; }
+    case "m:d": {
+      const props = child(node, "m:dPr");
+      const begin = child(props || emptyOmmlNode(), "m:begChr")?.attrs["m:val"] || "(";
+      const end = child(props || emptyOmmlNode(), "m:endChr")?.attrs["m:val"] || ")";
+      const separator = child(props || emptyOmmlNode(), "m:sepChr")?.attrs["m:val"] || "";
+      const bodies = children(node, "m:e");
+      const body = bodies[0];
+      const convertedBodies = (bodies.length ? bodies : [emptyOmmlNode()]).map(convert);
+      const innerBase = combine(convertedBodies);
+      const joinedLatex = convertedBodies.map((item) => item.latex).join(literalLatex(separator));
+      const joinedSource = convertedBodies.map((item) => item.sourceText || "").join(separator);
+      const sourceText = `${begin}${joinedSource}${end}`;
+      const inner = { ...innerBase, latex: joinedLatex, sourceText };
+      const matrix = body && child(body, "m:m");
+      if (matrix && begin === "[" && end === "]") return { ...inner, latex: joinedLatex.replace(/^\\begin\{matrix\}/, "\\begin{bmatrix}").replace(/\\end\{matrix\}$/, "\\end{bmatrix}") };
+      if (matrix && begin === "|" && end === "|") return { ...inner, latex: joinedLatex.replace(/^\\begin\{matrix\}/, "\\begin{vmatrix}").replace(/\\end\{matrix\}$/, "\\end{vmatrix}") };
+      if (matrix && begin === "{" && end === "}") return { ...inner, latex: joinedLatex.replace(/^\\begin\{matrix\}/, "\\begin{cases}").replace(/\\end\{matrix\}$/, "\\end{cases}") };
+      const left = latexDelimiter(begin);
+      const right = latexDelimiter(end);
+      if (left && right) return { ...inner, latex: `\\left${left}${joinedLatex}\\right${right}` };
+      // Word can use m:d as an equation template with ordinary terminal
+      // characters (for example `(AB)^T = ?`). Such characters are content,
+      // not KaTeX delimiters, and must never be emitted as invalid `\\right?`.
+      return { ...inner, latex: `${literalLatex(begin)}${joinedLatex}${literalLatex(end)}` };
+    }
     case "m:bar": { const b = convert(child(node, "m:e")); return { ...b, latex: `\\bar${group(b.latex)}` }; }
     case "m:acc": { const b = convert(child(node, "m:e")), chr = child(child(node, "m:accPr") || emptyOmmlNode(), "m:chr")?.attrs["m:val"] || "^", op = accentMap[chr]; return { ...b, latex: op ? `${op}${group(b.latex)}` : `\\operatorname{${chr}}${group(b.latex)}`, ...(op ? {} : { confidence: 0.6, warnings: [warning("UNSUPPORTED_OMML_ACCENT", "This equation accent needs review.")] }) }; }
     case "m:groupChr": { const b = convert(child(node, "m:e")), chr = child(child(node, "m:groupChrPr") || emptyOmmlNode(), "m:chr")?.attrs["m:val"] || "", op = chr === "⏞" ? "\\overbrace" : chr === "⏟" ? "\\underbrace" : "\\overline"; return { ...b, latex: `${op}${group(b.latex)}` }; }

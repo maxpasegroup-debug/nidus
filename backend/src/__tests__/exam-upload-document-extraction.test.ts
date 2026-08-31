@@ -539,6 +539,13 @@ describe("exam upload PDF extraction", () => {
     expect(set).toBe("\\left\\{1,2,3,4\\right\\}");
   });
 
+  it("renders ordinary OMML delimiter terminals as content instead of invalid KaTeX delimiters", () => {
+    const expression = convertOfficeMathFragment('<m:d><m:dPr><m:sepChr m:val="="/><m:endChr m:val="?"/></m:dPr><m:e><m:r><m:t>AB</m:t></m:r><m:sSup><m:e><m:r><m:t>)</m:t></m:r></m:e><m:sup><m:r><m:t>T</m:t></m:r></m:sup></m:sSup></m:e><m:e><m:r><m:t> </m:t></m:r></m:e></m:d>');
+    expect(expression.latex).toBe("(AB{)}^{T}=?");
+    expect(expression.sourceText).toBe("(AB)T= ?");
+    expect(expression.latex).not.toContain("\\right?");
+  });
+
   it("converts nested OMML structures recursively without regex substitution", () => {
     const fragment = "<m:f><m:num><m:sSup><m:e><m:r><m:t>x</m:t></m:r></m:e><m:sup><m:r><m:t>2</m:t></m:r></m:sup></m:sSup><m:rad><m:e><m:r><m:t>y</m:t></m:r></m:e></m:rad></m:num><m:den><m:func><m:fName><m:r><m:t>log</m:t></m:r></m:fName><m:e><m:sSub><m:e><m:r><m:t>z</m:t></m:r></m:e><m:sub><m:r><m:t>2</m:t></m:r></m:sub></m:sSub></m:e></m:func></m:den></m:f>";
     expect(convertOfficeMathFragment(fragment)).toMatchObject({ latex: "\\frac{{x}^{2}\\sqrt{y}}{\\log {z}_{2}}", confidence: 1 });
